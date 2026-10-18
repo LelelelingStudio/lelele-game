@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="了了了游游戏守则 · 内容规范、投稿授权、未成年人保护与免责声明">
+    <title>了了了游游戏守则 · lelele Game Rules</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", sans-serif;
+            background: #f4f7fc;
+            color: #1e293b;
+            line-height: 1.8;
+            padding: 2.5rem 1.5rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 36px;
+            padding: 3.5rem 4rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(148, 163, 184, 0.10);
+            flex: 1;
+        }
+
+        .back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.9rem;
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            background: rgba(79, 70, 229, 0.06);
+            border: 1px solid rgba(79, 70, 229, 0.12);
+            transition: all 0.2s;
+        }
+        .back-home:hover { background: rgba(79, 70, 229, 0.12); }
+
+        .brand-bar {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px 20px;
+            margin-bottom: 2.2rem;
+            padding-bottom: 1.4rem;
+            border-bottom: 2px solid rgba(79, 70, 229, 0.12);
+        }
+        .brand-icon { font-size: 2.4rem; line-height: 1; }
+        .brand-name {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #0f172a 0%, #4f46e5 85%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.4px;
+        }
+        .brand-sub {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-left: auto;
+            background: rgba(79, 70, 229, 0.05);
+            padding: 0.3rem 1.2rem;
+            border-radius: 30px;
+            border: 1px solid rgba(79, 70, 229, 0.08);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin: 1.8rem 0 0.4rem 0;
+            color: #0f172a;
+            letter-spacing: -0.6px;
+        }
+
+        .subhead {
+            font-size: 1rem;
+            color: #64748b;
+            margin-bottom: 2.8rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 0.6rem;
+        }
+        .subhead .highlight { color: #4f46e5; font-weight: 700; }
+        .subhead .version {
+            font-size: 0.85rem;
+            background: rgba(79, 70, 229, 0.06);
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            color: #4f46e5;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 2.8rem 0 1rem 0;
+            color: #0f172a;
+            padding-left: 0.9rem;
+            border-left: 6px solid #4f46e5;
+            line-height: 1.3;
+            scroll-margin-top: 1rem;
+        }
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 650;
+            margin: 1.8rem 0 0.6rem 0;
+            color: #1e293b;
+        }
+        h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin: 1.2rem 0 0.4rem 0;
+            color: #1e293b;
+        }
+        p { margin: 0.7rem 0; color: #334155; }
+        ul, ol { margin: 0.8rem 0 1.2rem 1.8rem; color: #334155; }
+        li { margin: 0.5rem 0; }
+
+        .badge {
+            display: inline-block;
+            background: #4f46e5;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.1rem 0.7rem;
+            border-radius: 20px;
+            letter-spacing: 0.4px;
+            vertical-align: middle;
+            margin-right: 0.4rem;
+            font-family: monospace;
+        }
+        .badge-outline {
+            display: inline-block;
+            background: transparent;
+            color: #4f46e5;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.1rem 0.7rem;
+            border-radius: 20px;
+            border: 1px solid rgba(79, 70, 229, 0.3);
+            letter-spacing: 0.3px;
+            vertical-align: middle;
+            margin-right: 0.4rem;
+        }
+
+        .highlight-box {
+            background: rgba(79, 70, 229, 0.04);
+            border-left: 5px solid #4f46e5;
+            padding: 1.2rem 1.8rem;
+            border-radius: 0 14px 14px 0;
+            margin: 1.6rem 0;
+        }
+        .highlight-box strong { color: #4f46e5; }
+
+        .rights-box {
+            background: rgba(16, 185, 129, 0.05);
+            border-left: 5px solid #10b981;
+            padding: 1.2rem 1.8rem;
+            border-radius: 0 14px 14px 0;
+            margin: 1.6rem 0;
+        }
+        .rights-box strong { color: #059669; }
+
+        .warn-box {
+            background: rgba(245, 158, 11, 0.06);
+            border-left: 5px solid #f59e0b;
+            padding: 1.2rem 1.8rem;
+            border-radius: 0 14px 14px 0;
+            margin: 1.6rem 0;
+        }
+        .warn-box strong { color: #b45309; }
+
+        .legal-link {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px dashed rgba(79, 70, 229, 0.25);
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .legal-link:hover { border-bottom-color: #4f46e5; color: #4338ca; }
+
+        .quote-block {
+            background: #f1f5f9;
+            border-radius: 12px;
+            padding: 1.2rem 1.8rem;
+            margin: 1.2rem 0;
+            color: #475569;
+            font-style: italic;
+            border: 1px solid rgba(148, 163, 184, 0.15);
+        }
+
+        .ref-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.2rem 0;
+            font-size: 0.95rem;
+        }
+        .ref-table th {
+            background: #f1f5f9;
+            text-align: left;
+            padding: 0.6rem 1rem;
+            border: 1px solid #e2e8f0;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .ref-table td {
+            padding: 0.6rem 1rem;
+            border: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+        .ref-table a {
+            color: #4f46e5;
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(79,70,229,0.2);
+        }
+        .ref-table a:hover { border-bottom-color: #4f46e5; }
+
+        .footer-note {
+            margin-top: 3.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.15);
+            font-size: 0.9rem;
+            color: #94a3b8;
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+        .footer-note a { color: #4f46e5; text-decoration: none; font-weight: 500; }
+        .footer-note a:hover { text-decoration: underline; }
+
+        @media (max-width: 640px) {
+            body { padding: 1rem 0.6rem; }
+            .container { padding: 1.8rem 1.2rem; border-radius: 24px; }
+            .brand-bar { flex-direction: column; align-items: flex-start; gap: 6px; }
+            .brand-sub { margin-left: 0; font-size: 0.75rem; padding: 0.2rem 0.8rem; }
+            h1 { font-size: 1.9rem; }
+            h2 { font-size: 1.4rem; padding-left: 0.6rem; border-left-width: 4px; }
+            .subhead { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+            .ref-table { font-size: 0.8rem; }
+            .ref-table th, .ref-table td { padding: 0.4rem 0.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <a class="back-home" href="index.html">← 返回了了了游首页</a>
+
+    <div class="brand-bar">
+        <span class="brand-icon">🎮</span>
+        <span class="brand-name">了了了游</span>
+        <span class="brand-sub">lelele Game · 游戏守则</span>
+    </div>
+
+    <h1>📜 了了了游游戏守则</h1>
+    <div class="subhead">
+        <span><span class="highlight">版本 3.0</span> · 最后更新：2026 年 7 月 7 日</span>
+        <span class="version">📌 适用于所有投稿及展示游戏</span>
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>第一章 总则</h2>
+    <p><span class="badge">1.1</span> 了了了游（以下简称"本平台"）是了了了岭工作室（以下简称"工作室"）旗下的游戏聚合导航站，旨在为玩家提供便捷的游戏发现入口，并为独立游戏开发者、小型团队及个人创作者提供作品展示与推广机会。</p>
+    <p><span class="badge">1.2</span> 本守则适用于所有在本平台投稿、展示、推荐或通过任何形式收录的游戏，以及使用本平台服务的所有用户（包括但不限于玩家、投稿者、开发者、推荐者等）。凡使用本平台服务者，即视为已阅读并同意本守则的全部内容；投稿者另须在提交投稿时以勾选方式单独确认《投稿授权与撤回规则》（见第四章）。</p>
+    <p><span class="badge">1.3</span> 本平台严格遵守《中华人民共和国网络安全法》《中华人民共和国未成年人保护法》《未成年人网络保护条例》《中华人民共和国个人信息保护法》《中华人民共和国著作权法》《中华人民共和国民法典》及国家新闻出版署、国家互联网信息办公室发布的相关规定，坚持 <strong>"健康、积极、创新、合规"</strong> 的内容导向，积极履行社会责任。</p>
+    <p><span class="badge">1.4</span> 本平台保留根据法律法规变化、行业发展趋势及平台运营需要，适时修订本守则的权利。修订版本将提前在本平台公告，自公告之日起生效。投稿者有义务定期查阅本守则，以了解最新规范。涉及投稿者权利义务实质性变更的条款，平台将以站内公告和邮件双重方式提示。</p>
+
+    <!-- ============================================================ -->
+    <h2>第二章 游戏内容规范</h2>
+    <p>所有投稿至本平台的游戏，必须严格遵守以下内容标准，确保内容合法、健康、有益于社会主义精神文明建设。</p>
+
+    <h3>2.1 禁止内容（负面清单）</h3>
+    <p>任何游戏不得含有或隐含以下内容：</p>
+    <ul>
+        <li><strong>危害国家安全与主权：</strong>包括但不限于颠覆国家政权、分裂国家、破坏国家统一、损害国家荣誉和利益、泄露国家秘密、破坏民族团结等。</li>
+        <li><strong>宣扬暴力与血腥：</strong>过度渲染暴力、恐怖、血腥场景，教唆犯罪或传授犯罪方法，或鼓励自残、自杀等危害行为。</li>
+        <li><strong>色情与低俗：</strong>任何形式的色情、淫秽、下流、性暗示、裸体或软色情内容，包括但不限于文字、图片、音频、视频、动画及交互设计。</li>
+        <li><strong>赌博与毒品：</strong>涉及赌博、赌场、博彩、毒品、管制药品、吸毒工具及任何与毒品相关的活动。</li>
+        <li><strong>侵犯他人合法权益：</strong>侵犯他人知识产权（著作权、商标权、专利权等）、名誉权、肖像权、隐私权、个人信息权益等合法权益。</li>
+        <li><strong>危害未成年人身心健康：</strong>任何可能对未成年人身心造成不良影响的恐怖、惊悚、低俗、不良诱导等内容。</li>
+        <li><strong>违反公序良俗：</strong>违背社会公德、宗教歧视、种族歧视、性别歧视、地域歧视及其他违反社会主义核心价值观的内容。</li>
+    </ul>
+
+    <h3>2.2 适龄提示与分级管理</h3>
+    <p>投稿者须根据游戏实际内容，从以下年龄段分级中如实选择：<strong>全年龄 / 6岁以上 / 12岁以上 / 16岁以上 / 18岁以上</strong>。本平台将依据《中华人民共和国未成年人保护法》《未成年人网络保护条例》及行业惯例，在游戏详情页清晰标注适龄提示，并可能对不适龄内容进行限制访问或要求家长陪同。</p>
+    <p>对于含有轻微暴力、惊悚或复杂情感内容的游戏，本平台将标注"家长指引"提示，引导家长陪同未成年人游玩。投稿者故意虚报适龄分级的，平台有权下架并按第七章处理。</p>
+
+    <div class="highlight-box">
+        <strong>📌 相关法律法规：</strong>
+        <a class="legal-link" href="https://flk.npc.gov.cn" target="_blank" rel="noopener">《中华人民共和国未成年人保护法》</a> ｜
+        <a class="legal-link" href="https://flk.npc.gov.cn" target="_blank" rel="noopener">《未成年人网络保护条例》</a> ｜
+        <a class="legal-link" href="https://flk.npc.gov.cn" target="_blank" rel="noopener">《中华人民共和国网络安全法》</a>
+    </div>
+
+    <h3>2.3 游戏质量与技术安全</h3>
+    <ul>
+        <li><strong>可运行性：</strong>游戏应具备基本的可玩性和功能完整性，不得存在严重 bug、崩溃、无法启动或核心功能缺失等情形。</li>
+        <li><strong>隐私保护：</strong>游戏不得在未经用户明确授权的情况下收集、存储或传输用户的个人信息（包括但不限于设备信息、位置信息、通讯录等）。任何数据收集行为必须遵循最小必要原则，符合《中华人民共和国个人信息保护法》的要求。</li>
+        <li><strong>链接安全：</strong>外链游戏必须确保链接安全，不得跳转至恶意网站、钓鱼网站或含有病毒、木马的非法网页。</li>
+        <li><strong>代码安全：</strong>对于以代码方式提交的游戏，本平台将进行初步安全扫描，但投稿者应保证代码不包含后门、恶意脚本、挖矿程序或其他危害用户设备及信息安全的内容。</li>
+    </ul>
+
+    <h3>2.4 游戏主题与价值观</h3>
+    <p>本平台鼓励以下类型的游戏：</p>
+    <ul>
+        <li><strong>教育益智类：</strong>有助于提高知识水平、培养逻辑思维、锻炼反应能力的游戏。</li>
+        <li><strong>文化传承类：</strong>弘扬中华优秀传统文化、传播历史知识、展示民族艺术特色的游戏。</li>
+        <li><strong>创新创意类：</strong>玩法新颖、美术风格独特、技术实现有突破的游戏。</li>
+        <li><strong>公益与社会责任类：</strong>关注环境保护、扶贫助残、心理健康等社会议题的游戏。</li>
+    </ul>
+    <p>本平台不支持纯粹以盈利为目的、缺乏内容质量或存在诱导消费行为的游戏。</p>
+
+    <!-- ============================================================ -->
+    <h2>第三章 版权与知识产权</h2>
+    <p><span class="badge">3.1</span> <strong>投稿者权责：</strong>投稿者须保证对投稿作品拥有合法、完整的著作权，或已获得权利人的充分授权，有权进行展示和传播。若因版权问题引发纠纷，由投稿者承担相应法律责任，本平台在接到有效权利通知后，将依照《中华人民共和国民法典》第 1195 条至第 1197 条"通知—删除"规则及时处理。</p>
+    <p><span class="badge">3.2</span> <strong>代码投稿授权：</strong>对于以 <strong>"代码"</strong> 方式投稿的游戏，投稿者同意在提交成功时，将代码以 <strong>非独占、可撤回</strong> 的方式许可给了了了岭工作室 · 了了了游，用于本平台的展示、运行、测试及宣传推广。该许可不改变著作权的归属——<strong>著作权仍归投稿者所有</strong>，原作者保留署名权，并有权依据第四章规定随时撤回授权。</p>
+    <p><span class="badge">3.3</span> <strong>链接投稿：</strong>对于以 <strong>"链接"</strong> 方式投稿的游戏，本平台仅作为导航入口展示，不主张对游戏内容的任何知识产权。游戏的著作权及相关权利仍归原权利人或开发者所有。</p>
+    <p><span class="badge">3.4</span> <strong>尊重原创，打击抄袭：</strong>本平台尊重知识产权，反对任何形式的抄袭、盗版、非法转载等行为。一经查实，将立即下架侵权游戏，并视情节严重程度，暂停或永久取消投稿资格，并向权利人及有关部门报告。</p>
+    <p><span class="badge">3.5</span> <strong>内容引用规范：</strong>投稿者若在游戏描述、简介、截图等材料中使用第三方素材（如音乐、图片、文字等），必须确保已获得合法授权，并注明来源。</p>
+
+    <div class="highlight-box">
+        <strong>📌 相关法规：</strong>
+        <a class="legal-link" href="https://flk.npc.gov.cn" target="_blank" rel="noopener">《中华人民共和国著作权法》</a> ｜
+        <a class="legal-link" href="https://flk.npc.gov.cn" target="_blank" rel="noopener">《中华人民共和国民法典》（侵权责任编）</a> ｜
+        <a class="legal-link" href="https://flk.npc.gov.cn" target="_blank" rel="noopener">《信息网络传播权保护条例》</a>
+    </div>
+
+    <!-- ============================================================ -->
+    <h2 id="submit">第四章 投稿授权与撤回规则</h2>
+    <p>本章是投稿者与平台之间的核心约定，双方权利义务对等，请投稿者逐条阅读。</p>
+
+    <h3>4.1 授权范围（平台获得什么）</h3>
+    <p>投稿者提交作品即表示，就该作品授予本平台以下 <strong>非独占、可撤回</strong> 的许可：</p>
+    <ul>
+        <li>在本平台网站及关联页面展示游戏名称、图标、简介、截图及试玩入口；</li>
+        <li>为审核、测试、安全检测之目的运行该游戏；</li>
+        <li>在平台官方宣传渠道（官网、公众号、社群等）对游戏进行推荐介绍；</li>
+        <li>对游戏展示信息进行必要的排版、分类和格式调整，但不改变游戏内容本身。</li>
+    </ul>
+    <p>上述许可 <strong>不构成著作权转让</strong>，不影响投稿者将同一作品授权给其他平台，也不限制投稿者自行运营。</p>
+
+    <h3>4.2 作者保留的权利（用户获得什么）</h3>
+    <div class="rights-box">
+        <strong>✅ 投稿者始终保留以下权利：</strong>
+        <ul style="margin-bottom:0;">
+            <li><strong>著作权归属：</strong>作品的著作权及相关知识产权始终归投稿者所有；</li>
+            <li><strong>署名权：</strong>平台展示时如实标注投稿者提供的作者名称；</li>
+            <li><strong>撤回权：</strong>可随时书面通知平台撤回授权，无需说明理由；</li>
+            <li><strong>知情权：</strong>审核结果、不通过理由均以邮件告知；</li>
+            <li><strong>申诉权：</strong>对审核结果或违规处理有异议的，可依据 4.5 条申诉；</li>
+            <li><strong>多平台发布权：</strong>同一作品可同时在其他平台发布，本平台不设排他限制。</li>
+        </ul>
+    </div>
+
+    <h3>4.3 撤回流程与生效</h3>
+    <ul>
+        <li>投稿者可通过守则末尾的官方邮箱提出撤回请求，注明游戏名称及投稿时使用的联系方式；</li>
+        <li>平台在收到请求后 <strong>3 个工作日内</strong> 确认并下架该游戏；</li>
+        <li>自下架之日起 <strong>30 个自然日内</strong>，平台停止对该作品的新增使用；</li>
+        <li>已发布的宣传物料（如已推送的推荐图文）在 <strong>90 个自然日内</strong> 完成替换或删除；</li>
+        <li>撤回授权不影响撤回前平台已合法产生的展示行为。</li>
+    </ul>
+
+    <h3>4.4 审核流程与时限</h3>
+    <ul>
+        <li>平台在收到投稿后 <strong>5 个工作日内</strong> 完成审核，并通过投稿人预留邮箱告知结果；</li>
+        <li>审核未通过的，须附具体原因及可操作的修改建议；</li>
+        <li>同一作品最多可重新提交 <strong>2 次</strong>；超过 2 次仍未通过的，需间隔 <strong>30 个自然日</strong> 后方可再次提交；</li>
+        <li>审核通过的游戏收录至相应分类展示，并享有平台基础宣传资源。</li>
+    </ul>
+
+    <h3>4.5 申诉渠道</h3>
+    <p>投稿者对审核结果、下架处理或违规认定有异议的，可在收到通知后 <strong>15 个自然日内</strong> 通过官方邮箱提出申诉，平台将在 <strong>7 个工作日内</strong> 复核并书面答复。申诉期间不影响已作出的处理决定的执行，但复核结论为最终结论。</p>
+
+    <div class="warn-box">
+        <strong>⚠️ 双方共同遵守：</strong>平台行使审核权、下架权时，应说明依据；投稿者行使撤回权、申诉权时，应提供真实身份与作品信息。任何一方不得滥用权利损害对方合法权益。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>第五章 未成年人保护</h2>
+    <p>本平台积极贯彻《中华人民共和国未成年人保护法》《未成年人网络保护条例》及国家新闻出版署《关于进一步严格管理切实防止未成年人沉迷网络游戏的通知》精神，采取以下措施：</p>
+    <ul>
+        <li><strong>适龄提示标注：</strong>每个游戏详情页清晰标注适龄分级，让家长和未成年人一目了然；</li>
+        <li><strong>家长指引：</strong>对含有轻微刺激、恐怖或需一定心理承受能力的内容，设置"家长指引"提示；</li>
+        <li><strong>时间管理提醒：</strong>本平台首页及游戏页面提醒玩家合理安排游戏时间，避免沉迷；</li>
+        <li><strong>内容过滤：</strong>本平台不展示任何含有色情、暴力、赌博等危害未成年人身心健康的内容；</li>
+        <li><strong>举报通道：</strong>家长、教师或任何用户发现违规内容，可通过官方邮箱举报，<strong>涉及未成年人的举报在 48 小时内初步响应，一般内容举报在 5 个工作日内响应</strong>。</li>
+    </ul>
+    <p>本平台不直接提供游戏内购服务，所有外链游戏的消费行为由玩家自行负责，本平台不参与也不承担相关责任。外链游戏若涉及未成年人充值纠纷，由该游戏运营方依其规则处理。</p>
+
+    <div class="highlight-box">
+        <strong>📌 相关法规：</strong>
+        <a class="legal-link" href="https://flk.npc.gov.cn" target="_blank" rel="noopener">《中华人民共和国未成年人保护法》</a> ｜
+        <a class="legal-link" href="https://flk.npc.gov.cn" target="_blank" rel="noopener">《未成年人网络保护条例》</a> ｜
+        <a class="legal-link" href="https://www.nppa.gov.cn" target="_blank" rel="noopener">《关于进一步严格管理切实防止未成年人沉迷网络游戏的通知》</a>
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>第六章 免责声明</h2>
+    <p><span class="badge">6.1</span> <strong>平台定位：</strong>本平台仅作为游戏展示与导航窗口，不直接运营或提供游戏内服务，亦不参与游戏的任何商业运营（包括但不限于收费、充值、道具交易等）。玩家在游玩过程中产生的任何纠纷（如账号安全、充值纠纷、内容违规、服务质量等），应由游戏运营方与玩家自行解决。</p>
+    <p><span class="badge">6.2</span> <strong>外链游戏风险：</strong>对于以链接方式展示的游戏，本平台无法保证其链接的长期稳定性、内容安全性及服务可靠性。玩家自行点击外链时应注意辨别，本平台不对第三方网站的内容、隐私保护及安全性负责。</p>
+    <p><span class="badge">6.3</span> <strong>代码游戏风险：</strong>对于以代码方式运行的游戏，本平台会进行初步安全检测，但无法保证绝对安全。玩家在游玩代码游戏时，建议使用浏览器隔离或虚拟机环境，本平台不对因运行代码游戏导致的设备损坏、数据丢失或信息泄露承担超出法律强制规定范围的责任。</p>
+    <p><span class="badge">6.4</span> <strong>版权纠纷的避风港适用：</strong>若权利人认为平台展示的游戏侵犯其合法权益，可向平台提交包含权属证明、侵权链接及联系方式的书面通知。本平台在核实后将依照《民法典》第 1195 条及时采取删除、下架等必要措施，并将通知转送投稿者。因投稿者提供内容引发的纠纷，由投稿者承担相应责任；平台已履行"通知—删除"义务的，依法不承担连带责任。</p>
+    <p><span class="badge">6.5</span> <strong>不可抗力：</strong>因不可抗力（如自然灾害、网络攻击、政策调整等）导致本平台服务中断或数据丢失的，本平台不承担赔偿责任，但应及时公告并尽力恢复。</p>
+
+    <div class="highlight-box">
+        <strong>📌 相关法规：</strong>
+        <a class="legal-link" href="https://flk.npc.gov.cn" target="_blank" rel="noopener">《中华人民共和国民法典》（侵权责任编）</a> ｜
+        <a class="legal-link" href="https://flk.npc.gov.cn" target="_blank" rel="noopener">《中华人民共和国电子商务法》</a> ｜
+        <a class="legal-link" href="https://flk.npc.gov.cn" target="_blank" rel="noopener">《互联网信息服务管理办法》</a>
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>第七章 违规处理</h2>
+    <p>对于违反本守则的行为，本平台将视情节轻重及影响程度，采取以下一项或多项措施，并在处理时说明所依据的条款：</p>
+    <ul>
+        <li><span class="badge-outline">警告</span> <strong>轻微违规：</strong>首次违规或情节较轻的，发送书面警告，并给予 7 个工作日的整改期限。</li>
+        <li><span class="badge-outline">下架处理</span> <strong>严重违规：</strong>逾期未整改或情节较重的，立即下架该游戏，并暂停该投稿者的投稿资格。</li>
+        <li><span class="badge-outline">永久封禁</span> <strong>重大违规：</strong>涉及违法、色情、赌博、恶意代码等严重问题的，永久禁止该投稿者及关联账号的所有投稿行为，并可能向监管部门报告。</li>
+        <li><span class="badge-outline">公开通报</span> <strong>社会影响恶劣：</strong>对于造成严重负面社会影响的违规行为，本平台有权在官方渠道通报违规情况。</li>
+    </ul>
+    <p>本平台在处理违规行为时，将秉持公平、公正、透明的原则，并保留通过法律途径追究责任的权利。被处理方有权依据 4.5 条申诉。</p>
+
+    <!-- ============================================================ -->
+    <h2>第八章 附则</h2>
+    <p><span class="badge">8.1</span> <strong>解释权：</strong>本守则由了了了岭工作室制定并负责解释。如有疑问，可发邮件至 <a href="mailto:zhaodalu2012@sina.com" class="legal-link">zhaodalu2012@sina.com</a> 咨询。</p>
+    <p><span class="badge">8.2</span> <strong>效力冲突：</strong>若本守则的条款与国家现行法律、行政法规及部门规章冲突，则应以法律法规为准，冲突条款自动失效，其余条款继续有效。</p>
+    <p><span class="badge">8.3</span> <strong>生效时间：</strong>本守则自发布之日起生效。投稿者提交投稿并勾选确认《投稿授权与撤回规则》时，即视为已阅读并同意本守则全部内容。</p>
+    <p><span class="badge">8.4</span> <strong>修订与公告：</strong>本平台保留随时修订本守则的权利，修订版本将提前在本平台网站（<a href="https://leleleling.site" class="legal-link" target="_blank" rel="noopener">https://leleleling.site</a>）公告，修订后的版本自公告之日起生效。</p>
+
+    <!-- ============================================================ -->
+    <h2>附录：相关法律法规与行业规范索引</h2>
+    <p>以下为与本守则相关的现行有效的国家法律法规、部门规章及行业规范，供投稿者及玩家查阅参考（统一指向国家法律法规数据库）：</p>
+
+    <table class="ref-table">
+        <thead>
+            <tr><th>文件名称</th><th>发布机构</th><th>查阅</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>《中华人民共和国网络安全法》（2025 修正）</td><td>全国人大常委会</td><td><a href="https://flk.npc.gov.cn" target="_blank" rel="noopener">查看</a></td></tr>
+            <tr><td>《中华人民共和国未成年人保护法》</td><td>全国人大常委会</td><td><a href="https://flk.npc.gov.cn" target="_blank" rel="noopener">查看</a></td></tr>
+            <tr><td>《未成年人网络保护条例》</td><td>国务院</td><td><a href="https://flk.npc.gov.cn" target="_blank" rel="noopener">查看</a></td></tr>
+            <tr><td>《中华人民共和国著作权法》</td><td>全国人大常委会</td><td><a href="https://flk.npc.gov.cn" target="_blank" rel="noopener">查看</a></td></tr>
+            <tr><td>《中华人民共和国个人信息保护法》</td><td>全国人大常委会</td><td><a href="https://flk.npc.gov.cn" target="_blank" rel="noopener">查看</a></td></tr>
+            <tr><td>《中华人民共和国民法典》（侵权责任编）</td><td>全国人大常委会</td><td><a href="https://flk.npc.gov.cn" target="_blank" rel="noopener">查看</a></td></tr>
+            <tr><td>《信息网络传播权保护条例》</td><td>国务院</td><td><a href="https://flk.npc.gov.cn" target="_blank" rel="noopener">查看</a></td></tr>
+            <tr><td>《互联网信息服务管理办法》</td><td>国务院</td><td><a href="https://flk.npc.gov.cn" target="_blank" rel="noopener">查看</a></td></tr>
+            <tr><td>《关于进一步严格管理切实防止未成年人沉迷网络游戏的通知》</td><td>国家新闻出版署</td><td><a href="https://www.nppa.gov.cn" target="_blank" rel="noopener">查看</a></td></tr>
+            <tr><td>《网络游戏适龄提示》团体标准</td><td>中国音像与数字出版协会</td><td><a href="https://www.cadpa.org.cn" target="_blank" rel="noopener">查看</a></td></tr>
+        </tbody>
+    </table>
+
+    <div class="footer-note">
+        <span>© 2026 了了了岭工作室 · 了了了游</span>
+        <a href="https://leleleling.site" target="_blank" rel="noopener">访问官网</a>
+        <a href="mailto:zhaodalu2012@sina.com">联系我们</a>
+        <span>｜ 版本 3.0</span>
+        <span>｜ 守则更新日期：2026年7月7日</span>
+    </div>
+
+</div>
+
+</body>
+</html>
