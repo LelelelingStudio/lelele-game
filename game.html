@@ -1,12 +1,41 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-lang="zh">
 <head>
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#4f46e5">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <title>加载中... · 了了了游</title>
     <style>
+        /* ===== 多语言控制 ===== */
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text { display: block; }
+        html[data-lang="zh"] .zh-inline { display: inline; }
+        html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="en"] .en-inline { display: inline; }
+        html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+        html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -252,11 +281,11 @@
 
     <div class="top-bar">
         <a href="index.html" class="back-btn" id="backBtn">
-            ← <span>返回首页</span>
+            ← <span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span>
         </a>
         <div class="site-title" onclick="window.location.href='index.html'">
             <img src="lelelegame.svg" alt="Logo" onerror="this.style.display='none'">
-            <span>了了了游</span>
+            <span class="zh-inline">了了了游</span><span class="en-inline">lelele Game</span>
         </div>
     </div>
 
@@ -264,13 +293,15 @@
         
         <div class="loading-state" id="loadingState" style="display:block;">
             <div style="font-size: 2rem; margin-bottom: 10px;">🔄</div>
-            正在加载游戏详情...
+            <span class="zh-inline">正在加载游戏详情...</span><span class="en-inline">Loading game details...</span>
         </div>
 
         <div class="error-state" id="errorState">
             <div style="font-size: 3rem; margin-bottom: 10px;">😢</div>
-            <div id="errorMsg">未找到该游戏。</div>
-            <a href="index.html" class="btn btn-play">返回首页</a>
+            <div id="errorMsg"></div>
+            <a href="index.html" class="btn btn-play" id="errorBackBtn">
+                <span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span>
+            </a>
         </div>
 
         <div class="game-detail-card" id="gameCard">
@@ -286,16 +317,22 @@
                         <div class="author-bar" id="authorBar"></div>
                     </div>
                     <div class="action-buttons">
-                        <button class="btn btn-fav" id="favBtn" onclick="toggleFav()">⭐ 收藏</button>
-                        <button class="btn btn-play" id="playBtn" onclick="playGame()">🎮 开始游戏</button>
+                        <button class="btn btn-fav" id="favBtn" onclick="toggleFav()"></button>
+                        <button class="btn btn-play" id="playBtn" onclick="playGame()">
+                            <span class="zh-inline">🎮 开始游戏</span><span class="en-inline">🎮 Play Game</span>
+                        </button>
                     </div>
                 </div>
 
-                <div class="section-title">📖 游戏简介</div>
+                <div class="section-title">
+                    <span class="zh-inline">📖 游戏简介</span><span class="en-inline">📖 Description</span>
+                </div>
                 <div class="game-description" id="gameDesc"></div>
 
                 <div id="updateLogContainer" style="display:none;">
-                    <div class="section-title">📝 更新日志</div>
+                    <div class="section-title">
+                        <span class="zh-inline">📝 更新日志</span><span class="en-inline">📝 Update Log</span>
+                    </div>
                     <div class="timeline" id="timeline"></div>
                 </div>
             </div>
@@ -313,6 +350,11 @@
 
         let currentGameId = null;
         let currentGameData = null;
+        const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
+        const textSuffix = currentLang === 'en' ? '?lang=en' : '';
+
+        document.getElementById('backBtn').href = 'index.html' + textSuffix;
+        document.getElementById('errorBackBtn').href = 'index.html' + textSuffix;
 
         function getFavorites() {
             try { return JSON.parse(localStorage.getItem('lelele_favs') || '[]'); } 
@@ -326,10 +368,10 @@
         function updateFavBtn() {
             const btn = document.getElementById('favBtn');
             if (isFav(currentGameId)) {
-                btn.innerHTML = '🌟 已收藏';
+                btn.innerHTML = '<span class="zh-inline">🌟 已收藏</span><span class="en-inline">🌟 Favorited</span>';
                 btn.classList.add('active');
             } else {
-                btn.innerHTML = '⭐ 收藏';
+                btn.innerHTML = '<span class="zh-inline">⭐ 收藏</span><span class="en-inline">⭐ Favorite</span>';
                 btn.classList.remove('active');
             }
         }
@@ -350,14 +392,14 @@
 
         window.playGame = function() {
             if (!currentGameData || !currentGameData.url) {
-                alert('该游戏暂无可用链接。');
+                alert(currentLang === 'en' ? 'No playable link available.' : '该游戏暂无可用链接。');
                 return;
             }
             window.open(currentGameData.url, '_blank', 'noopener,noreferrer');
         };
 
         function renderGamePage(game) {
-            document.title = `${game.name || '未知游戏'} · 了了了游`;
+            document.title = `${game.name || (currentLang === 'en' ? 'Unknown' : '未知游戏')} · 了了了游`;
 
             const bannerArea = document.getElementById('bannerArea');
             const bannerIcon = document.getElementById('bannerIcon');
@@ -372,7 +414,7 @@
                 bannerIcon.textContent = game.icon || '🎮';
             }
 
-            document.getElementById('gameTitle').textContent = game.name || '未知游戏';
+            document.getElementById('gameTitle').textContent = game.name || (currentLang === 'en' ? 'Unknown' : '未知游戏');
             
             let tagsHtml = '';
             if (game.category) tagsHtml += `<span class="tag">${escapeHtml(game.category)}</span>`;
@@ -382,12 +424,17 @@
 
             const authorBar = document.getElementById('authorBar');
             if (game.author) {
-                authorBar.innerHTML = `开发者：<strong>${escapeHtml(game.author)}</strong>`;
+                const authorLabel = currentLang === 'en' ? 'Developer' : '开发者';
+                authorBar.innerHTML = `${authorLabel}: <strong>${escapeHtml(game.author)}</strong>`;
             } else {
                 authorBar.style.display = 'none';
             }
 
-            document.getElementById('gameDesc').textContent = game.description || game.intro || '这个游戏很神秘，作者还没有写详细简介。';
+            let descText = game.description || game.intro;
+            if (!descText) {
+                descText = currentLang === 'en' ? 'No description provided yet.' : '这个游戏很神秘，作者还没有写详细简介。';
+            }
+            document.getElementById('gameDesc').textContent = descText;
 
             if (game.updateLog && Array.isArray(game.updateLog) && game.updateLog.length > 0) {
                 document.getElementById('updateLogContainer').style.display = 'block';
@@ -395,7 +442,7 @@
                 timeline.innerHTML = game.updateLog.map(log => `
                     <div class="timeline-item">
                         <div class="timeline-header">
-                            <span class="timeline-version">${escapeHtml(log.version || '更新')}</span>
+                            <span class="timeline-version">${escapeHtml(log.version || (currentLang === 'en' ? 'Update' : '更新'))}</span>
                             <span class="timeline-date">${escapeHtml(log.date || '')}</span>
                         </div>
                         <div class="timeline-content">${escapeHtml(log.content || '')}</div>
@@ -411,13 +458,9 @@
         async function init() {
             const urlParams = new URLSearchParams(window.location.search);
             currentGameId = urlParams.get('id');
-            
-            if (urlParams.get('lang') === 'en') {
-                document.getElementById('backBtn').href = 'index.html?lang=en';
-            }
 
             if (!currentGameId) {
-                showError('缺少游戏 ID 参数，无法加载。');
+                showError(currentLang === 'en' ? 'Missing game ID parameter.' : '缺少游戏 ID 参数，无法加载。');
                 return;
             }
 
@@ -444,19 +487,19 @@
                             category: baseGame.category,
                             ageRating: baseGame.ageRating,
                             url: baseGame.url,
-                            version: baseGame.version || '未知版本',
-                            description: '暂无详细简介，作者可能正在努力编写中。你可以直接点击上方按钮开始游戏体验。'
+                            version: baseGame.version || (currentLang === 'en' ? 'Unknown' : '未知版本'),
+                            description: currentLang === 'en' ? 'No detailed description yet. Click Play to try.' : '暂无详细简介，作者可能正在努力编写中。你可以直接点击上方按钮开始游戏体验。'
                         };
                         renderGamePage(currentGameData);
                         return;
                     }
                 }
 
-                showError('该游戏不存在或已被下架。');
+                showError(currentLang === 'en' ? 'Game not found or removed.' : '该游戏不存在或已被下架。');
 
             } catch (e) {
                 console.error('加载失败:', e);
-                showError('网络或数据加载失败，请稍后重试。');
+                showError(currentLang === 'en' ? 'Network error, please try again later.' : '网络或数据加载失败，请稍后重试。');
             }
         }
 
