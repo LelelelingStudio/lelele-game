@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>点击按钮的游戏</title>
+<style>
+button {
+position: fixed;
+cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+<button>点我！点我！</button>
+<script>
+document.querySelector('button').addEventListener('mouseenter', function (e) {
+const btn = document.querySelector('button');
+const maxX = window.innerWidth - btn.offsetWidth;
+const maxY = window.innerHeight - btn.offsetHeight;
+let attempts = 0;
+const maxAttempts = 50;
+
+do {
+btn.style.left = Math.random() * maxX + 'px';
+btn.style.top = Math.random() * maxY + 'px';
+attempts++;
+} while (isMouseOverBtn(btn, e.clientX, e.clientY) && attempts < maxAttempts);
+});
+
+function isMouseOverBtn(el, mouseX, mouseY) {
+const rect = el.getBoundingClientRect();
+return (
+mouseX >= rect.left &&
+mouseX <= rect.right &&
+mouseY >= rect.top &&
+mouseY <= rect.bottom
+);
+}
+document.querySelector('button').addEventListener('click', function () {
+window.open('https://www.luogu.me/paste/82mfkf9s');
+});
+</script>
+</body>
+
+</html>
