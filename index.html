@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-lang="zh">
 <head>
-    <!-- 必须在 style 之前同步执行，防止页面闪烁 -->
     <script>
         (function() {
             try {
@@ -9,20 +8,13 @@
                 var urlLang = urlParams.get('lang');
                 var storedLang = localStorage.getItem('lelele_lang');
                 var lang;
-
-                if (urlLang === 'en' || urlLang === 'zh') {
-                    lang = urlLang;
-                } else if (storedLang === 'en' || storedLang === 'zh') {
-                    lang = storedLang;
-                } else {
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
                     var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
-                    if (navLang.indexOf('zh') === 0) {
-                        lang = 'zh';
-                    } else if (navLang.indexOf('en') === 0) {
-                        lang = 'en';
-                    } else {
-                        lang = 'zh'; // 其他语言默认中文
-                    }
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
                 }
                 document.documentElement.setAttribute('data-lang', lang);
                 document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
@@ -324,22 +316,6 @@
         }
         .fav-item-remove:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
 
-        /* ===== 前置表单 ===== */
-        .form-group { margin-bottom: 1.2rem; text-align: left; }
-        .form-label { display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem; color: #1e293b; }
-        .form-input {
-            width: 100%; padding: 0.8rem 1rem; border: 1px solid #cbd5e1; border-radius: 0.75rem;
-            font-size: 0.95rem; font-family: inherit; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .form-input:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-
-        .radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
-        .radio-btn {
-            padding: 0.5rem 1rem; border: 1px solid #cbd5e1; border-radius: 30px;
-            background: #fff; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; font-family: inherit;
-        }
-        .radio-btn.active { background: #4f46e5; color: #fff; border-color: #4f46e5; }
-
         .agree-row {
             display: flex; align-items: flex-start; gap: 0.6rem; background: rgba(79, 70, 229, 0.04);
             padding: 1rem; border-radius: 0.75rem; margin: 1rem 0; font-size: 0.9rem;
@@ -479,7 +455,7 @@
         </div>
     </div>
 
-    <!-- 投稿四步弹窗 -->
+    <!-- 投稿弹窗 1：须知 -->
     <div class="modal-overlay" id="stepGuide">
         <div class="modal modal-wide">
             <button class="modal-close" onclick="closeModal('stepGuide')">×</button>
@@ -516,6 +492,7 @@
         </div>
     </div>
 
+    <!-- 投稿弹窗 2：授权 -->
     <div class="modal-overlay" id="stepAuth">
         <div class="modal modal-wide">
             <button class="modal-close" onclick="closeModal('stepAuth')">×</button>
@@ -534,87 +511,13 @@
                     <span>I agree (See <a href="game_rules.html?lang=en#submit" target="_blank" style="color:#4f46e5;">Chapter 4</a>).</span>
                 </label>
             </div>
-            <button class="btn btn-block" id="btnToStep3" disabled style="margin-top:1rem;">
-                <span class="zh-inline">下一步：填写信息 →</span><span class="en-inline">Next: Info →</span>
+            <button class="btn btn-block" id="btnToTally" disabled style="margin-top:1rem;">
+                <span class="zh-inline">同意授权，开始填写表单 →</span><span class="en-inline">Agree, go to form →</span>
             </button>
         </div>
     </div>
 
-    <!-- 内部前置表单 (已完美双语化) -->
-    <div class="modal-overlay" id="stepForm">
-        <div class="modal modal-wide">
-            <button class="modal-close" onclick="closeModal('stepForm')">×</button>
-            <div class="modal-header"><span class="zh-inline">📋 填写基本信息</span><span class="en-inline">📋 Basic Info</span></div>
-            <form id="preForm">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-                    <div class="form-group">
-                        <label class="form-label"><span class="zh-inline">游戏名称</span><span class="en-inline">Game Name</span> *</label>
-                        <input type="text" class="form-input" id="inName" required placeholder="Name">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label"><span class="zh-inline">游戏图标</span><span class="en-inline">Game Icon</span> *</label>
-                        <input type="text" class="form-input" id="inIcon" placeholder="🎮" required>
-                    </div>
-                </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-                    <div class="form-group">
-                        <label class="form-label"><span class="zh-inline">作者</span><span class="en-inline">Author</span> *</label>
-                        <input type="text" class="form-input" id="inAuthor" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label"><span class="zh-inline">邮箱</span><span class="en-inline">Email</span> *</label>
-                        <input type="email" class="form-input" id="inEmail" required>
-                    </div>
-                </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
-                    <div class="form-group">
-                        <label class="form-label"><span class="zh-inline">版本号</span><span class="en-inline">Version</span> *</label>
-                        <input type="text" class="form-input" id="inVersion" placeholder="v1.0.0" required pattern="^v?\d+\.\d+\.\d+$">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label"><span class="zh-inline">一句话简介</span><span class="en-inline">Short Intro</span> *</label>
-                        <input type="text" class="form-input" id="inIntro" maxlength="100" required>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label"><span class="zh-inline">分类</span><span class="en-inline">Category</span> *</label>
-                    <div class="radio-group" id="radCategory">
-                        <button type="button" class="radio-btn active" data-val="休闲"><span class="zh-inline">休闲</span><span class="en-inline">Casual</span></button>
-                        <button type="button" class="radio-btn" data-val="益智"><span class="zh-inline">益智</span><span class="en-inline">Puzzle</span></button>
-                        <button type="button" class="radio-btn" data-val="射击"><span class="zh-inline">射击</span><span class="en-inline">Shooter</span></button>
-                        <button type="button" class="radio-btn" data-val="冒险"><span class="zh-inline">冒险</span><span class="en-inline">Adventure</span></button>
-                        <button type="button" class="radio-btn" data-val="其他"><span class="zh-inline">其他</span><span class="en-inline">Other</span></button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label"><span class="zh-inline">适龄分级</span><span class="en-inline">Age Rating</span> *</label>
-                    <div class="radio-group" id="radAge">
-                        <button type="button" class="radio-btn active" data-val="全年龄"><span class="zh-inline">全年龄</span><span class="en-inline">All Ages</span></button>
-                        <button type="button" class="radio-btn" data-val="6+">6+</button>
-                        <button type="button" class="radio-btn" data-val="12+">12+</button>
-                        <button type="button" class="radio-btn" data-val="16+">16+</button>
-                        <button type="button" class="radio-btn" data-val="18+">18+</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label"><span class="zh-inline">方式</span><span class="en-inline">Method</span> *</label>
-                    <div class="radio-group" id="radMethod">
-                        <button type="button" class="radio-btn active" data-val="link"><span class="zh-inline">链接</span><span class="en-inline">Link</span></button>
-                        <button type="button" class="radio-btn" data-val="code"><span class="zh-inline">代码</span><span class="en-inline">Code</span></button>
-                    </div>
-                </div>
-                <div class="form-group" id="groupUrl">
-                    <label class="form-label"><span class="zh-inline">游戏链接</span><span class="en-inline">Game URL</span> *</label>
-                    <input type="url" class="form-input" id="inUrl" placeholder="https://">
-                </div>
-                <div style="text-align:right; margin-top:1rem;">
-                    <button type="button" class="btn" id="btnToTally"><span class="zh-inline">下一步：补充材料 →</span><span class="en-inline">Next: Materials →</span></button>
-                </div>
-            </form>
-        </div>
-    </div>
-
+    <!-- 投稿弹窗 3：Tally (直接显示) -->
     <div class="modal-overlay" id="stepTally">
         <div class="modal modal-wide" style="padding: 1rem;">
             <button class="modal-close" onclick="closeModal('stepTally')" style="z-index:10;">×</button>
