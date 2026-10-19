@@ -7,23 +7,9 @@
     <meta name="theme-color" content="#4f46e5">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="lelelegame.png">
-    <link rel="manifest" href="/manifest-zh.json">
     <title>了了了游</title>
     <style>
-        /* ===== 全局 ===== */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: linear-gradient(145deg, #f0f4f9 0%, #e8ecf5 100%);
-            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-            color: #1e293b;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: background 0.3s;
-        }
-
-        /* ===== 语言切换 ===== */
+        /* ===== 多语言控制 ===== */
         .zh-text, .en-text { display: none; }
         html[data-lang="zh"] .zh-text { display: block; }
         html[data-lang="zh"] .zh-inline { display: inline; }
@@ -32,11 +18,25 @@
         html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
         html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
 
-        /* ===== 顶部导航 ===== */
+        /* ===== 全局重置 ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: linear-gradient(145deg, #f0f4f9 0%, #e8ecf5 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", sans-serif;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ===== 顶部导航栏 ===== */
         .top-bar {
             width: 100%;
             background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
             padding: 12px 28px;
             position: sticky;
@@ -72,24 +72,28 @@
             gap: 2px;
         }
         .game-title {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 800;
             background: linear-gradient(135deg, #1e293b 0%, #4f46e5 80%);
             background-clip: text;
             -webkit-text-fill-color: transparent;
             cursor: pointer;
             user-select: none;
+            transition: opacity 0.2s;
             line-height: 1.2;
             border: none;
             background-color: transparent;
             text-align: left;
             font-family: inherit;
         }
+        .game-title:hover { opacity: 0.8; }
+
         .refresh-hint {
             font-size: 12px;
             color: #64748b;
             cursor: pointer;
             user-select: none;
+            transition: color 0.2s;
             background: none;
             border: none;
             text-align: left;
@@ -104,14 +108,13 @@
             align-items: center;
             flex-wrap: wrap;
         }
-        
         .lang-switch {
             display: flex;
             gap: 2px;
             background: rgba(148, 163, 184, 0.12);
             border-radius: 30px;
             padding: 3px;
-            margin-right: 10px;
+            margin-right: 6px;
         }
         .lang-btn {
             padding: 4px 12px;
@@ -131,21 +134,33 @@
             box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
         }
 
-        .submit-btn {
-            background: #f59e0b;
-            color: #1e293b;
-            border: none;
+        .action-btn {
             border-radius: 30px;
-            padding: 10px 22px;
+            padding: 10px 20px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.25s;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
             font-family: inherit;
+            text-decoration: none;
+            border: none;
+        }
+        .btn-support {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .btn-support:hover {
+            background: rgba(16, 185, 129, 0.2);
+            transform: translateY(-1px);
+        }
+        .submit-btn {
+            background: #f59e0b;
+            color: #1e293b;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
         }
         .submit-btn:hover {
             background: #d97706;
@@ -155,20 +170,12 @@
         .studio-link {
             background: #4f46e5;
             color: white;
-            border: none;
-            border-radius: 30px;
-            padding: 10px 22px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s;
-            text-decoration: none;
-            display: inline-block;
             box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
         }
         .studio-link:hover {
             background: #4338ca;
             transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(79, 70, 229, 0.4);
         }
 
         .type-nav {
@@ -190,6 +197,8 @@
             color: #64748b;
             cursor: pointer;
             transition: all 0.25s ease;
+            white-space: nowrap;
+            user-select: none;
             font-family: inherit;
         }
         .type-btn.active {
@@ -202,14 +211,20 @@
             background: rgba(255, 255, 255, 0.5);
         }
 
-        /* ===== 搜索与内容区 ===== */
+        /* ===== 搜索栏 ===== */
         .controls {
             width: 100%;
             max-width: 1100px;
             margin: 16px auto 0;
             padding: 0 20px;
             display: flex;
+            align-items: center;
             justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: sticky;
+            top: 80px;
+            z-index: 90;
         }
         .search-wrapper {
             display: flex;
@@ -218,6 +233,7 @@
             backdrop-filter: blur(8px);
             border-radius: 30px;
             padding: 8px 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             border: 1px solid rgba(148, 163, 184, 0.15);
         }
         .search-wrapper input {
@@ -227,35 +243,110 @@
             font-size: 14px;
             padding: 4px 8px;
             width: 180px;
+            color: #1e293b;
             font-family: inherit;
         }
-        
+        .search-icon { font-size: 16px; margin-right: 4px; color: #4f46e5; }
+
+        /* ===== 公告板块 ===== */
+        .announcements-container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 16px auto 0;
+            padding: 0 20px;
+            display: none; /* 默认隐藏 */
+        }
+        .announcements-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .announcements-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .announce-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(8px);
+            border-radius: 16px;
+            padding: 16px 20px;
+            border-left: 5px solid #4f46e5;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+            border-right: 1px solid rgba(148, 163, 184, 0.1);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        .announce-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            gap: 16px;
+        }
+        .announce-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #0f172a;
+        }
+        .announce-date {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            white-space: nowrap;
+        }
+        .announce-content {
+            font-size: 0.92rem;
+            color: #475569;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        /* ===== 分类栏 ===== */
         .category-bar {
             width: 100%;
             max-width: 1100px;
-            margin: 8px auto 0;
+            margin: 16px auto 0;
             padding: 0 20px;
             display: flex;
             gap: 8px;
             overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
         }
         .category-btn {
             padding: 8px 20px;
             border-radius: 30px;
             border: 1px solid rgba(148, 163, 184, 0.2);
             background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(6px);
             font-size: 14px;
             font-weight: 500;
+            color: #475569;
             cursor: pointer;
+            transition: all 0.2s;
             white-space: nowrap;
+            user-select: none;
+            flex-shrink: 0;
             font-family: inherit;
         }
         .category-btn.active {
             background: #4f46e5;
             color: white;
             border-color: #4f46e5;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+        }
+        .category-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: #4f46e5;
+            color: #1e293b;
         }
 
+        /* ===== 游戏列表 ===== */
         .games-container {
             width: 100%;
             max-width: 1100px;
@@ -268,6 +359,96 @@
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 36px;
         }
+        .game-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 32px 16px;
+            text-align: center;
+            text-decoration: none;
+            color: #1e293b;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            min-height: 160px;
+            font-family: inherit;
+        }
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+        .game-card:hover::before { transform: scaleX(1); }
+        .game-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 32px rgba(0, 0, 0, 0.1);
+        }
+        .game-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            transition: transform 0.3s;
+            line-height: 1;
+        }
+        .game-card:hover .game-icon { transform: scale(1.15); }
+        .game-name {
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.3;
+            word-break: break-word;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            color: #1e293b;
+        }
+
+        /* 骨架屏 */
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .skeleton-card {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 24px;
+            min-height: 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        .skeleton-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(90deg, #e8ecf5 25%, #f4f7fc 50%, #e8ecf5 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+        }
+        .skeleton-line {
+            width: 70%;
+            height: 14px;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #e8ecf5 25%, #f4f7fc 50%, #e8ecf5 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+        }
+
         .status-message {
             text-align: center;
             padding: 40px 20px;
@@ -284,7 +465,8 @@
             border-top: 1px solid rgba(148, 163, 184, 0.1);
             margin-top: 20px;
         }
-        footer a { color: #4f46e5; text-decoration: none; }
+        footer a { color: #4f46e5; text-decoration: none; margin: 0 6px; }
+        footer a:hover { text-decoration: underline; }
 
         /* ===== 弹窗通用 ===== */
         .modal-overlay {
@@ -300,13 +482,16 @@
         }
         .modal-overlay.active { display: flex; }
         .modal {
-            background: #fff;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(20px);
             border-radius: 1.5rem;
             width: 100%;
             max-width: 600px;
             max-height: 92vh;
             overflow-y: auto;
-            padding: 2rem;
+            box-shadow: 0 25px 30px -10px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            padding: 1.8rem 2rem;
             position: relative;
         }
         .modal.modal-wide { max-width: 800px; }
@@ -331,6 +516,9 @@
             font-weight: 700;
             margin-bottom: 1rem;
             padding-right: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
         }
 
         /* ===== 按钮 ===== */
@@ -347,15 +535,17 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            gap: 0.4rem;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
             font-family: inherit;
         }
         .btn:hover { background: #4338ca; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-block { width: 100%; }
-        .btn.warning { background: #f59e0b; color: #1e293b; }
+        .btn.warning { background: #f59e0b; color: #1e293b; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); }
         .btn.warning:hover { background: #d97706; }
 
-        /* ===== 投稿表单单选框组 ===== */
+        /* ===== 前置表单 ===== */
         .form-group { margin-bottom: 1.2rem; }
         .form-label {
             display: block;
@@ -372,9 +562,10 @@
             font-size: 0.95rem;
             font-family: inherit;
             outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
         .form-input:focus { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-        
+
         .radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
         .radio-btn {
             padding: 0.5rem 1rem;
@@ -386,11 +577,7 @@
             transition: all 0.2s;
             font-family: inherit;
         }
-        .radio-btn.active {
-            background: #4f46e5;
-            color: #fff;
-            border-color: #4f46e5;
-        }
+        .radio-btn.active { background: #4f46e5; color: #fff; border-color: #4f46e5; }
 
         .agree-row {
             display: flex;
@@ -405,33 +592,36 @@
         }
         .agree-row input { margin-top: 0.2rem; }
 
-        /* ===== Tally iframe ===== */
-        .tally-wrapper {
-            width: 100%;
-            height: 100%;
-            min-height: 60vh;
-        }
-        .tally-wrapper iframe {
-            width: 100%;
-            border: none;
+        .tally-wrapper { width: 100%; height: 100%; min-height: 60vh; }
+        .tally-wrapper iframe { width: 100%; border: none; }
+
+        @media (max-width: 600px) {
+            .top-bar { padding: 10px 16px; }
+            .site-logo { height: 32px; }
+            .game-title { font-size: 22px; }
+            .refresh-hint { font-size: 11px; }
+            .right-actions { gap: 6px; }
+            .action-btn { padding: 6px 12px; font-size: 12px; }
+            .games-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 24px; }
+            .game-card { padding: 24px 8px; border-radius: 20px; min-height: 130px; }
+            .game-icon { font-size: 48px; margin-bottom: 12px; }
+            .game-name { font-size: 13px; }
+            .modal { padding: 1.2rem; max-width: 100%; border-radius: 1.2rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 顶部导航 -->
     <div class="top-bar">
         <div class="top-bar-row">
             <div class="title-group">
                 <img src="lelelegame.svg" alt="了了了游" class="site-logo" onclick="location.reload()">
                 <div class="title-text-group">
                     <button class="game-title" onclick="location.reload()">
-                        <span class="zh-inline">了了了游</span>
-                        <span class="en-inline">lelele Game</span>
+                        <span class="zh-inline">了了了游</span><span class="en-inline">lelele Game</span>
                     </button>
                     <button class="refresh-hint" onclick="location.reload()">
-                        <span class="zh-inline">网太卡？游戏打不开？点这里重新刷新</span>
-                        <span class="en-inline">Slow network? Click here to refresh.</span>
+                        <span class="zh-inline">网太卡？点这里刷新</span><span class="en-inline">Slow? Click to refresh</span>
                     </button>
                 </div>
             </div>
@@ -440,66 +630,68 @@
                     <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
                     <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
                 </div>
-                <button class="submit-btn" id="openSubmitGuide">
-                    <span class="zh-inline">✉️ 投稿</span>
-                    <span class="en-inline">✉️ Submit</span>
+                <a class="action-btn btn-support" href="https://leleleling.site/support.html" target="_blank" rel="noopener noreferrer">
+                    <span class="zh-inline">❤️ 支持我们</span><span class="en-inline">❤️ Support Us</span>
+                </a>
+                <button class="action-btn submit-btn" id="openSubmitGuide">
+                    <span class="zh-inline">✉️ 投稿</span><span class="en-inline">✉️ Submit</span>
                 </button>
-                <a class="studio-link" href="https://leleleling.site/index.html" target="_blank" rel="noopener noreferrer">
-                    <span class="zh-inline">了了了岭工作室</span>
-                    <span class="en-inline">Leleleling Studio</span>
+                <a class="action-btn studio-link" href="https://leleleling.site/index.html" target="_blank" rel="noopener noreferrer">
+                    <span class="zh-inline">工作室</span><span class="en-inline">Studio</span>
                 </a>
             </div>
         </div>
         <div class="top-bar-row" style="justify-content: flex-start; gap: 0;">
             <div class="type-nav" id="typeNav">
                 <button class="type-btn active" data-type="local">
-                    <span class="zh-inline">🎮 本站游戏</span><span class="en-inline">🎮 Local Games</span>
+                    <span class="zh-inline">🎮 本站游戏</span><span class="en-inline">🎮 Local</span>
                 </button>
                 <button class="type-btn" data-type="external">
-                    <span class="zh-inline">🌐 外网游戏</span><span class="en-inline">🌐 External Games</span>
+                    <span class="zh-inline">🌐 外网游戏</span><span class="en-inline">🌐 External</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 搜索 -->
     <div class="controls">
         <div class="search-wrapper">
             <span class="search-icon">🔍</span>
-            <input type="text" id="searchInput" placeholder="搜索游戏... (Search)" autocomplete="off">
+            <input type="text" id="searchInput" placeholder="搜索游戏 (Search)..." autocomplete="off">
         </div>
     </div>
 
-    <!-- 分类 -->
+    <!-- 新增：公告板块 -->
+    <div class="announcements-container" id="announcementsContainer">
+        <div class="announcements-title">
+            <span class="zh-inline">📢 最新公告</span>
+            <span class="en-inline">📢 Announcements</span>
+        </div>
+        <div class="announcements-list" id="announcementsList"></div>
+    </div>
+
     <div class="category-bar" id="categoryBar"></div>
 
-    <!-- 游戏列表 -->
     <div class="games-container">
         <div class="games-grid" id="gamesGrid"></div>
         <div class="status-message" id="statusMessage" style="display:none;"></div>
     </div>
 
     <footer>
-        © 2026 <span class="zh-inline">了了了岭工作室 · 了了了游</span><span class="en-inline">Leleleling Studio · lelele Game</span> ｜
-        <a href="game_rules.html" id="rulesLink">
-            <span class="zh-inline">游戏守则</span><span class="en-inline">Game Rules</span>
-        </a>
+        © 2026 <span class="zh-inline">了了了岭工作室</span><span class="en-inline">Leleleling Studio</span> ｜
+        <a href="game_rules.html" id="linkRules"><span class="zh-inline">游戏守则</span><span class="en-inline">Rules</span></a> ｜
+        <a href="privacy.html" id="linkPrivacy"><span class="zh-inline">隐私政策</span><span class="en-inline">Privacy</span></a> ｜
+        <a href="copyright.html" id="linkCopyright"><span class="zh-inline">版权投诉</span><span class="en-inline">Copyright</span></a>
     </footer>
 
-    <!-- ============================================================ -->
-    <!-- 投稿流程弹窗 1：投稿须知 -->
-    <!-- ============================================================ -->
+    <!-- 投稿弹窗 1：须知 -->
     <div class="modal-overlay" id="stepGuide">
         <div class="modal">
             <button class="modal-close" onclick="closeModal('stepGuide')">×</button>
-            <div class="modal-header">
-                <span class="zh-inline">📮 投稿须知</span>
-                <span class="en-inline">📮 Submission Guidelines</span>
-            </div>
+            <div class="modal-header"><span class="zh-inline">📮 投稿须知</span><span class="en-inline">📮 Submission Guidelines</span></div>
             <div class="zh-text">
-                <p>感谢您对「了了了游」的信任。投稿前请务必确认：</p>
-                <ul style="margin: 1rem 0 1rem 1.5rem; line-height: 1.8; color:#475569;">
-                    <li>本平台仅支持纯前端项目（HTML/CSS/JS/JSON 等）。</li>
+                <p>感谢您对「了了了游」的信任。投稿前请确认：</p>
+                <ul style="margin: 1rem 0 1rem 1.5rem; color:#475569; line-height: 1.8;">
+                    <li>本平台仅支持纯前端代码（HTML/CSS/JS/JSON）。</li>
                     <li>不接收带后端服务、数据库或需要复杂构建的项目。</li>
                     <li>游戏需符合 <a href="game_rules.html" target="_blank" style="color:#4f46e5;">《了了了游游戏守则》</a>。</li>
                     <li>审核周期为 5 个工作日，结果将以邮件通知。</li>
@@ -511,8 +703,8 @@
             </div>
             <div class="en-text">
                 <p>Thank you for choosing lelele Game. Please confirm:</p>
-                <ul style="margin: 1rem 0 1rem 1.5rem; line-height: 1.8; color:#475569;">
-                    <li>Pure front-end projects only (HTML/CSS/JS/JSON).</li>
+                <ul style="margin: 1rem 0 1rem 1.5rem; color:#475569; line-height: 1.8;">
+                    <li>Pure front-end only (HTML/CSS/JS/JSON).</li>
                     <li>No backend, database, or complex build steps.</li>
                     <li>Must comply with the <a href="game_rules.html?lang=en" target="_blank" style="color:#4f46e5;">lelele Game Rules</a>.</li>
                     <li>Review takes 5 business days; results by email.</li>
@@ -523,89 +715,75 @@
                 </label>
             </div>
             <button class="btn btn-block warning" id="btnToStep2" disabled style="margin-top:1rem;">
-                <span class="zh-inline">下一步：确认授权 →</span>
-                <span class="en-inline">Next: License →</span>
+                <span class="zh-inline">下一步：确认授权 →</span><span class="en-inline">Next: License →</span>
             </button>
         </div>
     </div>
 
-    <!-- 投稿流程弹窗 2：授权确认 -->
+    <!-- 投稿弹窗 2：授权 -->
     <div class="modal-overlay" id="stepAuth">
         <div class="modal">
             <button class="modal-close" onclick="closeModal('stepAuth')">×</button>
-            <div class="modal-header">
-                <span class="zh-inline">📄 授权确认</span>
-                <span class="en-inline">📄 License Confirmation</span>
-            </div>
+            <div class="modal-header"><span class="zh-inline">📄 授权确认</span><span class="en-inline">📄 License Confirmation</span></div>
             <div class="zh-text">
-                <div style="font-weight:600; margin-bottom:0.5rem;">平台获得的许可：</div>
-                <p style="font-size:0.9rem; color:#475569; margin-bottom:1rem;">非独占、可撤回地展示、运行、测试及推广您的作品。</p>
-                <div style="font-weight:600; margin-bottom:0.5rem;">您保留的权利：</div>
-                <p style="font-size:0.9rem; color:#475569; margin-bottom:1rem;">著作权、署名权、随时撤回权、申诉权及多平台发布权。</p>
+                <p style="font-size:0.9rem; color:#475569; margin-bottom:1rem;">平台获得非独占、可撤回的展示许可；您保留著作权、署名权及随时撤回权。</p>
                 <label class="agree-row">
                     <input type="checkbox" id="chkAuth">
                     <span>我同意上述授权条款（详见 <a href="game_rules.html#submit" target="_blank" style="color:#4f46e5;">守则第四章</a>）。</span>
                 </label>
             </div>
             <div class="en-text">
-                <div style="font-weight:600; margin-bottom:0.5rem;">License Granted:</div>
-                <p style="font-size:0.9rem; color:#475569; margin-bottom:1rem;">Non-exclusive, revocable right to display, run, test, and promote.</p>
-                <div style="font-weight:600; margin-bottom:0.5rem;">Rights Retained:</div>
-                <p style="font-size:0.9rem; color:#475569; margin-bottom:1rem;">Copyright, attribution, withdrawal, appeal, multi-platform.</p>
+                <p style="font-size:0.9rem; color:#475569; margin-bottom:1rem;">The Platform gets a non-exclusive, revocable display license. You retain copyright and withdrawal rights.</p>
                 <label class="agree-row">
                     <input type="checkbox" id="chkAuthEn">
                     <span>I agree (See <a href="game_rules.html?lang=en#submit" target="_blank" style="color:#4f46e5;">Chapter 4</a>).</span>
                 </label>
             </div>
             <button class="btn btn-block" id="btnToStep3" disabled style="margin-top:1rem;">
-                <span class="zh-inline">我同意，填写基本信息 →</span>
-                <span class="en-inline">Agree, Fill Info →</span>
+                <span class="zh-inline">下一步：填写信息 →</span><span class="en-inline">Next: Info →</span>
             </button>
         </div>
     </div>
 
-    <!-- 投稿流程弹窗 3：前置表单 -->
+    <!-- 投稿弹窗 3：表单 -->
     <div class="modal-overlay" id="stepForm">
         <div class="modal modal-wide">
             <button class="modal-close" onclick="closeModal('stepForm')">×</button>
-            <div class="modal-header">
-                <span class="zh-inline">📋 填写基本信息</span>
-                <span class="en-inline">📋 Basic Information</span>
-            </div>
+            <div class="modal-header"><span class="zh-inline">📋 填写基本信息</span><span class="en-inline">📋 Basic Info</span></div>
             <form id="preForm">
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                     <div class="form-group">
-                        <label class="form-label">游戏名称 / Game Name *</label>
+                        <label class="form-label">游戏名称 / Name *</label>
                         <input type="text" class="form-input" id="inName" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">游戏图标 / Icon * (Emoji)</label>
+                        <label class="form-label">游戏图标 / Icon (Emoji) *</label>
                         <input type="text" class="form-input" id="inIcon" placeholder="🎮" required>
                     </div>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                     <div class="form-group">
-                        <label class="form-label">作者署名 / Author *</label>
+                        <label class="form-label">作者 / Author *</label>
                         <input type="text" class="form-input" id="inAuthor" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">联系邮箱 / Email *</label>
+                        <label class="form-label">邮箱 / Email *</label>
                         <input type="email" class="form-input" id="inEmail" required>
                     </div>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                     <div class="form-group">
                         <label class="form-label">版本号 / Version *</label>
-                        <input type="text" class="form-input" id="inVersion" placeholder="v1.0.0" required pattern="^v?\d+\.\d+\.\d+$" title="格式如 v1.0.0">
+                        <input type="text" class="form-input" id="inVersion" placeholder="v1.0.0" required pattern="^v?\d+\.\d+\.\d+$">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">一句话简介 / Intro * (≤100字)</label>
+                        <label class="form-label">一句话简介 / Intro (≤100字) *</label>
                         <input type="text" class="form-input" id="inIntro" maxlength="100" required>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label">游戏分类 / Category *</label>
+                    <label class="form-label">分类 / Category *</label>
                     <div class="radio-group" id="radCategory">
                         <button type="button" class="radio-btn active" data-val="休闲">休闲</button>
                         <button type="button" class="radio-btn" data-val="益智">益智</button>
@@ -614,9 +792,8 @@
                         <button type="button" class="radio-btn" data-val="其他">其他</button>
                     </div>
                 </div>
-
                 <div class="form-group">
-                    <label class="form-label">适龄分级 / Age Rating *</label>
+                    <label class="form-label">适龄分级 / Age *</label>
                     <div class="radio-group" id="radAge">
                         <button type="button" class="radio-btn active" data-val="全年龄">全年龄</button>
                         <button type="button" class="radio-btn" data-val="6+">6+</button>
@@ -625,36 +802,29 @@
                         <button type="button" class="radio-btn" data-val="18+">18+</button>
                     </div>
                 </div>
-
                 <div class="form-group">
-                    <label class="form-label">投稿方式 / Method *</label>
+                    <label class="form-label">方式 / Method *</label>
                     <div class="radio-group" id="radMethod">
-                        <button type="button" class="radio-btn active" data-val="link">外链 / Link</button>
+                        <button type="button" class="radio-btn active" data-val="link">链接 / Link</button>
                         <button type="button" class="radio-btn" data-val="code">代码 / Code</button>
                     </div>
                 </div>
-
                 <div class="form-group" id="groupUrl">
                     <label class="form-label">游戏链接 / Game URL *</label>
                     <input type="url" class="form-input" id="inUrl" placeholder="https://">
                 </div>
-
                 <div style="text-align:right; margin-top:1rem;">
-                    <button type="button" class="btn" id="btnToTally">
-                        下一步：补充材料 (Tally) →
-                    </button>
+                    <button type="button" class="btn" id="btnToTally">下一步 / Next →</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- 投稿流程弹窗 4：Tally 内嵌 -->
+    <!-- 投稿弹窗 4：Tally -->
     <div class="modal-overlay" id="stepTally">
         <div class="modal modal-wide" style="padding: 1rem;">
             <button class="modal-close" onclick="closeModal('stepTally')" style="z-index:10;">×</button>
-            <div class="tally-wrapper" id="tallyContainer">
-                <!-- Tally 动态注入 -->
-            </div>
+            <div class="tally-wrapper" id="tallyContainer"></div>
         </div>
     </div>
 
@@ -665,25 +835,31 @@
             <div style="font-size:4rem; margin-bottom:1rem;" id="detIcon"></div>
             <div style="font-size:1.5rem; font-weight:700; margin-bottom:0.5rem;" id="detName"></div>
             <div style="margin-bottom:1.5rem;" id="detMeta"></div>
-            <button class="btn" onclick="playGame()">打开游戏 / Play</button>
+            <button class="btn" onclick="playGame()">开始游戏 / Play</button>
         </div>
     </div>
 
-    <script src="lelegame_data.json"></script> <!-- 注意：这里是用 fetch 加载的，但为了兼容你可能本地直接双击，还是留个 js 标签，或者删掉 -->
     <script>
-        // ==================== 多语言逻辑 ====================
+        // ==================== 多语言与全局逻辑 ====================
+        function escapeHtml(str) {
+            return String(str == null ? '' : str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function setLang(lang) {
             document.documentElement.setAttribute('data-lang', lang);
             document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.langBtn === lang);
-            });
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.langBtn === lang));
             try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
-            
-            // 更新守则链接带参
-            const rulesLink = document.getElementById('rulesLink');
-            if(lang === 'en') rulesLink.href = 'game_rules.html?lang=en';
-            else rulesLink.href = 'game_rules.html';
+
+            const suffix = lang === 'en' ? '?lang=en' : '';
+            document.getElementById('linkRules').href = 'game_rules.html' + suffix;
+            document.getElementById('linkPrivacy').href = 'privacy.html' + suffix;
+            document.getElementById('linkCopyright').href = 'copyright.html' + suffix;
         }
         const urlParams = new URLSearchParams(window.location.search);
         const urlLang = urlParams.get('lang');
@@ -691,74 +867,127 @@
         if (urlLang === 'en' || urlLang === 'zh') setLang(urlLang);
         else if (storedLang === 'en' || storedLang === 'zh') setLang(storedLang);
 
-        // 如果从 Tally 提交成功跳回来，清理草稿
         if (urlParams.get('submitted') === '1') {
             localStorage.removeItem('lelele_draft');
             alert('提交成功！草稿已清理。/ Submitted successfully! Draft cleared.');
-            // 清理 URL 参数
             window.history.replaceState({}, document.title, window.location.pathname);
         }
 
-        // ==================== 数据加载 ====================
+        // ==================== 公告加载 ====================
+        async function loadAnnouncements() {
+            try {
+                const res = await fetch('announcements.json');
+                if (!res.ok) return;
+                let data = await res.json();
+                
+                const now = new Date().setHours(0, 0, 0, 0); // 今天零点
+                
+                // 过滤：只保留已发布且未过期的公告
+                data = data.filter(item => {
+                    const pub = new Date(item.publishDate).getTime();
+                    const exp = new Date(item.expireDate).getTime();
+                    // 如果日期解析失败，默认隐藏，防止错误展示
+                    if (isNaN(pub) || isNaN(exp)) return false; 
+                    return pub <= now && exp >= now;
+                });
+                
+                // 排序：按 publishDate 从新到旧
+                data.sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
+                
+                // 最多显示 3 个
+                data = data.slice(0, 3);
+                
+                if (data.length > 0) {
+                    renderAnnouncements(data);
+                }
+            } catch (e) {
+                console.warn('Announcements load failed', e);
+            }
+        }
+
+        function renderAnnouncements(list) {
+            const container = document.getElementById('announcementsContainer');
+            const listEl = document.getElementById('announcementsList');
+            
+            listEl.innerHTML = list.map(item => {
+                const titleZh = item.title_zh || item.title || '';
+                const titleEn = item.title_en || item.title || titleZh;
+                const contentZh = item.content_zh || item.content || '';
+                const contentEn = item.content_en || item.content || contentZh;
+                
+                return `
+                    <div class="announce-card">
+                        <div class="announce-top">
+                            <div class="announce-name">
+                                <span class="zh-inline">${escapeHtml(titleZh)}</span>
+                                <span class="en-inline">${escapeHtml(titleEn)}</span>
+                            </div>
+                            <div class="announce-date">${escapeHtml(item.publishDate)}</div>
+                        </div>
+                        <div class="announce-content">
+                            <span class="zh-inline">${escapeHtml(contentZh)}</span>
+                            <span class="en-inline">${escapeHtml(contentEn)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.style.display = 'block';
+        }
+
+        // ==================== 游戏数据加载与渲染 ====================
         let gameData = [];
-        async function loadData() {
+        async function loadGames() {
+            const grid = document.getElementById('gamesGrid');
+            const status = document.getElementById('statusMessage');
+            
+            grid.innerHTML = Array.from({length:8}).map(() => `<div class="skeleton-card"><div class="skeleton-icon"></div><div class="skeleton-line"></div></div>`).join('');
+            status.style.display = 'none';
+
             try {
                 const res = await fetch('lelegame_data.json');
                 if (res.ok) gameData = await res.json();
-            } catch (e) { console.warn('Data load failed, ensure served via HTTP', e); }
+                else throw new Error();
+            } catch (e) {
+                grid.innerHTML = '';
+                status.style.display = 'block';
+                status.innerHTML = '<span class="zh-inline">数据加载失败，请刷新重试。</span><span class="en-inline">Failed to load data.</span>';
+                return;
+            }
             renderGames();
         }
 
         let currentType = 'local';
-        let currentCat = '全部';
         let searchKeyword = '';
+        let searchTimer = null;
 
         function renderGames() {
             const grid = document.getElementById('gamesGrid');
             const status = document.getElementById('statusMessage');
             grid.innerHTML = '';
 
-            const filtered = gameData.filter(g => g.type === currentType && 
-                (currentCat === '全部' || g.category === currentCat) &&
-                (!searchKeyword || g.name.includes(searchKeyword))
-            );
+            const filtered = gameData.filter(g => g.type === currentType && (!searchKeyword || g.name.toLowerCase().includes(searchKeyword.toLowerCase())));
 
             if (filtered.length === 0) {
                 status.style.display = 'block';
-                status.innerHTML = '<span class="zh-inline">暂无游戏，敬请期待 ✨</span><span class="en-inline">No games yet, stay tuned ✨</span>';
+                status.innerHTML = '<span class="zh-inline">暂无游戏，敬请期待 ✨</span><span class="en-inline">No games yet ✨</span>';
             } else {
                 status.style.display = 'none';
                 filtered.forEach(g => {
                     const card = document.createElement('div');
-                    card.style.cssText = 'background:#fff; border-radius:24px; padding:20px; text-align:center; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.04); transition:transform 0.2s;';
-                    card.onmouseenter = () => card.style.transform = 'translateY(-4px)';
-                    card.onmouseleave = () => card.style.transform = 'translateY(0)';
-                    card.innerHTML = `<div style="font-size:3rem; margin-bottom:10px;">${g.icon || '🎮'}</div><div style="font-weight:600;">${g.name}</div>`;
+                    card.className = 'game-card';
+                    card.innerHTML = `<div class="game-icon">${g.icon || '🎮'}</div><div class="game-name">${escapeHtml(g.name)}</div>`;
                     card.onclick = () => showDetail(g);
                     grid.appendChild(card);
                 });
             }
         }
 
-        function showDetail(game) {
-            document.getElementById('detIcon').textContent = game.icon || '🎮';
-            document.getElementById('detName').textContent = game.name;
-            document.getElementById('detMeta').innerHTML = `<span style="background:rgba(79,70,229,0.1); color:#4f46e5; padding:2px 10px; border-radius:20px; font-size:0.8rem; margin:0 4px;">${game.category}</span> <span style="background:rgba(16,185,129,0.1); color:#059669; padding:2px 10px; border-radius:20px; font-size:0.8rem;">${game.ageRating || '全年龄'}</span>`;
-            window.currentPlayUrl = game.url;
-            openModal('gameDetail');
-        }
-
-        function playGame() {
-            if (window.currentPlayUrl) window.open(window.currentPlayUrl, '_blank', 'noopener,noreferrer');
-        }
-
-        // 搜索
         document.getElementById('searchInput').addEventListener('input', (e) => {
-            searchKeyword = e.target.value;
-            renderGames();
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => { searchKeyword = e.target.value; renderGames(); }, 200);
         });
 
-        // 类型切换
         document.getElementById('typeNav').addEventListener('click', (e) => {
             const btn = e.target.closest('.type-btn');
             if(!btn) return;
@@ -768,11 +997,20 @@
             renderGames();
         });
 
-        // ==================== 弹窗控制 ====================
+        // ==================== 详情弹窗 ====================
+        function showDetail(game) {
+            document.getElementById('detIcon').textContent = game.icon || '🎮';
+            document.getElementById('detName').textContent = game.name;
+            document.getElementById('detMeta').innerHTML = `<span style="background:rgba(79,70,229,0.1); color:#4f46e5; padding:2px 10px; border-radius:20px; font-size:0.8rem; margin:0 4px;">${escapeHtml(game.category)}</span> <span style="background:rgba(16,185,129,0.1); color:#059669; padding:2px 10px; border-radius:20px; font-size:0.8rem;">${escapeHtml(game.ageRating || '全年龄')}</span>`;
+            window.currentPlayUrl = game.url;
+            openModal('gameDetail');
+        }
+        function playGame() { if (window.currentPlayUrl) window.open(window.currentPlayUrl, '_blank', 'noopener,noreferrer'); }
+
+        // ==================== 弹窗与投稿流程 ====================
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        // ==================== 投稿流程 ====================
         // 1. 须知
         document.getElementById('openSubmitGuide').onclick = () => {
             document.getElementById('chkGuide').checked = false;
@@ -783,49 +1021,34 @@
         document.getElementById('chkGuide').onchange = document.getElementById('chkGuideEn').onchange = (e) => {
             document.getElementById('btnToStep2').disabled = !e.target.checked;
         };
-        document.getElementById('btnToStep2').onclick = () => {
-            closeModal('stepGuide');
-            openModal('stepAuth');
-        };
+        document.getElementById('btnToStep2').onclick = () => { closeModal('stepGuide'); openModal('stepAuth'); };
 
         // 2. 授权
         document.getElementById('chkAuth').onchange = document.getElementById('chkAuthEn').onchange = (e) => {
             document.getElementById('btnToStep3').disabled = !e.target.checked;
         };
-        document.getElementById('btnToStep3').onclick = () => {
-            closeModal('stepAuth');
-            openModal('stepForm');
-            restoreDraft();
-        };
+        document.getElementById('btnToStep3').onclick = () => { closeModal('stepAuth'); openModal('stepForm'); restoreDraft(); };
 
-        // 3. 前置表单
-        const radios = document.querySelectorAll('.radio-group');
-        radios.forEach(group => {
+        // 3. 表单交互
+        document.querySelectorAll('.radio-group').forEach(group => {
             group.addEventListener('click', (e) => {
                 if(e.target.classList.contains('radio-btn')) {
                     group.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
                     e.target.classList.add('active');
-                    if(group.id === 'radMethod') {
-                        document.getElementById('groupUrl').style.display = e.target.dataset.val === 'link' ? 'block' : 'none';
-                    }
+                    if(group.id === 'radMethod') document.getElementById('groupUrl').style.display = e.target.dataset.val === 'link' ? 'block' : 'none';
+                    saveDraft();
                 }
             });
         });
-
-        // 监听表单输入并保存草稿
-        const draftFields = ['inName', 'inIcon', 'inAuthor', 'inEmail', 'inVersion', 'inIntro', 'inUrl'];
-        draftFields.forEach(id => {
+        ['inName', 'inIcon', 'inAuthor', 'inEmail', 'inVersion', 'inIntro', 'inUrl'].forEach(id => {
             document.getElementById(id).addEventListener('input', saveDraft);
         });
 
         function saveDraft() {
             const data = {
-                name: document.getElementById('inName').value,
-                icon: document.getElementById('inIcon').value,
-                author: document.getElementById('inAuthor').value,
-                email: document.getElementById('inEmail').value,
-                version: document.getElementById('inVersion').value,
-                intro: document.getElementById('inIntro').value,
+                name: document.getElementById('inName').value, icon: document.getElementById('inIcon').value,
+                author: document.getElementById('inAuthor').value, email: document.getElementById('inEmail').value,
+                version: document.getElementById('inVersion').value, intro: document.getElementById('inIntro').value,
                 url: document.getElementById('inUrl').value,
                 cat: document.querySelector('#radCategory .active').dataset.val,
                 age: document.querySelector('#radAge .active').dataset.val,
@@ -846,76 +1069,43 @@
                 if(data.version) document.getElementById('inVersion').value = data.version;
                 if(data.intro) document.getElementById('inIntro').value = data.intro;
                 if(data.url) document.getElementById('inUrl').value = data.url;
-                
-                // 恢复单选框
-                const setRad = (groupId, val) => {
-                    document.querySelectorAll(`#${groupId} .radio-btn`).forEach(b => {
-                        b.classList.toggle('active', b.dataset.val === val);
-                    });
-                };
+                const setRad = (id, val) => { document.querySelectorAll(`#${id} .radio-btn`).forEach(b => b.classList.toggle('active', b.dataset.val === val)); };
                 if(data.cat) setRad('radCategory', data.cat);
                 if(data.age) setRad('radAge', data.age);
-                if(data.method) {
-                    setRad('radMethod', data.method);
-                    document.getElementById('groupUrl').style.display = data.method === 'link' ? 'block' : 'none';
-                }
+                if(data.method) { setRad('radMethod', data.method); document.getElementById('groupUrl').style.display = data.method === 'link' ? 'block' : 'none'; }
             } catch(e){}
         }
 
-        // 4. 跳转到 Tally
+        // 4. 跳 Tally
         document.getElementById('btnToTally').onclick = () => {
-            const form = document.getElementById('preForm');
-            if(!form.reportValidity()) return;
-
-            const name = document.getElementById('inName').value;
-            const icon = document.getElementById('inIcon').value;
-            const author = document.getElementById('inAuthor').value;
-            const email = document.getElementById('inEmail').value;
-            const version = document.getElementById('inVersion').value;
-            const intro = document.getElementById('inIntro').value;
-            const url = document.getElementById('inUrl').value;
-            const cat = document.querySelector('#radCategory .active').dataset.val;
-            const age = document.querySelector('#radAge .active').dataset.val;
-            const method = document.querySelector('#radMethod .active').dataset.val;
-
-            // 拼接 Tally URL 参数 (注意：这里使用 Tally 生成的中文拼音 Slug)
-            // 如果预填不生效，请检查 Tally 后台真实的 Slug 并在此修改 key
-            const p = new URLSearchParams();
-            p.append('you-xi-ming-cheng', name);
-            p.append('you-xi-tu-biao', icon);
-            p.append('zuo-zhe-shu-ming', author);
-            p.append('lian-xi-you-xiang', email);
-            p.append('ban-ben-hao', version);
-            p.append('yi-ju-hua-jian-jie', intro);
-            p.append('you-xi-fen-lei', cat);
-            p.append('shi-ling-fen-ji', age);
-            p.append('tou-gao-fang-shi', method);
-            if(method === 'link') p.append('you-xi-lian-jie', url);
-
-            const tallyBase = 'https://tally.so/embed/7XlY69?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1';
-            const finalUrl = `${tallyBase}&${p.toString()}`;
-
-            // 注入 iframe
-            const container = document.getElementById('tallyContainer');
-            container.innerHTML = `<iframe data-tally-src="${finalUrl}" loading="lazy" width="100%" height="800" frameborder="0" marginheight="0" marginwidth="0" title="投稿表单"></iframe>`;
+            if(!document.getElementById('preForm').reportValidity()) return;
             
-            // 加载 Tally SDK
-            if (typeof Tally !== 'undefined') {
-                Tally.loadEmbeds();
-            } else {
-                const checkTally = setInterval(() => {
-                    if (typeof Tally !== 'undefined') { Tally.loadEmbeds(); clearInterval(checkTally); }
-                }, 200);
+            const p = new URLSearchParams();
+            p.append('you-xi-ming-cheng', document.getElementById('inName').value);
+            p.append('you-xi-tu-biao', document.getElementById('inIcon').value);
+            p.append('zuo-zhe-shu-ming', document.getElementById('inAuthor').value);
+            p.append('lian-xi-you-xiang', document.getElementById('inEmail').value);
+            p.append('ban-ben-hao', document.getElementById('inVersion').value);
+            p.append('yi-ju-hua-jian-jie', document.getElementById('inIntro').value);
+            p.append('you-xi-fen-lei', document.querySelector('#radCategory .active').dataset.val);
+            p.append('shi-ling-fen-ji', document.querySelector('#radAge .active').dataset.val);
+            p.append('tou-gao-fang-shi', document.querySelector('#radMethod .active').dataset.val);
+            if(document.querySelector('#radMethod .active').dataset.val === 'link') {
+                p.append('you-xi-lian-jie', document.getElementById('inUrl').value);
             }
 
-            closeModal('stepForm');
-            openModal('stepTally');
+            const finalUrl = `https://tally.so/embed/7XlY69?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1&${p.toString()}`;
+            document.getElementById('tallyContainer').innerHTML = `<iframe data-tally-src="${finalUrl}" loading="lazy" width="100%" height="800" frameborder="0"></iframe>`;
+            
+            if (typeof Tally !== 'undefined') Tally.loadEmbeds();
+            closeModal('stepForm'); openModal('stepTally');
         };
 
-        // 初始化
-        loadData();
+        // ==================== 初始化 ====================
+        // 并行加载数据与公告
+        loadGames();
+        loadAnnouncements();
     </script>
-    <!-- Tally SDK -->
     <script async src="https://tally.so/widgets/embed.js"></script>
 </body>
 </html>
