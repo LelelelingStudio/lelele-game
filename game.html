@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>加载中... · 了了了游</title>
+    <style>
+        /* ===== 全局重置 ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: linear-gradient(145deg, #f0f4f9 0%, #e8ecf5 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ===== 顶部导航 ===== */
+        .top-bar {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 12px 28px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: #4f46e5;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 8px 16px;
+            background: rgba(79, 70, 229, 0.08);
+            border-radius: 30px;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: rgba(79, 70, 229, 0.15); }
+        .site-title {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .site-title img { height: 24px; }
+
+        /* ===== 主容器 ===== */
+        .main-container {
+            width: 100%;
+            max-width: 900px;
+            margin: 30px auto 50px;
+            padding: 0 20px;
+            flex: 1;
+        }
+
+        /* ===== 游戏详情卡片 ===== */
+        .game-detail-card {
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            display: none; /* 加载完后显示 */
+            animation: fadeIn 0.4s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Banner 大图 */
+        .banner-area {
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .banner-area.no-image { height: 160px; }
+        .banner-icon { font-size: 6rem; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+
+        /* 内容区 */
+        .content-area { padding: 40px; }
+
+        /* 头部信息 */
+        .header-info {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .title-group { flex: 1; min-width: 250px; }
+        .game-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+        .meta-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .tag {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: #f1f5f9;
+            color: #475569;
+        }
+        .tag.age { background: rgba(16, 185, 129, 0.1); color: #059669; }
+        .tag.version { background: rgba(79, 70, 229, 0.1); color: #4f46e5; }
+
+        /* 操作按钮 */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 32px;
+            border-radius: 30px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-family: inherit;
+        }
+        .btn-play {
+            background: #4f46e5;
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+        }
+        .btn-play:hover { background: #4338ca; transform: translateY(-2px); box-shadow: 0 12px 24px rgba(79, 70, 229, 0.4); }
+        
+        .btn-fav {
+            background: #f1f5f9;
+            color: #1e293b;
+            padding: 14px 20px;
+            box-shadow: none;
+        }
+        .btn-fav:hover { background: #e2e8f0; }
+        .btn-fav.active { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .btn-fav.active:hover { background: #fde68a; }
+
+        /* 开发者信息 */
+        .author-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            color: #64748b;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px dashed #e2e8f0;
+        }
+        .author-bar strong { color: #1e293b; }
+
+        /* 正文段落 */
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 30px 0 16px;
+            padding-left: 10px;
+            border-left: 4px solid #4f46e5;
+        }
+        .game-description {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: #334155;
+            white-space: pre-wrap;
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid #f1f5f9;
+        }
+
+        /* 更新日志时间线 */
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+            border-left: 2px solid #e2e8f0;
+            margin-left: 10px;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 24px;
+        }
+        .timeline-item:last-child { margin-bottom: 0; }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -25px;
+            top: 4px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4f46e5;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+        .timeline-header {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+        .timeline-version { font-weight: 700; color: #0f172a; }
+        .timeline-date { font-size: 0.85rem; color: #94a3b8; }
+        .timeline-content { font-size: 0.95rem; color: #475569; line-height: 1.6; white-space: pre-wrap; }
+
+        /* ===== 加载状态 / 错误状态 ===== */
+        .loading-state, .error-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+            font-size: 1.1rem;
+            display: none;
+        }
+        .error-state .btn { margin-top: 20px; }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 768px) {
+            .content-area { padding: 24px; }
+            .game-title { font-size: 1.8rem; }
+            .header-info { flex-direction: column; }
+            .action-buttons { width: 100%; flex-direction: column-reverse; }
+            .btn { width: 100%; }
+            .btn-fav { padding: 14px; }
+            .banner-area { height: 200px; }
+            .banner-area.no-image { height: 120px; }
+            .banner-icon { font-size: 4rem; }
+            .top-bar { padding: 10px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部导航 -->
+    <div class="top-bar">
+        <a href="index.html" class="back-btn" id="backBtn">
+            ← <span>返回首页</span>
+        </a>
+        <div class="site-title" onclick="window.location.href='index.html'" style="cursor:pointer;">
+            <img src="lelelegame.svg" alt="Logo" onerror="this.style.display='none'">
+            <span>了了了游</span>
+        </div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="main-container">
+        
+        <!-- 加载中 -->
+        <div class="loading-state" id="loadingState" style="display:block;">
+            <div style="font-size: 2rem; margin-bottom: 10px;">🔄</div>
+            正在加载游戏详情...
+        </div>
+
+        <!-- 错误状态 -->
+        <div class="error-state" id="errorState">
+            <div style="font-size: 3rem; margin-bottom: 10px;">😢</div>
+            <div id="errorMsg">未找到该游戏。</div>
+            <a href="index.html" class="btn btn-play">返回首页</a>
+        </div>
+
+        <!-- 详情卡片 -->
+        <div class="game-detail-card" id="gameCard">
+            <!-- Banner -->
+            <div class="banner-area" id="bannerArea">
+                <div class="banner-icon" id="bannerIcon">🎮</div>
+            </div>
+
+            <!-- 内容 -->
+            <div class="content-area">
+                <!-- 头部信息 -->
+                <div class="header-info">
+                    <div class="title-group">
+                        <h1 class="game-title" id="gameTitle"></h1>
+                        <div class="meta-tags" id="metaTags"></div>
+                        <div class="author-bar" id="authorBar"></div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-fav" id="favBtn" onclick="toggleFav()">⭐ 收藏</button>
+                        <button class="btn btn-play" id="playBtn" onclick="playGame()">🎮 开始游戏</button>
+                    </div>
+                </div>
+
+                <!-- 游戏简介 -->
+                <div class="section-title">📖 游戏简介</div>
+                <div class="game-description" id="gameDesc"></div>
+
+                <!-- 更新日志 (如果有) -->
+                <div id="updateLogContainer" style="display:none;">
+                    <div class="section-title">📝 更新日志</div>
+                    <div class="timeline" id="timeline"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ==================== 全局工具 ====================
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        // ==================== 状态变量 ====================
+        let currentGameId = null;
+        let currentGameData = null;
+
+        // ==================== 收藏逻辑 ====================
+        function getFavorites() {
+            try { return JSON.parse(localStorage.getItem('lelele_favs') || '[]'); } 
+            catch (e) { return []; }
+        }
+
+        function isFav(id) { 
+            return getFavorites().includes(String(id)); 
+        }
+
+        function updateFavBtn() {
+            const btn = document.getElementById('favBtn');
+            if (isFav(currentGameId)) {
+                btn.innerHTML = '🌟 已收藏';
+                btn.classList.add('active');
+            } else {
+                btn.innerHTML = '⭐ 收藏';
+                btn.classList.remove('active');
+            }
+        }
+
+        window.toggleFav = function() {
+            if (!currentGameId) return;
+            let favs = getFavorites();
+            const idStr = String(currentGameId);
+            
+            if (favs.includes(idStr)) {
+                favs = favs.filter(f => f !== idStr);
+            } else {
+                favs.push(idStr);
+            }
+            try { localStorage.setItem('lelele_favs', JSON.stringify(favs)); } catch (e) {}
+            updateFavBtn();
+        };
+
+        // ==================== 游玩逻辑 ====================
+        window.playGame = function() {
+            if (!currentGameData || !currentGameData.url) {
+                alert('该游戏暂无可用链接。');
+                return;
+            }
+            // 支持相对路径和外链绝对路径
+            window.open(currentGameData.url, '_blank', 'noopener,noreferrer');
+        };
+
+        // ==================== 渲染详情页 ====================
+        function renderGamePage(game) {
+            // 1. 设置页面标题
+            document.title = `${game.name || '未知游戏'} · 了了了游`;
+
+            // 2. 渲染 Banner
+            const bannerArea = document.getElementById('bannerArea');
+            const bannerIcon = document.getElementById('bannerIcon');
+            if (game.banner) {
+                bannerArea.style.backgroundImage = `url('${escapeHtml(game.banner)}')`;
+                bannerArea.classList.remove('no-image');
+                bannerIcon.style.display = 'none';
+            } else {
+                // 没图就显示大号 Emoji
+                bannerArea.style.backgroundImage = 'linear-gradient(135deg, rgba(79,70,229,0.1) 0%, rgba(124,58,237,0.1) 100%)';
+                bannerArea.classList.add('no-image');
+                bannerIcon.style.display = 'block';
+                bannerIcon.textContent = game.icon || '🎮';
+            }
+
+            // 3. 渲染头部信息
+            document.getElementById('gameTitle').textContent = game.name || '未知游戏';
+            
+            let tagsHtml = '';
+            if (game.category) tagsHtml += `<span class="tag">${escapeHtml(game.category)}</span>`;
+            if (game.ageRating) tagsHtml += `<span class="tag age">${escapeHtml(game.ageRating)}</span>`;
+            if (game.version) tagsHtml += `<span class="tag version">${escapeHtml(game.version)}</span>`;
+            document.getElementById('metaTags').innerHTML = tagsHtml;
+
+            // 4. 渲染作者信息 (如果有)
+            const authorBar = document.getElementById('authorBar');
+            if (game.author) {
+                authorBar.innerHTML = `开发者：<strong>${escapeHtml(game.author)}</strong>`;
+            } else {
+                authorBar.style.display = 'none';
+            }
+
+            // 5. 渲染简介
+            document.getElementById('gameDesc').textContent = game.description || game.intro || '这个游戏很神秘，作者还没有写详细简介。';
+
+            // 6. 渲染更新日志 (如果有)
+            if (game.updateLog && Array.isArray(game.updateLog) && game.updateLog.length > 0) {
+                document.getElementById('updateLogContainer').style.display = 'block';
+                const timeline = document.getElementById('timeline');
+                timeline.innerHTML = game.updateLog.map(log => `
+                    <div class="timeline-item">
+                        <div class="timeline-header">
+                            <span class="timeline-version">${escapeHtml(log.version || '更新')}</span>
+                            <span class="timeline-date">${escapeHtml(log.date || '')}</span>
+                        </div>
+                        <div class="timeline-content">${escapeHtml(log.content || '')}</div>
+                    </div>
+                `).join('');
+            }
+
+            // 7. 更新操作按钮状态
+            updateFavBtn();
+            
+            // 8. 显示卡片，隐藏加载
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('gameCard').style.display = 'block';
+        }
+
+        // ==================== 数据加载主逻辑 ====================
+        async function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            currentGameId = urlParams.get('id');
+            
+            // 如果返回首页有 lang 参数，带上
+            if (urlParams.get('lang') === 'en') {
+                document.getElementById('backBtn').href = 'index.html?lang=en';
+            }
+
+            if (!currentGameId) {
+                showError('缺少游戏 ID 参数，无法加载。');
+                return;
+            }
+
+            try {
+                // 尝试 1: 加载独立详细数据 (根目录/game/data/1.json)
+                const detailRes = await fetch(`/game/data/${currentGameId}.json`);
+                
+                if (detailRes.ok) {
+                    currentGameData = await detailRes.json();
+                    renderGamePage(currentGameData);
+                    return;
+                }
+                
+                // 尝试 2: 如果独立数据不存在 (404)，去主列表 lelegame_data.json 找基础数据兜底
+                console.warn(`未找到详细数据，尝试从主列表加载 ID: ${currentGameId}`);
+                const baseRes = await fetch('lelegame_data.json');
+                if (baseRes.ok) {
+                    const baseData = await baseRes.json();
+                    const baseGame = baseData.find(g => String(g.id) === String(currentGameId));
+                    
+                    if (baseGame) {
+                        // 用基础数据构造一个兜底对象
+                        currentGameData = {
+                            id: baseGame.id,
+                            name: baseGame.name,
+                            icon: baseGame.icon,
+                            category: baseGame.category,
+                            ageRating: baseGame.ageRating,
+                            url: baseGame.url,
+                            version: baseGame.version || '未知版本',
+                            description: '暂无详细简介，作者可能正在努力编写中。你可以直接点击上方按钮开始游戏体验。'
+                        };
+                        renderGamePage(currentGameData);
+                        return;
+                    }
+                }
+
+                // 尝试 3: 完全找不到
+                showError('该游戏不存在或已被下架。');
+
+            } catch (e) {
+                console.error('加载失败:', e);
+                showError('网络或数据加载失败，请稍后重试。');
+            }
+        }
+
+        // 显示错误状态
+        function showError(msg) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('gameCard').style.display = 'none';
+            document.getElementById('errorState').style.display = 'block';
+            document.getElementById('errorMsg').textContent = msg;
+        }
+
+        // 启动
+        init();
+    </script>
+</body>
+</html>
