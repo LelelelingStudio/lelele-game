@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<!-- PWA manifest 动态加载 -->
+<script>
+  (function(){var lang=document.documentElement.getAttribute('data-lang')||'zh';var manifestMap={zh:'/manifest-zh.json',en:'/manifest-en.json',ja:'/manifest-ja.json',fr:'/manifest-fr.json'};var link=document.createElement('link');link.rel='manifest';link.href=manifestMap[lang]||'/manifest-zh.json';document.head.appendChild(link);})();
+</script>
+<!-- 苹果设备兼容 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/LOGO.svg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌽 玉米工厂大亨 · 品种纪元</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+<!-- 了了了岭用户系统-样式与SDK -->
+<link rel="stylesheet" href="../../../common-user.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+<div class="site-logo-container">
+    <img src="https://leleleling.site/LOGO.svg" 
+         onerror="this.onerror=null; this.src='https://leleleling.surge.sh/LOGO.svg';" 
+         alt="Logo" 
+         style="height: 40px; width: 40px; border-radius: 50%; margin: 10px;">
+</div>
+<!-- 了了了岭用户系统-顶部挂件 -->
+<div id="userWidget" style="position:fixed;top:15px;right:20px;z-index:9999;"></div>
+
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-seedling"></i> 玉米工厂大亨 · 品种纪元</h1>
+            <div class="stats-bar">
+                <div class="stat"><span class="stat-label">💰 金币</span><span id="gold" class="stat-value">300</span></div>
+                <div class="stat"><span class="stat-label">⭐ 等级</span><span id="level" class="stat-value">1</span></div>
+                <div class="stat"><span class="stat-label">✨ 经验</span><span id="exp" class="stat-value">0/100</span></div>
+                <div class="stat"><span class="stat-label">📅 日子</span><span id="day" class="stat-value">1</span></div>
+                <div class="stat"><span class="stat-label">📦 仓库</span><span id="storage-stat" class="stat-value">20/50</span></div>
+            </div>
+            <div class="time-control">
+                <div class="next-day-timer">
+                    <span>⏳ 下次下一天：</span>
+                    <div class="timer-bar"><div id="timer-progress" class="timer-progress"></div></div>
+                    <span id="timer-text">准备就绪</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="main-game">
+                <div class="farm-section">
+                    <h2><i class="fas fa-tractor"></i> 我的农场</h2>
+                    <div class="farm-controls">
+                        <button id="buy-land-btn" class="btn"><i class="fas fa-expand-arrows-alt"></i> 开垦新地 (100金币)</button>
+                        <button id="water-all-btn" class="btn"><i class="fas fa-tint"></i> 一键浇水 (20金币)</button>
+                        <button id="harvest-all-btn" class="btn"><i class="fas fa-basket-shopping"></i> 一键收获</button>
+                        <button id="mall-btn" class="btn btn-primary"><i class="fas fa-shopping-cart"></i> 道具商城</button>
+                        <button id="factory-btn" class="btn"><i class="fas fa-industry"></i> 加工厂</button>
+                        <button id="upgrade-storage-btn" class="btn"><i class="fas fa-warehouse"></i> 升级仓库 (200金币)</button>
+                        <button id="skin-btn" class="btn"><i class="fas fa-palette"></i> 皮肤</button>
+                    </div>
+                    <div id="farmland" class="farmland"></div>
+                    <div class="farm-info">
+                        <p>🌾 你拥有 <span id="owned-plots">6</span> 块地，共 <span id="total-plots">30</span> 块可开垦</p>
+                        <div class="season-display">
+                            <span>🍃 季节: <span id="season">春季</span></span>
+                            <span>☀️ 天气: <span id="weather">晴朗</span></span>
+                            <span>🧙 商人下次到访: <span id="merchant-countdown">?</span> 天后</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="events-log">
+                    <h3><i class="fas fa-clipboard-list"></i> 事件日志</h3>
+                    <div class="log-controls">
+                        <button id="clear-log-btn" class="btn-small">清空日志</button>
+                        <div class="event-frequency">📈 事件频率: <span id="event-rate">高</span></div>
+                    </div>
+                    <div id="log" class="log-content"></div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="shop-section">
+                    <h2><i class="fas fa-seedling"></i> 种子商店</h2>
+                    <div class="crop-filter">
+                        <button class="filter-btn active" data-filter="all">全部</button>
+                        <button class="filter-btn" data-filter="corn">🌽 玉米品种</button>
+                        <button class="filter-btn" data-filter="other">🍅 其他作物</button>
+                    </div>
+                    <div id="crops-list" class="crops-list scrollable"></div>
+                </div>
+
+                <div class="trade-section">
+                    <h2><i class="fas fa-exchange-alt"></i> 交易中心</h2>
+                    <div class="trade-tabs">
+                        <button class="trade-tab active" data-tab="market">🏪 市场</button>
+                        <button class="trade-tab" data-tab="merchant">🧙 商人</button>
+                        <button class="trade-tab" data-tab="auction">📢 交易行</button>
+                    </div>
+                    <div id="market-panel" class="trade-panel active">
+                        <p>市场收购价随行情波动，即时出售。</p>
+                        <div id="market-items" class="market-items"></div>
+                    </div>
+                    <div id="merchant-panel" class="trade-panel">
+                        <p>商人偶尔来访，收购价极高！</p>
+                        <div id="merchant-items" class="merchant-items"></div>
+                        <button id="sell-to-merchant-btn" class="btn btn-large" style="margin-top:10px;">出售选中物品</button>
+                    </div>
+                    <div id="auction-panel" class="trade-panel">
+                        <p>自定义价格上架，价格越高出售越慢，7天未卖出自动退回。</p>
+                        <div id="auction-items" class="auction-items"></div>
+                        <div class="auction-control">
+                            <select id="auction-item-select"></select>
+                            <input type="number" id="auction-price" placeholder="单价(金币)" step="1">
+                            <input type="number" id="auction-quantity" placeholder="数量" step="1" min="1">
+                            <button id="list-auction-btn" class="btn">上架</button>
+                        </div>
+                        <h3>已上架商品</h3>
+                        <div id="listed-items" class="listed-items"></div>
+                    </div>
+                </div>
+
+                <div class="inventory-section">
+                    <h2><i class="fas fa-shopping-basket"></i> 仓库</h2>
+                    <div class="storage-info">
+                        容量: <span id="storage-used">0</span>/<span id="storage-capacity">50</span>
+                        <div class="storage-bar"><div id="storage-progress" class="storage-progress"></div></div>
+                    </div>
+                    <div id="inventory" class="inventory scrollable"></div>
+                    <div class="inventory-total">💰 总价值: <span id="inventory-value">0</span> 金币</div>
+                </div>
+
+                <div class="action-section">
+                    <h2><i class="fas fa-play-circle"></i> 操作</h2>
+                    <div class="action-controls">
+                        <button id="next-day-btn" class="btn btn-primary btn-large"><i class="fas fa-forward"></i> <span id="next-day-text">下一天</span></button>
+                        <div class="day-info">
+                            <p>📌 点击"下一天"让作物生长（冷却60秒）</p>
+                            <p id="next-day-tip">🌤️ 明天天气晴朗，适合种植</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 商城对话框 -->
+    <div id="mall-dialog" class="dialog">
+        <div class="dialog-content mall-content">
+            <div class="dialog-header"><h3><i class="fas fa-gem"></i> 道具商城</h3><button id="close-mall-btn" class="close-btn">&times;</button></div>
+            <div id="mall-items" class="mall-items"></div>
+        </div>
+    </div>
+
+    <!-- 加工厂对话框 -->
+    <div id="factory-dialog" class="dialog">
+        <div class="dialog-content factory-content">
+            <div class="dialog-header"><h3><i class="fas fa-industry"></i> 加工厂</h3><button id="close-factory-btn" class="close-btn">&times;</button></div>
+            <div class="factory-tabs">
+                <button class="factory-tab active" data-tab="available">📦 可加工</button>
+                <button class="factory-tab" data-tab="processing">⚙️ 加工中</button>
+                <button class="factory-tab" data-tab="completed">✅ 已完成</button>
+            </div>
+            <div class="factory-content-tabs">
+                <div id="available-products" class="tab-content active scrollable"></div>
+                <div id="processing-products" class="tab-content scrollable"></div>
+                <div id="completed-products" class="tab-content scrollable"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 皮肤对话框 -->
+    <div id="skin-dialog" class="dialog">
+        <div class="dialog-content skin-content">
+            <div class="dialog-header"><h3><i class="fas fa-palette"></i> 农场皮肤</h3><button id="close-skin-btn" class="close-btn">&times;</button></div>
+            <p class="skin-description">🎨 每5级解锁一个新皮肤！当前等级: <span id="current-level">1</span></p>
+            <div class="skin-selector" id="skin-selector"></div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+<!-- 了了了岭用户系统-核心逻辑 -->
+<script src="../../../common-user.js"></script>
+<!-- PWA Service Worker 注册 -->
+<script>
+if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js').then(function(reg){console.log('✅ PWA Service Worker 注册成功');}).catch(function(err){console.log('❌ PWA Service Worker 注册失败:',err);});}
+</script>
+</body>
+
+</html>
