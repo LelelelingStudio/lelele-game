@@ -1,1 +1,20 @@
-[]
+{
+  "id": 1,
+  "name": "爱种地的农民",
+  "icon": "🌾",
+  "category": "休闲",
+  "ageRating": "全年龄",
+  "version": "v1.0.0",
+  "author": "了了了岭工作室",
+  "url": "https://happyfarmer.surge.sh",
+  "banner": "https://happyfarmer.surge.sh/blob.png",
+  "screenshots": [],
+  "description": "暂无详细简介，作者正在努力编写中。你可以直接点击上方按钮开始游戏体验。",
+  "updateLog": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-19",
+      "content": "游戏首发上线！"
+    }
+  ]
+}
