@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<!-- PWA manifest 动态加载 -->
+<script>
+  (function(){var lang=document.documentElement.getAttribute('data-lang')||'zh';var manifestMap={zh:'/manifest-zh.json',en:'/manifest-en.json',ja:'/manifest-ja.json',fr:'/manifest-fr.json'};var link=document.createElement('link');link.rel='manifest';link.href=manifestMap[lang]||'/manifest-zh.json';document.head.appendChild(link);})();
+</script>
+<!-- 苹果设备兼容 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/LOGO.svg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卡牌2048 - 多难度挑战</title>
+    <style>
+.site-logo-container {
+    display: inline-block;
+    z-index: 1000;
+    position: relative;
+}
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --dark-bg: #2c3e50;
+            --light-bg: #34495e;
+            --card-bg: #ecf0f1;
+            --text-dark: #2c3e50;
+            --text-light: #ecf0f1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg), #1a252f);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #game-container {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(52, 73, 94, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 3px solid var(--primary-color);
+            backdrop-filter: blur(10px);
+        }
+
+        /* ========== 头部样式 ========== */
+        #game-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 20px;
+        }
+
+        #game-header h1 {
+            font-size: 42px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
+        }
+
+        #game-subtitle {
+            font-size: 18px;
+            color: #a0d2ff;
+            opacity: 0.8;
+        }
+
+        /* ========== 主游戏区域 ========== */
+        #game-content {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        /* ========== 游戏状态面板 ========== */
+        #game-stats {
+            flex: 1;
+            min-width: 250px;
+            background: rgba(44, 62, 80, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stats-section {
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stats-section:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 22px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::after {
+            content: '';
+            flex-grow: 1;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-color), transparent);
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: #a0d2ff;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--secondary-color);
+            min-width: 80px;
+            text-align: right;
+        }
+
+        #score {
+            color: var(--warning-color);
+        }
+
+        #high-score {
+            color: #9b59b6;
+        }
+
+        /* ========== 难度选择 ========== */
+        .difficulty-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .difficulty-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .difficulty-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .difficulty-btn.active {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .difficulty-easy {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+
+        .difficulty-hard {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .difficulty-master {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+
+        .difficulty-desc {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 5px;
+            text-align: center;
+        }
+
+        /* ========== 游戏板 ========== */
+        #game-board {
+            flex: 2;
+            min-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* ========== 卡牌放置区 ========== */
+        #card-slots {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-slot {
+            height: 180px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 3px dashed rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slot-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .card-stack {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 5px;
+        }
+
+        /* ========== 卡牌样式 ========== */
+        .card {
+            width: 90%;
+            height: 60px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            color: var(--text-dark);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: absolute;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+        }
+
+        .card.dragging {
+            opacity: 0.8;
+            transform: scale(1.05);
+            z-index: 1000;
+        }
+
+        /* 不同数值的卡牌颜色 */
+        .card-1 { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
+        .card-2 { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; }
+        .card-4 { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
+        .card-8 { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; }
+        .card-16 { background: linear-gradient(135deg, #34495e, #2c3e50); color: white; }
+        .card-32 { background: linear-gradient(135deg, #16a085, #1abc9c); color: white; }
+        .card-64 { background: linear-gradient(135deg, #f39c12, #e67e22); color: white; }
+        .card-128 { background: linear-gradient(135deg, #d35400, #e74c3c); color: white; }
+        .card-256 { background: linear-gradient(135deg, #c0392b, #e74c3c); color: white; }
+        .card-512 { background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; }
+        .card-1024 { background: linear-gradient(135deg, #2980b9, #3498db); color: white; }
+        .card-2048 { 
+            background: linear-gradient(135deg, #27ae60, #2ecc71); 
+            color: white;
+            animation: pulse 1s infinite alternate;
+            border: 3px solid gold;
+        }
+
+        @keyframes pulse {
+            from { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+            to { box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+        }
+
+        .card-wild { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; border: 3px dashed gold; }
+
+        /* ========== 卡牌刷新区 ========== */
+        #card-refresh-area {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            margin-top: 20px;
+        }
+
+        #card-refresh-title {
+            font-size: 20px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        #card-options-container {
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        #card-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .card-option {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            cursor: move;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .card-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-option.empty {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            cursor: default;
+        }
+
+        /* ========== 道具商店 ========== */
+        #powerup-shop {
+            flex: 1;
+            min-width: 250px;
+            background: rgba(44, 62, 80, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .powerup-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .powerup-item:hover {
+            background: rgba(52, 152, 219, 0.2);
+            border-color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .powerup-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .powerup-item.disabled:hover {
+            background: rgba(0, 0, 0, 0.3);
+            border-color: transparent;
+            transform: none;
+        }
+
+        .powerup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .powerup-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--warning-color);
+        }
+
+        .powerup-cost {
+            font-size: 16px;
+            color: var(--secondary-color);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .powerup-desc {
+            font-size: 14px;
+            color: #a0d2ff;
+            opacity: 0.8;
+        }
+
+        /* ========== 游戏信息 ========== */
+        #game-info {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(44, 62, 80, 0.7);
+            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .info-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            background: rgba(52, 152, 219, 0.2);
+        }
+
+        .info-text {
+            font-size: 14px;
+            color: #a0d2ff;
+        }
+
+        /* ========== 消息提示 ========== */
+        #message-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        #message-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .message-box {
+            background: linear-gradient(135deg, var(--dark-bg), var(--light-bg));
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 0 50px rgba(52, 152, 219, 0.3);
+        }
+
+        .message-box h2 {
+            font-size: 42px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .message-box p {
+            font-size: 20px;
+            margin-bottom: 30px;
+            color: #a0d2ff;
+        }
+
+        /* ========== 控制按钮 ========== */
+        .action-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ========== 响应式设计 ========== */
+        @media (max-width: 1100px) {
+            #game-content {
+                flex-direction: column;
+            }
+            
+            #game-stats, #game-board, #powerup-shop {
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #game-container {
+                padding: 15px;
+            }
+            
+            #card-slots {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .card {
+                height: 50px;
+                font-size: 18px;
+            }
+            
+            .card-option {
+                height: 70px;
+            }
+            
+            #card-options {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #card-slots {
+                grid-template-columns: 1fr;
+            }
+            
+            .card {
+                height: 45px;
+                font-size: 16px;
+            }
+            
+            #card-options {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            
+            .card-option {
+                height: 60px;
+                font-size: 14px;
+            }
+        }
+    </style>
+<!-- 了了了岭用户系统-样式与SDK -->
+<link rel="stylesheet" href="../../../common-user.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+<div class="site-logo-container">
+    <img src="https://leleleling.site/LOGO.svg" 
+         onerror="this.onerror=null; this.src='https://leleleling.surge.sh/LOGO.svg';" 
+         alt="Logo" 
+         style="height: 40px; width: 40px; border-radius: 50%; margin: 10px;">
+</div>
+<!-- 了了了岭用户系统-顶部挂件 -->
+<div id="userWidget" style="position:fixed;top:15px;right:20px;z-index:9999;"></div>
+
+    <div id="game-container">
+        <!-- 游戏标题 -->
+        <header id="game-header">
+            <h1>🃏 卡牌2048 - 多难度挑战</h1>
+            <div id="game-subtitle">选择难度 → 堆叠合成 → 挑战极限</div>
+        </header>
+
+        <!-- 主游戏区域 -->
+        <main id="game-content">
+            <!-- 游戏状态 -->
+            <section id="game-stats">
+                <div class="stats-section">
+                    <h3 class="section-title">📊 游戏统计</h3>
+                    <div class="stat-item">
+                        <span class="stat-label">当前分数</span>
+                        <span class="stat-value" id="score">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">最高分数</span>
+                        <span class="stat-value" id="high-score">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">连续合成</span>
+                        <span class="stat-value" id="combo">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">剩余空格</span>
+                        <span class="stat-value" id="empty-slots">4</span>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <h3 class="section-title">🎮 难度选择</h3>
+                    <div class="difficulty-options">
+                        <button class="difficulty-btn difficulty-easy active" data-difficulty="easy">
+                            <span>简单难度</span>
+                        </button>
+                        <div class="difficulty-desc">可以使用所有道具卡</div>
+                        
+                        <button class="difficulty-btn difficulty-hard" data-difficulty="hard">
+                            <span>困难难度</span>
+                        </button>
+                        <div class="difficulty-desc">无法使用道具卡，保留刷新功能</div>
+                        
+                        <button class="difficulty-btn difficulty-master" data-difficulty="master">
+                            <span>大师难度</span>
+                        </button>
+                        <div class="difficulty-desc">2048会爆炸，产生大量小卡牌</div>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <h3 class="section-title">🎮 游戏控制</h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <button id="manual-refresh-btn" class="action-btn" style="background: linear-gradient(135deg, var(--primary-color), #2980b9);">
+                            🔄 手动刷新卡牌 (5分)
+                        </button>
+                        <button id="undo-btn" class="action-btn" style="background: linear-gradient(135deg, #95a5a6, #7f8c8d);">
+                            ↩️ 撤销一步 (10分)
+                        </button>
+                        <button id="restart-btn" class="action-btn" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                            🔄 重新开始游戏
+                        </button>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <h3 class="section-title">🎯 当前难度规则</h3>
+                    <div style="font-size: 14px; color: #a0d2ff; line-height: 1.5;" id="difficulty-rules">
+                        <p>1. 从下方选择卡牌拖到空格</p>
+                        <p>2. 小牌可以放在大牌上</p>
+                        <p>3. 相同数字的牌会合并</p>
+                        <p>4. 连续合并有额外加分</p>
+                        <p>5. 牌堆触底则游戏结束</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 游戏板 -->
+            <section id="game-board">
+                <!-- 卡牌放置区 -->
+                <div id="card-slots">
+                    <div class="card-slot" data-slot="0">
+                        <div class="slot-label">位置 1</div>
+                        <div class="card-stack" id="stack-0"></div>
+                    </div>
+                    <div class="card-slot" data-slot="1">
+                        <div class="slot-label">位置 2</div>
+                        <div class="card-stack" id="stack-1"></div>
+                    </div>
+                    <div class="card-slot" data-slot="2">
+                        <div class="slot-label">位置 3</div>
+                        <div class="card-stack" id="stack-2"></div>
+                    </div>
+                    <div class="card-slot" data-slot="3">
+                        <div class="slot-label">位置 4</div>
+                        <div class="card-stack" id="stack-3"></div>
+                    </div>
+                </div>
+
+                <!-- 卡牌刷新区 -->
+                <div id="card-refresh-area">
+                    <div id="card-refresh-title">
+                        🃏 卡牌刷新区 
+                        <span id="card-count" style="font-size: 14px; color: #a0d2ff;">(0/∞)</span>
+                    </div>
+                    <div id="card-options-container">
+                        <div id="card-options">
+                            <div class="card-option empty" id="option-0"></div>
+                            <div class="card-option empty" id="option-1"></div>
+                            <div class="card-option empty" id="option-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 道具商店 -->
+            <section id="powerup-shop">
+                <h3 class="section-title">🛒 道具商店</h3>
+                <div class="powerup-item" id="powerup-refresh">
+                    <div class="powerup-header">
+                        <span class="powerup-name">🔄 刷新卡牌</span>
+                        <span class="powerup-cost">10 分</span>
+                    </div>
+                    <div class="powerup-desc">刷新下方三张卡牌</div>
+                </div>
+                <div class="powerup-item" id="powerup-bomb">
+                    <div class="powerup-header">
+                        <span class="powerup-name">💣 炸弹卡</span>
+                        <span class="powerup-cost">25 分</span>
+                    </div>
+                    <div class="powerup-desc">点击后选择一张牌炸掉</div>
+                </div>
+                <div class="powerup-item" id="powerup-wild">
+                    <div class="powerup-header">
+                        <span class="powerup-name">🌈 万能卡</span>
+                        <span class="powerup-cost">50 分</span>
+                    </div>
+                    <div class="powerup-desc">可以充当任何数字的卡牌</div>
+                </div>
+                <div class="powerup-item disabled" id="powerup-slot">
+                    <div class="powerup-header">
+                        <span class="powerup-name">➕ 额外空格</span>
+                        <span class="powerup-cost">100 分</span>
+                    </div>
+                    <div class="powerup-desc">增加一个放置卡牌的位置</div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 游戏说明 -->
+        <section id="game-info">
+            <div class="info-item">
+                <div class="info-icon">🃏</div>
+                <div class="info-text">
+                    <strong>卡牌堆叠规则</strong>：小数字卡牌可以放在大数字卡牌上，相同数字的卡牌会自动合并，连续合并有额外加分！
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon">🎮</div>
+                <div class="info-text">
+                    <strong>操作方式</strong>：从下方选择一张卡牌，拖拽到任意卡牌堆上。如果牌堆触底（到达容器边缘），游戏结束。
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon">⚡</div>
+                <div class="info-text">
+                    <strong>大师难度特殊规则</strong>：当合成出2048卡牌时，它会爆炸成多个小数字卡牌，增加1000积分，爆炸产生的小卡牌会进入卡牌刷新区。
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 消息覆盖层 -->
+    <div id="message-overlay">
+        <div class="message-box">
+            <h2 id="message-title">🎉 2048爆炸！</h2>
+            <p id="message-text">你成功合成了2048卡牌！获得了1000积分！</p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button id="continue-btn" class="action-btn" style="background: linear-gradient(135deg, #4CAF50, #388E3C);">
+                    继续游戏
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== 游戏配置 ==========
+        const gameConfig = {
+            slots: 4,
+            maxStackHeight: 10, // 每堆最多卡牌数
+            maxValue: 2048,
+            score: 0,
+            highScore: localStorage.getItem('card2048_highScore') || 0,
+            combo: 0,
+            gameState: 'playing', // playing, gameover
+            difficulty: 'easy', // easy, hard, master
+            powerups: {
+                refresh: { cost: 10, count: 0 },
+                bomb: { cost: 25, count: 0 },
+                wild: { cost: 50, count: 0 },
+                slot: { cost: 100, count: 0 }
+            },
+            maxGeneratedValue: 1, // 初始最大生成值为1
+            secondLargestValue: 1, // 第二大值
+            moveHistory: [], // 用于撤销功能
+            maxHistory: 10 // 最大历史记录数
+        };
+
+        // ========== 游戏数据 ==========
+        let cardStacks = [[], [], [], []];
+        let cardOptions = [null, null, null];
+        let activePowerup = null;
+        let draggedCard = null;
+        let is2048Exploding = false; // 新增标志，防止2048爆炸时触发游戏结束
+
+        // ========== DOM元素 ==========
+        const scoreEl = document.getElementById('score');
+        const highScoreEl = document.getElementById('high-score');
+        const comboEl = document.getElementById('combo');
+        const emptySlotsEl = document.getElementById('empty-slots');
+        const messageOverlayEl = document.getElementById('message-overlay');
+        const messageTitleEl = document.getElementById('message-title');
+        const messageTextEl = document.getElementById('message-text');
+        const difficultyRulesEl = document.getElementById('difficulty-rules');
+        const cardCountEl = document.getElementById('card-count');
+
+        // ========== 游戏初始化 ==========
+        function initGame() {
+            // 重置游戏状态
+            gameConfig.score = 0;
+            gameConfig.combo = 0;
+            gameConfig.gameState = 'playing';
+            gameConfig.maxGeneratedValue = 1;
+            gameConfig.secondLargestValue = 1;
+            gameConfig.moveHistory = [];
+            is2048Exploding = false;
+            
+            // 清空卡牌堆
+            cardStacks = [[], [], [], []];
+            
+            // 初始化卡牌选项
+            initCardOptions();
+            
+            // 更新UI
+            updateUI();
+            updateCardStacks();
+            
+            // 隐藏消息
+            hideMessage();
+            
+            // 更新难度规则说明
+            updateDifficultyRules();
+            
+            console.log(`游戏初始化完成，难度：${gameConfig.difficulty}`);
+        }
+
+        // ========== 更新难度规则说明 ==========
+        function updateDifficultyRules() {
+            const rules = {
+                easy: [
+                    "1. 可以使用所有道具卡",
+                    "2. 从下方选择卡牌拖到空格",
+                    "3. 小牌可以放在大牌上",
+                    "4. 相同数字的牌会合并",
+                    "5. 连续合并有额外加分",
+                    "6. 牌堆触底则游戏结束"
+                ],
+                hard: [
+                    "1. 无法使用道具卡（刷新功能保留）",
+                    "2. 从下方选择卡牌拖到空格",
+                    "3. 小牌可以放在大牌上",
+                    "4. 相同数字的牌会合并",
+                    "5. 连续合并有额外加分",
+                    "6. 牌堆触底则游戏结束",
+                    "7. 商店道具卡被禁用"
+                ],
+                master: [
+                    "1. 无法使用道具卡（刷新功能保留）",
+                    "2. 从下方选择卡牌拖到空格",
+                    "3. 小牌可以放在大牌上",
+                    "4. 相同数字的牌会合并",
+                    "5. 连续合并有额外加分",
+                    "6. 牌堆触底则游戏结束",
+                    "7. 合成2048会爆炸成小卡牌",
+                    "8. 爆炸产生的小卡牌进入刷新区",
+                    "9. 爆炸奖励1000积分"
+                ]
+            };
+            
+            const currentRules = rules[gameConfig.difficulty];
+            difficultyRulesEl.innerHTML = currentRules.map(rule => `<p>${rule}</p>`).join('');
+        }
+
+        // ========== 初始化卡牌选项 ==========
+        function initCardOptions() {
+            cardOptions = [];
+            
+            // 确保生成3张卡牌
+            for (let i = 0; i < 3; i++) {
+                cardOptions.push(generateCardValue());
+                updateCardOption(i);
+            }
+            
+            // 更新卡牌数量显示
+            updateCardCount();
+        }
+
+        // ========== 更新卡牌数量显示 ==========
+        function updateCardCount() {
+            const cardCount = cardOptions.filter(opt => opt !== null).length;
+            cardCountEl.textContent = `(${cardCount}/∞)`;
+        }
+
+        // ========== 生成卡牌数值 ==========
+        function generateCardValue() {
+            // 获取当前所有卡牌的值
+            const allCardValues = getAllCardValues();
+            
+            // 如果还没有卡牌，生成1
+            if (allCardValues.length === 0) {
+                return 1;
+            }
+            
+            // 计算第二大值
+            const uniqueValues = [...new Set(allCardValues)].sort((a, b) => a - b);
+            gameConfig.secondLargestValue = uniqueValues.length >= 2 ? 
+                uniqueValues[uniqueValues.length - 2] : 1;
+            
+            // 限制生成的最大值不超过第二大值
+            const maxAllowed = Math.max(1, gameConfig.secondLargestValue);
+            
+            // 生成2的幂次方值，不超过maxAllowed
+            const possibleValues = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048];
+            const allowedValues = possibleValues.filter(v => v <= maxAllowed);
+            
+            // 70%几率生成小值，30%几率生成允许的最大值
+            if (Math.random() < 0.7 && allowedValues.length > 1) {
+                // 从较小的值中随机选择（排除最大值）
+                const smallerValues = allowedValues.slice(0, -1);
+                return smallerValues[Math.floor(Math.random() * smallerValues.length)];
+            } else {
+                // 选择允许的最大值
+                return allowedValues[allowedValues.length - 1];
+            }
+        }
+
+        // ========== 获取所有卡牌值 ==========
+        function getAllCardValues() {
+            const values = [];
+            
+            // 从卡牌堆中获取
+            for (const stack of cardStacks) {
+                for (const card of stack) {
+                    values.push(card.value);
+                }
+            }
+            
+            // 从选项卡牌中获取
+            for (const option of cardOptions) {
+                if (option && option !== 'wild') values.push(option);
+            }
+            
+            return values;
+        }
+
+        // ========== 更新卡牌选项显示 ==========
+        function updateCardOption(index) {
+            const optionEl = document.getElementById(`option-${index}`);
+            
+            if (index < cardOptions.length && cardOptions[index] !== undefined && cardOptions[index] !== null) {
+                const value = cardOptions[index];
+                
+                if (value === 'wild') {
+                    optionEl.className = 'card-option card card-wild';
+                    optionEl.textContent = '万能';
+                } else {
+                    optionEl.className = `card-option card card-${value}`;
+                    optionEl.textContent = value;
+                }
+                optionEl.draggable = true;
+                optionEl.dataset.value = value;
+                optionEl.dataset.type = 'option';
+                optionEl.dataset.index = index;
+                
+                // 添加拖拽事件
+                optionEl.addEventListener('dragstart', handleDragStart);
+            } else {
+                optionEl.className = 'card-option empty';
+                optionEl.textContent = '';
+                optionEl.draggable = false;
+                optionEl.removeAttribute('data-value');
+                optionEl.removeAttribute('data-type');
+                optionEl.removeAttribute('data-index');
+            }
+        }
+
+        // ========== 更新所有卡牌选项显示 ==========
+        function updateAllCardOptions() {
+            // 清空当前显示
+            const cardOptionsContainer = document.getElementById('card-options');
+            cardOptionsContainer.innerHTML = '';
+            
+            // 重新添加所有卡牌选项
+            for (let i = 0; i < cardOptions.length; i++) {
+                const optionEl = document.createElement('div');
+                optionEl.id = `option-${i}`;
+                cardOptionsContainer.appendChild(optionEl);
+                updateCardOption(i);
+            }
+            
+            // 更新卡牌数量显示
+            updateCardCount();
+        }
+
+        // ========== 更新卡牌堆显示 ==========
+        function updateCardStacks() {
+            // 如果正在2048爆炸，跳过游戏结束检查
+            if (is2048Exploding) return;
+            
+            for (let i = 0; i < gameConfig.slots; i++) {
+                const stackEl = document.getElementById(`stack-${i}`);
+                stackEl.innerHTML = '';
+                
+                const stack = cardStacks[i];
+                const stackHeight = stack.length;
+                
+                // 检查是否游戏结束（牌堆触底）
+                if (stackHeight >= gameConfig.maxStackHeight) {
+                    gameOver();
+                    return;
+                }
+                
+                // 创建堆叠卡牌
+                for (let j = 0; j < stackHeight; j++) {
+                    const card = stack[j];
+                    const cardEl = document.createElement('div');
+                    cardEl.className = `card card-${card.value}`;
+                    cardEl.textContent = card.value;
+                    cardEl.dataset.slot = i;
+                    cardEl.dataset.index = j;
+                    cardEl.dataset.value = card.value;
+                    cardEl.dataset.type = 'stack';
+                    
+                    // 设置位置（堆叠效果）
+                    const offset = (stackHeight - j - 1) * 5; // 每张牌向下偏移5px
+                    cardEl.style.bottom = `${10 + offset}px`;
+                    cardEl.style.zIndex = j;
+                    
+                    // 添加拖拽事件（只对最顶上的牌）
+                    if (j === stackHeight - 1) {
+                        cardEl.draggable = true;
+                        cardEl.addEventListener('dragstart', handleDragStart);
+                    }
+                    
+                    stackEl.appendChild(cardEl);
+                }
+            }
+        }
+
+        // ========== 保存游戏状态 ==========
+        function saveGameState() {
+            if (gameConfig.moveHistory.length >= gameConfig.maxHistory) {
+                gameConfig.moveHistory.shift(); // 移除最旧的记录
+            }
+            
+            // 深度复制当前游戏状态
+            const state = {
+                score: gameConfig.score,
+                combo: gameConfig.combo,
+                maxGeneratedValue: gameConfig.maxGeneratedValue,
+                secondLargestValue: gameConfig.secondLargestValue,
+                cardStacks: JSON.parse(JSON.stringify(cardStacks)),
+                cardOptions: [...cardOptions]
+            };
+            
+            gameConfig.moveHistory.push(state);
+        }
+
+        // ========== 处理拖拽开始 ==========
+        function handleDragStart(event) {
+            if (gameConfig.gameState !== 'playing') {
+                event.preventDefault();
+                return;
+            }
+            
+            draggedCard = {
+                type: event.target.dataset.type,
+                value: event.target.dataset.value,
+                slot: event.target.dataset.slot ? parseInt(event.target.dataset.slot) : null,
+                index: event.target.dataset.index ? parseInt(event.target.dataset.index) : null,
+                element: event.target
+            };
+            
+            event.target.classList.add('dragging');
+            
+            // 设置拖拽图像
+            setTimeout(() => {
+                event.target.style.opacity = '0.4';
+            }, 0);
+        }
+
+        // ========== 处理放置 ==========
+        function setupDropZones() {
+            const slots = document.querySelectorAll('.card-slot');
+            
+            slots.forEach(slot => {
+                slot.addEventListener('dragover', handleDragOver);
+                slot.addEventListener('drop', handleDrop);
+                slot.addEventListener('dragleave', handleDragLeave);
+            });
+            
+            // 也允许拖放到卡牌上
+            document.addEventListener('dragover', handleDragOver);
+            document.addEventListener('drop', handleDrop);
+            document.addEventListener('dragleave', handleDragLeave);
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            
+            if (!draggedCard || gameConfig.gameState !== 'playing') return;
+            
+            const slotEl = event.target.closest('.card-slot');
+            if (slotEl) {
+                slotEl.style.borderColor = 'rgba(52, 152, 219, 0.8)';
+                slotEl.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
+            }
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            
+            if (!draggedCard || gameConfig.gameState !== 'playing') return;
+            
+            const slotEl = event.target.closest('.card-slot');
+            if (!slotEl && !event.target.classList.contains('card')) {
+                resetDragState();
+                return;
+            }
+            
+            let targetSlot;
+            
+            // 确定目标位置
+            if (slotEl) {
+                // 拖放到空位
+                targetSlot = parseInt(slotEl.dataset.slot);
+            } else if (event.target.classList.contains('card')) {
+                // 拖放到卡牌上
+                targetSlot = parseInt(event.target.dataset.slot);
+            } else {
+                resetDragState();
+                return;
+            }
+            
+            // 保存当前状态用于撤销
+            saveGameState();
+            
+            // 处理放置逻辑
+            handleCardPlacement(draggedCard, targetSlot);
+            
+            // 重置拖拽状态
+            resetDragState();
+        }
+
+        function handleDragLeave(event) {
+            if (!draggedCard) return;
+            
+            const slotEl = event.target.closest('.card-slot');
+            if (slotEl) {
+                slotEl.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                slotEl.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
+            }
+        }
+
+        function resetDragState() {
+            if (draggedCard && draggedCard.element) {
+                draggedCard.element.classList.remove('dragging');
+                draggedCard.element.style.opacity = '1';
+            }
+            
+            // 重置所有槽位样式
+            document.querySelectorAll('.card-slot').forEach(slot => {
+                slot.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                slot.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
+            });
+            
+            draggedCard = null;
+        }
+
+        // ========== 处理卡牌放置 ==========
+        function handleCardPlacement(card, targetSlot) {
+            const targetStack = cardStacks[targetSlot];
+            const cardValue = card.value === 'wild' ? 'wild' : parseInt(card.value);
+            
+            // 检查放置是否有效
+            if (card.type === 'option') {
+                // 从选项区拖出的卡牌
+                const optionIndex = card.index;
+                
+                // 检查目标堆是否为空或顶部卡牌值 >= 当前卡牌值
+                if (targetStack.length === 0 || 
+                    cardValue === 'wild' || 
+                    targetStack[targetStack.length - 1].value >= cardValue) {
+                    
+                    // 添加到堆顶
+                    if (cardValue === 'wild') {
+                        // 万能卡需要用户选择数字
+                        const value = prompt('请输入万能卡的数字（必须是2的幂次方，如1,2,4,8...）：');
+                        const numValue = parseInt(value);
+                        
+                        if (!value || isNaN(numValue) || !isPowerOfTwo(numValue)) {
+                            alert('请输入有效的2的幂次方数字！');
+                            return;
+                        }
+                        
+                        targetStack.push({ value: numValue });
+                    } else {
+                        targetStack.push({ value: cardValue });
+                    }
+                    
+                    // 移除选项卡牌
+                    cardOptions.splice(optionIndex, 1);
+                    
+                    // 检查是否需要补充卡牌
+                    checkAndRefillCardOptions();
+                    
+                    // 检查合并（包括2048爆炸）
+                    checkMerge(targetSlot);
+                } else {
+                    alert('只能将小牌放在大牌上！');
+                    return;
+                }
+            } else if (card.type === 'stack') {
+                // 从堆中拖出的卡牌（只能是顶部卡牌）
+                const sourceSlot = card.slot;
+                const sourceStack = cardStacks[sourceSlot];
+                
+                // 确保是顶部卡牌
+                if (card.index !== sourceStack.length - 1) {
+                    alert('只能移动最顶上的卡牌！');
+                    return;
+                }
+                
+                // 不能移动到自己的位置
+                if (sourceSlot === targetSlot) {
+                    return;
+                }
+                
+                // 检查目标堆是否为空或顶部卡牌值 >= 当前卡牌值
+                if (targetStack.length === 0 || targetStack[targetStack.length - 1].value >= cardValue) {
+                    // 从源堆移除
+                    sourceStack.pop();
+                    
+                    // 添加到目标堆
+                    targetStack.push({ value: cardValue });
+                    
+                    // 检查合并（包括2048爆炸）
+                    checkMerge(targetSlot);
+                } else {
+                    alert('只能将小牌放在大牌上！');
+                    return;
+                }
+            }
+            
+            // 更新显示
+            updateCardStacks();
+            updateAllCardOptions();
+            updateUI();
+        }
+
+        // ========== 检查是否是2的幂次方 ==========
+        function isPowerOfTwo(n) {
+            if (n <= 0) return false;
+            return (n & (n - 1)) === 0;
+        }
+
+        // ========== 检查合并 ==========
+        function checkMerge(slotIndex) {
+            const stack = cardStacks[slotIndex];
+            if (stack.length < 2) return;
+            
+            let comboCount = 0;
+            let merged = false;
+            
+            // 从顶部开始检查合并
+            do {
+                merged = false;
+                
+                if (stack.length >= 2) {
+                    const topIndex = stack.length - 1;
+                    const secondIndex = stack.length - 2;
+                    
+                    if (stack[topIndex].value === stack[secondIndex].value) {
+                        const newValue = stack[topIndex].value * 2;
+                        
+                        // 检查是否是2048（大师难度特殊效果）
+                        if (gameConfig.difficulty === 'master' && newValue === 2048) {
+                            // 大师难度：2048爆炸效果
+                            handle2048Explosion(slotIndex, secondIndex);
+                            return; // 爆炸后停止合并检查
+                        } else {
+                            // 正常合并
+                            stack[secondIndex].value = newValue;
+                            stack.pop(); // 移除顶部牌
+                            
+                            // 更新最大生成值
+                            if (newValue > gameConfig.maxGeneratedValue) {
+                                gameConfig.maxGeneratedValue = newValue;
+                            }
+                            
+                            // 增加连续合成计数
+                            comboCount++;
+                            merged = true;
+                        }
+                    }
+                }
+            } while (merged && stack.length >= 2);
+            
+            // 计算得分
+            if (comboCount > 0) {
+                gameConfig.combo = comboCount;
+                addScore(comboCount);
+            } else {
+                gameConfig.combo = 0;
+            }
+            
+            // 更新显示
+            updateCardStacks();
+            updateUI();
+        }
+
+        // ========== 处理2048爆炸效果 ==========
+        function handle2048Explosion(slotIndex, cardIndex) {
+            is2048Exploding = true; // 设置标志，防止触发游戏结束
+            
+            const stack = cardStacks[slotIndex];
+            
+            // 移除2048卡牌
+            stack.splice(cardIndex, 1);
+            
+            // 增加1000积分
+            gameConfig.score += 1000;
+            
+            // 生成小卡牌（3-6张随机小卡牌，避免过多）
+            const numCards = Math.floor(Math.random() * 4) + 3; // 3-6张
+            const smallCards = [];
+            
+            for (let i = 0; i < numCards; i++) {
+                // 生成小数字（1, 2, 4, 8, 16）
+                const possibleValues = [1, 2, 4, 8, 16];
+                const randomValue = possibleValues[Math.floor(Math.random() * possibleValues.length)];
+                smallCards.push(randomValue);
+            }
+            
+            // 将小卡牌添加到卡牌刷新区
+            cardOptions.push(...smallCards);
+            
+            // 显示爆炸消息
+            showMessage(
+                '🎉 2048爆炸！',
+                `你成功合成了2048卡牌！获得了1000积分，并产生了${numCards}张小卡牌！`
+            );
+            
+            // 更新显示
+            updateCardStacks();
+            updateAllCardOptions();
+            updateUI();
+            
+            // 重置爆炸标志
+            is2048Exploding = false;
+            
+            console.log(`2048爆炸！产生了${numCards}张小卡牌，获得1000积分`);
+        }
+
+        // ========== 检查并补充卡牌选项 ==========
+        function checkAndRefillCardOptions() {
+            // 大师难度：只有当卡牌数量低于3时才补充
+            if (gameConfig.difficulty === 'master') {
+                if (cardOptions.length < 3) {
+                    const needed = 3 - cardOptions.length;
+                    for (let i = 0; i < needed; i++) {
+                        cardOptions.push(generateCardValue());
+                    }
+                }
+            } else {
+                // 简单和困难难度：保持3张卡牌
+                while (cardOptions.length < 3) {
+                    cardOptions.push(generateCardValue());
+                }
+            }
+        }
+
+        // ========== 添加分数 ==========
+        function addScore(comboCount) {
+            let points = 0;
+            
+            // 基础分：每次合并加1分
+            points += comboCount;
+            
+            // 连续合成额外分：2^(n-1)
+            if (comboCount > 1) {
+                for (let i = 1; i <= comboCount; i++) {
+                    points += Math.pow(2, i - 1);
+                }
+            }
+            
+            gameConfig.score += points;
+            
+            // 更新最高分
+            if (gameConfig.score > gameConfig.highScore) {
+                gameConfig.highScore = gameConfig.score;
+                localStorage.setItem('card2048_highScore', gameConfig.highScore);
+            }
+            
+            console.log(`连续合成 ${comboCount} 次，获得 ${points} 分`);
+        }
+
+        // ========== 手动刷新卡牌选项 ==========
+        function refreshCardOptions() {
+            if (gameConfig.score < 5) {
+                alert('分数不足！需要5分才能刷新卡牌。');
+                return;
+            }
+            
+            gameConfig.score -= 5;
+            
+            if (gameConfig.difficulty === 'master') {
+                // 大师难度：保留现有卡牌，补充到至少3张
+                if (cardOptions.length < 3) {
+                    const needed = 3 - cardOptions.length;
+                    for (let i = 0; i < needed; i++) {
+                        cardOptions.push(generateCardValue());
+                    }
+                }
+            } else {
+                // 简单和困难难度：完全刷新
+                cardOptions = [];
+                for (let i = 0; i < 3; i++) {
+                    cardOptions.push(generateCardValue());
+                }
+            }
+            
+            updateAllCardOptions();
+            updateUI();
+            
+            console.log('手动刷新了卡牌选项');
+        }
+
+        // ========== 撤销上一步 ==========
+        function undoMove() {
+            if (gameConfig.score < 10) {
+                alert('分数不足！需要10分才能撤销。');
+                return;
+            }
+            
+            if (gameConfig.moveHistory.length === 0) {
+                alert('没有可撤销的操作！');
+                return;
+            }
+            
+            gameConfig.score -= 10;
+            
+            // 恢复到上一个状态
+            const prevState = gameConfig.moveHistory.pop();
+            
+            gameConfig.score = prevState.score;
+            gameConfig.combo = prevState.combo;
+            gameConfig.maxGeneratedValue = prevState.maxGeneratedValue;
+            gameConfig.secondLargestValue = prevState.secondLargestValue;
+            cardStacks = prevState.cardStacks;
+            cardOptions = prevState.cardOptions;
+            
+            // 更新显示
+            updateCardStacks();
+            updateAllCardOptions();
+            updateUI();
+            
+            console.log('撤销了上一步操作');
+        }
+
+        // ========== 更新UI ==========
+        function updateUI() {
+            // 更新分数
+            scoreEl.textContent = gameConfig.score;
+            highScoreEl.textContent = gameConfig.highScore;
+            comboEl.textContent = gameConfig.combo;
+            
+            // 计算剩余空格
+            let emptySlots = 0;
+            for (const stack of cardStacks) {
+                if (stack.length === 0) emptySlots++;
+            }
+            emptySlotsEl.textContent = emptySlots;
+            
+            // 更新道具按钮状态
+            updatePowerupButtons();
+        }
+
+        // ========== 更新道具按钮 ==========
+        function updatePowerupButtons() {
+            const refreshBtn = document.getElementById('powerup-refresh');
+            const bombBtn = document.getElementById('powerup-bomb');
+            const wildBtn = document.getElementById('powerup-wild');
+            const slotBtn = document.getElementById('powerup-slot');
+            
+            // 根据难度启用/禁用道具
+            if (gameConfig.difficulty === 'hard' || gameConfig.difficulty === 'master') {
+                // 困难和大师难度：禁用炸弹卡和万能卡
+                bombBtn.classList.add('disabled');
+                wildBtn.classList.add('disabled');
+                slotBtn.classList.add('disabled');
+                
+                // 只启用刷新卡牌（如果分数足够）
+                if (gameConfig.score >= gameConfig.powerups.refresh.cost) {
+                    refreshBtn.classList.remove('disabled');
+                } else {
+                    refreshBtn.classList.add('disabled');
+                }
+            } else {
+                // 简单难度：正常启用
+                if (gameConfig.score >= gameConfig.powerups.refresh.cost) {
+                    refreshBtn.classList.remove('disabled');
+                } else {
+                    refreshBtn.classList.add('disabled');
+                }
+                
+                if (gameConfig.score >= gameConfig.powerups.bomb.cost) {
+                    bombBtn.classList.remove('disabled');
+                } else {
+                    bombBtn.classList.add('disabled');
+                }
+                
+                if (gameConfig.score >= gameConfig.powerups.wild.cost) {
+                    wildBtn.classList.remove('disabled');
+                } else {
+                    wildBtn.classList.add('disabled');
+                }
+                
+                // 额外空格（暂时禁用）
+                slotBtn.classList.add('disabled');
+            }
+        }
+
+        // ========== 游戏结束 ==========
+        function gameOver() {
+            gameConfig.gameState = 'gameover';
+            
+            showMessage(
+                '💥 游戏结束！',
+                `你的卡牌堆触底了！最终得分：${gameConfig.score}分`
+            );
+            
+            console.log('游戏结束，最终得分：', gameConfig.score);
+        }
+
+        // ========== 显示消息 ==========
+        function showMessage(title, text) {
+            messageTitleEl.textContent = title;
+            messageTextEl.textContent = text;
+            messageOverlayEl.classList.add('show');
+        }
+
+        // ========== 隐藏消息 ==========
+        function hideMessage() {
+            messageOverlayEl.classList.remove('show');
+        }
+
+        // ========== 道具系统 ==========
+        function setupPowerups() {
+            // 刷新卡牌
+            document.getElementById('powerup-refresh').addEventListener('click', () => {
+                if (gameConfig.gameState !== 'playing') return;
+                
+                // 检查是否被禁用
+                if (document.getElementById('powerup-refresh').classList.contains('disabled')) {
+                    return;
+                }
+                
+                if (gameConfig.score < gameConfig.powerups.refresh.cost) {
+                    alert('分数不足！');
+                    return;
+                }
+                
+                gameConfig.score -= gameConfig.powerups.refresh.cost;
+                refreshCardOptions(); // 使用已有的刷新函数
+                
+                console.log('使用了刷新卡牌道具');
+            });
+            
+            // 炸弹卡
+            document.getElementById('powerup-bomb').addEventListener('click', () => {
+                if (gameConfig.gameState !== 'playing') return;
+                
+                // 检查是否被禁用
+                if (document.getElementById('powerup-bomb').classList.contains('disabled')) {
+                    alert('当前难度无法使用炸弹卡！');
+                    return;
+                }
+                
+                if (gameConfig.score < gameConfig.powerups.bomb.cost) {
+                    alert('分数不足！');
+                    return;
+                }
+                
+                activePowerup = 'bomb';
+                alert('点击要炸掉的卡牌（最顶上的牌）');
+                
+                console.log('激活了炸弹卡道具');
+            });
+            
+            // 万能卡
+            document.getElementById('powerup-wild').addEventListener('click', () => {
+                if (gameConfig.gameState !== 'playing') return;
+                
+                // 检查是否被禁用
+                if (document.getElementById('powerup-wild').classList.contains('disabled')) {
+                    alert('当前难度无法使用万能卡！');
+                    return;
+                }
+                
+                if (gameConfig.score < gameConfig.powerups.wild.cost) {
+                    alert('分数不足！');
+                    return;
+                }
+                
+                // 添加一张万能卡到选项区
+                if (gameConfig.difficulty === 'master') {
+                    // 大师难度：直接添加到卡牌刷新区
+                    cardOptions.push('wild');
+                    updateAllCardOptions();
+                } else {
+                    // 简单难度：添加到空位
+                    const emptyIndex = cardOptions.findIndex(opt => !opt);
+                    if (emptyIndex !== -1) {
+                        cardOptions[emptyIndex] = 'wild';
+                        updateCardOption(emptyIndex);
+                    } else {
+                        cardOptions.push('wild');
+                        updateAllCardOptions();
+                    }
+                }
+                
+                gameConfig.score -= gameConfig.powerups.wild.cost;
+                updateUI();
+                
+                console.log('获得了万能卡');
+            });
+            
+            // 卡牌点击事件（用于道具）
+            document.addEventListener('click', (event) => {
+                if (activePowerup === 'bomb' && event.target.classList.contains('card')) {
+                    const card = event.target;
+                    const slot = parseInt(card.dataset.slot);
+                    const index = parseInt(card.dataset.index);
+                    
+                    // 确保点击的是最顶上的牌
+                    if (index === cardStacks[slot].length - 1) {
+                        // 保存状态
+                        saveGameState();
+                        
+                        // 移除这张牌
+                        cardStacks[slot].pop();
+                        updateCardStacks();
+                        updateUI();
+                        
+                        activePowerup = null;
+                        alert('卡牌已被炸掉！');
+                    } else {
+                        alert('只能炸掉最顶上的卡牌！');
+                    }
+                }
+            });
+        }
+
+        // ========== 设置难度切换 ==========
+        function setupDifficultySwitching() {
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // 移除所有按钮的active类
+                    document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                    
+                    // 添加active类到当前按钮
+                    btn.classList.add('active');
+                    
+                    // 更新当前难度
+                    gameConfig.difficulty = btn.dataset.difficulty;
+                    
+                    // 更新难度规则说明
+                    updateDifficultyRules();
+                    
+                    // 重新开始游戏
+                    initGame();
+                });
+            });
+        }
+
+        // ========== 页面加载完成 ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化游戏
+            initGame();
+            
+            // 设置拖拽放置区
+            setupDropZones();
+            
+            // 设置道具系统
+            setupPowerups();
+            
+            // 设置难度切换
+            setupDifficultySwitching();
+            
+            // 设置重新开始按钮
+            document.getElementById('restart-btn').addEventListener('click', initGame);
+            
+            // 设置继续按钮
+            document.getElementById('continue-btn').addEventListener('click', hideMessage);
+            
+            // 设置手动刷新按钮
+            document.getElementById('manual-refresh-btn').addEventListener('click', refreshCardOptions);
+            
+            // 设置撤销按钮
+            document.getElementById('undo-btn').addEventListener('click', undoMove);
+            
+            // 设置初始最高分
+            highScoreEl.textContent = gameConfig.highScore;
+            
+            console.log('卡牌2048游戏已加载完成！');
+        });
+    </script>
+<!-- 了了了岭用户系统-核心逻辑 -->
+<script src="../../../common-user.js"></script>
+<!-- PWA Service Worker 注册 -->
+<script>
+if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js').then(function(reg){console.log('✅ PWA Service Worker 注册成功');}).catch(function(err){console.log('❌ PWA Service Worker 注册失败:',err);});}
+</script>
+</body>
+
+</html>
