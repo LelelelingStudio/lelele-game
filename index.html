@@ -512,6 +512,7 @@
         </div>
     </div>
 
+    <!-- 内部前置表单 (已完美双语化) -->
     <div class="modal-overlay" id="stepForm">
         <div class="modal modal-wide">
             <button class="modal-close" onclick="closeModal('stepForm')">×</button>
@@ -519,49 +520,49 @@
             <form id="preForm">
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                     <div class="form-group">
-                        <label class="form-label">游戏名称 / Name *</label>
-                        <input type="text" class="form-input" id="inName" required>
+                        <label class="form-label"><span class="zh-inline">游戏名称</span><span class="en-inline">Game Name</span> *</label>
+                        <input type="text" class="form-input" id="inName" required placeholder="Name">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">游戏图标 / Icon (Emoji) *</label>
+                        <label class="form-label"><span class="zh-inline">游戏图标</span><span class="en-inline">Game Icon</span> *</label>
                         <input type="text" class="form-input" id="inIcon" placeholder="🎮" required>
                     </div>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                     <div class="form-group">
-                        <label class="form-label">作者 / Author *</label>
+                        <label class="form-label"><span class="zh-inline">作者</span><span class="en-inline">Author</span> *</label>
                         <input type="text" class="form-input" id="inAuthor" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">邮箱 / Email *</label>
+                        <label class="form-label"><span class="zh-inline">邮箱</span><span class="en-inline">Email</span> *</label>
                         <input type="email" class="form-input" id="inEmail" required>
                     </div>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                     <div class="form-group">
-                        <label class="form-label">版本号 / Version *</label>
-                        <input type="text" class="form-input" id="inVersion" placeholder="v1.0.0" required pattern="^v?\d+\.\d+\.\d+$" title="格式如 v1.0.0">
+                        <label class="form-label"><span class="zh-inline">版本号</span><span class="en-inline">Version</span> *</label>
+                        <input type="text" class="form-input" id="inVersion" placeholder="v1.0.0" required pattern="^v?\d+\.\d+\.\d+$">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">一句话简介 / Intro (≤100字) *</label>
+                        <label class="form-label"><span class="zh-inline">一句话简介</span><span class="en-inline">Short Intro</span> *</label>
                         <input type="text" class="form-input" id="inIntro" maxlength="100" required>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label">分类 / Category *</label>
+                    <label class="form-label"><span class="zh-inline">分类</span><span class="en-inline">Category</span> *</label>
                     <div class="radio-group" id="radCategory">
-                        <button type="button" class="radio-btn active" data-val="休闲">休闲</button>
-                        <button type="button" class="radio-btn" data-val="益智">益智</button>
-                        <button type="button" class="radio-btn" data-val="射击">射击</button>
-                        <button type="button" class="radio-btn" data-val="冒险">冒险</button>
-                        <button type="button" class="radio-btn" data-val="其他">其他</button>
+                        <button type="button" class="radio-btn active" data-val="休闲"><span class="zh-inline">休闲</span><span class="en-inline">Casual</span></button>
+                        <button type="button" class="radio-btn" data-val="益智"><span class="zh-inline">益智</span><span class="en-inline">Puzzle</span></button>
+                        <button type="button" class="radio-btn" data-val="射击"><span class="zh-inline">射击</span><span class="en-inline">Shooter</span></button>
+                        <button type="button" class="radio-btn" data-val="冒险"><span class="zh-inline">冒险</span><span class="en-inline">Adventure</span></button>
+                        <button type="button" class="radio-btn" data-val="其他"><span class="zh-inline">其他</span><span class="en-inline">Other</span></button>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">适龄分级 / Age *</label>
+                    <label class="form-label"><span class="zh-inline">适龄分级</span><span class="en-inline">Age Rating</span> *</label>
                     <div class="radio-group" id="radAge">
-                        <button type="button" class="radio-btn active" data-val="全年龄">全年龄</button>
+                        <button type="button" class="radio-btn active" data-val="全年龄"><span class="zh-inline">全年龄</span><span class="en-inline">All Ages</span></button>
                         <button type="button" class="radio-btn" data-val="6+">6+</button>
                         <button type="button" class="radio-btn" data-val="12+">12+</button>
                         <button type="button" class="radio-btn" data-val="16+">16+</button>
@@ -569,18 +570,18 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">方式 / Method *</label>
+                    <label class="form-label"><span class="zh-inline">方式</span><span class="en-inline">Method</span> *</label>
                     <div class="radio-group" id="radMethod">
-                        <button type="button" class="radio-btn active" data-val="link">链接 / Link</button>
-                        <button type="button" class="radio-btn" data-val="code">代码 / Code</button>
+                        <button type="button" class="radio-btn active" data-val="link"><span class="zh-inline">链接</span><span class="en-inline">Link</span></button>
+                        <button type="button" class="radio-btn" data-val="code"><span class="zh-inline">代码</span><span class="en-inline">Code</span></button>
                     </div>
                 </div>
                 <div class="form-group" id="groupUrl">
-                    <label class="form-label">游戏链接 / Game URL *</label>
+                    <label class="form-label"><span class="zh-inline">游戏链接</span><span class="en-inline">Game URL</span> *</label>
                     <input type="url" class="form-input" id="inUrl" placeholder="https://">
                 </div>
                 <div style="text-align:right; margin-top:1rem;">
-                    <button type="button" class="btn" id="btnToTally">下一步：补充材料 (Tally) →</button>
+                    <button type="button" class="btn" id="btnToTally"><span class="zh-inline">下一步：补充材料 →</span><span class="en-inline">Next: Materials →</span></button>
                 </div>
             </form>
         </div>
