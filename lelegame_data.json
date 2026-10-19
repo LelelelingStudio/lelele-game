@@ -1,1 +1,112 @@
-[]
+[
+  {
+    "id": 1,
+    "name": "爱种地的农民",
+    "icon": "🌾",
+    "category": "休闲",
+    "type": "local",
+    "ageRating": "全年龄",
+    "version": "v1.0.0",
+    "url": "https://happyfarmer.surge.sh"
+  },
+  {
+    "id": 2,
+    "name": "爱种地的农民快速版",
+    "icon": "🚜",
+    "category": "休闲",
+    "type": "local",
+    "ageRating": "全年龄",
+    "version": "v1.0.0",
+    "url": "/game/old_happyfarmer/index.html"
+  },
+  {
+    "id": 3,
+    "name": "3D射击",
+    "icon": "🔫",
+    "category": "射击",
+    "type": "local",
+    "ageRating": "12+",
+    "version": "v1.0.0",
+    "url": "/game/3Dshooting/index.html"
+  },
+  {
+    "id": 4,
+    "name": "2048-1",
+    "icon": "🔢",
+    "category": "益智",
+    "type": "local",
+    "ageRating": "全年龄",
+    "version": "v1.0.0",
+    "url": "/game/deleting_bombs/index.html"
+  },
+  {
+    "id": 5,
+    "name": "爱玉米的农民",
+    "icon": "🌽",
+    "category": "休闲",
+    "type": "local",
+    "ageRating": "全年龄",
+    "version": "v1.0.0",
+    "url": "/game/happycorn/index.html"
+  },
+  {
+    "id": 6,
+    "name": "等级吃吃吃",
+    "icon": "🎮",
+    "category": "冒险",
+    "type": "local",
+    "ageRating": "全年龄",
+    "version": "v1.0.0",
+    "url": "/game/leveleating/index.html"
+  },
+  {
+    "id": 7,
+    "name": "点击按钮小游戏",
+    "icon": "🔘",
+    "category": "休闲",
+    "type": "local",
+    "ageRating": "全年龄",
+    "version": "v1.0.0",
+    "url": "/game/others/2026_7_7/point_the_button/index.html"
+  },
+  {
+    "id": 8,
+    "name": "点击香蕉小游戏",
+    "icon": "🍌",
+    "category": "休闲",
+    "type": "local",
+    "ageRating": "全年龄",
+    "version": "v1.0.0",
+    "url": "/game/popping_banana/index.html"
+  },
+  {
+    "id": 9,
+    "name": "太空射击",
+    "icon": "🚀",
+    "category": "射击",
+    "type": "local",
+    "ageRating": "12+",
+    "version": "v1.0.0",
+    "url": "/game/space_shooting/index.html"
+  },
+  {
+    "id": 10,
+    "name": "宇宙进化",
+    "icon": "🪐",
+    "category": "冒险",
+    "type": "local",
+    "ageRating": "全年龄",
+    "version": "v1.0.0",
+    "url": "/game/universal_evolution/index.html"
+  },
+  {
+    "id": 11,
+    "name": "吃星球小作战",
+    "icon": "🌍",
+    "category": "休闲",
+    "type": "local",
+    "ageRating": "全年龄",
+    "version": "v1.0.0",
+    "url": "/game/eat_planet/index.html"
+  }
+]
