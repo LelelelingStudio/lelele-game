@@ -1,0 +1,22 @@
+{
+  "id": 7,
+  "name": "点击按钮小游戏",
+  "icon": "🔘",
+  "category": "休闲",
+  "ageRating": "全年龄",
+  "version": "v1.0.0",
+  "author": "了了了岭工作室",
+  "url": "/game/others/2026_7_7/point_the_button/index.html",
+  "banner": "/game/others/2026_7_7/point_the_button/banner.png",
+  "screenshots": [
+    "/game/others/2026_7_7/point_the_button/banner.png"
+  ],
+  "description": "暂无详细简介，作者正在努力编写中。你可以直接点击上方按钮开始游戏体验。",
+  "updateLog": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-19",
+      "content": "游戏首发上线！"
+    }
+  ]
+}
