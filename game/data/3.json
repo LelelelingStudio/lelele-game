@@ -1,0 +1,20 @@
+{
+  "id": 3,
+  "name": "3D射击",
+  "icon": "🔫",
+  "category": "射击",
+  "ageRating": "12+",
+  "version": "v1.0.0",
+  "author": "了了了岭工作室",
+  "url": "/game/3Dshooting/index.html",
+  "banner": "/game/3Dshooting/banner.png",
+  "screenshots": [],
+  "description": "暂无详细简介，作者正在努力编写中。你可以直接点击上方按钮开始游戏体验。",
+  "updateLog": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-19",
+      "content": "游戏首发上线！"
+    }
+  ]
+}
