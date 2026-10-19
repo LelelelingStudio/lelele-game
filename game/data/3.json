@@ -8,7 +8,9 @@
   "author": "了了了岭工作室",
   "url": "/game/3Dshooting/index.html",
   "banner": "/game/3Dshooting/banner.png",
-  "screenshots": [],
+  "screenshots": [
+    "/game/3Dshooting/banner.png"
+  ],
   "description": "暂无详细简介，作者正在努力编写中。你可以直接点击上方按钮开始游戏体验。",
   "updateLog": [
     {
