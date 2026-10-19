@@ -1,6 +1,26 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-lang="zh">
 <head>
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="了了了游游戏守则 · 内容规范、投稿授权、未成年人保护与免责声明">
@@ -676,11 +696,8 @@
         else backHome.href = 'index.html';
     }
     
-    // 优先读 URL 参数，其次读 localStorage
-    const urlLang = new URLSearchParams(window.location.search).get('lang');
-    const storedLang = localStorage.getItem('lelele_lang');
-    if (urlLang === 'en' || urlLang === 'zh') setLang(urlLang);
-    else if (storedLang === 'en' || storedLang === 'zh') setLang(storedLang);
+    const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
+    setLang(currentLang);
 </script>
 
 </body>
