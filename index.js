@@ -459,7 +459,7 @@ function restoreDraft() {
     } catch (e) {}
 }
 
-// ==================== Tally 提交监听（postMessage） ====================
+// ==================== Tally 提交监听（postMessage） ===================
 window.addEventListener("message", function(event) {
     if (event.data && event.data.type === "tally-form-submitted") {
         try { localStorage.removeItem('lelele_draft'); } catch (e) {}
