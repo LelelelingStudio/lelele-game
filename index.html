@@ -108,17 +108,11 @@
             cursor: pointer; transition: all 0.25s; display: inline-flex; align-items: center;
             gap: 0.4rem; font-family: inherit; text-decoration: none; border: none;
         }
-        .btn-support {
-            background: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.2);
-        }
+        .btn-support { background: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.2); }
         .btn-support:hover { background: rgba(16, 185, 129, 0.2); transform: translateY(-1px); }
-        .submit-btn {
-            background: #f59e0b; color: #1e293b; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
-        }
+        .submit-btn { background: #f59e0b; color: #1e293b; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35); }
         .submit-btn:hover { background: #d97706; transform: translateY(-1px); box-shadow: 0 8px 18px rgba(245, 158, 11, 0.45); }
-        .studio-link {
-            background: #4f46e5; color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
-        }
+        .studio-link { background: #4f46e5; color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
         .studio-link:hover { background: #4338ca; transform: translateY(-1px); box-shadow: 0 8px 18px rgba(79, 70, 229, 0.4); }
 
         .type-nav {
@@ -133,10 +127,10 @@
         .type-btn.active { background: #4f46e5; color: #fff; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.30); }
         .type-btn:hover:not(.active) { color: #1e293b; background: rgba(255, 255, 255, 0.5); }
 
-        /* ===== 搜索与内容区 ===== */
+        /* ===== 搜索与操作区 ===== */
         .controls {
             width: 100%; max-width: 1100px; margin: 16px auto 0; padding: 0 20px;
-            display: flex; align-items: center; justify-content: flex-end;
+            display: flex; align-items: center; justify-content: space-between;
             flex-wrap: wrap; gap: 12px; position: sticky; top: 80px; z-index: 90;
         }
         .search-wrapper {
@@ -151,6 +145,13 @@
             font-size: 14px; padding: 4px 8px; width: 180px; color: #1e293b; font-family: inherit;
         }
         .search-icon { font-size: 16px; margin-right: 4px; color: #4f46e5; }
+
+        .btn-fav-list {
+            background: rgba(255, 255, 255, 0.8); color: #1e293b; border: 1px solid rgba(148,163,184,0.2);
+            border-radius: 30px; padding: 8px 20px; font-weight: 600; font-size: 14px; cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: all 0.2s;
+        }
+        .btn-fav-list:hover { background: #fff; color: #4f46e5; border-color: #4f46e5; }
 
         /* ===== 公告板块 ===== */
         .announcements-container {
@@ -169,23 +170,6 @@
         .announce-name { font-weight: 700; font-size: 1rem; color: #0f172a; }
         .announce-date { font-size: 0.8rem; color: #94a3b8; white-space: nowrap; }
         .announce-content { font-size: 0.92rem; color: #475569; line-height: 1.7; white-space: pre-wrap; }
-
-        /* ===== 分类栏 ===== */
-        .category-bar {
-            width: 100%; max-width: 1100px; margin: 16px auto 0; padding: 0 20px;
-            display: flex; gap: 8px; overflow-x: auto; white-space: nowrap;
-            scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent;
-        }
-        .category-bar::-webkit-scrollbar { height: 6px; }
-        .category-bar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 6px; }
-        .category-btn {
-            padding: 8px 20px; border-radius: 30px; border: 1px solid rgba(148, 163, 184, 0.2);
-            background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(6px);
-            font-size: 14px; font-weight: 500; color: #475569; cursor: pointer;
-            transition: all 0.2s; white-space: nowrap; user-select: none; flex-shrink: 0; font-family: inherit;
-        }
-        .category-btn.active { background: #4f46e5; color: white; border-color: #4f46e5; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
-        .category-btn:hover:not(.active) { background: rgba(255, 255, 255, 0.9); border-color: #4f46e5; color: #1e293b; }
 
         /* ===== 游戏列表 ===== */
         .games-container { width: 100%; max-width: 1100px; margin: 20px auto; padding: 0 20px; flex: 1; }
@@ -264,7 +248,7 @@
         .modal-close:hover { color: #1e293b; background: rgba(148, 163, 184, 0.2); }
         .modal-header { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; padding-right: 2rem; display: flex; align-items: center; gap: 0.6rem; }
         
-        /* 详情预览弹窗特有 */
+        /* 快捷预览弹窗特有 */
         .preview-icon { font-size: 5rem; text-align: center; margin-bottom: 0.5rem; }
         .preview-name { font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 0.5rem; word-break: break-word; }
         .preview-tags { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
@@ -273,7 +257,6 @@
             background: rgba(79, 70, 229, 0.08); color: #4f46e5;
         }
         .preview-tag.age { background: rgba(16, 185, 129, 0.1); color: #059669; }
-        
         .btn-group { display: flex; flex-direction: column; gap: 12px; }
         .btn-group-row { display: flex; gap: 12px; flex-wrap: wrap; }
         .btn-group-row .btn { flex: 1; min-width: 120px; }
@@ -294,6 +277,24 @@
         .btn.secondary:hover { background: #e2e8f0; }
         .btn.fav-active { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; box-shadow: none; }
         .btn.fav-active:hover { background: #fde68a; }
+
+        /* ===== 收藏夹列表样式 ===== */
+        .fav-list { display: flex; flex-direction: column; gap: 12px; margin-top: 1rem; }
+        .fav-item {
+            display: flex; align-items: center; gap: 16px; padding: 12px 16px;
+            background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .fav-item:hover { border-color: #4f46e5; background: #fff; box-shadow: 0 4px 12px rgba(79,70,229,0.08); }
+        .fav-item-icon { font-size: 2rem; }
+        .fav-item-info { flex: 1; }
+        .fav-item-name { font-weight: 700; color: #1e293b; }
+        .fav-item-cat { font-size: 0.8rem; color: #64748b; }
+        .fav-item-remove {
+            background: none; border: none; font-size: 1.5rem; color: #cbd5e1;
+            cursor: pointer; padding: 4px 8px; border-radius: 8px; line-height: 1;
+        }
+        .fav-item-remove:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
 
         /* ===== 前置表单 ===== */
         .form-group { margin-bottom: 1.2rem; text-align: left; }
@@ -334,6 +335,10 @@
             .game-name { font-size: 13px; }
             .modal { padding: 1.2rem; max-width: 100%; border-radius: 1.2rem; }
             .modal-header { font-size: 1.2rem; }
+            .controls { flex-direction: column-reverse; align-items: stretch; }
+            .search-wrapper { width: 100%; }
+            .search-wrapper input { width: 100%; }
+            .btn-fav-list { width: 100%; text-align: center; justify-content: center; }
         }
     </style>
 </head>
@@ -381,8 +386,11 @@
         </div>
     </div>
 
-    <!-- 搜索栏 -->
+    <!-- 搜索栏与收藏夹入口 -->
     <div class="controls">
+        <button class="btn-fav-list" id="openFavBtn">
+            <span class="zh-inline">⭐ 我的收藏</span><span class="en-inline">⭐ My Favorites</span>
+        </button>
         <div class="search-wrapper">
             <span class="search-icon">🔍</span>
             <input type="text" id="searchInput" placeholder="搜索游戏 (Search)..." autocomplete="off" aria-label="Search games">
@@ -425,6 +433,20 @@
                     <button class="btn secondary" id="btnDetail">📄 查看详情</button>
                 </div>
                 <button class="btn" id="btnPlay">🎮 直接进入游戏</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 收藏夹弹窗 -->
+    <div class="modal-overlay" id="favoritesModal">
+        <div class="modal modal-wide">
+            <button class="modal-close" onclick="closeModal('favoritesModal')">×</button>
+            <div class="modal-header">
+                <span class="zh-inline">⭐ 我的收藏</span>
+                <span class="en-inline">⭐ My Favorites</span>
+            </div>
+            <div id="favListContainer">
+                <!-- JS 动态渲染 -->
             </div>
         </div>
     </div>
