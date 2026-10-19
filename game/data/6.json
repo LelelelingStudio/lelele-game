@@ -1,0 +1,22 @@
+{
+  "id": 6,
+  "name": "等级吃吃吃",
+  "icon": "🎮",
+  "category": "冒险",
+  "ageRating": "全年龄",
+  "version": "v1.0.0",
+  "author": "了了了岭工作室",
+  "url": "/game/leveleating/index.html",
+  "banner": "/game/leveleating/banner.png",
+  "screenshots": [
+    "/game/leveleating/banner.png"
+  ],
+  "description": "暂无详细简介，作者正在努力编写中。你可以直接点击上方按钮开始游戏体验。",
+  "updateLog": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-19",
+      "content": "游戏首发上线！"
+    }
+  ]
+}
