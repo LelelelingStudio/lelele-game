@@ -1,6 +1,6 @@
 /**
- * 了了了游 - 前端核心逻辑 (最终版)
- * 包含：多语言、数据加载、公告展示、快捷弹窗、收藏夹、投稿流程、Tally 双语适配
+ * 了了了游 - 前端核心逻辑 (最终修复版)
+ * 包含：多语言、数据加载、公告展示、快捷弹窗、收藏夹、投稿流程、Tally 双语完美预填
  */
 
 // ==================== 全局工具函数 ====================
@@ -306,7 +306,7 @@ window.toggleFavFromPreview = function() {
     updateFavUI(gameId);
 };
 
-// ==================== 投稿流程逻辑 (含双语表单适配) ====================
+// ==================== 投稿流程逻辑 (含双语表单完美适配) ====================
 function initSubmitFlow() {
     document.getElementById('openSubmitGuide').onclick = () => {
         document.getElementById('chkGuide').checked = false;
@@ -369,25 +369,30 @@ function initSubmitFlow() {
         const valMethod = document.querySelector('#radMethod .active').dataset.val;
         const valUrl = document.getElementById('inUrl').value;
 
-        // ================= 核心：根据语言组装不同的预填参数 =================
+        // ================= 核心修复：根据语言组装并映射正确的参数 =================
         if (isEn) {
             // 【英文版表单预填】
-            // 注意：基于你提供的英文 Title，Tally 生成的默认 Slug 应为 game-name 等。
-            // 如果测试时无效，请把 key 换成你上面文件里的 UUID。
             p.append('game-name', valName);
             p.append('game-icon', valIcon);
             p.append('author-name', valAuthor);
             p.append('contact-email', valEmail);
             p.append('version', valVersion);
             p.append('short-description', valIntro);
-            p.append('category', valCategory); // 传中文值，Tally 会选中对应项
-            p.append('age-rating', valAge);
-            p.append('submission-method', valMethod);
+            
+            // 将中文分类映射为英文表单的文本选项，才能正确选中
+            const catMap = { "休闲": "Casual", "益智": "Puzzle", "射击": "Shooter", "冒险": "Adventure", "其他": "Other" };
+            p.append('game-category', catMap[valCategory] || valCategory); 
+            
+            // 将中文适龄映射为英文表单的文本选项
+            const ageMap = { "全年龄": "All Ages", "6+": "6+", "12+": "12+", "16+": "16+", "18+": "18+" };
+            p.append('age-rating', ageMap[valAge] || valAge);
+            
+            p.append('submission-method', valMethod); // Tally 后台选项值本身是 link / code
             if (valMethod === 'link') {
                 p.append('game-url', valUrl);
             }
         } else {
-            // 【中文版表单预填】（使用你确认过的拼音 Slug）
+            // 【中文版表单预填】（拼音 Slug）
             p.append('you-xi-ming-cheng', valName);
             p.append('you-xi-tu-biao', valIcon);
             p.append('zuo-zhe-shu-ming', valAuthor);
@@ -459,7 +464,7 @@ function restoreDraft() {
     } catch (e) {}
 }
 
-// ==================== Tally 提交监听（postMessage） ===================
+// ==================== Tally 提交监听（postMessage） ====================
 window.addEventListener("message", function(event) {
     if (event.data && event.data.type === "tally-form-submitted") {
         try { localStorage.removeItem('lelele_draft'); } catch (e) {}
