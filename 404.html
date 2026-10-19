@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>404 · 了了了游</title>
+    <style>
+        /* ===== 多语言控制 ===== */
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text { display: block; }
+        html[data-lang="zh"] .zh-inline { display: inline; }
+        html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="en"] .en-inline { display: inline; }
+        html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+        html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
+
+        /* ===== 全局重置 ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: linear-gradient(145deg, #f0f4f9 0%, #e8ecf5 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", sans-serif;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .error-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 4rem 3rem;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05), 0 4px 16px rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            animation: floatIn 0.6s ease-out;
+        }
+
+        @keyframes floatIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .error-icon {
+            font-size: 6rem;
+            line-height: 1;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .error-code {
+            font-size: 5rem;
+            font-weight: 900;
+            color: #4f46e5;
+            line-height: 1;
+            margin-bottom: 1rem;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .error-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 1rem;
+        }
+
+        .error-desc {
+            font-size: 1rem;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #4f46e5;
+            color: #fff;
+            text-decoration: none;
+            padding: 14px 32px;
+            border-radius: 30px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            transition: all 0.2s;
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+            font-family: inherit;
+        }
+
+        .btn-back:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(79, 70, 229, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .error-card { padding: 3rem 1.5rem; border-radius: 24px; }
+            .error-icon { font-size: 4rem; }
+            .error-code { font-size: 4rem; }
+            .error-title { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="error-card">
+        <div class="error-icon">🛸</div>
+        <div class="error-code">404</div>
+        
+        <div class="zh-text">
+            <div class="error-title">页面走丢了</div>
+            <div class="error-desc">你访问的页面不存在、已被移动，或者链接出错了。</div>
+            <a href="index.html" class="btn-back" id="homeBtn">🏠 返回了了了游首页</a>
+        </div>
+
+        <div class="en-text">
+            <div class="error-title">Page Not Found</div>
+            <div class="error-desc">The page you are looking for doesn't exist, has been moved, or the link is broken.</div>
+            <a href="index.html?lang=en" class="btn-back" id="homeBtnEn">🏠 Back to lelele Home</a>
+        </div>
+    </div>
+
+</body>
+</html>
