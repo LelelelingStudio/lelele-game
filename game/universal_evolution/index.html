@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<!-- PWA manifest 动态加载 -->
+<script>
+  (function(){var lang=document.documentElement.getAttribute('data-lang')||'zh';var manifestMap={zh:'/manifest-zh.json',en:'/manifest-en.json',ja:'/manifest-ja.json',fr:'/manifest-fr.json'};var link=document.createElement('link');link.rel='manifest';link.href=manifestMap[lang]||'/manifest-zh.json';document.head.appendChild(link);})();
+</script>
+<!-- 苹果设备兼容 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/LOGO.svg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宇宙吞噬进化游戏</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- 了了了岭用户系统-样式与SDK -->
+<link rel="stylesheet" href="../../../common-user.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+<div class="site-logo-container">
+    <img src="https://leleleling.site/LOGO.svg" 
+         onerror="this.onerror=null; this.src='https://leleleling.surge.sh/LOGO.svg';" 
+         alt="Logo" 
+         style="height: 40px; width: 40px; border-radius: 50%; margin: 10px;">
+</div>
+<!-- 了了了岭用户系统-顶部挂件 -->
+<div id="userWidget" style="position:fixed;top:15px;right:20px;z-index:9999;"></div>
+
+    <div class="game-container">
+        <div class="game-header">
+            <h1><i class="fas fa-star"></i> 宇宙吞噬进化游戏</h1>
+            <div class="control-selector">
+                <button id="keyboard-control" class="control-btn active"><i class="fas fa-keyboard"></i> 键盘控制</button>
+                <button id="touch-control" class="control-btn"><i class="fas fa-hand-point-up"></i> 触控控制</button>
+            </div>
+        </div>
+        
+        <div class="game-main">
+            <div class="game-info">
+                <div class="player-level">
+                    <h3>当前等级</h3>
+                    <div class="level-name" id="level-name">宇宙尘埃</div>
+                    <div class="level-progress">
+                        <div class="progress-bar" id="progress-bar"></div>
+                        <div class="progress-text" id="progress-text">0%</div>
+                    </div>
+                    <div class="level-stats">
+                        <div class="stat">质量: <span id="mass-value">1</span> 单位</div>
+                        <div class="stat">引力半径: <span id="gravity-radius">10</span> 像素</div>
+                        <div class="stat">速度: <span id="speed-value">5</span> 像素/帧</div>
+                    </div>
+                </div>
+                
+                <div class="game-instructions">
+                    <h3><i class="fas fa-gamepad"></i> 游戏控制</h3>
+                    <div class="keyboard-instructions" id="keyboard-instructions">
+                        <p><span class="key">W/A/S/D</span> 或 <span class="key">方向键</span> - 移动</p>
+                        <p><span class="key">空格键</span> - 加速</p>
+                        <p><span class="key">R</span> - 重新开始</p>
+                    </div>
+                    <div class="touch-instructions" id="touch-instructions" style="display: none;">
+                        <p>使用屏幕上的虚拟摇杆控制移动</p>
+                        <p>点击加速按钮加速</p>
+                    </div>
+                    <h3><i class="fas fa-lightbulb"></i> 游戏目标</h3>
+                    <p>1. 吞噬比你小的天体来成长</p>
+                    <p>2. 利用引力吸引其他天体相撞</p>
+                    <p>3. 从宇宙尘埃进化到黑洞!</p>
+                </div>
+                
+                <div class="upcoming-levels">
+                    <h3><i class="fas fa-chart-line"></i> 下一等级</h3>
+                    <div id="next-levels">
+                        <div class="next-level">灰尘 (2级)</div>
+                        <div class="next-level">沙粒 (3级)</div>
+                        <div class="next-level">砂砾 (4级)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-canvas-container">
+                <canvas id="game-canvas"></canvas>
+                
+                <!-- 触控控制界面 -->
+                <div class="touch-controls" id="touch-controls">
+                    <div class="joystick-container">
+                        <div class="joystick-base" id="joystick-base">
+                            <div class="joystick-thumb" id="joystick-thumb"></div>
+                        </div>
+                        <div class="joystick-label">移动摇杆</div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="action-btn" id="boost-btn"><i class="fas fa-rocket"></i> 加速</button>
+                        <button class="action-btn" id="reset-btn"><i class="fas fa-redo"></i> 重来</button>
+                    </div>
+                </div>
+                
+                <div class="game-overlay" id="game-overlay">
+                    <div class="overlay-content">
+                        <h2 id="overlay-title">游戏开始!</h2>
+                        <p id="overlay-text">控制宇宙尘埃吞噬其他天体，不断进化壮大</p>
+                        <button id="start-btn" class="start-btn">开始游戏</button>
+                        <button id="continue-btn" class="continue-btn" style="display: none;">继续游戏</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-footer">
+            <div class="level-evolution">
+                <h3><i class="fas fa-atom"></i> 进化路线</h3>
+                <div class="evolution-path">
+                    <div class="evolution-stage current">1. 宇宙尘埃</div>
+                    <div class="evolution-stage">2. 灰尘</div>
+                    <div class="evolution-stage">3. 沙粒</div>
+                    <div class="evolution-stage">4. 砂砾</div>
+                    <div class="evolution-stage">5. 小石子</div>
+                    <div class="evolution-stage">...</div>
+                    <div class="evolution-stage">50. 超大黑洞</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="gameClasses.js"></script>
+    <script src="script.js"></script>
+<!-- 了了了岭用户系统-核心逻辑 -->
+<script src="../../../common-user.js"></script>
+<!-- PWA Service Worker 注册 -->
+<script>
+if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js').then(function(reg){console.log('✅ PWA Service Worker 注册成功');}).catch(function(err){console.log('❌ PWA Service Worker 注册失败:',err);});}
+</script>
+</body>
+
+</html>
