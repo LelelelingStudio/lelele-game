@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<!-- PWA manifest 动态加载 -->
+<script>
+  (function(){var lang=document.documentElement.getAttribute('data-lang')||'zh';var manifestMap={zh:'/manifest-zh.json',en:'/manifest-en.json',ja:'/manifest-ja.json',fr:'/manifest-fr.json'};var link=document.createElement('link');link.rel='manifest';link.href=manifestMap[lang]||'/manifest-zh.json';document.head.appendChild(link);})();
+</script>
+<!-- 苹果设备兼容 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/LOGO.svg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>吃星球变大 · 3D自由太空</title>
+    <style>
+.site-logo-container {
+    display: inline-block;
+    z-index: 1000;
+    position: relative;
+}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            overflow: hidden;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            touch-action: none;
+            user-select: none;
+        }
+        canvas { display: block; }
+        #blocker {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            z-index: 100;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+        #blocker span { font-size: 16px; opacity: 0.8; margin-top: 12px; }
+        #crosshair {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 20px; height: 20px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 15;
+        }
+        #crosshair::before, #crosshair::after {
+            content: '';
+            position: absolute;
+            background: rgba(255,255,255,0.6);
+        }
+        #crosshair::before { width: 2px; height: 20px; left: 9px; top: 0; }
+        #crosshair::after { height: 2px; width: 20px; left: 0; top: 9px; }
+        #hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(79,70,229,0.8);
+            pointer-events: none;
+            z-index: 10;
+            line-height: 1.8;
+        }
+        #hud span { margin-right: 20px; }
+        .hint {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .game-over-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 48px;
+            font-weight: 900;
+            text-shadow: 0 0 30px #ff3333;
+            display: none;
+            text-align: center;
+            z-index: 20;
+            pointer-events: none;
+        }
+        .game-over-panel.show { display: block; }
+        .btn-restart {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4f46e5;
+            border: none;
+            color: #fff;
+            padding: 12px 36px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(79,70,229,0.5);
+            transition: 0.2s;
+            display: none;
+            z-index: 20;
+        }
+        .btn-restart.show { display: block; }
+        .btn-restart:hover { background: #7c3aed; }
+    </style>
+<!-- 了了了岭用户系统-样式与SDK -->
+<link rel="stylesheet" href="../../common-user.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+<div class="site-logo-container">
+    <img src="https://leleleling.site/LOGO.svg" 
+         onerror="this.onerror=null; this.src='https://leleleling.surge.sh/LOGO.svg';" 
+         alt="Logo" 
+         style="height: 40px; width: 40px; border-radius: 50%; margin: 10px;">
+</div>
+<!-- 了了了岭用户系统-顶部挂件 -->
+<div id="userWidget" style="position:fixed;top:15px;right:20px;z-index:9999;"></div>
+
+    <div id="blocker">
+        🪐 吃星球变大<br>
+        <span>点击屏幕锁定鼠标 · 开始吞噬之旅</span>
+    </div>
+    <div id="crosshair"></div>
+    <div id="hud">
+        <span>🪐 等级: <strong id="levelText">2</strong></span>
+        <span>⭐ 经验: <strong id="expText">0/100</strong></span>
+        <span>💨 加速: <span id="boostText">关</span></span>
+        <span>💥 自爆 (B键)</span>
+    </div>
+    <div class="hint">
+        鼠标旋转视角 · WASD飞行 · QE升降 · Shift加速 · B自爆冲击波
+    </div>
+    <div class="game-over-panel" id="gameOverPanel">
+        <div>💥 被吞噬了</div>
+        <div style="font-size: 24px; margin-top: 10px;">最终等级: <span id="finalLevel">2</span></div>
+    </div>
+    <button class="btn-restart" id="restartBtn">🔄 再来一局</button>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+        import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+        // ==================== 场景初始化 ====================
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x020210);
+        scene.fog = new THREE.FogExp2(0x020210, 0.0000008);
+
+        const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 50000);
+        camera.position.set(0, 100, 300);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        document.body.appendChild(renderer.domElement);
+
+        const labelRenderer = new CSS2DRenderer();
+        labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0';
+        labelRenderer.domElement.style.pointerEvents = 'none';
+        document.body.appendChild(labelRenderer.domElement);
+
+        // PointerLockControls
+        const controls = new PointerLockControls(camera, renderer.domElement);
+        const blocker = document.getElementById('blocker');
+        blocker.addEventListener('click', () => controls.lock());
+        controls.addEventListener('lock', () => { blocker.style.display = 'none'; });
+        controls.addEventListener('unlock', () => { blocker.style.display = 'flex'; });
+
+        // 灯光
+        scene.add(new THREE.AmbientLight(0x222244));
+        const dirLight = new THREE.DirectionalLight(0xfff5d1, 1.5);
+        dirLight.position.set(500, 1000, 500);
+        scene.add(dirLight);
+
+        // 星空背景
+        const starsGeo = new THREE.BufferGeometry();
+        const starsCount = 5000;
+        const starsPositions = new Float32Array(starsCount * 3);
+        for (let i = 0; i < starsCount * 3; i += 3) {
+            const r = 3000 + Math.random() * 12000;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            starsPositions[i] = Math.sin(phi) * Math.cos(theta) * r;
+            starsPositions[i + 1] = Math.sin(phi) * Math.sin(theta) * r;
+            starsPositions[i + 2] = Math.cos(phi) * r;
+        }
+        starsGeo.setAttribute('position', new THREE.BufferAttribute(starsPositions, 3));
+        scene.add(new THREE.Points(starsGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 1.5, blending: THREE.AdditiveBlending, depthWrite: false })));
+
+        // ==================== 游戏状态 ====================
+        const CONFIG = {
+            EXP_PER_LEVEL: 100,
+            DEATH_LEVEL_DIFF: 20,
+            PLAYER_BASE_RADIUS: 3,
+            PLAYER_RADIUS_PER_LEVEL: 0.8,
+            FOOD_BASE_RADIUS: 2,
+            FOOD_RADIUS_PER_LEVEL: 0.5,
+            FLY_SPEED: 80,
+            BOOST_MULTIPLIER: 2,
+            FREE_FOOD_COUNT: 120,
+            ORBIT_FOOD_COUNT: 60,
+            SPAWN_RANGE: 3000,
+            DESPAWN_DIST: 5000,
+            ORBIT_COUNT: 8,
+        };
+
+        const player = {
+            level: 2,
+            exp: 0,
+            alive: true,
+            combo: 0,
+            comboTimer: 0,
+            mesh: null,
+            label: null,
+        };
+
+        const freeFoods = [];
+        const orbitFoods = [];
+        const orbitGroups = [];
+        const shockwaves = [];
+        let gameRunning = true;
+        const keys = {};
+        let shiftHeld = false;
+
+        // ==================== 辅助函数 ====================
+        function getPlayerRadius(level) { return CONFIG.PLAYER_BASE_RADIUS + level * CONFIG.PLAYER_RADIUS_PER_LEVEL; }
+        function getFoodRadius(level) { return CONFIG.FOOD_BASE_RADIUS + level * CONFIG.FOOD_RADIUS_PER_LEVEL; }
+        function randomColor() {
+            const hue = Math.random() * 360;
+            return new THREE.Color(`hsl(${hue}, 70%, 55%)`);
+        }
+
+        // ==================== 创建玩家 ====================
+        function createPlayerMesh() {
+            const r = getPlayerRadius(player.level);
+            const geo = new THREE.SphereGeometry(r, 48, 48);
+            const mat = new THREE.MeshStandardMaterial({ color: 0x4f46e5, roughness: 0.3, metalness: 0.2, emissive: new THREE.Color(0x1a1a4a) });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.copy(camera.position);
+            scene.add(mesh);
+
+            const div = document.createElement('div');
+            div.style.color = '#fff';
+            div.style.fontWeight = 'bold';
+            div.style.fontSize = '16px';
+            div.style.textShadow = '0 0 10px #7c3aed';
+            div.textContent = `Lv.${player.level}`;
+            const label = new CSS2DObject(div);
+            label.position.set(0, r + 5, 0);
+            mesh.add(label);
+
+            return { mesh, label };
+        }
+
+        const playerObj = createPlayerMesh();
+        player.mesh = playerObj.mesh;
+        player.label = playerObj.label;
+
+        function updatePlayerAppearance() {
+            const newR = getPlayerRadius(player.level);
+            player.mesh.geometry.dispose();
+            player.mesh.geometry = new THREE.SphereGeometry(newR, 48, 48);
+            player.label.position.y = newR + 5;
+            player.label.element.textContent = `Lv.${player.level}`;
+        }
+
+        // ==================== 食物创建 ====================
+        function createFoodMesh(level, position) {
+            const r = getFoodRadius(level);
+            const geo = new THREE.SphereGeometry(r, 24, 24);
+            const mat = new THREE.MeshStandardMaterial({ color: randomColor(), roughness: 0.5, metalness: 0.1 });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.copy(position);
+            mesh.userData = { level, radius: r };
+            scene.add(mesh);
+
+            const div = document.createElement('div');
+            div.style.color = '#ffd966';
+            div.style.fontWeight = 'bold';
+            div.style.fontSize = '12px';
+            div.style.textShadow = '0 0 6px black';
+            div.textContent = level;
+            const label = new CSS2DObject(div);
+            label.position.set(0, r + 4, 0);
+            mesh.add(label);
+
+            return mesh;
+        }
+
+        function updateFoodLabel(foodMesh) {
+            const newR = getFoodRadius(foodMesh.userData.level);
+            foodMesh.userData.radius = newR;
+            foodMesh.scale.setScalar(newR / (foodMesh.geometry.parameters.radius || newR));
+            if (foodMesh.children[0] && foodMesh.children[0].isCSS2DObject) {
+                foodMesh.children[0].element.textContent = foodMesh.userData.level;
+                foodMesh.children[0].position.y = newR + 4;
+            }
+        }
+
+        function generateFoodLevel() {
+            const r = Math.random();
+            if (r < 0.55) return Math.max(1, player.level - Math.floor(Math.random() * 4) - 1);
+            else if (r < 0.9) return player.level + Math.floor(Math.random() * 6) + 1;
+            else return Math.max(1, player.level + Math.floor(Math.random() * 3) - 1);
+        }
+
+        // ==================== 自由游荡食物 ====================
+        function spawnFreeFood() {
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 300 + Math.random() * CONFIG.SPAWN_RANGE;
+            const x = player.mesh.position.x + Math.cos(angle) * dist;
+            const z = player.mesh.position.z + Math.sin(angle) * dist;
+            const y = player.mesh.position.y + (Math.random() - 0.5) * 2000;
+            const level = generateFoodLevel();
+            const food = createFoodMesh(level, new THREE.Vector3(x, y, z));
+            food.userData.wanderAngle = Math.random() * Math.PI * 2;
+            food.userData.wanderSpeed = 10 + Math.random() * 40;
+            food.userData.wanderTimer = Math.random() * 3;
+            freeFoods.push(food);
+        }
+
+        function initFreeFoods() {
+            for (let i = 0; i < CONFIG.FREE_FOOD_COUNT; i++) spawnFreeFood();
+        }
+
+        function updateFreeFoods(delta) {
+            // 维护数量
+            while (freeFoods.length < CONFIG.FREE_FOOD_COUNT) spawnFreeFood();
+            // 移除太远的
+            for (let i = freeFoods.length - 1; i >= 0; i--) {
+                if (player.mesh.position.distanceTo(freeFoods[i].position) > CONFIG.DESPAWN_DIST) {
+                    scene.remove(freeFoods[i]);
+                    freeFoods.splice(i, 1);
+                }
+            }
+            // 随机游荡
+            freeFoods.forEach(f => {
+                f.userData.wanderTimer -= delta;
+                if (f.userData.wanderTimer <= 0) {
+                    f.userData.wanderTimer = 2 + Math.random() * 3;
+                    f.userData.wanderAngle = Math.random() * Math.PI * 2;
+                }
+                f.position.x += Math.cos(f.userData.wanderAngle) * f.userData.wanderSpeed * delta;
+                f.position.z += Math.sin(f.userData.wanderAngle) * f.userData.wanderSpeed * delta;
+                f.position.y += (Math.random() - 0.5) * 20 * delta;
+            });
+        }
+
+        // ==================== 轨道食物（太阳系轨道） ====================
+        function createOrbit(orbitIndex) {
+            const orbitRadius = 400 + orbitIndex * 350;
+            const foodCount = 6 + orbitIndex * 2;
+            const baseLevel = Math.max(1, Math.floor(orbitIndex * 1.5));
+            for (let i = 0; i < foodCount; i++) {
+                const angle = (i / foodCount) * Math.PI * 2 + Math.random() * 0.5;
+                const x = Math.cos(angle) * orbitRadius;
+                const z = Math.sin(angle) * orbitRadius;
+                const y = (Math.random() - 0.5) * 200;
+                const level = baseLevel + Math.floor(Math.random() * 4);
+                const food = createFoodMesh(Math.max(1, level), new THREE.Vector3(x, y, z));
+                food.userData.orbitRadius = orbitRadius;
+                food.userData.orbitAngle = angle;
+                food.userData.orbitSpeed = (0.3 + Math.random() * 0.4) / (orbitIndex + 1);
+                food.userData.orbitY = y;
+                food.userData.orbitYDrift = (Math.random() - 0.5) * 0.5;
+                orbitFoods.push(food);
+            }
+            orbitGroups.push(orbitRadius);
+        }
+
+        function initOrbitFoods() {
+            for (let i = 0; i < CONFIG.ORBIT_COUNT; i++) createOrbit(i);
+        }
+
+        function updateOrbitFoods(delta) {
+            orbitFoods.forEach(f => {
+                f.userData.orbitAngle += f.userData.orbitSpeed * delta;
+                const a = f.userData.orbitAngle;
+                const r = f.userData.orbitRadius;
+                f.userData.orbitY += f.userData.orbitYDrift * delta;
+                if (Math.abs(f.userData.orbitY) > 300) f.userData.orbitYDrift *= -1;
+                f.position.x = Math.cos(a) * r;
+                f.position.z = Math.sin(a) * r;
+                f.position.y = f.userData.orbitY;
+            });
+        }
+
+        // ==================== 经验值系统 ====================
+        function playerGainExp(amount) {
+            player.exp += amount;
+            while (player.exp >= CONFIG.EXP_PER_LEVEL) {
+                player.exp -= CONFIG.EXP_PER_LEVEL;
+                player.level++;
+                updatePlayerAppearance();
+            }
+            updateUI();
+        }
+
+        function playerLoseExp(amount) {
+            player.exp -= amount;
+            while (player.exp < 0) {
+                if (player.level <= 1) {
+                    player.exp = 0;
+                    gameOver();
+                    return;
+                }
+                player.level--;
+                player.exp += CONFIG.EXP_PER_LEVEL;
+            }
+            updatePlayerAppearance();
+            updateUI();
+        }
+
+        function foodLoseExpCheck(foodMesh, amount) {
+            const levelLoss = Math.ceil(amount / CONFIG.EXP_PER_LEVEL);
+            foodMesh.userData.level -= levelLoss;
+            if (foodMesh.userData.level < 1) return false;
+            foodMesh.userData.level = Math.max(1, foodMesh.userData.level);
+            return true;
+        }
+
+        function gameOver() {
+            player.alive = false;
+            gameRunning = false;
+            document.getElementById('gameOverPanel').classList.add('show');
+            document.getElementById('restartBtn').classList.add('show');
+            document.getElementById('finalLevel').textContent = player.level;
+            updateUI();
+        }
+
+        // ==================== 自爆冲击波 ====================
+        function selfDestruct() {
+            if (!player.alive || player.level < 3) return;
+            player.level = Math.max(1, player.level - 2);
+            player.exp = 0;
+            const shockR = getPlayerRadius(player.level) * 40;
+            // 冲击波视觉效果
+            const waveGeo = new THREE.TorusGeometry(shockR, 2, 16, 64);
+            const waveMat = new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0.7 });
+            const wave = new THREE.Mesh(waveGeo, waveMat);
+            wave.position.copy(player.mesh.position);
+            scene.add(wave);
+            shockwaves.push({ mesh: wave, life: 0.6, maxLife: 0.6, startRadius: shockR, targetRadius: shockR * 2.5 });
+
+            const allFoods = [...freeFoods, ...orbitFoods];
+            for (const f of allFoods) {
+                if (player.mesh.position.distanceTo(f.position) <= shockR) {
+                    f.userData.level = Math.max(1, f.userData.level - 5);
+                    updateFoodLabel(f);
+                }
+            }
+            updatePlayerAppearance();
+            updateUI();
+        }
+
+        // ==================== 碰撞检测 ====================
+        function checkCollisions() {
+            if (!player.alive) return;
+            const pR = getPlayerRadius(player.level);
+            const allFoods = [...freeFoods, ...orbitFoods];
+            for (let i = allFoods.length - 1; i >= 0; i--) {
+                const f = allFoods[i];
+                const dist = player.mesh.position.distanceTo(f.position);
+                if (dist < pR + f.userData.radius) {
+                    const diff = Math.abs(player.level - f.userData.level);
+                    if (diff >= CONFIG.DEATH_LEVEL_DIFF) {
+                        if (player.level > f.userData.level) {
+                            playerGainExp(10);
+                            removeFood(f, i);
+                        } else {
+                            gameOver();
+                        }
+                        return;
+                    }
+                    if (player.level > f.userData.level) {
+                        const gain = 25 / (player.level - f.userData.level);
+                        const loss = 6.25 * (player.level - f.userData.level);
+                        playerGainExp(gain);
+                        player.combo++;
+                        player.comboTimer = 1.8;
+                        if (!foodLoseExpCheck(f, loss)) {
+                            removeFood(f, i);
+                        } else {
+                            updateFoodLabel(f);
+                        }
+                    } else if (player.level < f.userData.level) {
+                        const loss = 6.25 * (f.userData.level - player.level);
+                        playerLoseExp(loss);
+                    }
+                }
+            }
+        }
+
+        function removeFood(food, index) {
+            scene.remove(food);
+            const freeIdx = freeFoods.indexOf(food);
+            if (freeIdx !== -1) { freeFoods.splice(freeIdx, 1); return; }
+            const orbitIdx = orbitFoods.indexOf(food);
+            if (orbitIdx !== -1) { orbitFoods.splice(orbitIdx, 1); }
+        }
+
+        // ==================== 移动 ====================
+        function updatePlayerMovement(delta) {
+            if (!player.alive) return;
+            const dir = new THREE.Vector3();
+            camera.getWorldDirection(dir);
+            const right = new THREE.Vector3().crossVectors(camera.up, dir).normalize();
+
+            let speed = CONFIG.FLY_SPEED;
+            if (shiftHeld) speed *= CONFIG.BOOST_MULTIPLIER;
+
+            if (keys['w'] || keys['arrowup']) camera.position.addScaledVector(dir, speed * delta);
+            if (keys['s'] || keys['arrowdown']) camera.position.addScaledVector(dir, -speed * delta);
+            if (keys['a'] || keys['arrowleft']) camera.position.addScaledVector(right, speed * delta);
+            if (keys['d'] || keys['arrowright']) camera.position.addScaledVector(right, -speed * delta);
+            if (keys['q']) camera.position.y += speed * delta;
+            if (keys['e']) camera.position.y -= speed * delta;
+
+            // 玩家球体跟随摄像机
+            player.mesh.position.copy(camera.position);
+
+            if (player.comboTimer > 0) {
+                player.comboTimer -= delta;
+                if (player.comboTimer <= 0) player.combo = 0;
+            }
+        }
+
+        // ==================== UI ====================
+        function updateUI() {
+            document.getElementById('levelText').textContent = player.level;
+            document.getElementById('expText').textContent = `${Math.floor(player.exp)}/${CONFIG.EXP_PER_LEVEL}`;
+            document.getElementById('boostText').textContent = shiftHeld ? '开' : '关';
+            document.getElementById('boostText').style.color = shiftHeld ? '#4ade80' : '#fff';
+        }
+
+        // ==================== 键盘事件 ====================
+        window.addEventListener('keydown', (e) => {
+            if (!controls.isLocked) return;
+            if (e.key === 'Shift') { shiftHeld = true; updateUI(); }
+            if (e.key === 'b' || e.key === 'B') { e.preventDefault(); selfDestruct(); }
+            keys[e.key.toLowerCase()] = true;
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) e.preventDefault();
+        });
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'Shift') { shiftHeld = false; updateUI(); }
+            keys[e.key.toLowerCase()] = false;
+        });
+
+        // ==================== 重启 ====================
+        document.getElementById('restartBtn').addEventListener('click', () => {
+            freeFoods.forEach(f => scene.remove(f));
+            freeFoods.length = 0;
+            orbitFoods.forEach(f => scene.remove(f));
+            orbitFoods.length = 0;
+            shockwaves.forEach(s => scene.remove(s.mesh));
+            shockwaves.length = 0;
+            player.level = 2;
+            player.exp = 0;
+            player.alive = true;
+            player.combo = 0;
+            player.comboTimer = 0;
+            gameRunning = true;
+            camera.position.set(0, 100, 300);
+            player.mesh.position.copy(camera.position);
+            document.getElementById('gameOverPanel').classList.remove('show');
+            document.getElementById('restartBtn').classList.remove('show');
+            updatePlayerAppearance();
+            initFreeFoods();
+            initOrbitFoods();
+            updateUI();
+        });
+
+        // ==================== 窗口调整 ====================
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // ==================== 游戏循环 ====================
+        const clock = new THREE.Clock();
+        function animate() {
+            const delta = Math.min(clock.getDelta(), 0.1);
+
+            if (gameRunning && controls.isLocked) {
+                updatePlayerMovement(delta);
+                checkCollisions();
+                updateFreeFoods(delta);
+                updateOrbitFoods(delta);
+            }
+
+            // 更新冲击波
+            for (let i = shockwaves.length - 1; i >= 0; i--) {
+                const sw = shockwaves[i];
+                sw.life -= delta;
+                const progress = 1 - (sw.life / sw.maxLife);
+                const scale = sw.startRadius + (sw.targetRadius - sw.startRadius) * progress;
+                sw.mesh.scale.setScalar(scale / (sw.mesh.geometry.parameters.radius || sw.startRadius));
+                sw.mesh.material.opacity = (sw.life / sw.maxLife) * 0.6;
+                if (sw.life <= 0) {
+                    scene.remove(sw.mesh);
+                    shockwaves.splice(i, 1);
+                }
+            }
+
+            updateUI();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+
+        // ==================== 启动 ====================
+        initFreeFoods();
+        initOrbitFoods();
+        updateUI();
+        requestAnimationFrame(animate);
+    </script>
+<!-- 了了了岭用户系统-核心逻辑 -->
+<script src="../../common-user.js"></script>
+<!-- PWA Service Worker 注册 -->
+<script>
+if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js').then(function(reg){console.log('✅ PWA Service Worker 注册成功');}).catch(function(err){console.log('❌ PWA Service Worker 注册失败:',err);});}
+</script>
+</body>
+
+</html>
