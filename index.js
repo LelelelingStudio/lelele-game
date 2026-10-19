@@ -1,6 +1,6 @@
 /**
- * 了了了游 - 前端核心逻辑
- * 包含：多语言、数据加载、公告展示、快捷弹窗、收藏夹、投稿流程、Tally 事件监听
+ * 了了了游 - 前端核心逻辑 (最终版)
+ * 包含：多语言、数据加载、公告展示、快捷弹窗、收藏夹、投稿流程、Tally 双语适配
  */
 
 // ==================== 全局工具函数 ====================
@@ -90,7 +90,6 @@ function renderFavoritesList() {
         return;
     }
 
-    // 从全局 gameData 过滤
     const favGames = gameData.filter(g => favs.includes(String(g.id)));
 
     if (favGames.length === 0) {
@@ -307,7 +306,7 @@ window.toggleFavFromPreview = function() {
     updateFavUI(gameId);
 };
 
-// ==================== 投稿流程逻辑 ====================
+// ==================== 投稿流程逻辑 (含双语表单适配) ====================
 function initSubmitFlow() {
     document.getElementById('openSubmitGuide').onclick = () => {
         document.getElementById('chkGuide').checked = false;
@@ -355,28 +354,57 @@ function initSubmitFlow() {
     document.getElementById('btnToTally').onclick = () => {
         if (!document.getElementById('preForm').reportValidity()) return;
         
-        // ================= 核心：根据拼音 Slug 映射预填参数 =================
+        const isEn = document.documentElement.getAttribute('data-lang') === 'en';
         const p = new URLSearchParams();
-        p.append('you-xi-ming-cheng', document.getElementById('inName').value);
-        p.append('you-xi-tu-biao', document.getElementById('inIcon').value);
-        p.append('zuo-zhe-shu-ming', document.getElementById('inAuthor').value);
-        p.append('lian-xi-you-xiang', document.getElementById('inEmail').value);
-        p.append('ban-ben-hao', document.getElementById('inVersion').value);
-        p.append('yi-ju-hua-jian-jie', document.getElementById('inIntro').value);
-        p.append('you-xi-fen-lei', document.querySelector('#radCategory .active').dataset.val);
-        p.append('shi-ling-fen-ji', document.querySelector('#radAge .active').dataset.val);
-        p.append('tou-gao-fang-shi', document.querySelector('#radMethod .active').dataset.val);
         
-        if (document.querySelector('#radMethod .active').dataset.val === 'link') {
-            p.append('you-xi-lian-jie', document.getElementById('inUrl').value);
+        // 获取表单值
+        const valName = document.getElementById('inName').value;
+        const valIcon = document.getElementById('inIcon').value;
+        const valAuthor = document.getElementById('inAuthor').value;
+        const valEmail = document.getElementById('inEmail').value;
+        const valVersion = document.getElementById('inVersion').value;
+        const valIntro = document.getElementById('inIntro').value;
+        const valCategory = document.querySelector('#radCategory .active').dataset.val;
+        const valAge = document.querySelector('#radAge .active').dataset.val;
+        const valMethod = document.querySelector('#radMethod .active').dataset.val;
+        const valUrl = document.getElementById('inUrl').value;
+
+        // ================= 核心：根据语言组装不同的预填参数 =================
+        if (isEn) {
+            // 【英文版表单预填】
+            // 注意：基于你提供的英文 Title，Tally 生成的默认 Slug 应为 game-name 等。
+            // 如果测试时无效，请把 key 换成你上面文件里的 UUID。
+            p.append('game-name', valName);
+            p.append('game-icon', valIcon);
+            p.append('author-name', valAuthor);
+            p.append('contact-email', valEmail);
+            p.append('version', valVersion);
+            p.append('short-description', valIntro);
+            p.append('category', valCategory); // 传中文值，Tally 会选中对应项
+            p.append('age-rating', valAge);
+            p.append('submission-method', valMethod);
+            if (valMethod === 'link') {
+                p.append('game-url', valUrl);
+            }
+        } else {
+            // 【中文版表单预填】（使用你确认过的拼音 Slug）
+            p.append('you-xi-ming-cheng', valName);
+            p.append('you-xi-tu-biao', valIcon);
+            p.append('zuo-zhe-shu-ming', valAuthor);
+            p.append('lian-xi-you-xiang', valEmail);
+            p.append('ban-ben-hao', valVersion);
+            p.append('yi-ju-hua-jian-jie', valIntro);
+            p.append('you-xi-fen-lei', valCategory);
+            p.append('shi-ling-fen-ji', valAge);
+            p.append('tou-gao-fang-shi', valMethod);
+            if (valMethod === 'link') {
+                p.append('you-xi-lian-jie', valUrl);
+            }
         }
 
-        // ================= 表单嵌入 URL =================
-        // 【注意】等你做好了英文版 Tally，只需在这里加一个判断：
-        // const isEn = document.documentElement.getAttribute('data-lang') === 'en';
-        // const baseUrl = isEn ? 'https://tally.so/embed/英文ID' : 'https://tally.so/embed/7XlY69';
-        
-        const baseUrl = 'https://tally.so/embed/7XlY69';
+        // ================= 根据语言切换表单 ID =================
+        // 中文表单: 7XlY69 | 英文表单: xVx8XG
+        const baseUrl = isEn ? 'https://tally.so/embed/xVx8XG' : 'https://tally.so/embed/7XlY69';
         const finalUrl = `${baseUrl}?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1&${p.toString()}`;
         
         document.getElementById('tallyContainer').innerHTML = `
@@ -432,19 +460,11 @@ function restoreDraft() {
 }
 
 // ==================== Tally 提交监听（postMessage） ====================
-// 这是根据 Tally 官方建议添加的跨域通信监听
 window.addEventListener("message", function(event) {
     if (event.data && event.data.type === "tally-form-submitted") {
-        // 1. 清理草稿
         try { localStorage.removeItem('lelele_draft'); } catch (e) {}
-        
-        // 2. 关闭所有弹窗
         document.querySelectorAll('.modal-overlay.active').forEach(el => el.classList.remove('active'));
-        
-        // 3. 提示用户
         alert('提交成功！我们将尽快审核。\nSubmitted successfully! We will review it soon.');
-        
-        // 4. 刷新当前页，清空 URL 参数
         window.location.href = window.location.pathname + "?submitted=1";
     }
 });
@@ -453,7 +473,6 @@ window.addEventListener("message", function(event) {
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('submitted') === '1') {
-        // 如果是刷新回来的，清理一下 URL，不弹窗
         window.history.replaceState({}, document.title, window.location.pathname);
     }
     
