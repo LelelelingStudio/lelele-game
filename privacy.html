@@ -1,11 +1,39 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-lang="zh">
 <head>
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>隐私政策 · Privacy Policy</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text { display: block; }
+        html[data-lang="zh"] .zh-inline { display: inline; }
+        html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="en"] .en-inline { display: inline; }
+        html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+        html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; background: #f4f7fc; color: #1e293b; line-height: 1.8; padding: 0 1.5rem 2.5rem; display: flex; flex-direction: column; min-height: 100vh; }
         .container { max-width: 800px; width: 100%; margin: 2rem auto 0; background: #fff; border-radius: 36px; padding: 3.5rem 4rem; box-shadow: 0 20px 60px rgba(0,0,0,0.04); flex: 1; }
@@ -16,44 +44,107 @@
         p { margin: 0.8rem 0; color: #475569; }
         ul { margin: 0.8rem 0 1rem 1.5rem; color: #475569; }
         a { color: #4f46e5; text-decoration: none; }
+        
+        .lang-bar { width: 100%; max-width: 800px; margin: 0 auto; display: flex; justify-content: flex-end; padding: 0.8rem 0 0; }
+        .lang-switch { display: flex; gap: 2px; background: rgba(148, 163, 184, 0.12); border-radius: 30px; padding: 3px; }
+        .lang-btn { padding: 4px 16px; border: none; border-radius: 24px; background: transparent; font-size: 0.8rem; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .lang-btn.active { background: #4f46e5; color: #fff; box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25); }
+        
         @media (max-width: 640px) { .container { padding: 2rem 1.2rem; border-radius: 24px; } }
     </style>
 </head>
 <body>
-    <div class="container">
-        <a href="index.html" class="back-home" id="backHomeBtn">← 返回首页</a>
-        <h1>隐私政策</h1>
-        <div class="subhead">最后更新：2026 年 10 月 18 日</div>
-
-        <p>了了了岭工作室（以下简称“我们”）深知个人信息对您的重要性。本政策旨在说明我们在您使用“了了了游”平台时，如何收集、使用和保护您的信息。</p>
-
-        <h2>1. 我们收集的信息</h2>
-        <p>为了提供游戏展示和投稿服务，我们会收集以下信息：</p>
-        <ul>
-            <li><strong>投稿者信息：</strong>当您提交游戏时，我们会通过 Tally 表单收集您的游戏名称、作者署名、联系邮箱、版本号及简介。</li>
-            <li><strong>本地草稿数据：</strong>当您在前置表单填写时，我们会使用浏览器的 `localStorage` 在您的设备上临时保存草稿（包括上述字段），以便您下次继续填写。该数据不会上传至我们的服务器。</li>
-            <li><strong>访问数据：</strong>我们可能使用基础统计工具了解页面访问量，不收集您的个人身份信息。</li>
-        </ul>
-
-        <h2>2. 我们如何使用信息</h2>
-        <ul>
-            <li>用于审核您的游戏投稿，并通过邮箱向您反馈审核结果。</li>
-            <li>在游戏详情页展示您提供的游戏信息（名称、图标、作者等）。</li>
-            <li>在平台公告或邮件中向您传达规则更新或重要通知。</li>
-        </ul>
-
-        <h2>3. 信息的存储与保护</h2>
-        <p>您的投稿数据存储在我们的 Tally 表单服务商处。我们采取合理的安全措施防止信息泄露、丢失或滥用。除法律法规要求或经您同意外，我们不会向任何第三方出售您的个人信息。</p>
-
-        <h2>4. 您的权利</h2>
-        <p>根据《个人信息保护法》，您有权查阅、更正、删除您的个人信息，或撤回授权。如需行使上述权利，请联系：<a href="mailto:leleleling@2980.com">leleleling@2980.com</a>。我们将在 15 个工作日内响应。</p>
-
-        <h2>5. 未成年人保护</h2>
-        <p>若您是未满 14 周岁的儿童，请在监护人陪同下阅读本政策。我们不会主动收集未满 14 周岁儿童的个人信息。若发现误收，我们将及时删除。</p>
+    <div class="lang-bar">
+        <div class="lang-switch" role="group" aria-label="语言 / Language">
+            <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+            <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
+        </div>
     </div>
+
+    <div class="container">
+        <a href="index.html" class="back-home" id="backHomeBtn">
+            <span class="zh-inline">← 返回首页</span><span class="en-inline">← Back to Home</span>
+        </a>
+
+        <!-- 中文版 (完全保留你的原版文本) -->
+        <div class="zh-text">
+            <h1>隐私政策</h1>
+            <div class="subhead">最后更新：2026 年 10 月 18 日</div>
+
+            <p>了了了岭工作室（以下简称“我们”）深知个人信息对您的重要性。本政策旨在说明我们在您使用“了了了游”平台时，如何收集、使用和保护您的信息。</p>
+
+            <h2>1. 我们收集的信息</h2>
+            <p>为了提供游戏展示和投稿服务，我们会收集以下信息：</p>
+            <ul>
+                <li><strong>投稿者信息：</strong>当您提交游戏时，我们会通过 Tally 表单收集您的游戏名称、作者署名、联系邮箱、版本号及简介。</li>
+                <li><strong>本地草稿数据：</strong>当您在前置表单填写时，我们会使用浏览器的 `localStorage` 在您的设备上临时保存草稿（包括上述字段），以便您下次继续填写。该数据不会上传至我们的服务器。</li>
+                <li><strong>访问数据：</strong>我们可能使用基础统计工具了解页面访问量，不收集您的个人身份信息。</li>
+            </ul>
+
+            <h2>2. 我们如何使用信息</h2>
+            <ul>
+                <li>用于审核您的游戏投稿，并通过邮箱向您反馈审核结果。</li>
+                <li>在游戏详情页展示您提供的游戏信息（名称、图标、作者等）。</li>
+                <li>在平台公告或邮件中向您传达规则更新或重要通知。</li>
+            </ul>
+
+            <h2>3. 信息的存储与保护</h2>
+            <p>您的投稿数据存储在我们的 Tally 表单服务商处。我们采取合理的安全措施防止信息泄露、丢失或滥用。除法律法规要求或经您同意外，我们不会向任何第三方出售您的个人信息。</p>
+
+            <h2>4. 您的权利</h2>
+            <p>根据《个人信息保护法》，您有权查阅、更正、删除您的个人信息，或撤回授权。如需行使上述权利，请联系：<a href="mailto:leleleling@2980.com">leleleling@2980.com</a>。我们将在 15 个工作日内响应。</p>
+
+            <h2>5. 未成年人保护</h2>
+            <p>若您是未满 14 周岁的儿童，请在监护人陪同下阅读本政策。我们不会主动收集未满 14 周岁儿童的个人信息。若发现误收，我们将及时删除。</p>
+        </div>
+
+        <!-- 英文版 -->
+        <div class="en-text">
+            <h1>Privacy Policy</h1>
+            <div class="subhead">Last updated: October 18, 2026</div>
+
+            <p>leleleling Studio ("we", "us", or "our") understands the importance of personal information. This policy explains how we collect, use, and protect your information when you use the "lelele Game" platform.</p>
+
+            <h2>1. Information We Collect</h2>
+            <p>To provide game display and submission services, we collect the following information:</p>
+            <ul>
+                <li><strong>Submitter Info:</strong> When you submit a game, we collect your game name, author name, contact email, version, and description via a Tally form.</li>
+                <li><strong>Local Draft Data:</strong> When filling out the pre-form, we use your browser's `localStorage` to temporarily save a draft locally. This data is NOT uploaded to our servers.</li>
+                <li><strong>Access Data:</strong> We may use basic analytics tools to understand page views, without collecting personally identifiable information.</li>
+            </ul>
+
+            <h2>2. How We Use Information</h2>
+            <ul>
+                <li>To review your game submission and notify you of the results via email.</li>
+                <li>To display the game information you provide (name, icon, author, etc.) on the game detail page.</li>
+                <li>To communicate rule updates or important notices via platform announcements or email.</li>
+            </ul>
+
+            <h2>3. Storage and Protection</h2>
+            <p>Your submission data is stored with our Tally form service provider. We take reasonable security measures to prevent data leakage, loss, or misuse. We will not sell your personal information to any third party unless required by law or with your consent.</p>
+
+            <h2>4. Your Rights</h2>
+            <p>Under the Personal Information Protection Law, you have the right to access, correct, delete your personal information, or withdraw authorization. To exercise these rights, please contact: <a href="mailto:leleleling@2980.com">leleleling@2980.com</a>. We will respond within 15 business days.</p>
+
+            <h2>5. Protection of Minors</h2>
+            <p>If you are a child under 14, please read this policy with your guardian. We do not actively collect personal information from children under 14. If discovered, we will delete it promptly.</p>
+        </div>
+    </div>
+
     <script>
-        const urlLang = new URLSearchParams(window.location.search).get('lang');
-        if(urlLang === 'en') document.getElementById('backHomeBtn').href = 'index.html?lang=en';
+        function setLang(lang) {
+            document.documentElement.setAttribute('data-lang', lang);
+            document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            document.querySelectorAll('.lang-btn').forEach(function (btn) {
+                btn.classList.toggle('active', btn.dataset.langBtn === lang);
+            });
+            try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
+            
+            if(lang === 'en') document.getElementById('backHomeBtn').href = 'index.html?lang=en';
+            else document.getElementById('backHomeBtn').href = 'index.html';
+        }
+        const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
+        setLang(currentLang);
     </script>
 </body>
 </html>
