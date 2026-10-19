@@ -7,7 +7,6 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <title>加载中... · 了了了游</title>
     <style>
-        /* ===== 全局重置 ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -20,7 +19,6 @@
             align-items: center;
         }
 
-        /* ===== 顶部导航 ===== */
         .top-bar {
             width: 100%;
             background: rgba(255, 255, 255, 0.75);
@@ -56,10 +54,10 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            cursor: pointer;
         }
         .site-title img { height: 24px; }
 
-        /* ===== 主容器 ===== */
         .main-container {
             width: 100%;
             max-width: 900px;
@@ -68,18 +66,16 @@
             flex: 1;
         }
 
-        /* ===== 游戏详情卡片 ===== */
         .game-detail-card {
             background: #fff;
             border-radius: 24px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             overflow: hidden;
-            display: none; /* 加载完后显示 */
+            display: none;
             animation: fadeIn 0.4s ease;
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Banner 大图 */
         .banner-area {
             width: 100%;
             height: 280px;
@@ -94,10 +90,8 @@
         .banner-area.no-image { height: 160px; }
         .banner-icon { font-size: 6rem; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 
-        /* 内容区 */
         .content-area { padding: 40px; }
 
-        /* 头部信息 */
         .header-info {
             display: flex;
             align-items: flex-start;
@@ -130,7 +124,6 @@
         .tag.age { background: rgba(16, 185, 129, 0.1); color: #059669; }
         .tag.version { background: rgba(79, 70, 229, 0.1); color: #4f46e5; }
 
-        /* 操作按钮 */
         .action-buttons {
             display: flex;
             gap: 12px;
@@ -168,7 +161,6 @@
         .btn-fav.active { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
         .btn-fav.active:hover { background: #fde68a; }
 
-        /* 开发者信息 */
         .author-bar {
             display: flex;
             align-items: center;
@@ -181,7 +173,6 @@
         }
         .author-bar strong { color: #1e293b; }
 
-        /* 正文段落 */
         .section-title {
             font-size: 1.2rem;
             font-weight: 700;
@@ -201,7 +192,6 @@
             border: 1px solid #f1f5f9;
         }
 
-        /* 更新日志时间线 */
         .timeline {
             position: relative;
             padding-left: 20px;
@@ -235,7 +225,6 @@
         .timeline-date { font-size: 0.85rem; color: #94a3b8; }
         .timeline-content { font-size: 0.95rem; color: #475569; line-height: 1.6; white-space: pre-wrap; }
 
-        /* ===== 加载状态 / 错误状态 ===== */
         .loading-state, .error-state {
             text-align: center;
             padding: 60px 20px;
@@ -245,7 +234,6 @@
         }
         .error-state .btn { margin-top: 20px; }
 
-        /* ===== 响应式 ===== */
         @media (max-width: 768px) {
             .content-area { padding: 24px; }
             .game-title { font-size: 1.8rem; }
@@ -262,43 +250,35 @@
 </head>
 <body>
 
-    <!-- 顶部导航 -->
     <div class="top-bar">
         <a href="index.html" class="back-btn" id="backBtn">
             ← <span>返回首页</span>
         </a>
-        <div class="site-title" onclick="window.location.href='index.html'" style="cursor:pointer;">
+        <div class="site-title" onclick="window.location.href='index.html'">
             <img src="lelelegame.svg" alt="Logo" onerror="this.style.display='none'">
             <span>了了了游</span>
         </div>
     </div>
 
-    <!-- 主容器 -->
     <div class="main-container">
         
-        <!-- 加载中 -->
         <div class="loading-state" id="loadingState" style="display:block;">
             <div style="font-size: 2rem; margin-bottom: 10px;">🔄</div>
             正在加载游戏详情...
         </div>
 
-        <!-- 错误状态 -->
         <div class="error-state" id="errorState">
             <div style="font-size: 3rem; margin-bottom: 10px;">😢</div>
             <div id="errorMsg">未找到该游戏。</div>
             <a href="index.html" class="btn btn-play">返回首页</a>
         </div>
 
-        <!-- 详情卡片 -->
         <div class="game-detail-card" id="gameCard">
-            <!-- Banner -->
             <div class="banner-area" id="bannerArea">
                 <div class="banner-icon" id="bannerIcon">🎮</div>
             </div>
 
-            <!-- 内容 -->
             <div class="content-area">
-                <!-- 头部信息 -->
                 <div class="header-info">
                     <div class="title-group">
                         <h1 class="game-title" id="gameTitle"></h1>
@@ -311,11 +291,9 @@
                     </div>
                 </div>
 
-                <!-- 游戏简介 -->
                 <div class="section-title">📖 游戏简介</div>
                 <div class="game-description" id="gameDesc"></div>
 
-                <!-- 更新日志 (如果有) -->
                 <div id="updateLogContainer" style="display:none;">
                     <div class="section-title">📝 更新日志</div>
                     <div class="timeline" id="timeline"></div>
@@ -326,7 +304,6 @@
     </div>
 
     <script>
-        // ==================== 全局工具 ====================
         function escapeHtml(str) {
             if (str === null || str === undefined) return '';
             return String(str)
@@ -334,11 +311,9 @@
                 .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
-        // ==================== 状态变量 ====================
         let currentGameId = null;
         let currentGameData = null;
 
-        // ==================== 收藏逻辑 ====================
         function getFavorites() {
             try { return JSON.parse(localStorage.getItem('lelele_favs') || '[]'); } 
             catch (e) { return []; }
@@ -373,22 +348,17 @@
             updateFavBtn();
         };
 
-        // ==================== 游玩逻辑 ====================
         window.playGame = function() {
             if (!currentGameData || !currentGameData.url) {
                 alert('该游戏暂无可用链接。');
                 return;
             }
-            // 支持相对路径和外链绝对路径
             window.open(currentGameData.url, '_blank', 'noopener,noreferrer');
         };
 
-        // ==================== 渲染详情页 ====================
         function renderGamePage(game) {
-            // 1. 设置页面标题
             document.title = `${game.name || '未知游戏'} · 了了了游`;
 
-            // 2. 渲染 Banner
             const bannerArea = document.getElementById('bannerArea');
             const bannerIcon = document.getElementById('bannerIcon');
             if (game.banner) {
@@ -396,14 +366,12 @@
                 bannerArea.classList.remove('no-image');
                 bannerIcon.style.display = 'none';
             } else {
-                // 没图就显示大号 Emoji
                 bannerArea.style.backgroundImage = 'linear-gradient(135deg, rgba(79,70,229,0.1) 0%, rgba(124,58,237,0.1) 100%)';
                 bannerArea.classList.add('no-image');
                 bannerIcon.style.display = 'block';
                 bannerIcon.textContent = game.icon || '🎮';
             }
 
-            // 3. 渲染头部信息
             document.getElementById('gameTitle').textContent = game.name || '未知游戏';
             
             let tagsHtml = '';
@@ -412,7 +380,6 @@
             if (game.version) tagsHtml += `<span class="tag version">${escapeHtml(game.version)}</span>`;
             document.getElementById('metaTags').innerHTML = tagsHtml;
 
-            // 4. 渲染作者信息 (如果有)
             const authorBar = document.getElementById('authorBar');
             if (game.author) {
                 authorBar.innerHTML = `开发者：<strong>${escapeHtml(game.author)}</strong>`;
@@ -420,10 +387,8 @@
                 authorBar.style.display = 'none';
             }
 
-            // 5. 渲染简介
             document.getElementById('gameDesc').textContent = game.description || game.intro || '这个游戏很神秘，作者还没有写详细简介。';
 
-            // 6. 渲染更新日志 (如果有)
             if (game.updateLog && Array.isArray(game.updateLog) && game.updateLog.length > 0) {
                 document.getElementById('updateLogContainer').style.display = 'block';
                 const timeline = document.getElementById('timeline');
@@ -438,20 +403,15 @@
                 `).join('');
             }
 
-            // 7. 更新操作按钮状态
             updateFavBtn();
-            
-            // 8. 显示卡片，隐藏加载
             document.getElementById('loadingState').style.display = 'none';
             document.getElementById('gameCard').style.display = 'block';
         }
 
-        // ==================== 数据加载主逻辑 ====================
         async function init() {
             const urlParams = new URLSearchParams(window.location.search);
             currentGameId = urlParams.get('id');
             
-            // 如果返回首页有 lang 参数，带上
             if (urlParams.get('lang') === 'en') {
                 document.getElementById('backBtn').href = 'index.html?lang=en';
             }
@@ -462,7 +422,6 @@
             }
 
             try {
-                // 尝试 1: 加载独立详细数据 (根目录/game/data/1.json)
                 const detailRes = await fetch(`/game/data/${currentGameId}.json`);
                 
                 if (detailRes.ok) {
@@ -471,7 +430,6 @@
                     return;
                 }
                 
-                // 尝试 2: 如果独立数据不存在 (404)，去主列表 lelegame_data.json 找基础数据兜底
                 console.warn(`未找到详细数据，尝试从主列表加载 ID: ${currentGameId}`);
                 const baseRes = await fetch('lelegame_data.json');
                 if (baseRes.ok) {
@@ -479,7 +437,6 @@
                     const baseGame = baseData.find(g => String(g.id) === String(currentGameId));
                     
                     if (baseGame) {
-                        // 用基础数据构造一个兜底对象
                         currentGameData = {
                             id: baseGame.id,
                             name: baseGame.name,
@@ -495,7 +452,6 @@
                     }
                 }
 
-                // 尝试 3: 完全找不到
                 showError('该游戏不存在或已被下架。');
 
             } catch (e) {
@@ -504,7 +460,6 @@
             }
         }
 
-        // 显示错误状态
         function showError(msg) {
             document.getElementById('loadingState').style.display = 'none';
             document.getElementById('gameCard').style.display = 'none';
@@ -512,7 +467,6 @@
             document.getElementById('errorMsg').textContent = msg;
         }
 
-        // 启动
         init();
     </script>
 </body>
