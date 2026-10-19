@@ -1,0 +1,2526 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<!-- PWA manifest 动态加载 -->
+<script>
+  (function(){var lang=document.documentElement.getAttribute('data-lang')||'zh';var manifestMap={zh:'/manifest-zh.json',en:'/manifest-en.json',ja:'/manifest-ja.json',fr:'/manifest-fr.json'};var link=document.createElement('link');link.rel='manifest';link.href=manifestMap[lang]||'/manifest-zh.json';document.head.appendChild(link);})();
+</script>
+<!-- 苹果设备兼容 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/LOGO.svg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爱种地的农民 - 完整优化版</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+.site-logo-container {
+    display: inline-block;
+    z-index: 1000;
+    position: relative;
+}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            transition: background 0.5s ease;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, rgba(76, 175, 80, 0.8), transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(76, 175, 80, 0.6), transparent),
+                radial-gradient(3px 3px at 60px 10px, rgba(76, 175, 80, 0.9), transparent),
+                radial-gradient(2px 2px at 80px 50px, rgba(76, 175, 80, 0.7), transparent),
+                radial-gradient(3px 3px at 90px 90px, rgba(76, 175, 80, 0.6), transparent);
+            z-index: -1;
+            animation: floatParticles 20s linear infinite;
+        }
+
+        @keyframes floatParticles {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100px); }
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.2),
+                inset 0 0 60px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            border: 1px solid #c8e6c9;
+            position: relative;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.2) 0%, transparent 20%),
+                radial-gradient(circle at 90% 90%, rgba(255, 255, 255, 0.2) 0%, transparent 20%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        header {
+            background: linear-gradient(to right, #1b5e20, #388e3c, #4caf50);
+            color: white;
+            padding: 20px 30px;
+            border-bottom: 5px solid #1b5e20;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #4caf50, 0 0 20px #4caf50; }
+            to { text-shadow: 0 0 10px #fff, 0 0 15px #4caf50, 0 0 20px #4caf50, 0 0 25px #4caf50; }
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 12px 20px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 110px;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ffeb3b;
+        }
+
+        .time-control {
+            flex: 1;
+            min-width: 300px;
+            margin-top: 15px;
+        }
+
+        .next-day-timer {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .timer-bar {
+            flex: 1;
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            min-width: 200px;
+        }
+
+        .timer-progress {
+            height: 100%;
+            background: linear-gradient(to right, #4caf50, #8bc34a);
+            width: 0%;
+            transition: width 1s linear;
+            border-radius: 10px;
+        }
+
+        #timer-text {
+            min-width: 100px;
+            font-weight: bold;
+            color: #ffeb3b;
+        }
+
+        .game-area {
+            display: flex;
+            padding: 25px;
+            gap: 25px;
+        }
+
+        .main-game {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .farm-section {
+            background-color: #f1f8e9;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #c5e1a5;
+        }
+
+        .farm-section h2 {
+            color: #1b5e20;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.6rem;
+        }
+
+        .farm-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .farmland {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+            background-color: #e8f5e9;
+            padding: 20px;
+            border-radius: 12px;
+            border: 3px solid #a5d6a7;
+            min-height: 400px;
+            background-image: url('data:image/svg+xml;utf8,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="60" height="60" fill="%23e8f5e9"/><circle cx="30" cy="30" r="2" fill="%23a5d6a7" opacity="0.3"/></svg>');
+        }
+
+        .plot {
+            background: linear-gradient(145deg, #c5e1a5, #aed581);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 90px;
+            border: 2px solid #81c784;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .plot:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .plot.empty {
+            background: linear-gradient(145deg, #d7ccc8, #bcaaa4);
+            border: 2px dashed #8d6e63;
+        }
+
+        .plot.owned {
+            background: linear-gradient(145deg, #a5d6a7, #81c784);
+        }
+
+        .plot.planted {
+            background: linear-gradient(145deg, #c8e6c9, #a5d6a7);
+        }
+
+        .plot.locked {
+            background: linear-gradient(145deg, #b0bec5, #90a4ae);
+            border: 2px solid #78909c;
+            cursor: not-allowed;
+        }
+
+        .plot.sick {
+            background: linear-gradient(145deg, #d7ccc8, #bcaaa4);
+            border: 2px solid #8d6e63;
+            animation: sick-pulse 2s infinite;
+        }
+
+        @keyframes sick-pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .plot-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            transition: all 0.5s;
+        }
+
+        .plot.planted .plot-icon {
+            animation: grow 2s ease-in-out infinite;
+        }
+
+        @keyframes grow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .plot-info {
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 0 5px;
+            font-weight: 600;
+            color: #2e7d32;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 3px 8px;
+            border-radius: 8px;
+        }
+
+        .plot.empty .plot-info {
+            color: #5d4037;
+        }
+
+        .plot.locked .plot-info {
+            color: #546e7a;
+        }
+
+        .plot.sick .plot-info {
+            color: #d32f2f;
+        }
+
+        .crop-stage {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: #388e3c;
+            border: 1px solid #81c784;
+        }
+
+        .water-indicator {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            color: #2196f3;
+            font-size: 1rem;
+        }
+
+        .sick-indicator {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            color: #d32f2f;
+            font-size: 1rem;
+        }
+
+        .farm-info {
+            background-color: #f1f8e9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 2px solid #c5e1a5;
+        }
+
+        .season-display {
+            display: flex;
+            gap: 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            flex-wrap: wrap;
+        }
+
+        #season { color: #4caf50; }
+        #weather { color: #2196f3; }
+        #merchant-countdown { color: #ff9800; }
+
+        .events-log {
+            background-color: #f5f5f5;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 2px solid #e0e0e0;
+            flex: 1;
+        }
+
+        .events-log h3 {
+            background: linear-gradient(to right, #5d4037, #8d6e63);
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+        }
+
+        .log-controls {
+            padding: 15px 25px;
+            background-color: #eeeeee;
+            display: flex;
+            gap: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .event-frequency {
+            margin-left: auto;
+            font-weight: bold;
+            color: #666;
+        }
+
+        #event-rate { color: #4caf50; }
+
+        .log-content {
+            padding: 20px;
+            height: 300px;
+            overflow-y: auto;
+            background-color: white;
+        }
+
+        .log-entry {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            background-color: white;
+            border-radius: 8px;
+            border-left: 5px solid #8d6e63;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+
+        .log-entry:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .log-entry.warning {
+            border-left-color: #ff9800;
+            background-color: #fff8e1;
+        }
+        .log-entry.success {
+            border-left-color: #4caf50;
+            background-color: #e8f5e9;
+        }
+        .log-entry.event {
+            border-left-color: #9c27b0;
+            background-color: #f3e5f5;
+        }
+        .log-entry.danger {
+            border-left-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .side-panel {
+            flex: 1;
+            min-width: 350px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .shop-section, .inventory-section, .action-section {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 2px solid #e0e0e0;
+        }
+
+        .shop-section h2, .inventory-section h2, .action-section h2 {
+            color: #1b5e20;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .crop-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            background-color: #e0e0e0;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .filter-btn.active {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .filter-btn:hover:not(.active) {
+            background-color: #bdbdbd;
+        }
+
+        .scrollable {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .crops-list, .inventory {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .crop-item, .inventory-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: white;
+            border-radius: 8px;
+            border-left: 5px solid #4caf50;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .crop-item:hover, .inventory-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .crop-name, .inventory-name {
+            font-weight: bold;
+            color: #1b5e20;
+            font-size: 1rem;
+        }
+
+        .crop-price, .inventory-amount {
+            color: #ff9800;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .crop-growth, .inventory-value {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .storage-info {
+            background-color: #f0f0f0;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .storage-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .storage-progress {
+            height: 100%;
+            background: linear-gradient(to right, #4caf50, #8bc34a);
+            width: 0%;
+            border-radius: 5px;
+            transition: width 0.5s;
+        }
+
+        .inventory-total {
+            text-align: right;
+            padding: 15px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #388e3c;
+            border-top: 2px solid #e0e0e0;
+            margin-top: 15px;
+        }
+
+        .action-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn-large {
+            padding: 16px;
+            font-size: 1.1rem;
+        }
+
+        .day-info {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        #next-day-tip {
+            color: #ff9800;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        .btn {
+            background: linear-gradient(to bottom, #4caf50, #388e3c);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            background: linear-gradient(to bottom, #66bb6a, #43a047);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+            opacity: 0;
+        }
+
+        .btn:hover::after {
+            opacity: 1;
+            animation: shine 1.5s;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .btn:active { transform: translateY(-1px); }
+        .btn:disabled {
+            background: linear-gradient(to bottom, #cccccc, #bdbdbd);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to bottom, #ff9800, #f57c00);
+            box-shadow: 0 4px 10px rgba(255,152,0,0.3);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(to bottom, #ffb74d, #ff9800);
+            box-shadow: 0 6px 15px rgba(255,152,0,0.4);
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+        }
+
+        .btn-use-mall-item {
+            background: linear-gradient(to bottom, #9c27b0, #7b1fa2);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+        .btn-use-mall-item:hover {
+            background: linear-gradient(to bottom, #ba68c8, #9c27b0);
+            transform: translateY(-2px);
+        }
+
+        .dialog {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dialog-content {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+
+        .dialog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(to right, #1b5e20, #388e3c);
+            color: white;
+        }
+
+        .dialog-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .mall-content, .factory-content, .merchant-content, .skin-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mall-description, .factory-description, .merchant-description, .skin-description {
+            color: #666;
+            padding: 0 20px;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .merchant-info, .skin-description {
+            padding: 0 20px;
+            color: #ff9800;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        #current-level { color: #4caf50; }
+
+        .mall-items {
+            padding: 0 20px 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 15px;
+            overflow-y: auto;
+            max-height: 60vh;
+        }
+
+        .mall-item {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .mall-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-color: #ff9800;
+        }
+
+        .mall-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .mall-item-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #1b5e20;
+        }
+
+        .mall-item-price {
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: #ff9800;
+        }
+
+        .mall-item-desc { color: #666; font-size: 0.9rem; line-height: 1.4; margin-bottom: 10px; }
+        .mall-item-effect { color: #4caf50; font-weight: 600; font-size: 0.85rem; }
+
+        .factory-tabs {
+            display: flex;
+            gap: 10px;
+            padding: 0 20px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .factory-tab {
+            padding: 10px 20px;
+            background-color: #e0e0e0;
+            border: none;
+            border-radius: 20px 20px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .factory-tab.active { background-color: #4caf50; color: white; }
+        .factory-tab:hover:not(.active) { background-color: #bdbdbd; }
+
+        .factory-content-tabs {
+            padding: 0 20px 20px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .tab-content { display: none; height: 100%; }
+        .tab-content.active { display: block; }
+
+        .factory-product {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+        .factory-product:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); border-color: #ff9800; }
+
+        .product-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .product-name { font-weight: bold; font-size: 1.2rem; color: #1b5e20; }
+        .product-price { font-weight: bold; font-size: 1.3rem; color: #ff9800; }
+        .product-desc { color: #666; font-size: 0.9rem; line-height: 1.4; margin-bottom: 10px; }
+
+        .product-requirements {
+            display: flex; justify-content: space-between; margin-bottom: 10px; padding: 10px;
+            background-color: #f0f0f0; border-radius: 8px;
+        }
+        .requirement { text-align: center; }
+        .requirement-label { font-size: 0.85rem; color: #666; }
+        .requirement-value { font-weight: bold; color: #1b5e20; }
+
+        .processing-info { display: flex; align-items: center; gap: 10px; margin-top: 10px; padding: 10px; background-color: #e8f5e9; border-radius: 8px; }
+        .processing-progress { flex: 1; height: 15px; background-color: #e0e0e0; border-radius: 8px; overflow: hidden; }
+        .processing-progress-bar { height: 100%; background: linear-gradient(to right, #4caf50, #8bc34a); width: 0%; border-radius: 8px; transition: width 0.5s; }
+
+        .merchant-items { padding: 0 20px 20px; overflow-y: auto; max-height: 50vh; }
+        .merchant-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background-color: white; border-radius: 8px; border: 2px solid #e0e0e0; margin-bottom: 10px; transition: all 0.3s; }
+        .merchant-item:hover { border-color: #4caf50; }
+        .merchant-item.selected { background-color: #e8f5e9; border-color: #4caf50; }
+        .merchant-item-info { display: flex; align-items: center; gap: 10px; }
+        .merchant-item-checkbox { width: 20px; height: 20px; cursor: pointer; }
+        .merchant-item-details { flex: 1; }
+        .merchant-item-name { font-weight: bold; color: #1b5e20; }
+        .merchant-item-price { font-weight: bold; color: #ff9800; font-size: 1.2rem; }
+        .merchant-total { display: flex; justify-content: space-between; align-items: center; padding: 20px; background-color: #f9f9f9; border-top: 2px solid #e0e0e0; font-size: 1.3rem; font-weight: bold; }
+
+        .skin-content { max-width: 900px; }
+        .skin-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; padding: 0 20px 20px; max-height: 60vh; overflow-y: auto; }
+        .skin-item { background-color: white; border-radius: 10px; padding: 15px; text-align: center; cursor: pointer; transition: all 0.3s; border: 3px solid transparent; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .skin-item:hover:not(.locked) { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .skin-item.unlocked { border-color: #e0e0e0; }
+        .skin-item.selected { border-color: #4caf50; background-color: #e8f5e9; }
+        .skin-item.locked { opacity: 0.7; cursor: not-allowed; filter: grayscale(50%); }
+        .skin-preview { height: 80px; border-radius: 8px; margin-bottom: 10px; border: 2px solid #e0e0e0; }
+        .skin-name { font-weight: bold; color: #1b5e20; font-size: 1.1rem; margin-bottom: 5px; }
+        .skin-desc { color: #666; font-size: 0.9rem; margin-bottom: 10px; min-height: 40px; }
+        .skin-status { font-size: 0.85rem; font-weight: bold; }
+        .skin-hint { padding: 15px 20px; background-color: #f9f9f9; border-top: 2px solid #e0e0e0; text-align: center; color: #666; font-style: italic; }
+
+        .notification {
+            animation: slideIn 0.3s ease-out;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        /* 优化新增：搜索框与等级过滤按钮容器 */
+        .factory-search-box {
+            padding: 10px 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .factory-search-box input {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 1px solid #aaa;
+            outline: none;
+        }
+        .level-filter-btn {
+            padding: 5px 12px;
+            border: 1px solid #aaa;
+            border-radius: 15px;
+            background: #f0f0f0;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+        .level-filter-btn.active {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+
+        @media (max-width: 1400px) { .farmland { grid-template-columns: repeat(5, 1fr); } }
+        @media (max-width: 1200px) { .game-area { flex-direction: column; } .farmland { grid-template-columns: repeat(6, 1fr); } }
+        @media (max-width: 992px) {
+            .farmland { grid-template-columns: repeat(4, 1fr); }
+            .mall-items { grid-template-columns: 1fr; }
+            .skin-selector { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            header { flex-direction: column; gap: 20px; }
+            .game-stats { justify-content: center; }
+            .farmland { grid-template-columns: repeat(3, 1fr); }
+            .farm-controls, .farm-info { flex-direction: column; align-items: stretch; }
+            .season-display { flex-direction: column; gap: 10px; }
+            .skin-selector { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 576px) {
+            .farmland { grid-template-columns: repeat(2, 1fr); }
+            .container { padding: 10px; }
+            .game-area { padding: 15px; }
+            .dialog-content { width: 95%; }
+        }
+    </style>
+<!-- 了了了岭用户系统-样式与SDK -->
+<link rel="stylesheet" href="../../../common-user.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+<div class="site-logo-container">
+    <img src="https://leleleling.site/LOGO.svg" 
+         onerror="this.onerror=null; this.src='https://leleleling.surge.sh/LOGO.svg';" 
+         alt="Logo" 
+         style="height: 40px; width: 40px; border-radius: 50%; margin: 10px;">
+</div>
+<!-- 了了了岭用户系统-顶部挂件 -->
+<div id="userWidget" style="position:fixed;top:15px;right:20px;z-index:9999;"></div>
+
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-seedling"></i> 爱种地的农民</h1>
+            <div class="game-stats">
+                <div class="stat"><span class="stat-label">金币:</span><span id="gold" class="stat-value">300</span></div>
+                <div class="stat"><span class="stat-label">等级:</span><span id="level" class="stat-value">1</span></div>
+                <div class="stat"><span class="stat-label">经验:</span><span id="exp" class="stat-value">0/100</span></div>
+                <div class="stat"><span class="stat-label">第几天:</span><span id="day" class="stat-value">1</span></div>
+                <div class="stat"><span class="stat-label">仓库:</span><span id="storage-stat" class="stat-value">0/50</span></div>
+            </div>
+            <div class="time-control">
+                <div class="next-day-timer">
+                    <span>下次下一天:</span>
+                    <div class="timer-bar"><div id="timer-progress" class="timer-progress"></div></div>
+                    <span id="timer-text">准备就绪</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="main-game">
+                <div class="farm-section">
+                    <h2><i class="fas fa-tractor"></i> 我的农田</h2>
+                    <div class="farm-controls">
+                        <button id="buy-land-btn" class="btn"><i class="fas fa-expand-arrows-alt"></i> 开垦新地 (100金币)</button>
+                        <button id="water-all-btn" class="btn"><i class="fas fa-tint"></i> 一键浇水 (20金币)</button>
+                        <button id="harvest-all-btn" class="btn"><i class="fas fa-basket-shopping"></i> 一键收获</button>
+                        <button id="mall-btn" class="btn btn-primary"><i class="fas fa-shopping-cart"></i> 道具商城</button>
+                        <button id="factory-btn" class="btn"><i class="fas fa-industry"></i> 加工厂</button>
+                        <button id="upgrade-storage-btn" class="btn"><i class="fas fa-warehouse"></i> 升级仓库 (200金币)</button>
+                        <button id="skin-btn" class="btn" style="background: linear-gradient(to bottom, #9c27b0, #7b1fa2);"><i class="fas fa-palette"></i> 更换皮肤</button>
+                    </div>
+                    <div id="farmland" class="farmland"></div>
+                    <div class="farm-info">
+                        <p>你有 <span id="owned-plots">6</span> 块地，共 <span id="total-plots">30</span> 块可开垦</p>
+                        <div class="season-display">
+                            <span>季节: <span id="season">春季</span></span>
+                            <span>天气: <span id="weather">晴朗</span></span>
+                            <span>商人下次到访: <span id="merchant-countdown">?</span>天后</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="events-log">
+                    <h3><i class="fas fa-clipboard-list"></i> 事件日志</h3>
+                    <div class="log-controls">
+                        <button id="clear-log-btn" class="btn-small">清空日志</button>
+                        <div class="event-frequency">事件频率: <span id="event-rate">2.0x</span></div>
+                    </div>
+                    <div id="log" class="log-content">
+                        <div class="log-entry">欢迎来到"爱种地的农民"！你有一小块农田和一些起始资金，开始耕种吧！</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="shop-section">
+                    <h2><i class="fas fa-seedling"></i> 种子商店</h2>
+                    <div class="crop-filter">
+                        <button class="filter-btn active" data-filter="all">全部</button>
+                        <button class="filter-btn" data-filter="fast">快速</button>
+                        <button class="filter-btn" data-filter="fruit">水果</button>
+                        <button class="filter-btn" data-filter="special">特殊</button>
+                        <button class="filter-btn" data-filter="medicine">药类</button>
+                        <button class="filter-btn" data-filter="processing">加工类</button>
+                    </div>
+                    <div id="crops-list" class="crops-list scrollable"></div>
+                </div>
+
+                <div class="inventory-section">
+                    <h2><i class="fas fa-shopping-basket"></i> 仓库</h2>
+                    <div class="storage-info">
+                        容量: <span id="storage-used">0</span>/<span id="storage-capacity">50</span>
+                        <div class="storage-bar"><div id="storage-progress" class="storage-progress" style="width:0%"></div></div>
+                    </div>
+                    <div id="inventory" class="inventory scrollable"></div>
+                    <div class="inventory-total">总价值: <span id="inventory-value">0</span> 金币</div>
+                </div>
+
+                <div class="action-section">
+                    <h2><i class="fas fa-play-circle"></i> 操作</h2>
+                    <div class="action-controls">
+                        <button id="next-day-btn" class="btn btn-primary btn-large"><i class="fas fa-forward"></i> <span id="next-day-text">下一天</span></button>
+                        <div class="day-info">
+                            <p>点击"下一天"让作物生长，注意冷却时间</p>
+                            <p id="next-day-tip">提示: 明天天气晴朗，适合种植</p>
+                        </div>
+                        <button id="sell-all-btn" class="btn btn-large" disabled><i class="fas fa-coins"></i> 出售全部 (商人来访时)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 商城对话框 -->
+    <div id="mall-dialog" class="dialog">
+        <div class="dialog-content mall-content">
+            <div class="dialog-header">
+                <h3><i class="fas fa-gem"></i> 高级道具商城</h3>
+                <button id="close-mall-btn" class="close-btn">&times;</button>
+            </div>
+            <p class="mall-description">这里出售各种稀有道具，价格昂贵但效果强大！</p>
+            <div class="mall-items" id="mall-items"></div>
+        </div>
+    </div>
+
+    <!-- 加工厂对话框 (已优化) -->
+    <div id="factory-dialog" class="dialog">
+        <div class="dialog-content factory-content">
+            <div class="dialog-header">
+                <h3><i class="fas fa-industry"></i> 农产品加工厂</h3>
+                <button id="close-factory-btn" class="close-btn">&times;</button>
+            </div>
+            <p class="factory-description">将你的农产品加工成更值钱的产品！加工需要时间和金币。</p>
+            
+            <!-- 新增搜索和等级过滤 -->
+            <div class="factory-search-box">
+                <input type="text" id="factory-search-input" placeholder="🔍 搜索加工产品..." />
+                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                    <button class="level-filter-btn active" data-level="all">全部</button>
+                    <button class="level-filter-btn" data-level="1">1级</button>
+                    <button class="level-filter-btn" data-level="2">2级</button>
+                    <button class="level-filter-btn" data-level="3">3级</button>
+                    <button class="level-filter-btn" data-level="4">4级</button>
+                    <button class="level-filter-btn" data-level="5">5级</button>
+                </div>
+            </div>
+
+            <div class="factory-tabs">
+                <button class="factory-tab active" data-tab="available">可加工产品</button>
+                <button class="factory-tab" data-tab="processing">加工中</button>
+                <button class="factory-tab" data-tab="completed">已完成</button>
+            </div>
+            
+            <div class="factory-content-tabs">
+                <div id="available-products" class="tab-content active scrollable"></div>
+                <div id="processing-products" class="tab-content scrollable"></div>
+                <div id="completed-products" class="tab-content scrollable"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 植物商人对话框 -->
+    <div id="merchant-dialog" class="dialog">
+        <div class="dialog-content merchant-content">
+            <div class="dialog-header">
+                <h3><i class="fas fa-user-tie"></i> 植物商人</h3>
+                <button id="close-merchant-btn" class="close-btn">&times;</button>
+            </div>
+            <p class="merchant-description">你好！我是植物商人，今天我来收购你的农产品。价格公道，童叟无欺！</p>
+            <p class="merchant-info">商人将在 <span id="merchant-leave-time">今天结束</span> 后离开</p>
+            <div class="merchant-items" id="merchant-items"></div>
+            <div class="merchant-total">
+                <div>总计: <span id="merchant-total-value">0</span> 金币</div>
+                <button id="sell-to-merchant-btn" class="btn btn-primary btn-large">出售选中物品</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 皮肤选择对话框 -->
+    <div id="skin-dialog" class="dialog">
+        <div class="dialog-content skin-content">
+            <div class="dialog-header">
+                <h3><i class="fas fa-palette"></i> 农场皮肤</h3>
+                <button id="close-skin-btn" class="close-btn">&times;</button>
+            </div>
+            <p class="skin-description">每5级可以解锁一个新皮肤！当前等级: <span id="current-level">1</span></p>
+            <div class="skin-selector" id="skin-selector"></div>
+            <div class="skin-hint"><p>提示：不同的皮肤会改变农场的背景和地块颜色！</p></div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 游戏主逻辑 （完整优化版） ====================
+
+const gameState = {
+    gold: 300, level: 1, exp: 0, expToNextLevel: 100, day: 1,
+    ownedPlots: 6, totalPlots: 30, selectedCrop: null,
+    inventory: {}, storageCapacity: 50, storageUsed: 0,
+    eventsLog: [], plots: [], season: "春季", weather: "晴朗",
+    nextWeather: "晴朗", seasonDay: 1, wateredPlots: [],
+    selectedPlotId: null,
+    activeEffects: {
+        goldenWateringCan: false, scarecrow: false, greenhouse: false,
+        irrigationSystem: false, blessingOfHarvest: false,
+        seedMultiplier: 1, factoryBoost: false
+    },
+    mallItems: {}, processingItems: [], completedItems: [],
+    nextDayCooldown: 0, eventFrequency: 2.0,
+    merchant: { present: false, nextVisit: 0, daysRemaining: 0, priceMultiplier: 1.0 },
+    unlockedSkins: ['default', 'spring'], currentSkin: 'default',
+    theftProbability: 0.15, lastTheftDay: 0,
+    factoryLevelFilter: null,  // 新增：加工厂等级过滤
+    factorySearchQuery: ''      // 新增：加工厂搜索关键词
+};
+
+const gameSkins = [
+    { id: 'default', name: '绿色农场', levelRequired: 1, description: '经典的绿色农场', background: 'linear-gradient(135deg, #a8e6cf 0%, #dcedc1 100%)', plotColor: '#c5e1a5', borderColor: '#81c784', particleColor: '#4caf50' },
+    { id: 'spring', name: '樱花农场', levelRequired: 5, description: '樱花盛开的春日', background: 'linear-gradient(135deg, #ffb7c5 0%, #ffccd5 100%)', plotColor: '#ffccbc', borderColor: '#ffab91', particleColor: '#ff4081' },
+    { id: 'summer', name: '海洋农场', levelRequired: 10, description: '清凉的海洋风格', background: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)', plotColor: '#bbdefb', borderColor: '#90caf9', particleColor: '#2196f3' },
+    { id: 'autumn', name: '金色麦浪', levelRequired: 15, description: '丰收的金色秋天', background: 'linear-gradient(135deg, #ffd54f 0%, #ffb74d 100%)', plotColor: '#ffecb3', borderColor: '#ffcc80', particleColor: '#ff9800' },
+    { id: 'winter', name: '冰雪王国', levelRequired: 20, description: '纯洁的冰雪世界', background: 'linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%)', plotColor: '#e8f5e9', borderColor: '#b3e5fc', particleColor: '#03a9f4' },
+    { id: 'magic', name: '魔法秘境', levelRequired: 25, description: '神秘的魔法森林', background: 'linear-gradient(135deg, #9575cd 0%, #7e57c2 100%)', plotColor: '#d1c4e9', borderColor: '#b39ddb', particleColor: '#9c27b0' },
+    { id: 'desert', name: '沙漠绿洲', levelRequired: 30, description: '沙漠中的一片绿洲', background: 'linear-gradient(135deg, #ffd54f 0%, #ffb74d 100%)', plotColor: '#d7ccc8', borderColor: '#bcaaa4', particleColor: '#8d6e63' },
+    { id: 'jungle', name: '热带雨林', levelRequired: 35, description: '充满生机的热带雨林', background: 'linear-gradient(135deg, #388e3c 0%, #81c784 100%)', plotColor: '#c8e6c9', borderColor: '#a5d6a7', particleColor: '#4caf50' },
+    { id: 'cyber', name: '赛博农场', levelRequired: 40, description: '未来科技感农场', background: 'linear-gradient(135deg, #0d47a1 0%, #2196f3 100%)', plotColor: '#bbdefb', borderColor: '#90caf9', particleColor: '#00bcd4' },
+    { id: 'royal', name: '皇家农场', levelRequired: 45, description: '奢华皇家风格', background: 'linear-gradient(135deg, #9c27b0 0%, #673ab7 100%)', plotColor: '#f3e5f5', borderColor: '#e1bee7', particleColor: '#9c27b0' }
+];
+
+const crops = [
+    { id: 1, name: "萝卜", price: 15, growthTime: 3, sellPrice: 30, icon: "🥕", stages: ["🌱","🪴","🥕"], description: "快速生长的根茎类蔬菜", category: "fast", size: 1 },
+    { id: 2, name: "生菜", price: 20, growthTime: 3, sellPrice: 40, icon: "🥬", stages: ["🌱","🪴","🥬"], description: "脆嫩多汁的绿叶蔬菜", category: "fast", size: 1 },
+    { id: 3, name: "菠菜", price: 25, growthTime: 4, sellPrice: 55, icon: "🌿", stages: ["🌱","🪴","🌿","🌿🌿"], description: "营养丰富的绿叶蔬菜", category: "fast", size: 1 },
+    { id: 4, name: "小麦", price: 25, growthTime: 4, sellPrice: 55, icon: "🌾", stages: ["🌱","🪴","🌿","🌾"], description: "基础谷物", category: "normal", size: 1 },
+    { id: 5, name: "水稻", price: 30, growthTime: 5, sellPrice: 70, icon: "🌾", stages: ["🌱","🌱🌱","🌿","🌾","🌾🌾"], description: "主食作物", category: "normal", size: 1 },
+    { id: 6, name: "玉米", price: 40, growthTime: 5, sellPrice: 90, icon: "🌽", stages: ["🌱","🪴","🌿","🌼","🌽"], description: "高大的禾本科植物", category: "normal", size: 1 },
+    { id: 7, name: "番茄", price: 60, growthTime: 6, sellPrice: 140, icon: "🍅", stages: ["🌱","🪴","🌿","🌼","🟢","🍅"], description: "多汁的红色果实", category: "high-value", size: 1 },
+    { id: 8, name: "土豆", price: 30, growthTime: 5, sellPrice: 65, icon: "🥔", stages: ["🌱","🪴","🌿","🥔"], description: "地下生长的块茎", category: "normal", size: 1 },
+    { id: 9, name: "草莓", price: 80, growthTime: 5, sellPrice: 200, icon: "🍓", stages: ["🌱","🪴","🌿","🌼","🍓"], description: "甜美的红色浆果", category: "fruit", size: 1 },
+    { id: 10, name: "西瓜", price: 120, growthTime: 8, sellPrice: 300, icon: "🍉", stages: ["🌱","🪴","🌿","🌿🌿","🌼","🟢","🟢🔴","🍉"], description: "夏季消暑佳品", category: "fruit", size: 2 },
+    { id: 11, name: "葡萄", price: 150, growthTime: 7, sellPrice: 350, icon: "🍇", stages: ["🌱","🪴","🌿","🌿🌿","🌼","🟣","🍇"], description: "可鲜食也可酿酒的水果", category: "fruit", size: 1 },
+    { id: 12, name: "苹果", price: 200, growthTime: 10, sellPrice: 500, icon: "🍎", stages: ["🌱","🌱🌱","🪴","🌿","🌿🌿","🌼","🟢","🍎"], description: "经典水果", category: "fruit", size: 2 },
+    { id: 13, name: "南瓜", price: 100, growthTime: 7, sellPrice: 250, icon: "🎃", stages: ["🌱","🪴","🌿","🌿🌿","🌼","🟡","🎃"], description: "秋季的代表性作物", category: "special", size: 2 },
+    { id: 14, name: "黄金葡萄", price: 500, growthTime: 12, sellPrice: 1500, icon: "🍇✨", stages: ["🌱✨","🪴✨","🌿✨","🌿🌿✨","🌼✨","🟣✨","🟣✨✨","🍇✨✨"], description: "传说中的黄金葡萄", category: "special", size: 2 },
+    { id: 15, name: "人参", price: 300, growthTime: 12, sellPrice: 800, icon: "🌿💊", stages: ["🌱","🌿","🌿🌿","🌿💊","🌿💊💊"], description: "珍贵的药用植物", category: "medicine", size: 2 },
+    { id: 16, name: "灵芝", price: 500, growthTime: 15, sellPrice: 1200, icon: "🍄✨", stages: ["🌱","🍄","🍄🍄","🍄✨","🍄✨✨"], description: "仙草灵芝", category: "medicine", size: 2 },
+    { id: 17, name: "棉花", price: 40, growthTime: 6, sellPrice: 80, icon: "☁️", stages: ["🌱","🌿","🌼","☁️","☁️☁️"], description: "纺织原料作物", category: "processing", size: 1 },
+    { id: 18, name: "甜菜", price: 35, growthTime: 5, sellPrice: 70, icon: "🍠", stages: ["🌱","🪴","🍠","🍠🍠"], description: "制糖主要原料", category: "processing", size: 1 },
+    { id: 19, name: "甘蔗", price: 30, growthTime: 4, sellPrice: 60, icon: "🎋", stages: ["🌱","🎋","🎋🎋"], description: "糖分很高的作物", category: "processing", size: 1 },
+    { id: 20, name: "芝麻", price: 45, growthTime: 5, sellPrice: 90, icon: "⚫", stages: ["🌱","🪴","🌿","⚫","⚫⚫"], description: "榨油用的优质原料", category: "processing", size: 1 },
+    { id: 21, name: "薄荷", price: 40, growthTime: 4, sellPrice: 85, icon: "🌿❄️", stages: ["🌱","🪴","🌿","🌿❄️"], description: "清凉药用植物", category: "medicine", size: 1 },
+    { id: 22, name: "蓝莓", price: 100, growthTime: 6, sellPrice: 220, icon: "🫐", stages: ["🌱","🪴","🫐","🫐🫐"], description: "富含花青素的蓝色浆果", category: "fruit", size: 1 },
+    { id: 23, name: "樱桃", price: 90, growthTime: 5, sellPrice: 200, icon: "🍒", stages: ["🌱","🪴","🌿","🌸","🍒"], description: "小巧甜美的红色果实", category: "fruit", size: 1 },
+    { id: 24, name: "火龙果", price: 150, growthTime: 8, sellPrice: 350, icon: "🐉🍇", stages: ["🌱","🪴","🌿","🌵","🌼","🐉🍇"], description: "热带风情水果", category: "fruit", size: 2 },
+    { id: 25, name: "芒果", price: 130, growthTime: 7, sellPrice: 300, icon: "🥭", stages: ["🌱","🪴","🌿","🌿🌿","🌼","🥭"], description: "香甜的黄色水果", category: "fruit", size: 1 },
+    { id: 26, name: "向日葵", price: 35, growthTime: 4, sellPrice: 70, icon: "🌻", stages: ["🌱","🌻","🌻🌻"], description: "产葵花籽的美丽植物", category: "processing", size: 1 },
+    { id: 27, name: "薰衣草", price: 60, growthTime: 5, sellPrice: 140, icon: "💜🌿", stages: ["🌱","🪴","🌿","💜","💜💜"], description: "芳香药用植物", category: "medicine", size: 1 },
+    { id: 28, name: "枸杞", price: 120, growthTime: 7, sellPrice: 280, icon: "🔴🌿", stages: ["🌱","🪴","🌿","🔴","🔴🔴"], description: "传统滋补红色果实", category: "medicine", size: 1 },
+    { id: 29, name: "藏红花", price: 800, growthTime: 15, sellPrice: 2000, icon: "🌸💎", stages: ["🌱","🌿","🌸","🌸💎","🌸💎💎"], description: "香料中的黄金，极为珍贵", category: "special", size: 1 },
+    { id: 30, name: "松露", price: 1200, growthTime: 18, sellPrice: 3000, icon: "🍄👑", stages: ["🌱","🍄","🍄🍄","🍄👑","🍄👑👑"], description: "地下钻石，价值连城", category: "special", size: 2 },
+    { id: 31, name: "黑枸杞", price: 200, growthTime: 9, sellPrice: 450, icon: "⚫🌿", stages: ["🌱","🪴","🌿","⚫","⚫⚫"], description: "珍贵药食同源果实", category: "medicine", size: 1 },
+    { id: 32, name: "咖啡豆", price: 50, growthTime: 5, sellPrice: 110, icon: "☕🌱", stages: ["🌱","🪴","☕","☕☕"], description: "提神醒脑的红色浆果", category: "processing", size: 1 },
+    { id: 33, name: "茶叶", price: 45, growthTime: 5, sellPrice: 100, icon: "🍃", stages: ["🌱","🪴","🍃","🍃🍃"], description: "清香的传统饮品原料", category: "processing", size: 1 },
+    { id: 34, name: "可可豆", price: 80, growthTime: 7, sellPrice: 180, icon: "🍫🌱", stages: ["🌱","🪴","🌿","🍫","🍫🍫"], description: "制作巧克力的原料", category: "processing", size: 1 },
+    { id: 35, name: "辣椒", price: 30, growthTime: 4, sellPrice: 65, icon: "🌶️", stages: ["🌱","🪴","🌶️","🌶️🌶️"], description: "火辣的调味蔬菜", category: "normal", size: 1 },
+    { id: 36, name: "蘑菇", price: 40, growthTime: 4, sellPrice: 90, icon: "🍄", stages: ["🌱","🍄","🍄🍄"], description: "鲜美的食用菌", category: "medicine", size: 1 },
+    { id: 37, name: "人参果", price: 600, growthTime: 12, sellPrice: 1500, icon: "🍈✨", stages: ["🌱","🪴","🌿","🍈","🍈✨"], description: "传说中的人参果实，珍稀无比", category: "special", size: 2 },
+    { id: 38, name: "亚麻", price: 35, growthTime: 5, sellPrice: 75, icon: "🧵🌿", stages: ["🌱","🪴","🧵","🧵🧵"], description: "天然纺织纤维作物", category: "processing", size: 1 },
+    { id: 39, name: "橄榄", price: 70, growthTime: 6, sellPrice: 160, icon: "🫒", stages: ["🌱","🪴","🫒","🫒🫒"], description: "可榨油的地中海果实", category: "processing", size: 1 },
+    { id: 40, name: "花生", price: 40, growthTime: 5, sellPrice: 85, icon: "🥜", stages: ["🌱","🪴","🥜","🥜🥜"], description: "地下结荚的油料作物", category: "normal", size: 1 },
+    { id: 41, name: "竹子", price: 30, growthTime: 4, sellPrice: 60, icon: "🎋", stages: ["🌱","🎋","🎋🎋"], description: "快速生长的建材原料", category: "processing", size: 1 }
+];
+
+const factoryProducts = [
+    { id: 1, name: "草莓果酱", icon: "🍓🍯", description: "新鲜草莓制成的甜味果酱", level: 1, requirements: [{ cropId: 9, amount: 3 }], processingTime: 2, processingCost: 30, sellPrice: 690, category: "food" },
+    { id: 2, name: "小麦面包", icon: "🍞", description: "松软的基础面包", level: 1, requirements: [{ cropId: 4, amount: 3 }], processingTime: 2, processingCost: 20, sellPrice: 245, category: "food" },
+    { id: 3, name: "番茄酱", icon: "🍅🥫", description: "经典调味酱", level: 1, requirements: [{ cropId: 7, amount: 5 }], processingTime: 2, processingCost: 25, sellPrice: 905, category: "food" },
+    { id: 4, name: "玉米片", icon: "🌽🥨", description: "香脆零食", level: 1, requirements: [{ cropId: 6, amount: 4 }], processingTime: 2, processingCost: 30, sellPrice: 650, category: "food" },
+    { id: 5, name: "苹果汁", icon: "🧃", description: "新鲜压榨的苹果汁", level: 1, requirements: [{ cropId: 12, amount: 2 }], processingTime: 3, processingCost: 40, sellPrice: 1340, category: "drink" },
+    { id: 6, name: "棉布", icon: "👕", description: "柔软棉质布料", level: 1, requirements: [{ cropId: 17, amount: 5 }], processingTime: 3, processingCost: 50, sellPrice: 730, category: "material" },
+    { id: 7, name: "白糖", icon: "🍬", description: "精制白糖", level: 1, requirements: [{ cropId: 18, amount: 4 }], processingTime: 2, processingCost: 40, sellPrice: 520, category: "material" },
+    { id: 8, name: "芝麻油", icon: "🫒", description: "香浓芝麻油", level: 1, requirements: [{ cropId: 20, amount: 5 }], processingTime: 3, processingCost: 60, sellPrice: 810, category: "material" },
+    { id: 9, name: "人参茶", icon: "🍵🌿", description: "滋补人参茶", level: 1, requirements: [{ cropId: 15, amount: 2 }], processingTime: 4, processingCost: 100, sellPrice: 2100, category: "medicine" },
+    { id: 10, name: "薄荷糖", icon: "🍬🌿", description: "清凉薄荷糖", level: 1, requirements: [{ cropId: 21, amount: 3 }, { productId: 7, amount: 1 }], processingTime: 3, processingCost: 80, sellPrice: 935, category: "medicine" },
+    { id: 11, name: "蓝莓果酱", icon: "🫐🍯", description: "蓝莓制成的紫色果酱", level: 1, requirements: [{ cropId: 22, amount: 3 }], processingTime: 2, processingCost: 35, sellPrice: 895, category: "food" },
+    { id: 12, name: "樱桃罐头", icon: "🍒🥫", description: "糖水樱桃罐头", level: 1, requirements: [{ cropId: 23, amount: 4 }], processingTime: 2, processingCost: 30, sellPrice: 1030, category: "food" },
+    { id: 13, name: "芒果干", icon: "🥭☀️", description: "香甜芒果干", level: 1, requirements: [{ cropId: 25, amount: 3 }], processingTime: 3, processingCost: 50, sellPrice: 1250, category: "food" },
+    { id: 14, name: "葵花籽油", icon: "🌻🫒", description: "健康食用油", level: 1, requirements: [{ cropId: 26, amount: 5 }], processingTime: 3, processingCost: 45, sellPrice: 695, category: "material" },
+    { id: 15, name: "薰衣草精油", icon: "💜🧴", description: "芳香精油", level: 1, requirements: [{ cropId: 27, amount: 4 }], processingTime: 4, processingCost: 80, sellPrice: 1040, category: "medicine" },
+    { id: 16, name: "枸杞干", icon: "🔴🌿", description: "天然晒干枸杞", level: 1, requirements: [{ cropId: 28, amount: 3 }], processingTime: 2, processingCost: 40, sellPrice: 1080, category: "medicine" },
+    { id: 17, name: "咖啡粉", icon: "☕📦", description: "烘焙研磨咖啡", level: 1, requirements: [{ cropId: 32, amount: 4 }], processingTime: 3, processingCost: 60, sellPrice: 740, category: "drink" },
+    { id: 18, name: "绿茶", icon: "🍵", description: "清香绿茶", level: 1, requirements: [{ cropId: 33, amount: 4 }], processingTime: 2, processingCost: 30, sellPrice: 630, category: "drink" },
+    { id: 19, name: "可可粉", icon: "🍫📦", description: "烘焙可可粉", level: 1, requirements: [{ cropId: 34, amount: 3 }], processingTime: 3, processingCost: 70, sellPrice: 910, category: "food" },
+    { id: 20, name: "橄榄油", icon: "🫒🧴", description: "特级初榨橄榄油", level: 1, requirements: [{ cropId: 39, amount: 5 }], processingTime: 3, processingCost: 90, sellPrice: 1190, category: "material" },
+    { id: 21, name: "果酱面包", icon: "🍞🍓", description: "夹心草莓果酱面包", level: 2, requirements: [{ productId: 1, amount: 1 }, { productId: 2, amount: 1 }], processingTime: 3, processingCost: 50, sellPrice: 1285, category: "food" },
+    { id: 22, name: "番茄面包", icon: "🍞🍅", description: "番茄风味面包", level: 2, requirements: [{ productId: 3, amount: 1 }, { productId: 2, amount: 1 }], processingTime: 3, processingCost: 45, sellPrice: 1495, category: "food" },
+    { id: 23, name: "水果拼盘", icon: "🍎🍓🍇", description: "豪华水果组合", level: 2, requirements: [{ cropId: 9, amount: 2 }, { cropId: 11, amount: 2 }, { cropId: 12, amount: 1 }], processingTime: 4, processingCost: 80, sellPrice: 2480, category: "food" },
+    { id: 24, name: "超级玉米片", icon: "🌽✨", description: "升级版玉米脆片", level: 2, requirements: [{ productId: 4, amount: 2 }, { cropId: 7, amount: 2 }], processingTime: 4, processingCost: 70, sellPrice: 1860, category: "food" },
+    { id: 25, name: "棉质衣物", icon: "👚", description: "舒适棉衣", level: 2, requirements: [{ productId: 6, amount: 3 }, { cropId: 20, amount: 1 }], processingTime: 5, processingCost: 100, sellPrice: 2780, category: "material" },
+    { id: 26, name: "精制糖果", icon: "🍭", description: "精美水果糖", level: 2, requirements: [{ productId: 7, amount: 2 }, { productId: 10, amount: 1 }], processingTime: 4, processingCost: 120, sellPrice: 2495, category: "food" },
+    { id: 27, name: "灵芝精华", icon: "💊✨", description: "浓缩灵芝液", level: 2, requirements: [{ cropId: 16, amount: 3 }, { productId: 9, amount: 1 }], processingTime: 6, processingCost: 200, sellPrice: 6500, category: "medicine" },
+    { id: 28, name: "蓝莓芝士蛋糕", icon: "🫐🧀", description: "蓝莓风味芝士蛋糕", level: 2, requirements: [{ productId: 11, amount: 2 }, { cropId: 4, amount: 2 }], processingTime: 5, processingCost: 150, sellPrice: 2050, category: "food" },
+    { id: 29, name: "樱桃派", icon: "🍒🥧", description: "酸甜樱桃派", level: 2, requirements: [{ productId: 12, amount: 1 }, { productId: 2, amount: 2 }], processingTime: 4, processingCost: 80, sellPrice: 1720, category: "food" },
+    { id: 30, name: "芒果冰淇淋", icon: "🥭🍦", description: "热带风情冰淇淋", level: 2, requirements: [{ productId: 13, amount: 2 }, { productId: 7, amount: 1 }], processingTime: 4, processingCost: 120, sellPrice: 3540, category: "food" },
+    { id: 31, name: "香薰蜡烛", icon: "🕯️💜", description: "薰衣草香薰蜡烛", level: 2, requirements: [{ productId: 15, amount: 1 }, { cropId: 17, amount: 3 }], processingTime: 4, processingCost: 100, sellPrice: 2080, category: "material" },
+    { id: 32, name: "枸杞蜂蜜", icon: "🍯🔴", description: "滋补枸杞蜜", level: 2, requirements: [{ productId: 16, amount: 2 }, { cropId: 18, amount: 2 }], processingTime: 3, processingCost: 80, sellPrice: 2380, category: "medicine" },
+    { id: 33, name: "拿铁咖啡", icon: "☕🥛", description: "经典拿铁", level: 2, requirements: [{ productId: 17, amount: 1 }, { cropId: 19, amount: 2 }], processingTime: 3, processingCost: 70, sellPrice: 1030, category: "drink" },
+    { id: 34, name: "巧克力", icon: "🍫", description: "香浓黑巧克力", level: 2, requirements: [{ productId: 19, amount: 2 }, { productId: 7, amount: 1 }], processingTime: 4, processingCost: 150, sellPrice: 2740, category: "food" },
+    { id: 35, name: "橄榄油皂", icon: "🧼🫒", description: "天然橄榄油皂", level: 2, requirements: [{ productId: 20, amount: 2 }, { cropId: 27, amount: 1 }], processingTime: 4, processingCost: 110, sellPrice: 2630, category: "material" },
+    { id: 36, name: "豪华果酱面包", icon: "🍞✨", description: "黄金葡萄果酱面包", level: 3, requirements: [{ productId: 21, amount: 1 }, { cropId: 14, amount: 1 }], processingTime: 5, processingCost: 200, sellPrice: 3485, category: "food" },
+    { id: 37, name: "黄金人参茶", icon: "🍵✨", description: "黄金葡萄人参茶", level: 3, requirements: [{ productId: 9, amount: 2 }, { cropId: 14, amount: 1 }], processingTime: 6, processingCost: 300, sellPrice: 6600, category: "medicine" },
+    { id: 38, name: "皇家衣物套装", icon: "👑👕", description: "顶级棉质套装", level: 3, requirements: [{ productId: 25, amount: 2 }, { productId: 6, amount: 3 }, { cropId: 14, amount: 1 }], processingTime: 8, processingCost: 400, sellPrice: 10450, category: "material" },
+    { id: 39, name: "仙丹妙药", icon: "💊🌟", description: "传说仙丹", level: 3, requirements: [{ productId: 27, amount: 1 }, { productId: 9, amount: 2 }, { cropId: 14, amount: 2 }], processingTime: 10, processingCost: 800, sellPrice: 14700, category: "medicine" },
+    { id: 40, name: "超级能量棒", icon: "🍫⚡", description: "高能营养棒", level: 3, requirements: [{ productId: 23, amount: 1 }, { productId: 24, amount: 2 }, { cropId: 14, amount: 1 }], processingTime: 7, processingCost: 350, sellPrice: 8950, category: "food" },
+    { id: 41, name: "至尊水果篮", icon: "🧺👑", description: "顶级水果礼篮", level: 3, requirements: [{ productId: 23, amount: 2 }, { cropId: 24, amount: 1 }], processingTime: 6, processingCost: 250, sellPrice: 5760, category: "food" },
+    { id: 42, name: "藏红花精华", icon: "🌸💧", description: "极度珍贵的藏红花提取物", level: 3, requirements: [{ cropId: 29, amount: 2 }, { productId: 15, amount: 1 }], processingTime: 8, processingCost: 500, sellPrice: 6840, category: "medicine" },
+    { id: 43, name: "松露油", icon: "🍄👑🫒", description: "奢华松露调味油", level: 3, requirements: [{ cropId: 30, amount: 1 }, { productId: 20, amount: 2 }], processingTime: 7, processingCost: 600, sellPrice: 6680, category: "material" },
+    { id: 44, name: "人参果蜜饯", icon: "🍈🍯", description: "人参果制成的高级蜜饯", level: 3, requirements: [{ cropId: 37, amount: 2 }, { productId: 7, amount: 2 }], processingTime: 6, processingCost: 400, sellPrice: 5040, category: "food" },
+    { id: 45, name: "巧克力喷泉", icon: "🍫⛲", description: "豪华巧克力喷泉套装", level: 3, requirements: [{ productId: 34, amount: 3 }, { cropId: 12, amount: 2 }], processingTime: 8, processingCost: 600, sellPrice: 10220, category: "food" },
+    { id: 46, name: "至尊皇家盛宴", icon: "👑🍽️", description: "使用多种顶级食材的盛宴", level: 4, requirements: [{ productId: 36, amount: 2 }, { productId: 37, amount: 1 }, { cropId: 30, amount: 1 }], processingTime: 10, processingCost: 1000, sellPrice: 19585, category: "food" },
+    { id: 47, name: "不老仙丹", icon: "💊👑", description: "传说中能延年益寿的仙丹", level: 4, requirements: [{ productId: 39, amount: 1 }, { productId: 42, amount: 1 }], processingTime: 12, processingCost: 1500, sellPrice: 24240, category: "medicine" },
+    { id: 48, name: "龙血精华", icon: "🐉💉", description: "蕴含龙之力的神秘药剂", level: 4, requirements: [{ cropId: 29, amount: 3 }, { productId: 27, amount: 2 }], processingTime: 15, processingCost: 2000, sellPrice: 20500, category: "medicine" },
+    { id: 49, name: "天使之衣", icon: "👼👗", description: "用黄金葡萄纤维织成的圣衣", level: 4, requirements: [{ productId: 38, amount: 2 }, { cropId: 14, amount: 3 }], processingTime: 12, processingCost: 1800, sellPrice: 25400, category: "material" },
+    { id: 50, name: "黄金能量塔", icon: "⚡🏆", description: "终极能量补给", level: 4, requirements: [{ productId: 40, amount: 2 }, { productId: 44, amount: 1 }], processingTime: 10, processingCost: 1200, sellPrice: 23940, category: "food" },
+    { id: 51, name: "创世神丹", icon: "🌌💊", description: "蕴含宇宙能量的神丹", level: 5, requirements: [{ productId: 47, amount: 2 }, { productId: 48, amount: 1 }], processingTime: 18, processingCost: 3000, sellPrice: 72980, category: "medicine" },
+    { id: 52, name: "诸神晚宴", icon: "🏛️🍷", description: "传说中众神的盛宴", level: 5, requirements: [{ productId: 46, amount: 2 }, { productId: 49, amount: 1 }], processingTime: 18, processingCost: 3500, sellPrice: 69570, category: "food" },
+    { id: 53, name: "永恒之袍", icon: "♾️👘", description: "永不磨损的圣袍", level: 5, requirements: [{ productId: 49, amount: 2 }, { productId: 38, amount: 3 }, { cropId: 30, amount: 2 }], processingTime: 20, processingCost: 5000, sellPrice: 93550, category: "material" }
+];
+
+const mallItems = [
+    { id: 1, name: "黄金水壶", price: 1000, icon: "🚿", description: "永久性道具，浇水效果加倍，作物生长速度+20%", effect: "goldenWateringCan", permanent: true, type: "tool", storageSize: 1 },
+    { id: 2, name: "稻草人", price: 800, icon: "🛡️", description: "防止小偷事件，持续30天", effect: "scarecrow", duration: 30, type: "tool", storageSize: 2 },
+    { id: 3, name: "温室大棚", price: 2500, icon: "🏠", description: "保护作物不受恶劣天气影响，持续50天", effect: "greenhouse", duration: 50, type: "tool", storageSize: 3 },
+    { id: 4, name: "灌溉系统", price: 1500, icon: "💧", description: "自动为所有地块浇水，持续40天", effect: "irrigationSystem", duration: 40, type: "tool", storageSize: 2 },
+    { id: 5, name: "丰收祝福", price: 3000, icon: "✨", description: "所有作物产量翻倍，持续20天", effect: "blessingOfHarvest", duration: 20, type: "tool", storageSize: 1 },
+    { id: 6, name: "超级肥料", price: 500, icon: "🧪", description: "立即完成一块地上作物的生长", effect: "instantGrow", consumable: true, type: "consumable", storageSize: 1 },
+    { id: 7, name: "植物医生", price: 400, icon: "👨‍⚕️", description: "治愈所有生病的作物", effect: "cureAll", consumable: true, type: "consumable", storageSize: 1 },
+    { id: 8, name: "土地净化", price: 600, icon: "🧹", description: "清除所有被石子掩埋的土地", effect: "clearRocks", consumable: true, type: "consumable", storageSize: 1 },
+    { id: 9, name: "种子复制器", price: 2000, icon: "📋", description: "购买种子时获得双倍种子，永久有效", effect: "seedMultiplier", permanent: true, multiplier: 2, type: "tool", storageSize: 1 },
+    { id: 10, name: "加工加速器", price: 1200, icon: "⚡", description: "所有加工产品时间减半，持续30天", effect: "factoryBoost", duration: 30, type: "tool", storageSize: 1 },
+    { id: 11, name: "天气控制器", price: 3500, icon: "🌤️", description: "可以调整明天的天气，持续15天", effect: "weatherControl", duration: 15, type: "tool", storageSize: 2 }
+];
+
+// ==================== 初始化 ====================
+function initGame() {
+    initPlots();
+    crops.forEach(crop => gameState.inventory[crop.name] = { count: 0, selected: false });
+    factoryProducts.forEach(product => gameState.inventory[product.name] = { count: 0, selected: false });
+    mallItems.forEach(item => gameState.mallItems[item.id] = { purchased: false, daysLeft: 0 });
+    gameState.merchant.nextVisit = Math.floor(Math.random() * 9) + 7;
+    gameState.merchant.priceMultiplier = 0.8 + Math.random() * 0.4;
+    updateWeather();
+    initTimer();
+    initNotificationSystem();
+    gameState.currentSkin = 'default';
+    gameState.unlockedSkins = ['default', 'spring'];
+    applySkin(gameState.currentSkin);
+    renderGame();
+    setupEventListeners();
+    addLog("欢迎来到'爱种地的农民'！你有一小块农田和一些起始资金，开始耕种吧！");
+    addLog("提示: 植物商人将在" + gameState.merchant.nextVisit + "天后到访，准备好要出售的货物！", "success");
+}
+
+function initPlots() {
+    gameState.plots = [];
+    for (let i = 0; i < gameState.totalPlots; i++) {
+        gameState.plots.push({
+            id: i,
+            owned: i < gameState.ownedPlots,
+            planted: false,
+            crop: null,
+            growthStage: 0,
+            growthProgress: 0,
+            watered: false,
+            sick: false,
+            coveredByRocks: false,
+            stageIcons: []
+        });
+    }
+}
+
+function initTimer() {
+    setInterval(() => {
+        if (gameState.nextDayCooldown > 0) {
+            gameState.nextDayCooldown--;
+            updateTimerDisplay();
+        }
+    }, 1000);
+}
+
+function initNotificationSystem() {
+    const container = document.createElement('div');
+    container.id = 'notification-container';
+    container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;display:flex;flex-direction:column;gap:10px;max-width:300px;';
+    document.body.appendChild(container);
+}
+
+function showNotification(message, type = 'info') {
+    const container = document.getElementById('notification-container');
+    if (!container) return;
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    let icon = 'ℹ️', bgColor = '#2196f3';
+    if (type === 'success') { icon = '✅'; bgColor = '#4caf50'; }
+    else if (type === 'warning') { icon = '⚠️'; bgColor = '#ff9800'; }
+    else if (type === 'danger') { icon = '❌'; bgColor = '#f44336'; }
+    else if (type === 'event') { icon = '🎉'; bgColor = '#9c27b0'; }
+    notification.innerHTML = `
+        <div class="notification-icon">${icon}</div>
+        <div class="notification-content">${message}</div>
+        <button class="notification-close">&times;</button>
+    `;
+    notification.style.cssText = `background:${bgColor};color:white;padding:15px;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,0.2);display:flex;align-items:center;gap:10px;animation:slideIn 0.3s ease-out;`;
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.style.cssText = 'background:none;border:none;color:white;font-size:20px;cursor:pointer;margin-left:auto;';
+    closeBtn.onclick = () => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+    };
+    container.appendChild(notification);
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 5000);
+}
+
+function addLog(message, type = "info") {
+    const log = document.getElementById('log');
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    if (type === "warning") entry.classList.add('warning');
+    else if (type === "success") entry.classList.add('success');
+    else if (type === "event") entry.classList.add('event');
+    else if (type === "danger") entry.classList.add('danger');
+    entry.textContent = `第${gameState.day}天: ${message}`;
+    log.appendChild(entry);
+    log.scrollTop = log.scrollHeight;
+}
+
+function updateTimerDisplay() {
+    const timerProgress = document.getElementById('timer-progress');
+    const timerText = document.getElementById('timer-text');
+    const nextDayBtn = document.getElementById('next-day-btn');
+    const nextDayText = document.getElementById('next-day-text');
+    if (gameState.nextDayCooldown > 0) {
+        const progressPercent = ((30 - gameState.nextDayCooldown) / 30) * 100;
+        timerProgress.style.width = `${progressPercent}%`;
+        timerText.textContent = `${gameState.nextDayCooldown}秒`;
+        nextDayBtn.disabled = true;
+        nextDayText.textContent = `冷却中 (${gameState.nextDayCooldown}秒)`;
+    } else {
+        timerProgress.style.width = '100%';
+        timerText.textContent = '准备就绪';
+        nextDayBtn.disabled = false;
+        nextDayText.textContent = '下一天';
+    }
+}
+
+function updateWeather() {
+    if (gameState.day % 10 === 0 && gameState.day > 0) {
+        const currentIndex = ["春季","夏季","秋季","冬季"].indexOf(gameState.season);
+        gameState.season = ["春季","夏季","秋季","冬季"][(currentIndex + 1) % 4];
+        gameState.seasonDay = 1;
+        addLog(`季节更替，现在是${gameState.season}了！`, "event");
+    } else {
+        gameState.seasonDay++;
+    }
+    const weatherRoll = Math.random();
+    if (weatherRoll < 0.5) gameState.nextWeather = "晴朗";
+    else if (weatherRoll < 0.75) gameState.nextWeather = "多云";
+    else if (weatherRoll < 0.9) gameState.nextWeather = "小雨";
+    else if (weatherRoll < 0.98) gameState.nextWeather = "大雨";
+    else gameState.nextWeather = "暴风雨";
+    gameState.weather = gameState.nextWeather;
+}
+
+function checkMerchant() {
+    if (gameState.merchant.present) {
+        gameState.merchant.daysRemaining--;
+        if (gameState.merchant.daysRemaining <= 0) {
+            gameState.merchant.present = false;
+            addLog("植物商人已经离开了。", "warning");
+        }
+    } else {
+        gameState.merchant.nextVisit--;
+        if (gameState.merchant.nextVisit <= 0) {
+            gameState.merchant.present = true;
+            gameState.merchant.daysRemaining = 1;
+            gameState.merchant.priceMultiplier = 0.9 + Math.random() * 0.3;
+            addLog("植物商人来啦！今天可以向他出售货物了！", "event");
+        }
+    }
+    updateMerchantDisplay();
+}
+
+function updateMerchantDisplay() {
+    const merchantCountdown = document.getElementById('merchant-countdown');
+    const sellAllBtn = document.getElementById('sell-all-btn');
+    if (gameState.merchant.present) {
+        merchantCountdown.textContent = "今天";
+        merchantCountdown.style.color = "#4caf50";
+        sellAllBtn.disabled = false;
+        sellAllBtn.innerHTML = '<i class="fas fa-coins"></i> 向商人出售';
+    } else {
+        merchantCountdown.textContent = gameState.merchant.nextVisit;
+        merchantCountdown.style.color = "#ff9800";
+        sellAllBtn.disabled = true;
+        sellAllBtn.innerHTML = '<i class="fas fa-coins"></i> 出售全部 (商人来访时)';
+    }
+}
+
+// ==================== 渲染函数 ====================
+function renderGame() {
+    document.getElementById('gold').textContent = gameState.gold;
+    document.getElementById('level').textContent = gameState.level;
+    document.getElementById('exp').textContent = `${gameState.exp}/${gameState.expToNextLevel}`;
+    document.getElementById('day').textContent = gameState.day;
+    document.getElementById('owned-plots').textContent = gameState.ownedPlots;
+    document.getElementById('total-plots').textContent = gameState.totalPlots;
+    document.getElementById('storage-capacity').textContent = gameState.storageCapacity;
+    document.getElementById('storage-used').textContent = gameState.storageUsed;
+    document.getElementById('storage-stat').textContent = `${gameState.storageUsed}/${gameState.storageCapacity}`;
+    document.getElementById('season').textContent = gameState.season;
+    document.getElementById('weather').textContent = gameState.weather;
+    const storagePercent = (gameState.storageUsed / gameState.storageCapacity) * 100;
+    document.getElementById('storage-progress').style.width = `${storagePercent}%`;
+    document.getElementById('event-rate').textContent = `${gameState.eventFrequency.toFixed(1)}x`;
+    const tipElement = document.getElementById('next-day-tip');
+    if (gameState.nextWeather === "晴朗") {
+        tipElement.textContent = "提示: 明天天气晴朗，适合种植";
+        tipElement.style.color = "#4caf50";
+    } else if (gameState.nextWeather === "小雨") {
+        tipElement.textContent = "提示: 明天有小雨，作物生长加快20%";
+        tipElement.style.color = "#2196f3";
+    } else if (gameState.nextWeather === "大雨") {
+        tipElement.textContent = "提示: 明天有大雨，作物生长加快40%";
+        tipElement.style.color = "#1976d2";
+    } else if (gameState.nextWeather === "暴风雨") {
+        tipElement.textContent = "警告: 明天有暴风雨，作物可能受损！";
+        tipElement.style.color = "#f44336";
+    } else {
+        tipElement.textContent = "提示: 明天天气多云，正常生长";
+        tipElement.style.color = "#757575";
+    }
+    renderFarmland();
+    renderCropsShop();
+    renderInventory();
+    updateTimerDisplay();
+    updateMerchantDisplay();
+    document.getElementById('current-level').textContent = gameState.level;
+}
+
+function renderFarmland() {
+    const farmland = document.getElementById('farmland');
+    farmland.innerHTML = '';
+    gameState.plots.forEach((plot, index) => {
+        const plotElement = document.createElement('div');
+        plotElement.className = 'plot';
+        plotElement.dataset.plotId = plot.id;
+        if (plot.coveredByRocks) {
+            plotElement.classList.add('locked');
+            plotElement.innerHTML = `<div class="plot-icon"><i class="fas fa-mountain"></i></div><div class="plot-info">被石子掩埋<br>需要清理</div>`;
+            plotElement.onclick = () => tryClearRocks(plot.id);
+        } else if (!plot.owned) {
+            plotElement.classList.add('empty');
+            plotElement.innerHTML = `<div class="plot-icon"><i class="fas fa-lock"></i></div><div class="plot-info">未开垦</div>`;
+            plotElement.onclick = () => tryBuyLand();
+        } else if (plot.sick) {
+            const crop = crops.find(c => c.id === plot.crop);
+            plotElement.classList.add('sick', 'planted');
+            const stageIndex = Math.min(Math.floor(plot.growthStage / (crop.growthTime / crop.stages.length)), crop.stages.length - 1);
+            const currentIcon = crop.stages[stageIndex];
+            plotElement.innerHTML = `<div class="plot-icon">${currentIcon}</div><div class="plot-info">${crop.name}<br>生病了！</div><div class="crop-stage">${plot.growthStage}/${crop.growthTime}天</div><div class="sick-indicator"><i class="fas fa-biohazard"></i></div>${plot.watered ? '<div class="water-indicator"><i class="fas fa-tint"></i></div>' : ''}`;
+            plotElement.onclick = () => tryCurePlant(plot.id);
+        } else if (plot.planted) {
+            const crop = crops.find(c => c.id === plot.crop);
+            plotElement.classList.add('planted');
+            const stageIndex = Math.min(Math.floor(plot.growthStage / (crop.growthTime / crop.stages.length)), crop.stages.length - 1);
+            const currentIcon = crop.stages[stageIndex];
+            plotElement.innerHTML = `<div class="plot-icon">${currentIcon}</div><div class="plot-info">${crop.name}</div><div class="crop-stage">${plot.growthStage}/${crop.growthTime}天</div>${plot.watered ? '<div class="water-indicator"><i class="fas fa-tint"></i></div>' : ''}`;
+            plotElement.onclick = () => tryHarvest(plot.id);
+        } else {
+            plotElement.classList.add('owned');
+            plotElement.innerHTML = `<div class="plot-icon"><i class="fas fa-seedling"></i></div><div class="plot-info">空地<br>点击种植</div>`;
+            plotElement.onclick = () => openPlantingMenu(plot.id);
+        }
+        farmland.appendChild(plotElement);
+    });
+}
+
+function renderCropsShop() {
+    const cropsList = document.getElementById('crops-list');
+    cropsList.innerHTML = '';
+    const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+    crops.forEach(crop => {
+        if (activeFilter !== 'all' && crop.category !== activeFilter) return;
+        const cropItem = document.createElement('div');
+        cropItem.className = 'crop-item';
+        const actualPrice = Math.floor(crop.price / gameState.activeEffects.seedMultiplier);
+        cropItem.innerHTML = `
+            <div>
+                <div class="crop-name">${crop.icon} ${crop.name}</div>
+                <div class="crop-growth">${crop.description}</div>
+                <div class="crop-growth">生长: ${crop.growthTime}天</div>
+            </div>
+            <div style="text-align: right;">
+                <div class="crop-price">${actualPrice}金币</div>
+                <div class="crop-growth">售出: ${crop.sellPrice}金币</div>
+                ${gameState.activeEffects.seedMultiplier > 1 ? `<div class="crop-growth" style="color:#4caf50;">种子复制器生效中！</div>` : ''}
+            </div>
+        `;
+        cropItem.onclick = () => selectCrop(crop.id);
+        if (gameState.selectedCrop === crop.id) {
+            cropItem.style.backgroundColor = '#e8f5e9';
+            cropItem.style.borderLeftColor = '#ff9800';
+        }
+        cropsList.appendChild(cropItem);
+    });
+}
+
+function renderInventory() {
+    const inventoryElement = document.getElementById('inventory');
+    inventoryElement.innerHTML = '';
+    let totalValue = 0;
+    let hasItems = false;
+    Object.keys(gameState.inventory).forEach(itemName => {
+        const item = gameState.inventory[itemName];
+        if (item.count > 0) {
+            hasItems = true;
+            let itemValue = 0, itemIcon = "";
+            const crop = crops.find(c => c.name === itemName);
+            if (crop) { itemValue = crop.sellPrice; itemIcon = crop.icon; }
+            else {
+                const product = factoryProducts.find(p => p.name === itemName);
+                if (product) { itemValue = product.sellPrice; itemIcon = product.icon; }
+                else if (item.mallItem && item.itemData) {
+                    itemValue = item.itemData.price;
+                    itemIcon = item.itemData.icon;
+                }
+            }
+            totalValue += itemValue * item.count;
+            const inventoryItem = document.createElement('div');
+            inventoryItem.className = 'inventory-item';
+            inventoryItem.id = `inv-item-${itemName.replace(/\s+/g, '_')}`;
+            inventoryItem.innerHTML = `
+                <div>
+                    <div class="inventory-name">${itemIcon} ${itemName}</div>
+                    <div class="inventory-value">单价: ${itemValue}金币</div>
+                </div>
+                <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end;">
+                    <div class="inventory-amount">${item.count}个</div>
+                    <div class="inventory-value">价值: ${itemValue * item.count}金币</div>
+                    ${item.mallItem ? '<button class="btn-use-mall-item btn-small" style="margin-top:5px;">使用</button>' : ''}
+                </div>
+            `;
+            if (item.mallItem) {
+                const useBtn = inventoryItem.querySelector('.btn-use-mall-item');
+                useBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    useMallItem(itemName);
+                };
+            }
+            inventoryElement.appendChild(inventoryItem);
+        }
+    });
+    if (!hasItems) {
+        inventoryElement.innerHTML = '<div class="inventory-item" style="justify-content: center; color: #888; font-style: italic;">仓库空空如也，快去种植吧！</div>';
+    }
+    document.getElementById('inventory-value').textContent = totalValue;
+    updateStorageUsage();
+}
+
+function updateStorageUsage() {
+    let totalSize = 0;
+    Object.keys(gameState.inventory).forEach(itemName => {
+        const item = gameState.inventory[itemName];
+        if (item.count > 0) {
+            let itemSize = 1;
+            const crop = crops.find(c => c.name === itemName);
+            if (crop) itemSize = crop.size;
+            else if (item.mallItem && item.itemData) itemSize = item.itemData.storageSize || 1;
+            totalSize += itemSize * item.count;
+        }
+    });
+    gameState.storageUsed = totalSize;
+}
+
+function hasStorageSpace(itemName, amount = 1) {
+    let itemSize = 1;
+    const crop = crops.find(c => c.name === itemName);
+    if (crop) itemSize = crop.size;
+    else {
+        const item = gameState.inventory[itemName];
+        if (item && item.mallItem && item.itemData) itemSize = item.itemData.storageSize || 1;
+    }
+    return (itemSize * amount) <= (gameState.storageCapacity - gameState.storageUsed);
+}
+
+function addToStorage(itemName, amount = 1) {
+    if (!hasStorageSpace(itemName, amount)) {
+        addLog(`仓库空间不足，无法存放${itemName}！`, "warning");
+        return false;
+    }
+    if (!gameState.inventory[itemName]) {
+        gameState.inventory[itemName] = { count: 0, selected: false };
+    }
+    gameState.inventory[itemName].count += amount;
+    updateStorageUsage();
+    return true;
+}
+
+function removeFromStorage(itemName, amount = 1) {
+    if (!gameState.inventory[itemName] || gameState.inventory[itemName].count < amount) return false;
+    gameState.inventory[itemName].count -= amount;
+    if (gameState.inventory[itemName].count <= 0) delete gameState.inventory[itemName];
+    updateStorageUsage();
+    return true;
+}
+
+// ==================== 商城相关 ====================
+function renderMall() {
+    const mallItemsElement = document.getElementById('mall-items');
+    mallItemsElement.innerHTML = '';
+    mallItems.forEach(item => {
+        const mallItem = document.createElement('div');
+        mallItem.className = 'mall-item';
+        const isPurchased = gameState.mallItems[item.id].purchased && item.permanent;
+        const hasActive = item.effect in gameState.activeEffects && (typeof gameState.activeEffects[item.effect] === 'number' ? gameState.activeEffects[item.effect] > 0 : gameState.activeEffects[item.effect]);
+        mallItem.innerHTML = `
+            <div class="mall-item-header">
+                <div class="mall-item-name">${item.icon} ${item.name}</div>
+                <div class="mall-item-price">${item.price}金币</div>
+            </div>
+            <div class="mall-item-desc">${item.description}</div>
+            ${item.duration ? `<div class="mall-item-effect">持续时间: ${item.duration}天</div>` : ''}
+            ${item.permanent ? `<div class="mall-item-effect">永久道具</div>` : ''}
+            ${item.consumable ? `<div class="mall-item-effect">一次性消耗品</div>` : ''}
+            ${isPurchased ? `<div class="mall-item-effect" style="color:#4caf50;">✓ 已拥有</div>` : ''}
+            ${hasActive && !item.permanent && !item.consumable ? `<div class="mall-item-effect" style="color:#4caf50;">生效中: 剩余${gameState.mallItems[item.id].daysLeft}天</div>` : ''}
+        `;
+        const buyButton = document.createElement('button');
+        buyButton.className = 'btn';
+        buyButton.style.marginTop = '10px';
+        if (isPurchased && item.permanent) {
+            buyButton.textContent = '已拥有';
+            buyButton.disabled = true;
+        } else if (hasActive && !item.consumable && !item.permanent) {
+            buyButton.textContent = '生效中';
+            buyButton.disabled = true;
+        } else if (gameState.gold >= item.price) {
+            buyButton.textContent = '购买';
+            buyButton.onclick = () => buyMallItem(item.id);
+        } else {
+            buyButton.textContent = '金币不足';
+            buyButton.disabled = true;
+        }
+        mallItem.appendChild(buyButton);
+        mallItemsElement.appendChild(mallItem);
+    });
+}
+
+function buyMallItem(itemId) {
+    const item = mallItems.find(i => i.id === itemId);
+    if (gameState.gold < item.price) {
+        addLog(`金币不足，无法购买${item.name}！需要${item.price}金币`, "warning");
+        return;
+    }
+    if (!hasStorageSpace(item.name, item.storageSize || 1)) {
+        addLog(`仓库空间不足，无法购买${item.name}！`, "warning");
+        return;
+    }
+    gameState.gold -= item.price;
+    if (addToStorage(item.name, 1)) {
+        if (!gameState.inventory[item.name].mallItem) {
+            gameState.inventory[item.name].mallItem = true;
+            gameState.inventory[item.name].itemData = item;
+        }
+        addLog(`购买了${item.name}！已放入仓库，可以在仓库中使用。`, "success");
+    }
+    renderMall();
+    renderGame();
+}
+
+function useMallItem(itemName) {
+    const item = gameState.inventory[itemName];
+    if (!item || !item.mallItem) return;
+    const mallItem = item.itemData;
+    if (mallItem.permanent) {
+        gameState.activeEffects[mallItem.effect] = true;
+        gameState.mallItems[mallItem.id].purchased = true;
+        if (mallItem.effect === "seedMultiplier") gameState.activeEffects.seedMultiplier = mallItem.multiplier;
+        addLog(`使用了${mallItem.name}！永久生效。`, "success");
+    } else if (mallItem.consumable) {
+        applyConsumableEffect(mallItem);
+    } else {
+        gameState.activeEffects[mallItem.effect] = true;
+        gameState.mallItems[mallItem.id].daysLeft = mallItem.duration;
+        gameState.mallItems[mallItem.id].purchased = true;
+        addLog(`使用了${mallItem.name}！效果持续${mallItem.duration}天。`, "success");
+    }
+    removeFromStorage(itemName, 1);
+    renderGame();
+}
+
+function applyConsumableEffect(item) {
+    switch(item.effect) {
+        case "instantGrow":
+            const plantedPlot = gameState.plots.find(plot => plot.planted && !plot.sick);
+            if (plantedPlot) {
+                const crop = crops.find(c => c.id === plantedPlot.crop);
+                plantedPlot.growthStage = crop.growthTime;
+                plantedPlot.growthProgress = crop.growthTime;
+                addLog(`使用超级肥料，${crop.name}立即成熟！`, "success");
+            } else {
+                addLog("没有种植中的作物可以使用超级肥料。", "warning");
+                gameState.gold += item.price;
+            }
+            break;
+        case "cureAll":
+            let curedCount = 0;
+            gameState.plots.forEach(plot => { if (plot.sick) { plot.sick = false; curedCount++; } });
+            if (curedCount > 0) addLog(`使用植物医生，治愈了${curedCount}棵生病的植物！`, "success");
+            else { addLog("没有生病的植物需要治疗。", "warning"); gameState.gold += item.price; }
+            break;
+        case "clearRocks":
+            let clearedCount = 0;
+            gameState.plots.forEach(plot => { if (plot.coveredByRocks) { plot.coveredByRocks = false; clearedCount++; } });
+            if (clearedCount > 0) addLog(`使用土地净化，清除了${clearedCount}块被石子掩埋的土地！`, "success");
+            else { addLog("没有被石子掩埋的土地需要清理。", "warning"); gameState.gold += item.price; }
+            break;
+    }
+}
+
+// ==================== 加工厂（优化重点） ====================
+function openFactory() {
+    renderFactory();
+    document.getElementById('factory-dialog').style.display = 'flex';
+    // 绑定搜索和等级过滤事件
+    const searchInput = document.getElementById('factory-search-input');
+    searchInput.value = gameState.factorySearchQuery;
+    searchInput.oninput = function() {
+        gameState.factorySearchQuery = this.value;
+        renderAvailableProducts();
+    };
+    document.querySelectorAll('.level-filter-btn').forEach(btn => {
+        btn.onclick = function() {
+            document.querySelectorAll('.level-filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const level = this.dataset.level;
+            gameState.factoryLevelFilter = level === 'all' ? null : parseInt(level);
+            renderAvailableProducts();
+        };
+    });
+    // 默认显示可加工
+    document.querySelector('.factory-tab[data-tab="available"]').click();
+}
+
+function closeFactory() { document.getElementById('factory-dialog').style.display = 'none'; }
+
+function renderFactory() {
+    renderAvailableProducts();
+    renderProcessingProducts();
+    renderCompletedProducts();
+}
+
+function renderAvailableProducts() {
+    const container = document.getElementById('available-products');
+    container.innerHTML = '';
+    let products = factoryProducts;
+    if (gameState.factoryLevelFilter !== null) {
+        products = products.filter(p => p.level === gameState.factoryLevelFilter);
+    }
+    if (gameState.factorySearchQuery) {
+        const query = gameState.factorySearchQuery.toLowerCase();
+        products = products.filter(p => p.name.toLowerCase().includes(query) || p.description.toLowerCase().includes(query));
+    }
+    if (products.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#888;">没有找到匹配的加工产品</div>';
+        return;
+    }
+    products.forEach(product => {
+        const canProduce = checkMaterials(product);
+        const actualTime = gameState.activeEffects.factoryBoost ? Math.ceil(product.processingTime / 2) : product.processingTime;
+        const div = document.createElement('div');
+        div.className = 'factory-product';
+        div.innerHTML = `
+            <div class="product-header">
+                <div class="product-name">${product.icon} ${product.name} <span style="font-size:0.8rem; color:#666;">(等级${product.level})</span></div>
+                <div class="product-price">售价: ${product.sellPrice}金币</div>
+            </div>
+            <div class="product-desc">${product.description}</div>
+            <div class="product-requirements">
+                <div class="requirement"><div class="requirement-label">加工时间</div><div class="requirement-value">${actualTime}天</div></div>
+                <div class="requirement"><div class="requirement-label">加工费用</div><div class="requirement-value">${product.processingCost}金币</div></div>
+                <div class="requirement"><div class="requirement-label">产品等级</div><div class="requirement-value">${product.level}级</div></div>
+            </div>
+            <div style="margin-top:10px;">
+                <div style="font-weight:bold; color:#555; margin-bottom:5px;">原料需求:</div>
+                ${product.requirements.map(req => {
+                    let reqText = "", available = 0, className = "", clickHandler = "";
+                    if (req.cropId) {
+                        const crop = crops.find(c => c.id === req.cropId);
+                        available = gameState.inventory[crop.name] ? gameState.inventory[crop.name].count : 0;
+                        reqText = `${crop.icon} ${crop.name}`;
+                        className = "crop-link";
+                        clickHandler = `jumpToCrop(${crop.id})`;
+                    } else if (req.productId) {
+                        const reqProd = factoryProducts.find(p => p.id === req.productId);
+                        available = gameState.inventory[reqProd.name] ? gameState.inventory[reqProd.name].count : 0;
+                        reqText = `${reqProd.icon} ${reqProd.name}`;
+                        className = "product-link";
+                        clickHandler = `jumpToInventory('${reqProd.name}')`;
+                    }
+                    const hasEnough = available >= req.amount;
+                    return `<div style="display:flex;justify-content:space-between;margin-bottom:5px;padding:5px;background-color:${hasEnough?'#e8f5e9':'#ffebee'};border-radius:5px;">
+                        <span><a href="#" class="${className}" onclick="${clickHandler};return false;" style="color:${req.cropId?'#1b5e20':'#e65100'};text-decoration:underline;cursor:pointer;">${reqText}</a></span>
+                        <span>${available}/${req.amount}</span>
+                    </div>`;
+                }).join('')}
+            </div>
+        `;
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+        btn.style.marginTop = '15px';
+        btn.style.width = '100%';
+        if (canProduce && gameState.gold >= product.processingCost) {
+            btn.textContent = '开始加工';
+            btn.onclick = () => startProcessing(product.id);
+        } else if (!canProduce) {
+            btn.textContent = '原料不足';
+            btn.disabled = true;
+        } else {
+            btn.textContent = '金币不足';
+            btn.disabled = true;
+        }
+        div.appendChild(btn);
+        container.appendChild(div);
+    });
+}
+
+function renderProcessingProducts() {
+    const container = document.getElementById('processing-products');
+    container.innerHTML = '';
+    if (gameState.processingItems.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#888;">没有正在加工的产品</div>';
+        return;
+    }
+    gameState.processingItems.forEach((item, index) => {
+        const product = factoryProducts.find(p => p.id === item.productId);
+        const progressPercent = ((gameState.day - item.startDay) / item.totalDays) * 100;
+        const remainingDays = Math.max(0, item.totalDays - (gameState.day - item.startDay));
+        const div = document.createElement('div');
+        div.className = 'factory-product';
+        div.innerHTML = `
+            <div class="product-header"><div class="product-name">${product.icon} ${product.name}</div><div class="product-price">剩余: ${remainingDays}天</div></div>
+            <div class="product-desc">${product.description}</div>
+            <div class="processing-info">
+                <div>进度:</div>
+                <div class="processing-progress"><div class="processing-progress-bar" style="width:${Math.min(progressPercent,100)}%"></div></div>
+                <div>${Math.round(Math.min(progressPercent,100))}%</div>
+            </div>
+            <div style="margin-top:10px;font-size:0.9rem;color:#666;">开始于第${item.startDay}天，共需${item.totalDays}天</div>
+        `;
+        if (remainingDays > 0) {
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'btn';
+            cancelBtn.style.marginTop = '10px';
+            cancelBtn.style.backgroundColor = '#f44336';
+            cancelBtn.textContent = '取消加工';
+            cancelBtn.onclick = () => cancelProcessing(index);
+            div.appendChild(cancelBtn);
+        }
+        container.appendChild(div);
+    });
+}
+
+function renderCompletedProducts() {
+    const container = document.getElementById('completed-products');
+    container.innerHTML = '';
+    if (gameState.completedItems.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#888;">没有已完成的产品</div>';
+        return;
+    }
+    gameState.completedItems.forEach((item, index) => {
+        const product = factoryProducts.find(p => p.id === item.productId);
+        const div = document.createElement('div');
+        div.className = 'factory-product';
+        div.innerHTML = `
+            <div class="product-header"><div class="product-name">${product.icon} ${product.name}</div><div class="product-price">售价: ${product.sellPrice}金币</div></div>
+            <div class="product-desc">${product.description}</div>
+            <div style="margin-top:10px;padding:10px;background-color:#e8f5e9;border-radius:8px;">
+                <div style="display:flex;justify-content:space-between;"><span>完成于第${item.completedDay}天</span><span>数量: ${item.quantity}个</span></div>
+            </div>
+        `;
+        const collectBtn = document.createElement('button');
+        collectBtn.className = 'btn';
+        collectBtn.style.marginTop = '10px';
+        collectBtn.style.width = '100%';
+        collectBtn.textContent = '领取产品';
+        collectBtn.onclick = () => collectProduct(index);
+        div.appendChild(collectBtn);
+        container.appendChild(div);
+    });
+}
+
+function checkMaterials(product) {
+    for (const req of product.requirements) {
+        if (req.cropId) {
+            const crop = crops.find(c => c.id === req.cropId);
+            if (!gameState.inventory[crop.name] || gameState.inventory[crop.name].count < req.amount) return false;
+        } else if (req.productId) {
+            const reqProd = factoryProducts.find(p => p.id === req.productId);
+            if (!gameState.inventory[reqProd.name] || gameState.inventory[reqProd.name].count < req.amount) return false;
+        }
+    }
+    return true;
+}
+
+function startProcessing(productId) {
+    const product = factoryProducts.find(p => p.id === productId);
+    if (!checkMaterials(product)) { addLog("原料不足！", "warning"); return; }
+    if (gameState.gold < product.processingCost) { addLog("金币不足！", "warning"); return; }
+    for (const req of product.requirements) {
+        if (req.cropId) removeFromStorage(crops.find(c => c.id === req.cropId).name, req.amount);
+        else if (req.productId) removeFromStorage(factoryProducts.find(p => p.id === req.productId).name, req.amount);
+    }
+    gameState.gold -= product.processingCost;
+    const time = gameState.activeEffects.factoryBoost ? Math.ceil(product.processingTime / 2) : product.processingTime;
+    gameState.processingItems.push({ productId: product.id, startDay: gameState.day, totalDays: time, quantity: 1 });
+    addLog(`开始加工${product.name}！需要${time}天。`, "success");
+    renderFactory();
+    renderGame();
+}
+
+function cancelProcessing(index) {
+    const item = gameState.processingItems[index];
+    const product = factoryProducts.find(p => p.id === item.productId);
+    const progress = (gameState.day - item.startDay) / item.totalDays;
+    const returnRate = 1 - progress;
+    for (const req of product.requirements) {
+        if (req.cropId) {
+            const crop = crops.find(c => c.id === req.cropId);
+            const amount = Math.ceil(req.amount * returnRate);
+            if (amount > 0) addToStorage(crop.name, amount);
+        } else if (req.productId) {
+            const reqProd = factoryProducts.find(p => p.id === req.productId);
+            const amount = Math.ceil(req.amount * returnRate);
+            if (amount > 0) addToStorage(reqProd.name, amount);
+        }
+    }
+    gameState.processingItems.splice(index, 1);
+    addLog(`取消了${product.name}的加工。`, "warning");
+    renderFactory();
+    renderGame();
+}
+
+function collectProduct(index) {
+    const item = gameState.completedItems[index];
+    const product = factoryProducts.find(p => p.id === item.productId);
+    if (addToStorage(product.name, item.quantity)) {
+        gameState.completedItems.splice(index, 1);
+        addLog(`领取了${product.name}！`, "success");
+    } else {
+        addLog("仓库空间不足！", "warning");
+    }
+    renderFactory();
+    renderGame();
+}
+
+// 跳转辅助
+function jumpToCrop(cropId) {
+    closeFactory();
+    const crop = crops.find(c => c.id === cropId);
+    if (crop) {
+        document.querySelectorAll('.crop-filter .filter-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('.crop-filter .filter-btn[data-filter="all"]').classList.add('active');
+        selectCrop(cropId);
+        document.getElementById('crops-list').scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+function jumpToInventory(itemName) {
+    closeFactory();
+    document.getElementById('inventory').scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => {
+        const el = document.getElementById(`inv-item-${itemName.replace(/\s+/g, '_')}`);
+        if (el) {
+            el.style.transition = '0.3s';
+            el.style.backgroundColor = '#ffeb3b';
+            setTimeout(() => el.style.backgroundColor = '', 1500);
+        }
+    }, 500);
+}
+
+// ==================== 商人相关 ====================
+function openMerchant() {
+    if (!gameState.merchant.present) { addLog("植物商人还没来呢！", "warning"); return; }
+    renderMerchant();
+    document.getElementById('merchant-dialog').style.display = 'flex';
+}
+
+function closeMerchant() { document.getElementById('merchant-dialog').style.display = 'none'; }
+
+function renderMerchant() {
+    const merchantItemsElement = document.getElementById('merchant-items');
+    merchantItemsElement.innerHTML = '';
+    document.getElementById('merchant-leave-time').textContent = gameState.merchant.daysRemaining > 0 ? "今天结束" : "即将离开";
+    const priceMultiplier = gameState.merchant.priceMultiplier;
+    let totalValue = 0;
+    let hasItems = false;
+    Object.keys(gameState.inventory).forEach(itemName => {
+        const item = gameState.inventory[itemName];
+        if (item.count > 0 && !item.mallItem) {
+            hasItems = true;
+            let baseValue = 0, itemIcon = "";
+            const crop = crops.find(c => c.name === itemName);
+            if (crop) { baseValue = crop.sellPrice; itemIcon = crop.icon; }
+            else {
+                const product = factoryProducts.find(p => p.name === itemName);
+                if (product) { baseValue = product.sellPrice; itemIcon = product.icon; }
+            }
+            if (baseValue > 0) {
+                const merchantPrice = Math.floor(baseValue * priceMultiplier);
+                const itemTotalValue = merchantPrice * item.count;
+                totalValue += itemTotalValue;
+                const merchantItem = document.createElement('div');
+                merchantItem.className = 'merchant-item';
+                if (item.selected) merchantItem.classList.add('selected');
+                merchantItem.innerHTML = `
+                    <div class="merchant-item-info">
+                        <input type="checkbox" class="merchant-item-checkbox" data-item="${itemName}" ${item.selected ? 'checked' : ''}>
+                        <div class="merchant-item-details">
+                            <div class="merchant-item-name">${itemIcon} ${itemName}</div>
+                            <div>数量: ${item.count}个</div>
+                        </div>
+                    </div>
+                    <div class="merchant-item-price">${merchantPrice}金币/个</div>
+                `;
+                merchantItem.onclick = (e) => {
+                    if (!e.target.classList.contains('merchant-item-checkbox')) {
+                        const checkbox = merchantItem.querySelector('.merchant-item-checkbox');
+                        checkbox.checked = !checkbox.checked;
+                        toggleItemSelection(itemName);
+                    }
+                };
+                const checkbox = merchantItem.querySelector('.merchant-item-checkbox');
+                checkbox.onclick = (e) => { e.stopPropagation(); toggleItemSelection(itemName); };
+                merchantItemsElement.appendChild(merchantItem);
+            }
+        }
+    });
+    if (!hasItems) merchantItemsElement.innerHTML = '<div style="text-align:center;padding:40px;color:#888;">没有可出售的物品</div>';
+    document.getElementById('merchant-total-value').textContent = totalValue;
+}
+
+function toggleItemSelection(itemName) {
+    if (gameState.inventory[itemName]) {
+        gameState.inventory[itemName].selected = !gameState.inventory[itemName].selected;
+        renderMerchant();
+    }
+}
+
+function sellToMerchant() {
+    let totalSold = 0, totalGold = 0;
+    let soldItems = [];
+    const priceMultiplier = gameState.merchant.priceMultiplier;
+    Object.keys(gameState.inventory).forEach(itemName => {
+        const item = gameState.inventory[itemName];
+        if (item.selected && item.count > 0 && !item.mallItem) {
+            let baseValue = 0;
+            const crop = crops.find(c => c.name === itemName);
+            if (crop) baseValue = crop.sellPrice;
+            else {
+                const product = factoryProducts.find(p => p.name === itemName);
+                if (product) baseValue = product.sellPrice;
+            }
+            if (baseValue > 0) {
+                const merchantPrice = Math.floor(baseValue * priceMultiplier);
+                totalSold += item.count;
+                totalGold += merchantPrice * item.count;
+                soldItems.push(`${itemName}×${item.count}`);
+                delete gameState.inventory[itemName];
+            }
+        }
+    });
+    if (totalSold > 0) {
+        gameState.gold += totalGold;
+        gameState.exp += Math.floor(totalGold / 2);
+        addLog(`出售了${totalSold}件物品，获得${totalGold}金币！`, "success");
+        checkLevelUp();
+        updateStorageUsage();
+        closeMerchant();
+        renderGame();
+    } else {
+        addLog("没有选中要出售的物品！", "warning");
+    }
+}
+
+// ==================== 皮肤 ====================
+function openSkinSelector() { renderSkinSelector(); document.getElementById('skin-dialog').style.display = 'flex'; }
+function closeSkinSelector() { document.getElementById('skin-dialog').style.display = 'none'; }
+
+function renderSkinSelector() {
+    const container = document.getElementById('skin-selector');
+    container.innerHTML = '';
+    gameSkins.forEach(skin => {
+        const isUnlocked = gameState.unlockedSkins.includes(skin.id);
+        const isCurrent = gameState.currentSkin === skin.id;
+        const div = document.createElement('div');
+        div.className = 'skin-item';
+        if (isUnlocked) div.classList.add('unlocked');
+        if (isCurrent) div.classList.add('selected');
+        if (!isUnlocked) div.classList.add('locked');
+        div.innerHTML = `
+            <div class="skin-preview" style="background:${skin.background};"></div>
+            <div class="skin-name">${skin.name}</div>
+            <div class="skin-desc">${skin.description}</div>
+            <div class="skin-status">${isUnlocked ? '已解锁' : `需要等级 ${skin.levelRequired}`}</div>
+        `;
+        if (isUnlocked) div.onclick = () => selectSkin(skin.id);
+        container.appendChild(div);
+    });
+}
+
+function selectSkin(skinId) {
+    if (!gameState.unlockedSkins.includes(skinId)) return;
+    applySkin(skinId);
+    addLog(`更换了${gameSkins.find(s => s.id === skinId).name}皮肤！`, "success");
+    closeSkinSelector();
+}
+
+function applySkin(skinId) {
+    const skin = gameSkins.find(s => s.id === skinId);
+    if (!skin) return;
+    document.body.style.background = skin.background;
+    gameState.currentSkin = skinId;
+}
+
+// ==================== 核心玩法 ====================
+function selectCrop(cropId) {
+    gameState.selectedCrop = cropId;
+    renderCropsShop();
+}
+
+function tryBuyLand() {
+    if (gameState.gold >= 100 && gameState.ownedPlots < gameState.totalPlots) {
+        buyLand();
+    } else if (gameState.ownedPlots >= gameState.totalPlots) {
+        addLog("所有土地都已开垦完毕！", "warning");
+    } else {
+        addLog("金币不足！需要100金币", "warning");
+    }
+}
+
+function buyLand() {
+    gameState.gold -= 100;
+    gameState.ownedPlots++;
+    for (let plot of gameState.plots) {
+        if (!plot.owned && !plot.coveredByRocks) {
+            plot.owned = true;
+            break;
+        }
+    }
+    addLog(`开垦了新地！现在拥有${gameState.ownedPlots}块地。`);
+    renderGame();
+}
+
+function openPlantingMenu(plotId) {
+    if (gameState.selectedCrop === null) { addLog("请先选择要种植的作物！", "warning"); return; }
+    const crop = crops.find(c => c.id === gameState.selectedCrop);
+    const actualPrice = Math.floor(crop.price / gameState.activeEffects.seedMultiplier);
+    if (gameState.gold < actualPrice) { addLog(`金币不足！需要${actualPrice}金币`, "warning"); return; }
+    gameState.gold -= actualPrice;
+    const plot = gameState.plots[plotId];
+    plot.planted = true;
+    plot.crop = crop.id;
+    plot.growthStage = 1;
+    plot.growthProgress = 0;
+    plot.watered = false;
+    plot.stageIcons = [...crop.stages];
+    addLog(`种植了${crop.name}！`, "success");
+    renderGame();
+}
+
+function tryHarvest(plotId) {
+    const plot = gameState.plots[plotId];
+    const crop = crops.find(c => c.id === plot.crop);
+    if (plot.growthStage >= crop.growthTime) harvestCrop(plotId);
+    else addLog(`${crop.name}还没成熟！还需${crop.growthTime - plot.growthStage}天。`, "warning");
+}
+
+function harvestCrop(plotId) {
+    const plot = gameState.plots[plotId];
+    const crop = crops.find(c => c.id === plot.crop);
+    let yieldMultiplier = gameState.activeEffects.blessingOfHarvest ? 2 : 1;
+    if (addToStorage(crop.name, yieldMultiplier)) {
+        gameState.exp += Math.floor(crop.sellPrice / 5) * yieldMultiplier;
+        plot.planted = false;
+        plot.crop = null;
+        plot.growthStage = 0;
+        plot.growthProgress = 0;
+        plot.watered = false;
+        plot.sick = false;
+        plot.stageIcons = [];
+        addLog(`收获了${crop.name}！`, "success");
+        checkLevelUp();
+        renderGame();
+    } else {
+        addLog("仓库空间不足！", "warning");
+    }
+}
+
+function waterAllCrops() {
+    if (gameState.gold < 20) { addLog("金币不足！需要20金币", "warning"); return; }
+    let count = 0;
+    gameState.plots.forEach(p => {
+        if (p.planted && !p.watered && !p.sick) {
+            p.watered = true;
+            p.growthProgress += gameState.activeEffects.goldenWateringCan ? 1.0 : 0.5;
+            count++;
+        }
+    });
+    if (count > 0) {
+        gameState.gold -= 20;
+        addLog(`浇灌了${count}块地。`, "success");
+        renderGame();
+    } else addLog("没有需要浇水的作物。", "warning");
+}
+
+function harvestAllCrops() {
+    let count = 0;
+    gameState.plots.forEach(plot => {
+        if (plot.planted && !plot.sick) {
+            const crop = crops.find(c => c.id === plot.crop);
+            if (plot.growthStage >= crop.growthTime) {
+                let mul = gameState.activeEffects.blessingOfHarvest ? 2 : 1;
+                if (addToStorage(crop.name, mul)) {
+                    gameState.exp += Math.floor(crop.sellPrice / 5) * mul;
+                    plot.planted = false; plot.crop = null; plot.growthStage = 0; plot.growthProgress = 0; plot.watered = false; plot.stageIcons = [];
+                    count++;
+                }
+            }
+        }
+    });
+    if (count > 0) { addLog(`一键收获了${count}块地。`, "success"); checkLevelUp(); renderGame(); }
+    else addLog("没有可以收获的成熟作物。", "warning");
+}
+
+function upgradeStorage() {
+    if (gameState.gold >= 200) {
+        gameState.gold -= 200;
+        gameState.storageCapacity += 50;
+        addLog(`仓库容量提升至${gameState.storageCapacity}！`, "success");
+        renderGame();
+    } else addLog("金币不足！需要200金币", "warning");
+}
+
+function nextDay() {
+    if (gameState.nextDayCooldown > 0) {
+        addLog(`请等待${gameState.nextDayCooldown}秒后再使用"下一天"功能。`, "warning");
+        return;
+    }
+    gameState.nextDayCooldown = 30;
+    gameState.day++;
+    updateWeather();
+    updateItemDurations();
+    checkMerchant();
+    let growthMultiplier = 1.0;
+    if (!gameState.activeEffects.greenhouse) {
+        if (gameState.weather === "小雨") growthMultiplier = 1.2;
+        else if (gameState.weather === "大雨") growthMultiplier = 1.4;
+        else if (gameState.weather === "暴风雨") growthMultiplier = 0.8;
+    }
+    if (gameState.activeEffects.irrigationSystem) {
+        gameState.plots.forEach(plot => { if (plot.planted && !plot.watered && !plot.sick) plot.watered = true; });
+    }
+    gameState.plots.forEach(plot => {
+        if (plot.planted && !plot.sick) {
+            let dailyGrowth = 1.0;
+            if (plot.watered) {
+                dailyGrowth += gameState.activeEffects.goldenWateringCan ? 1.0 : 0.5;
+                plot.watered = false;
+            }
+            plot.growthProgress += dailyGrowth * growthMultiplier;
+            plot.growthStage = Math.floor(plot.growthProgress);
+            const crop = crops.find(c => c.id === plot.crop);
+            if (plot.growthStage > crop.growthTime) {
+                plot.growthStage = crop.growthTime;
+                plot.growthProgress = crop.growthTime;
+            }
+        }
+    });
+    checkProcessingProgress();
+    randomEvent();
+    checkLevelUp();
+    addLog(`第${gameState.day}天开始了。天气: ${gameState.weather}`);
+    renderGame();
+}
+
+function updateItemDurations() {
+    mallItems.forEach(item => {
+        if (!item.permanent && !item.consumable && gameState.mallItems[item.id].daysLeft > 0) {
+            gameState.mallItems[item.id].daysLeft--;
+            if (gameState.mallItems[item.id].daysLeft <= 0) {
+                gameState.activeEffects[item.effect] = false;
+                addLog(`${item.name}的效果已结束。`, "warning");
+            }
+        }
+    });
+}
+
+function checkProcessingProgress() {
+    const completedNames = [];
+    for (let i = gameState.processingItems.length - 1; i >= 0; i--) {
+        const item = gameState.processingItems[i];
+        if (gameState.day - item.startDay >= item.totalDays) {
+            const product = factoryProducts.find(p => p.id === item.productId);
+            gameState.completedItems.push({ productId: item.productId, completedDay: gameState.day, quantity: item.quantity });
+            completedNames.push(product.name);
+            gameState.processingItems.splice(i, 1);
+        }
+    }
+    if (completedNames.length > 0) addLog(`加工完成: ${completedNames.join(', ')}！`, "success");
+}
+
+function randomEvent() {
+    const baseProb = 0.15 * gameState.eventFrequency;
+    const events = [
+        { condition: () => Math.random() < baseProb, message: "今天阳光特别充足，所有作物额外生长了1天！", type: "success", action: () => { gameState.plots.forEach(p => { if (p.planted && !p.sick) { p.growthProgress += 1; p.growthStage = Math.floor(p.growthProgress); } }); } },
+        { condition: () => Math.random() < baseProb * 0.6, message: "发现了一个宝箱，获得了100金币！", type: "event", action: () => { gameState.gold += 100; } },
+        { condition: () => Math.random() < baseProb * 0.4 && !gameState.activeEffects.scarecrow, message: "一种奇怪的病害在农田中蔓延！", type: "danger", action: () => {
+            const planted = gameState.plots.filter(p => p.planted && !p.sick);
+            if(planted.length > 0) {
+                const num = Math.min(Math.floor(Math.random()*3)+1, planted.length);
+                for(let i=0;i<num;i++) planted[i].sick = true;
+                addLog(`病害感染了${num}块地的植物！`, "danger");
+            }
+        }},
+        { condition: () => Math.random() < baseProb * 0.3 && !gameState.activeEffects.scarecrow && gameState.day - gameState.lastTheftDay > 3, message: "夜晚来了小偷！", type: "danger", action: () => {
+            gameState.lastTheftDay = gameState.day;
+            const stealGold = Math.floor(gameState.gold * 0.1);
+            if(stealGold > 0) gameState.gold -= stealGold;
+            addLog(`小偷偷走了${stealGold}金币！`, "danger");
+        }}
+    ];
+    const shuffled = events.sort(() => Math.random() - 0.5);
+    let executed = 0;
+    for (let event of shuffled) {
+        if (executed >= 2) break;
+        if (event.condition()) {
+            event.action();
+            addLog(event.message, event.type);
+            executed++;
+        }
+    }
+}
+
+function checkLevelUp() {
+    while (gameState.exp >= gameState.expToNextLevel) {
+        gameState.exp -= gameState.expToNextLevel;
+        gameState.level++;
+        gameState.expToNextLevel = Math.floor(gameState.expToNextLevel * 1.5);
+        gameState.gold += gameState.level * 50;
+        addLog(`升级到${gameState.level}级！获得${gameState.level * 50}金币奖励！`, "success");
+        if (gameState.level % 5 === 0 && gameState.ownedPlots < gameState.totalPlots) {
+            for (let plot of gameState.plots) {
+                if (!plot.owned && !plot.coveredByRocks) {
+                    plot.owned = true;
+                    gameState.ownedPlots++;
+                    addLog("获得一块新土地！", "event");
+                    break;
+                }
+            }
+        }
+        gameSkins.forEach(skin => {
+            if (gameState.level >= skin.levelRequired && !gameState.unlockedSkins.includes(skin.id)) {
+                gameState.unlockedSkins.push(skin.id);
+                addLog(`解锁新皮肤：${skin.name}！`, "event");
+            }
+        });
+    }
+}
+
+function tryClearRocks(plotId) {
+    if (gameState.gold >= 50) {
+        gameState.gold -= 50;
+        gameState.plots[plotId].coveredByRocks = false;
+        addLog("清理了石子地！", "success");
+        renderGame();
+    } else addLog("需要50金币！", "warning");
+}
+
+function tryCurePlant(plotId) {
+    if (gameState.gold >= 30) {
+        gameState.gold -= 30;
+        gameState.plots[plotId].sick = false;
+        addLog("治疗了植物！", "success");
+        renderGame();
+    } else addLog("需要30金币！", "warning");
+}
+
+// ==================== 事件监听 ====================
+function setupEventListeners() {
+    document.getElementById('next-day-btn').addEventListener('click', nextDay);
+    document.getElementById('buy-land-btn').addEventListener('click', tryBuyLand);
+    document.getElementById('water-all-btn').addEventListener('click', waterAllCrops);
+    document.getElementById('harvest-all-btn').addEventListener('click', harvestAllCrops);
+    document.getElementById('mall-btn').addEventListener('click', () => { renderMall(); document.getElementById('mall-dialog').style.display = 'flex'; });
+    document.getElementById('factory-btn').addEventListener('click', openFactory);
+    document.getElementById('upgrade-storage-btn').addEventListener('click', upgradeStorage);
+    document.getElementById('sell-all-btn').addEventListener('click', openMerchant);
+    document.getElementById('skin-btn').addEventListener('click', openSkinSelector);
+    document.getElementById('close-mall-btn').addEventListener('click', () => { document.getElementById('mall-dialog').style.display = 'none'; });
+    document.getElementById('close-factory-btn').addEventListener('click', closeFactory);
+    document.getElementById('close-merchant-btn').addEventListener('click', closeMerchant);
+    document.getElementById('close-skin-btn').addEventListener('click', closeSkinSelector);
+    document.getElementById('sell-to-merchant-btn').addEventListener('click', sellToMerchant);
+    document.getElementById('clear-log-btn').addEventListener('click', () => {
+        document.getElementById('log').innerHTML = '';
+        addLog("日志已清空。");
+    });
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            renderCropsShop();
+        });
+    });
+    document.querySelectorAll('.factory-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.factory-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            const tabId = this.getAttribute('data-tab');
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`${tabId}-products`).classList.add('active');
+        });
+    });
+    document.querySelectorAll('.dialog').forEach(dialog => {
+        dialog.addEventListener('click', function(e) {
+            if (e.target === this) this.style.display = 'none';
+        });
+    });
+}
+
+// 启动游戏
+window.onload = initGame;
+        <!-- 这里放你提供的完整JavaScript代码 -->
+    </script>
+<!-- 了了了岭用户系统-核心逻辑 -->
+<script src="../../../common-user.js"></script>
+<!-- PWA Service Worker 注册 -->
+<script>
+if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js').then(function(reg){console.log('✅ PWA Service Worker 注册成功');}).catch(function(err){console.log('❌ PWA Service Worker 注册失败:',err);});}
+</script>
+</body>
+
+</html>
