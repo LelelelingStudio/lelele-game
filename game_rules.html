@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="了了了游游戏守则 · 内容规范、投稿授权、未成年人保护与免责声明">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <title>了了了游游戏守则 · lelele Game Rules</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -19,7 +20,7 @@
             flex-direction: column;
         }
 
-        /* ===== 语言切换（页面最顶部） ===== */
+        /* ===== 语言切换 ===== */
         .lang-bar {
             width: 100%;
             max-width: 1000px;
@@ -94,7 +95,10 @@
             padding-bottom: 1.4rem;
             border-bottom: 2px solid rgba(79, 70, 229, 0.12);
         }
-        .brand-icon { font-size: 2.4rem; line-height: 1; }
+        .brand-logo {
+            height: 40px;
+            width: auto;
+        }
         .brand-name {
             font-size: 1.8rem;
             font-weight: 800;
@@ -269,7 +273,6 @@
         .footer-note a { color: #4f46e5; text-decoration: none; font-weight: 500; }
         .footer-note a:hover { text-decoration: underline; }
 
-        /* ===== 中英切换 ===== */
         .zh-text, .en-text { display: none; }
         html[data-lang="zh"] .zh-text { display: block; }
         html[data-lang="zh"] .zh-inline { display: inline; }
@@ -293,7 +296,6 @@
 </head>
 <body>
 
-<!-- ===== 语言切换（页面最顶部） ===== -->
 <div class="lang-bar">
     <div class="lang-switch" role="group" aria-label="语言 / Language">
         <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
@@ -303,13 +305,13 @@
 
 <div class="container">
 
-    <a class="back-home" href="index.html">
+    <a class="back-home" href="index.html" id="backHomeBtn">
         <span class="zh-inline">← 返回了了了游首页</span>
         <span class="en-inline">← Back to lelele Home</span>
     </a>
 
     <div class="brand-bar">
-        <span class="brand-icon">🎮</span>
+        <img src="lelelegame.svg" alt="Logo" class="brand-logo">
         <span class="brand-name">了了了游</span>
         <span class="brand-sub">
             <span class="zh-inline">lelele Game · 游戏守则</span>
@@ -317,11 +319,8 @@
         </span>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- 中文版 -->
-    <!-- ============================================================ -->
+    <!-- 中文版（完整还原） -->
     <div class="zh-text">
-
         <h1>📜 了了了游游戏守则</h1>
         <div class="subhead">
             <span><span class="highlight">版本 4.0</span> · 最后更新：2026 年 10 月 18 日</span>
@@ -512,14 +511,10 @@
             <span>｜ 版本 4.0</span>
             <span>｜ 更新日期：2026年10月18日</span>
         </div>
-
     </div>
 
-    <!-- ============================================================ -->
     <!-- English version -->
-    <!-- ============================================================ -->
     <div class="en-text">
-
         <h1>📜 lelele Game Rules</h1>
         <div class="subhead">
             <span><span class="highlight">Version 4.0</span> · Last updated: October 18, 2026</span>
@@ -663,7 +658,6 @@
             <span>｜ Version 4.0</span>
             <span>｜ Updated: October 18, 2026</span>
         </div>
-
     </div>
 
 </div>
@@ -675,13 +669,18 @@
         document.querySelectorAll('.lang-btn').forEach(function (btn) {
             btn.classList.toggle('active', btn.dataset.langBtn === lang);
         });
-        try { localStorage.setItem('lelele_rules_lang', lang); } catch (e) {}
+        try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
+        
+        const backHome = document.getElementById('backHomeBtn');
+        if(lang === 'en') backHome.href = 'index.html?lang=en';
+        else backHome.href = 'index.html';
     }
-    (function () {
-        var saved = null;
-        try { saved = localStorage.getItem('lelele_rules_lang'); } catch (e) {}
-        if (saved === 'en' || saved === 'zh') setLang(saved);
-    })();
+    
+    // 优先读 URL 参数，其次读 localStorage
+    const urlLang = new URLSearchParams(window.location.search).get('lang');
+    const storedLang = localStorage.getItem('lelele_lang');
+    if (urlLang === 'en' || urlLang === 'zh') setLang(urlLang);
+    else if (storedLang === 'en' || storedLang === 'zh') setLang(storedLang);
 </script>
 
 </body>
