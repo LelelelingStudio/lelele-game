@@ -1,0 +1,670 @@
+我们将代码进行了全面重写，彻底解决了您反馈的问题：合作模式不会再黏住，PK模式添加了分隔栏，渲染性能大幅优化，并修复了吃东西黑屏的bug。请直接复制运行。
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<!-- PWA manifest 动态加载 -->
+<script>
+  (function(){var lang=document.documentElement.getAttribute('data-lang')||'zh';var manifestMap={zh:'/manifest-zh.json',en:'/manifest-en.json',ja:'/manifest-ja.json',fr:'/manifest-fr.json'};var link=document.createElement('link');link.rel='manifest';link.href=manifestMap[lang]||'/manifest-zh.json';document.head.appendChild(link);})();
+</script>
+<!-- 苹果设备兼容 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/LOGO.svg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, touch-action: manipulation">
+    <title>了了了游-等级吃吃吃 完全版</title>
+    <style>
+.site-logo-container {
+    display: inline-block;
+    z-index: 1000;
+    position: relative;
+}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a14; overflow: hidden;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            width: 100vw; height: 100vh; height: 100dvh;
+            position: fixed; top: 0; left: 0;
+            touch-action: none; user-select: none;
+        }
+        canvas { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .menu-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: radial-gradient(circle, rgba(15,15,35,0.92) 0%, rgba(5,5,15,0.98) 100%);
+            z-index: 20; pointer-events: auto; transition: opacity 0.5s;
+        }
+        .menu-overlay.hidden { opacity: 0; pointer-events: none; }
+        .menu-panel {
+            background: rgba(20,20,40,0.85); backdrop-filter: blur(16px);
+            border: 2px solid rgba(255,215,0,0.4); border-radius: 28px;
+            padding: 25px; display: flex; flex-direction: column; align-items: center;
+            gap: 15px; box-shadow: 0 0 40px rgba(0,0,0,0.6); max-width: 420px;
+        }
+        .menu-btn {
+            width: 200px; padding: 12px 0; font-size: 18px; font-weight: bold;
+            border: 2px solid rgba(255,215,0,0.5); border-radius: 14px;
+            background: rgba(20,20,40,0.7); color: #ffd740; cursor: pointer;
+            letter-spacing: 2px; box-shadow: 0 0 15px rgba(255,200,0,0.25);
+            transition: all 0.3s; text-align: center;
+        }
+        .menu-btn:hover { background: rgba(255,215,0,0.15); box-shadow: 0 0 30px rgba(255,200,0,0.6); }
+        .nick-input {
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,215,0,0.5);
+            border-radius: 8px; padding: 8px 12px; color: #ffd740; font-size: 16px;
+            width: 160px; text-align: center;
+        }
+        .scheme-option, .time-option {
+            background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 10px; padding: 6px 14px; color: #ccc; cursor: pointer;
+            transition: all 0.2s; font-weight: bold;
+        }
+        .scheme-option input, .time-option input { display: none; }
+        .scheme-option:has(input:checked), .time-option:has(input:checked) {
+            background: rgba(255,215,0,0.2); border-color: #ffd740; color: #ffd740;
+            box-shadow: 0 0 12px rgba(255,200,0,0.4);
+        }
+        #combo-pop {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%,-50%) scale(0); font-weight: 900; font-size: 32px;
+            color: #ffd740; pointer-events: none; text-shadow: 0 0 25px rgba(255,200,0,0.9);
+            transition: transform 0.15s cubic-bezier(0.175,0.885,0.32,1.275), opacity 0.6s;
+            opacity: 0; z-index: 15; white-space: nowrap;
+        }
+        #combo-pop.show { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+        #combo-pop.fade { transform: translate(-50%,-50%) scale(1.6); opacity: 0; }
+        .hint-text {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            color: rgba(255,255,255,0.5); font-size: 13px; pointer-events: none;
+            transition: opacity 0.8s;
+        }
+    </style>
+<!-- 了了了岭用户系统-样式与SDK -->
+<link rel="stylesheet" href="../../../common-user.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+<div class="site-logo-container">
+    <img src="https://leleleling.site/LOGO.svg" 
+         onerror="this.onerror=null; this.src='https://leleleling.surge.sh/LOGO.svg';" 
+         alt="Logo" 
+         style="height: 40px; width: 40px; border-radius: 50%; margin: 10px;">
+</div>
+<!-- 了了了岭用户系统-顶部挂件 -->
+<div id="userWidget" style="position:fixed;top:15px;right:20px;z-index:9999;"></div>
+
+    <canvas id="gameCanvas"></canvas>
+    <div id="menu-main" class="menu-overlay">
+        <div class="menu-panel">
+            <div style="color:#fff; font-size:24px; font-weight:bold;">🎮 等级吃吃吃</div>
+            <button class="menu-btn" id="btn-single">🎮 单人模式</button>
+            <button class="menu-btn" id="btn-dual">👥 双人模式</button>
+        </div>
+    </div>
+    <div id="menu-dual-choice" class="menu-overlay hidden">
+        <div class="menu-panel">
+            <div style="color:#fff; font-size:20px;">选择双人类型</div>
+            <button class="menu-btn" id="btn-pk">⚔️ PK对战</button>
+            <button class="menu-btn" id="btn-coop">🤝 合作模式</button>
+            <button class="menu-btn" id="btn-back-choice" style="border-color:rgba(255,255,255,0.3); color:#aaa;">返回</button>
+        </div>
+    </div>
+    <div id="menu-setup" class="menu-overlay hidden">
+        <div class="menu-panel" id="setup-content"></div>
+    </div>
+    <div id="combo-pop"></div>
+    <div class="hint-text" id="hint-text">移动吃球！</div>
+
+    <script>
+        (function() {
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            const comboPop = document.getElementById('combo-pop');
+            const hintText = document.getElementById('hint-text');
+
+            // Audio
+            let audioCtx = null;
+            function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
+            function playBeep(f, d, t = 'sine', v = 0.08) { if (!audioCtx) return; try { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.type = t; o.frequency.setValueAtTime(f, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(f * 1.5, audioCtx.currentTime + d * 0.4); o.frequency.exponentialRampToValueAtTime(f * 0.6, audioCtx.currentTime + d); g.gain.setValueAtTime(v, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + d); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + d); } catch (e) {} }
+            function sfxEat(q) { playBeep(280 + q * 150, 0.19, 'sine', 0.09); setTimeout(() => playBeep(380 + q * 150, 0.11, 'sine', 0.07), 70); }
+            function sfxLevelUp() { playBeep(480, 0.1, 'triangle', 0.11); setTimeout(() => playBeep(680, 0.1, 'triangle', 0.11), 90); setTimeout(() => playBeep(880, 0.14, 'triangle', 0.13), 180); setTimeout(() => playBeep(1080, 0.2, 'sine', 0.14), 270); }
+            function sfxDeath() { playBeep(120, 0.3, 'sawtooth', 0.08); setTimeout(() => playBeep(80, 0.4, 'sawtooth', 0.07), 200); }
+            function sfxBump() { playBeep(55, 0.22, 'sawtooth', 0.05); }
+            function sfxPickup() { playBeep(600, 0.15, 'sine', 0.1); setTimeout(() => playBeep(800, 0.15, 'sine', 0.1), 100); }
+
+            // Canvas resize
+            let W, H, dpr;
+            function resize() { dpr = Math.min(window.devicePixelRatio || 1, 2); W = window.innerWidth; H = window.innerHeight; canvas.width = W * dpr; canvas.height = H * dpr; canvas.style.width = W + 'px'; canvas.style.height = H + 'px'; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.scale(dpr, dpr); }
+            window.addEventListener('resize', resize);
+            resize();
+
+            const CONFIG = {
+                PLAYER_BASE: 13, PLAYER_RAD_PER_LV: 2.8, PLAYER_SPEED: 280, PLAYER_SPEED_PER_LV: 4,
+                NPC_BASE: 9, NPC_RAD_PER_LV: 2.2, NPC_COUNT: 50,
+                SPAWN_RING_MIN: 700, SPAWN_RING_MAX: 1300, DESPAWN_DIST: 2200,
+                NPC_LV_RANGE: 5, EXP_PER_LV: 100, INIT_LV: 2, INIT_EXP: 0,
+                GRID: 200, CAM_SMOOTH: 0.09, DEATH_LV_DIFF: 20,
+                ITEM_CHANCE: 0.005, SHIELD_DUR: 30, SPEED_DUR: 8, SPEED_MULT: 2.5,
+            };
+
+            const KEY_SCHEMES = {
+                wasd: { up: 'w', down: 's', left: 'a', right: 'd' },
+                ijkl: { up: 'i', down: 'k', left: 'j', right: 'l' },
+                tfgh: { up: 't', down: 'g', left: 'f', right: 'h' },
+                arrows: { up: 'arrowup', down: 'arrowdown', left: 'arrowleft', right: 'arrowright' }
+            };
+
+            let gameMode = null;
+            let players = [];
+            let npcs = [];
+            let particles = [];
+            let floatingTexts = [];
+            let items = [];
+            let keys = {};
+            let gameTime = 0, shake = 0;
+            let globalScale = 1;
+            let camera = { x: 0, y: 0, tx: 0, ty: 0 };
+            let npcAccum = 0;
+            let dualPkPhase = 'playing';
+            let mergeTimer = 0;
+            let pkEndTime = Infinity;
+            let coopRescueTimer = [0, 0];
+            let gameRunning = false;
+            let touchActive = false, touchId = null, touchDX = 0, touchDY = 0;
+            const TOUCH_DEAD = 18;
+
+            function rand(a, b) { return a + Math.random() * (b - a); }
+            function randi(a, b) { return Math.floor(rand(a, b + 1)); }
+            function dist(a, b) { const dx = a.x - b.x, dy = a.y - b.y; return Math.sqrt(dx * dx + dy * dy); }
+            function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+            function lerp(a, b, t) { return a + (b - a) * t; }
+
+            function hslRgb(h, s, l) {
+                h /= 360; let r, g, b;
+                if (s === 0) r = g = b = l;
+                else {
+                    const f = (p, q, t) => { if (t < 0) t += 1; if (t > 1) t -= 1; if (t < 1 / 6) return p + (q - p) * 6 * t; if (t < 1 / 2) return q; if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6; return p; };
+                    const q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+                    r = f(p, q, h + 1 / 3); g = f(p, q, h); b = f(p, q, h - 1 / 3);
+                }
+                return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
+            }
+
+            function npcColor(npclv, plv) {
+                if (npclv < plv) { const h = 135 + (npclv / Math.max(plv, 1)) * 45; return { hsl: `hsl(${h},75%,38%)`, rgb: hslRgb(h, 0.75, 0.38), type: 'edible' }; }
+                else if (npclv === plv) return { hsl: 'hsl(210,72%,50%)', rgb: hslRgb(210, 0.72, 0.50), type: 'equal' };
+                else { const h = 0 + Math.min((npclv - plv) / 10, 1) * 25; return { hsl: `hsl(${h},80%,42%)`, rgb: hslRgb(h, 0.8, 0.42), type: 'danger' }; }
+            }
+
+            function playerColor(i) { return i === 0 ? { main: '#ffd740', glow: 'rgba(255,200,50,0.7)' } : { main: '#40c4ff', glow: 'rgba(64,196,255,0.7)' }; }
+
+            class Player {
+                constructor(index, scheme, name) {
+                    this.index = index; this.scheme = scheme; this.name = name || `玩家${index+1}`;
+                    this.level = CONFIG.INIT_LV; this.exp = CONFIG.INIT_EXP;
+                    this.x = index === 0 ? -80 : 80; this.y = 0; this.vx = 0; this.vy = 0;
+                    this.radius = CONFIG.PLAYER_BASE + this.level * CONFIG.PLAYER_RAD_PER_LV;
+                    this.speed = CONFIG.PLAYER_SPEED + this.level * CONFIG.PLAYER_SPEED_PER_LV;
+                    this.alive = true; this.combo = 0; this.comboTimer = 0;
+                    this.levelUpEffect = 0; this.color = playerColor(index);
+                    this.shieldTimer = 0; this.speedTimer = 0;
+                }
+                updateStats() {
+                    this.radius = CONFIG.PLAYER_BASE + this.level * CONFIG.PLAYER_RAD_PER_LV;
+                    this.speed = CONFIG.PLAYER_SPEED + this.level * CONFIG.PLAYER_SPEED_PER_LV;
+                    if (this.level > 15) this.speed = Math.max(200, this.speed - (this.level - 15) * 3);
+                }
+                gainExp(amt) {
+                    this.exp += amt;
+                    while (this.exp >= CONFIG.EXP_PER_LV) {
+                        this.exp -= CONFIG.EXP_PER_LV; this.level++; this.levelUpEffect = 0.8;
+                        this.updateStats(); sfxLevelUp();
+                        spawnParticles(this.x, this.y, 25, { r: 255, g: 215, b: 50 }, [80, 250], [0.3, 0.9]);
+                    }
+                }
+                loseExp(amt) {
+                    this.exp -= amt;
+                    while (this.exp < 0) {
+                        if (this.level <= 1) { this.exp = 0; this.die(); return; }
+                        this.level--; this.exp += CONFIG.EXP_PER_LV; this.updateStats();
+                    }
+                    if (this.level <= 1 && this.exp <= 0) this.die();
+                }
+                die() {
+                    if (!this.alive) return; this.alive = false; sfxDeath();
+                    spawnParticles(this.x, this.y, 25, { r: 255, g: 80, b: 80 }, [60, 200], [0.3, 0.8]);
+                }
+                respawn(lv = CONFIG.INIT_LV, exp = CONFIG.INIT_EXP) {
+                    this.level = lv; this.exp = exp; this.alive = true; this.updateStats();
+                    this.combo = 0; this.comboTimer = 0; this.shieldTimer = 0; this.speedTimer = 0;
+                    const other = players.find(p => p !== this && p.alive);
+                    if (other) { const a = rand(0, Math.PI * 2); this.x = other.x + Math.cos(a) * 200; this.y = other.y + Math.sin(a) * 200; }
+                    else { this.x = rand(-200, 200); this.y = rand(-200, 200); }
+                }
+            }
+
+            class Npc {
+                constructor(x, y, level, refPlayer) {
+                    this.x = x; this.y = y; this.level = level; this.exp = 0;
+                    this.radius = CONFIG.NPC_BASE + level * CONFIG.NPC_RAD_PER_LV;
+                    const ci = npcColor(level, refPlayer.level);
+                    this.color = ci.rgb; this.colorStr = ci.hsl; this.type = ci.type;
+                    this.vx = rand(-25, 25); this.vy = rand(-25, 25);
+                    this.aiTimer = rand(1, 3); this.wanderAngle = rand(0, Math.PI * 2); this.wanderSpeed = rand(20, 80);
+                }
+                loseExp(amt) {
+                    this.exp -= amt;
+                    while (this.exp < 0) {
+                        if (this.level <= 1) { this.level = 1; this.exp = 0; return false; }
+                        this.level--; this.exp += CONFIG.EXP_PER_LV;
+                        this.radius = CONFIG.NPC_BASE + this.level * CONFIG.NPC_RAD_PER_LV;
+                    }
+                    return true;
+                }
+                updateColor(refPlayer) {
+                    const ci = npcColor(this.level, refPlayer.level);
+                    this.color = ci.rgb; this.colorStr = ci.hsl; this.type = ci.type;
+                }
+            }
+
+            class Item {
+                constructor(x, y, type) { this.x = x; this.y = y; this.type = type; this.radius = 14; this.life = 20; }
+            }
+
+            function spawnNpcAround(refPlayer, forceRegion = null) {
+                const a = rand(0, Math.PI * 2), d = rand(CONFIG.SPAWN_RING_MIN, CONFIG.SPAWN_RING_MAX);
+                let wx = refPlayer.x + Math.cos(a) * d, wy = refPlayer.y + Math.sin(a) * d;
+                if (forceRegion) { wx = clamp(wx, forceRegion.x, forceRegion.x + forceRegion.w); wy = clamp(wy, forceRegion.y, forceRegion.y + forceRegion.h); }
+                const minLv = Math.max(1, refPlayer.level - CONFIG.NPC_LV_RANGE);
+                const maxLv = Math.max(minLv + 1, refPlayer.level + CONFIG.NPC_LV_RANGE);
+                let lv; const roll = Math.random();
+                if (roll < 0.45 && refPlayer.level > 1) { const lm = Math.min(refPlayer.level - 1, maxLv); lv = lm >= minLv ? randi(minLv, lm) : randi(minLv, maxLv); }
+                else if (roll < 0.7) lv = randi(Math.max(1, refPlayer.level - 1), Math.min(refPlayer.level + 1, maxLv));
+                else lv = randi(Math.max(refPlayer.level, minLv), maxLv);
+                lv = clamp(lv, 1, 999);
+                return new Npc(wx, wy, lv, refPlayer);
+            }
+            function spawnItem(refPlayer) {
+                const a = rand(0, Math.PI * 2), d = rand(300, 800);
+                return new Item(refPlayer.x + Math.cos(a) * d, refPlayer.y + Math.sin(a) * d, Math.random() < 0.5 ? 'shield' : 'speed');
+            }
+
+            function spawnParticles(x, y, n, rgb, sr, lr) {
+                for (let i = 0; i < n; i++) {
+                    const a = rand(0, Math.PI * 2), s = rand(sr[0], sr[1]);
+                    particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: rand(lr[0], lr[1]), maxLife: rand(lr[0], lr[1]), radius: rand(1.8, 3.5), color: rgb, alpha: 1 });
+                }
+            }
+            function spawnFloat(x, y, txt, col) { floatingTexts.push({ x, y, text: txt, life: 1.2, maxLife: 1.2, color: col, vy: -50 }); }
+
+            function handlePlayerNpcCollision(p, npc, idx) {
+                const d = dist(p, npc), overlap = (p.radius + npc.radius) - d;
+                if (overlap <= 0) return false;
+                const diff = Math.abs(p.level - npc.level);
+                if (diff >= CONFIG.DEATH_LV_DIFF) {
+                    if (p.level > npc.level) { p.gainExp(10); npcs.splice(idx, 1); sfxEat(5); }
+                    else { p.die(); }
+                    return true;
+                }
+                if (p.level > npc.level) {
+                    const gain = 25 / (p.level - npc.level);
+                    const loss = 6.25 * (p.level - npc.level);
+                    p.gainExp(gain); p.combo++; p.comboTimer = 1.8;
+                    sfxEat(Math.max(0, 5 - (p.level - npc.level)));
+                    spawnParticles(npc.x, npc.y, 10, npc.color, [40, 150], [0.2, 0.5]);
+                    if (!npc.loseExp(loss) || npc.level < 2) { npcs.splice(idx, 1); spawnFloat(npc.x, npc.y, '吞噬', '#ffd740'); }
+                    else { npc.updateColor(p); }
+                    if (p.combo >= 3) { comboPop.textContent = '🔥 ' + p.combo + '连击!'; comboPop.className = 'show'; setTimeout(() => { comboPop.className = 'fade'; }, 400); setTimeout(() => { comboPop.className = ''; }, 1000); }
+                } else if (p.level < npc.level) {
+                    if (p.shieldTimer > 0) return false;
+                    const loss = 6.25 * (npc.level - p.level);
+                    p.loseExp(loss);
+                    const nx = (p.x - npc.x) / (d || 0.001), ny = (p.y - npc.y) / (d || 0.001);
+                    p.x += nx * overlap * 0.8; p.y += ny * overlap * 0.8;
+                    if (overlap > 3) sfxBump();
+                } else {
+                    const nx = (p.x - npc.x) / (d || 0.001), ny = (p.y - npc.y) / (d || 0.001);
+                    p.x += nx * overlap * 0.5; p.y += ny * overlap * 0.5;
+                    npc.x -= nx * overlap * 0.5; npc.y -= ny * overlap * 0.5;
+                    if (overlap > 2) sfxBump();
+                }
+                return false;
+            }
+
+            function handlePlayerPlayerCollision(p1, p2) {
+                if (!p1.alive || !p2.alive || gameMode === 'dual-coop') return;
+                const d = dist(p1, p2), overlap = (p1.radius + p2.radius) - d;
+                if (overlap <= 0) return;
+                const diff = Math.abs(p1.level - p2.level);
+                if (diff >= CONFIG.DEATH_LV_DIFF) {
+                    if (p1.level > p2.level) p2.die(); else p1.die();
+                    return;
+                }
+                let hi = p1, lo = p2;
+                if (p2.level > p1.level) { hi = p2; lo = p1; }
+                const gain = 25 / (hi.level - lo.level), loss = 6.25 * (hi.level - lo.level);
+                hi.gainExp(gain); lo.loseExp(loss);
+                const nx = (hi.x - lo.x) / (d || 0.001), ny = (hi.y - lo.y) / (d || 0.001);
+                hi.x += nx * overlap * 0.2; hi.y += ny * overlap * 0.2;
+                lo.x -= nx * overlap * 0.8; lo.y -= ny * overlap * 0.8;
+                if (overlap > 5) sfxBump();
+            }
+
+            function updatePlayerMove(p, dt) {
+                if (!p.alive) { p.vx = 0; p.vy = 0; return; }
+                const sc = KEY_SCHEMES[p.scheme];
+                let ix = 0, iy = 0;
+                if (keys[sc.up]) iy -= 1; if (keys[sc.down]) iy += 1;
+                if (keys[sc.left]) ix -= 1; if (keys[sc.right]) ix += 1;
+                if (!gameMode?.startsWith('dual') && p.index === 0 && touchActive) { ix += touchDX; iy += touchDY; }
+                const mag = Math.sqrt(ix * ix + iy * iy);
+                if (mag > 1) { ix /= mag; iy /= mag; }
+                let spd = p.speed * (p.speedTimer > 0 ? CONFIG.SPEED_MULT : 1);
+                p.vx = ix * spd; p.vy = iy * spd;
+                p.x += p.vx * dt; p.y += p.vy * dt;
+                if (gameMode === 'dual-pk' && dualPkPhase === 'playing') {
+                    if (p.index === 0) p.x = Math.min(-10, p.x);
+                    else p.x = Math.max(10, p.x);
+                }
+                if (p.comboTimer > 0) { p.comboTimer -= dt; if (p.comboTimer <= 0) p.combo = 0; }
+                if (p.levelUpEffect > 0) p.levelUpEffect -= dt;
+                if (p.shieldTimer > 0) p.shieldTimer -= dt;
+                if (p.speedTimer > 0) p.speedTimer -= dt;
+            }
+
+            function updateNpcMove(npc, dt, nearestPlayer) {
+                npc.aiTimer -= dt;
+                if (npc.aiTimer <= 0) {
+                    npc.aiTimer = 2 + rand(-0.5, 0.5);
+                    const d = dist(npc, nearestPlayer);
+                    if (npc.level > nearestPlayer.level && d < 500) { const a = Math.atan2(nearestPlayer.y - npc.y, nearestPlayer.x - npc.x); npc.wanderAngle = a + rand(-0.5, 0.5); npc.wanderSpeed = rand(60, 120); } else if (npc.level < nearestPlayer.level && d < 250) { const a = Math.atan2(npc.y - nearestPlayer.y, npc.x - nearestPlayer.x); npc.wanderAngle = a + rand(-0.5, 0.5); npc.wanderSpeed = rand(70, 140); } else npc.wanderSpeed = rand(25, 80);
+                }
+                npc.vx = Math.cos(npc.wanderAngle) * npc.wanderSpeed;
+                npc.vy = Math.sin(npc.wanderAngle) * npc.wanderSpeed;
+                npc.x += npc.vx * dt; npc.y += npc.vy * dt;
+            }
+
+            function manageNpcs() {
+                const alive = players.filter(p => p.alive);
+                if (alive.length === 0) return;
+                for (let i = npcs.length - 1; i >= 0; i--) {
+                    let far = true;
+                    for (const p of alive) if (dist(npcs[i], p) < CONFIG.DESPAWN_DIST) { far = false; break; }
+                    if (far) npcs.splice(i, 1);
+                }
+                while (npcs.length < CONFIG.NPC_COUNT) {
+                    if (gameMode === 'dual-pk' && dualPkPhase === 'playing') {
+                        const halfW = W / 2 / globalScale;
+                        npcs.push(spawnNpcAround(players[0], { x: -halfW, y: -Infinity, w: halfW, h: Infinity }));
+                        npcs.push(spawnNpcAround(players[1], { x: 0, y: -Infinity, w: halfW, h: Infinity }));
+                    } else npcs.push(spawnNpcAround(alive[0]));
+                }
+                for (const n of npcs) { const nearest = alive.reduce((a, b) => dist(n, a) < dist(n, b) ? a : b); n.updateColor(nearest); }
+                if (Math.random() < CONFIG.ITEM_CHANCE && items.length < 2) items.push(spawnItem(alive[0]));
+                for (let i = items.length - 1; i >= 0; i--) {
+                    let far = true;
+                    for (const p of alive) if (dist(items[i], p) < CONFIG.DESPAWN_DIST) { far = false; break; }
+                    if (far) items.splice(i, 1);
+                    else { items[i].life -= 0.016; if (items[i].life <= 0) items.splice(i, 1); }
+                }
+            }
+
+            function updateCamera() {
+                const alive = players.filter(p => p.alive);
+                if (alive.length === 0) return;
+                let cx = 0, cy = 0; alive.forEach(p => { cx += p.x; cy += p.y; });
+                cx /= alive.length; cy /= alive.length;
+                camera.tx = cx; camera.ty = cy;
+                camera.x = lerp(camera.x, camera.tx, CONFIG.CAM_SMOOTH);
+                camera.y = lerp(camera.y, camera.ty, CONFIG.CAM_SMOOTH);
+                const maxLv = Math.max(...players.map(p => p.level));
+                globalScale = 1 / (Math.floor(maxLv / 50) + 1);
+            }
+
+            function checkDeaths() { for (const p of players) if (p.alive && p.level < 2) p.die(); }
+
+            function drawBackground(clipRect = null) {
+                ctx.save();
+                if (clipRect) { ctx.beginPath(); ctx.rect(clipRect.x, clipRect.y, clipRect.w, clipRect.h); ctx.clip(); }
+                ctx.translate(W / 2, H / 2); ctx.scale(globalScale, globalScale); ctx.translate(-camera.x, -camera.y);
+                ctx.fillStyle = '#0a0a18';
+                ctx.fillRect(camera.x - W / globalScale, camera.y - H / globalScale, 2 * W / globalScale, 2 * H / globalScale);
+                const gs = CONFIG.GRID;
+                ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1;
+                ctx.beginPath();
+                const sx = Math.floor((camera.x - W / globalScale) / gs) * gs;
+                const sy = Math.floor((camera.y - H / globalScale) / gs) * gs;
+                for (let x = sx; x <= camera.x + W / globalScale; x += gs) { ctx.moveTo(x, sy); ctx.lineTo(x, camera.y + H / globalScale); }
+                for (let y = sy; y <= camera.y + H / globalScale; y += gs) { ctx.moveTo(sx, y); ctx.lineTo(camera.x + W / globalScale, y); }
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            function drawBall(x, y, r, cRgb, glow, alpha = 1) {
+                ctx.save(); ctx.globalAlpha = alpha;
+                if (glow) { const g = ctx.createRadialGradient(x, y, r * 0.6, x, y, r * 2.2); g.addColorStop(0, glow); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 2.2, 0, Math.PI * 2); ctx.fill(); }
+                const col = `rgb(${cRgb.r},${cRgb.g},${cRgb.b})`;
+                const light = `rgb(${Math.min(255,cRgb.r+70)},${Math.min(255,cRgb.g+70)},${Math.min(255,cRgb.b+70)})`;
+                const dark = `rgb(${Math.max(0,cRgb.r-60)},${Math.max(0,cRgb.g-60)},${Math.max(0,cRgb.b-60)})`;
+                const g = ctx.createRadialGradient(x - r * 0.25, y - r * 0.3, r * 0.08, x, y, r);
+                g.addColorStop(0, light); g.addColorStop(0.55, col); g.addColorStop(1, dark);
+                ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = Math.max(1, r * 0.08); ctx.stroke();
+                ctx.restore();
+            }
+
+            function drawPlayer(p) {
+                if (!p.alive) return;
+                if (p.levelUpEffect > 0) {
+                    ctx.strokeStyle = `rgba(255,215,50,${p.levelUpEffect/0.8})`; ctx.lineWidth = 3;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.radius + 50, 0, Math.PI * 2); ctx.stroke();
+                }
+                const crgb = p.index === 0 ? { r: 255, g: 210, b: 40 } : { r: 64, g: 196, b: 255 };
+                drawBall(p.x, p.y, p.radius, crgb, p.color.glow);
+                if (p.shieldTimer > 0) { ctx.strokeStyle = 'rgba(100,255,200,0.8)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(p.x, p.y, p.radius + 6, 0, Math.PI * 2); ctx.stroke(); }
+                ctx.fillStyle = '#fff'; ctx.font = `bold ${Math.max(9, p.radius * 0.5)}px sans-serif`; ctx.textAlign = 'center';
+                ctx.fillText('⭐', p.x, p.y - p.radius - 8);
+                ctx.fillText(p.name, p.x, p.y + p.radius + 18);
+            }
+
+            function drawItems() {
+                for (const it of items) {
+                    ctx.fillStyle = it.type === 'shield' ? '#4fc3f7' : '#ffb74d';
+                    ctx.beginPath(); ctx.arc(it.x, it.y, it.radius, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = '#fff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
+                    ctx.fillText(it.type === 'shield' ? '🛡️' : '⚡', it.x, it.y + 3);
+                }
+            }
+
+            function renderScene(clipRect = null) {
+                ctx.save();
+                if (clipRect) { ctx.beginPath(); ctx.rect(clipRect.x, clipRect.y, clipRect.w, clipRect.h); ctx.clip(); }
+                ctx.translate(W / 2, H / 2); ctx.scale(globalScale, globalScale); ctx.translate(-camera.x, -camera.y);
+                drawBackground();
+                for (const n of npcs) drawBall(n.x, n.y, n.radius, n.color, n.type === 'danger' ? 'rgba(255,80,60,0.3)' : (n.type === 'edible' ? 'rgba(80,220,140,0.3)' : 'rgba(100,160,240,0.2)'));
+                drawItems();
+                for (const p of players) drawPlayer(p);
+                for (const pt of particles) { ctx.fillStyle = `rgb(${pt.color.r},${pt.color.g},${pt.color.b})`; ctx.globalAlpha = pt.alpha; ctx.beginPath(); ctx.arc(pt.x, pt.y, pt.radius, 0, Math.PI * 2); ctx.fill(); }
+                ctx.globalAlpha = 1;
+                for (const ft of floatingTexts) { ctx.fillStyle = ft.color; ctx.globalAlpha = Math.max(0, ft.life / ft.maxLife); ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(ft.text, ft.x, ft.y); }
+                ctx.restore();
+            }
+
+            function drawHUD() {
+                ctx.save(); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                const drawP = (p, x, y) => {
+                    const w = 150, h = 65;
+                    ctx.fillStyle = 'rgba(10,10,25,0.8)'; ctx.strokeStyle = p.color.glow; ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.roundRect(x, y, w, h, 14); ctx.fill(); ctx.stroke();
+                    ctx.fillStyle = '#fff'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left';
+                    ctx.fillText(`${p.name} Lv.${p.level}`, x + 8, y + 18);
+                    const ep = p.exp / CONFIG.EXP_PER_LV;
+                    ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.fillRect(x + 8, y + 30, w - 16, 6);
+                    ctx.fillStyle = p.index === 0 ? '#ffd740' : '#40c4ff';
+                    ctx.fillRect(x + 8, y + 30, (w - 16) * Math.min(1, ep), 6);
+                    if (!p.alive) { ctx.fillStyle = 'red'; ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('💀', x + w / 2, y + h / 2); }
+                };
+                if (gameMode === 'dual-pk') { drawP(players[0], 20, 20); drawP(players[1], W - 170, 20); }
+                else if (players.length > 0) drawP(players[0], 20, 20);
+                // PK分隔栏
+                if (gameMode === 'dual-pk') {
+                    ctx.strokeStyle = 'rgba(255,215,0,0.5)'; ctx.lineWidth = 3;
+                    ctx.beginPath(); ctx.moveTo(W / 2, 0); ctx.lineTo(W / 2, H); ctx.stroke();
+                }
+                ctx.restore();
+            }
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+                if (w < 2 * r) r = w / 2; if (h < 2 * r) r = h / 2;
+                this.moveTo(x + r, y); this.lineTo(x + w - r, y); this.quadraticCurveTo(x + w, y, x + w, y + r);
+                this.lineTo(x + w, y + h - r); this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                this.lineTo(x + r, y + h); this.quadraticCurveTo(x, y + h, x, y + h - r);
+                this.lineTo(x, y + r); this.quadraticCurveTo(x, y, x + r, y); this.closePath(); return this;
+            };
+
+            function gameLoop(ts) {
+                if (!gameRunning) return;
+                let dt = (ts - lastTime) / 1000;
+                if (dt <= 0) dt = 0.016; if (dt > 0.2) dt = 0.2;
+                lastTime = ts; gameTime += dt; npcAccum += dt;
+                for (const p of players) updatePlayerMove(p, dt);
+                const alive = players.filter(p => p.alive);
+                for (const n of npcs) updateNpcMove(n, dt, alive[0] || players[0]);
+                for (let i = npcs.length - 1; i >= 0; i--) {
+                    for (const p of players) if (p.alive && handlePlayerNpcCollision(p, npcs[i], i)) break;
+                }
+                if (gameMode === 'dual-coop' && players.length >= 2 && players[0].alive && players[1].alive) {
+                    const d = dist(players[0], players[1]);
+                    if (d > H - 20) { players[0].x = rand(-80, 80); players[0].y = rand(-80, 80); players[1].x = rand(-80, 80); players[1].y = rand(-80, 80); }
+                }
+                if (gameMode === 'dual-pk' && dualPkPhase === 'playing' && pkEndTime !== Infinity && gameTime >= pkEndTime) { dualPkPhase = 'premerge'; mergeTimer = 120; }
+                if (gameMode === 'dual-pk' && dualPkPhase === 'premerge') {
+                    mergeTimer -= dt;
+                    if (mergeTimer <= 0) { dualPkPhase = 'merge'; npcs = []; items = []; players[0].x = -100; players[1].x = 100; }
+                }
+                if (gameMode === 'dual-coop') {
+                    for (let i = 0; i < 2; i++) {
+                        if (!players[i].alive) {
+                            const other = players[1 - i];
+                            if (other.alive && dist(other, players[i]) < 40) players[i].respawn(Math.floor(other.level / 2));
+                            else { coopRescueTimer[i] += dt; if (coopRescueTimer[i] >= 90) { players[i].respawn(1); coopRescueTimer[i] = 0; } }
+                        } else coopRescueTimer[i] = 0;
+                    }
+                }
+                for (const it of items) {
+                    for (const p of players) {
+                        if (p.alive && dist(p, it) < p.radius + it.radius) {
+                            if (it.type === 'shield') p.shieldTimer = CONFIG.SHIELD_DUR; else p.speedTimer = CONFIG.SPEED_DUR;
+                            sfxPickup(); items.splice(items.indexOf(it), 1); break;
+                        }
+                    }
+                }
+                if (gameMode !== 'dual-coop') handlePlayerPlayerCollision(players[0], players[1] || { alive: false });
+                for (let i = particles.length - 1; i >= 0; i--) { const p = particles[i]; p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt; p.alpha = Math.max(0, p.life / p.maxLife); if (p.life <= 0) particles.splice(i, 1); }
+                for (let i = floatingTexts.length - 1; i >= 0; i--) { const f = floatingTexts[i]; f.y += f.vy * dt; f.life -= dt; if (f.life <= 0) floatingTexts.splice(i, 1); }
+                if (npcAccum > 0.4) { npcAccum = 0; manageNpcs(); }
+                checkDeaths(); updateCamera();
+                if (shake > 0) shake = Math.max(0, shake - dt * 4);
+                const sx = shake > 0.01 ? (Math.random() - 0.5) * shake * 10 : 0, sy = shake > 0.01 ? (Math.random() - 0.5) * shake * 10 : 0;
+                ctx.clearRect(0, 0, W, H);
+                ctx.save(); ctx.translate(sx, sy);
+                if (gameMode === 'dual-pk') {
+                    renderScene({ x: 0, y: 0, w: W / 2, h: H });
+                    ctx.restore(); ctx.save(); ctx.translate(sx, sy);
+                    renderScene({ x: W / 2, y: 0, w: W / 2, h: H });
+                } else renderScene();
+                ctx.restore();
+                drawHUD();
+                requestAnimationFrame(gameLoop);
+            }
+
+            let lastTime = 0;
+            function startGame(mode, p1Scheme, p2Scheme, p1Name, p2Name, timeLimit) {
+                gameMode = mode; players = [new Player(0, p1Scheme, p1Name)];
+                if (mode.startsWith('dual')) players.push(new Player(1, p2Scheme, p2Name));
+                npcs = []; particles = []; floatingTexts = []; items = []; keys = {};
+                gameTime = 0; shake = 0; npcAccum = 0; dualPkPhase = 'playing'; mergeTimer = 0;
+                pkEndTime = timeLimit > 0 ? timeLimit : Infinity;
+                for (let i = 0; i < CONFIG.NPC_COUNT; i++) npcs.push(spawnNpcAround(players[0]));
+                updateCamera(); gameRunning = true; lastTime = performance.now();
+                document.querySelectorAll('.menu-overlay').forEach(e => e.classList.add('hidden'));
+                requestAnimationFrame(gameLoop);
+            }
+
+            const ALL_KEYS = Object.values(KEY_SCHEMES).flatMap(s => [s.up, s.down, s.left, s.right]);
+            window.addEventListener('keydown', e => { const k = e.key.toLowerCase(); if (ALL_KEYS.includes(k)) e.preventDefault(); keys[k] = true; initAudio(); });
+            window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+            canvas.addEventListener('touchstart', e => { e.preventDefault(); initAudio(); if (!gameMode?.startsWith('dual') && touchId === null) { const t = e.touches[0]; touchStartX = t.clientX; touchStartY = t.clientY; touchId = t.identifier; touchActive = true; } }, { passive: false });
+            canvas.addEventListener('touchmove', e => { e.preventDefault(); if (touchId !== null) { for (let i = 0; i < e.touches.length; i++) { if (e.touches[i].identifier === touchId) { const dx = e.touches[i].clientX - touchStartX, dy = e.touches[i].clientY - touchStartY; const d = Math.sqrt(dx * dx + dy * dy); if (d > TOUCH_DEAD) { const n = Math.min(d, 80) / d; touchDX = dx * n / 80; touchDY = dy * n / 80; } else { touchDX = 0; touchDY = 0; } break; } } } }, { passive: false });
+            canvas.addEventListener('touchend', () => { touchActive = false; touchId = null; touchDX = 0; touchDY = 0; });
+            canvas.addEventListener('click', () => initAudio());
+
+            const menuMain = document.getElementById('menu-main');
+            const menuDualChoice = document.getElementById('menu-dual-choice');
+            const menuSetup = document.getElementById('menu-setup');
+            const setupContent = document.getElementById('setup-content');
+
+            function showSetup(mode) {
+                menuDualChoice.classList.add('hidden');
+                menuSetup.classList.remove('hidden');
+                let html = `<div style="color:#ffd740; font-weight:bold;">玩家1</div>
+                    <input class="nick-input" id="p1name" placeholder="昵称" value="玩家1"><br>
+                    键位: <div class="scheme-selector" id="p1scheme">
+                        ${Object.keys(KEY_SCHEMES).map(s => `<label class="scheme-option"><input type="radio" name="p1s" value="${s}" ${s==='wasd'?'checked':''}> ${s.toUpperCase()}</label>`).join('')}
+                    </div>`;
+                if (mode.startsWith('dual')) {
+                    html += `<br><div style="color:#ffd740; font-weight:bold;">玩家2</div>
+                    <input class="nick-input" id="p2name" placeholder="昵称" value="玩家2"><br>
+                    键位: <div class="scheme-selector" id="p2scheme">
+                        ${Object.keys(KEY_SCHEMES).map(s => `<label class="scheme-option"><input type="radio" name="p2s" value="${s}" ${s==='ijkl'?'checked':''}> ${s.toUpperCase()}</label>`).join('')}
+                    </div>`;
+                    if (mode === 'dual-pk') {
+                        html += `<br>PK时长: <div class="scheme-selector" id="pktime">
+                            <label class="time-option"><input type="radio" name="time" value="120" checked> 2分钟</label>
+                            <label class="time-option"><input type="radio" name="time" value="300"> 5分钟</label>
+                            <label class="time-option"><input type="radio" name="time" value="600"> 10分钟</label>
+                            <label class="time-option"><input type="radio" name="time" value="0"> 无尽</label>
+                        </div>`;
+                    }
+                }
+                html += `<br><button class="menu-btn" id="btn-go">开始</button>
+                <button class="menu-btn" id="btn-back-setup" style="border-color:rgba(255,255,255,0.3);color:#aaa;">返回</button>`;
+                setupContent.innerHTML = html;
+                document.getElementById('btn-back-setup').addEventListener('click', () => {
+                    menuSetup.classList.add('hidden');
+                    if (mode.startsWith('dual')) menuDualChoice.classList.remove('hidden');
+                    else menuMain.classList.remove('hidden');
+                });
+                document.getElementById('btn-go').addEventListener('click', () => {
+                    const p1s = document.querySelector('input[name="p1s"]:checked')?.value || 'wasd';
+                    const p1n = document.getElementById('p1name')?.value || '玩家1';
+                    let p2s = 'ijkl', p2n = '玩家2', time = 0;
+                    if (mode.startsWith('dual')) {
+                        p2s = document.querySelector('input[name="p2s"]:checked')?.value || 'ijkl';
+                        p2n = document.getElementById('p2name')?.value || '玩家2';
+                        if (p1s === p2s) { alert('键位不能相同'); return; }
+                        if (mode === 'dual-pk') time = parseInt(document.querySelector('input[name="time"]:checked')?.value || '0');
+                    }
+                    startGame(mode, p1s, p2s, p1n, p2n, time);
+                });
+            }
+
+            document.getElementById('btn-single').addEventListener('click', () => showSetup('single'));
+            document.getElementById('btn-dual').addEventListener('click', () => { menuMain.classList.add('hidden'); menuDualChoice.classList.remove('hidden'); });
+            document.getElementById('btn-pk').addEventListener('click', () => showSetup('dual-pk'));
+            document.getElementById('btn-coop').addEventListener('click', () => showSetup('dual-coop'));
+            document.getElementById('btn-back-choice').addEventListener('click', () => { menuDualChoice.classList.add('hidden'); menuMain.classList.remove('hidden'); });
+            window.addEventListener('blur', () => { keys = {}; touchActive = false; });
+        })();
+    </script>
+<!-- 了了了岭用户系统-核心逻辑 -->
+<script src="../../../common-user.js"></script>
+<!-- PWA Service Worker 注册 -->
+<script>
+if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js').then(function(reg){console.log('✅ PWA Service Worker 注册成功');}).catch(function(err){console.log('❌ PWA Service Worker 注册失败:',err);});}
+</script>
+</body>
+
+</html>
+```
