@@ -1,9 +1,4 @@
-/**
- * 了了了游 - 前端核心逻辑 (最终修复版)
- * 包含：多语言优先级、数据加载、公告展示、快捷弹窗、收藏夹、Tally 双语完美预填
- */
-
-// ==================== 全局工具函数 ====================
+// ==================== 全局工具 ====================
 function escapeHtml(str) {
     if (str === null || str === undefined) return '';
     return String(str)
@@ -24,38 +19,30 @@ window.closeModal = function(modalId) {
     if (el) el.classList.remove('active');
 };
 
-// ==================== 多语言切换（重构版） ====================
-// 核心逻辑：切换 UI 状态；如果 save 为 true，则保存到 localStorage
+// ==================== 多语言切换 ====================
 function applyLang(lang, save) {
     document.documentElement.setAttribute('data-lang', lang);
     document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
-    
-    // 动态更新网页标题
     document.title = lang === 'zh' ? '了了了游' : 'lelele Game';
 
-    // 更新按钮激活状态
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.langBtn === lang);
     });
     
-    // 更新页脚协议链接
     const suffix = lang === 'en' ? '?lang=en' : '';
     if (document.getElementById('linkRules')) document.getElementById('linkRules').href = 'game_rules.html' + suffix;
     if (document.getElementById('linkPrivacy')) document.getElementById('linkPrivacy').href = 'privacy.html' + suffix;
     if (document.getElementById('linkCopyright')) document.getElementById('linkCopyright').href = 'copyright.html' + suffix;
 
-    // 只有用户主动点击时才保存到本地
     if (save) {
         try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
     }
 }
 
-// 暴露给 HTML 按钮点击使用
 window.setLang = function(lang) {
     applyLang(lang, true);
 };
 
-// 初始化：仅同步 UI 状态，因为 data-lang 已在 <head> 的同步脚本中根据优先级设置好了
 function initLanguage() {
     const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
     applyLang(currentLang, false);
@@ -274,7 +261,6 @@ function showPreview(game) {
     if (game.ageRating) tagsHtml += `<span class="preview-tag age">${escapeHtml(game.ageRating)}</span>`;
     document.getElementById('prevTags').innerHTML = tagsHtml;
     
-    // 跳转详情页时，带上语言参数
     document.getElementById('btnDetail').onclick = () => {
         const lang = document.documentElement.getAttribute('data-lang');
         const langSuffix = lang === 'en' ? '&lang=en' : '';
@@ -319,7 +305,7 @@ window.toggleFavFromPreview = function() {
     updateFavUI(gameId);
 };
 
-// ==================== 投稿流程逻辑 (含双语表单完美适配) ====================
+// ==================== 投稿流程逻辑 (精简版：直接打开 Tally) ====================
 function initSubmitFlow() {
     document.getElementById('openSubmitGuide').onclick = () => {
         document.getElementById('chkGuide').checked = false;
@@ -334,153 +320,39 @@ function initSubmitFlow() {
     
     document.getElementById('btnToStep2').onclick = () => {
         closeModal('stepGuide');
+        document.getElementById('chkAuth').checked = false;
+        document.getElementById('chkAuthEn').checked = false;
+        document.getElementById('btnToTally').disabled = true;
         openModal('stepAuth');
     };
 
     document.getElementById('chkAuth').onchange = document.getElementById('chkAuthEn').onchange = (e) => {
-        document.getElementById('btnToStep3').disabled = !e.target.checked;
+        document.getElementById('btnToTally').disabled = !e.target.checked;
     };
     
-    document.getElementById('btnToStep3').onclick = () => {
-        closeModal('stepAuth');
-        openModal('stepForm');
-        restoreDraft();
-    };
-
-    document.querySelectorAll('.radio-group').forEach(group => {
-        group.addEventListener('click', (e) => {
-            if (e.target.classList.contains('radio-btn')) {
-                group.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                if (group.id === 'radMethod') {
-                    document.getElementById('groupUrl').style.display = e.target.dataset.val === 'link' ? 'block' : 'none';
-                }
-                saveDraft();
-            }
-        });
-    });
-    
-    ['inName', 'inIcon', 'inAuthor', 'inEmail', 'inVersion', 'inIntro', 'inUrl'].forEach(id => {
-        document.getElementById(id).addEventListener('input', saveDraft);
-    });
-
+    // 授权通过，直接展示 Tally
     document.getElementById('btnToTally').onclick = () => {
-        if (!document.getElementById('preForm').reportValidity()) return;
+        if (document.getElementById('btnToTally').disabled) return;
         
         const isEn = document.documentElement.getAttribute('data-lang') === 'en';
-        const p = new URLSearchParams();
-        
-        // 获取表单值
-        const valName = document.getElementById('inName').value;
-        const valIcon = document.getElementById('inIcon').value;
-        const valAuthor = document.getElementById('inAuthor').value;
-        const valEmail = document.getElementById('inEmail').value;
-        const valVersion = document.getElementById('inVersion').value;
-        const valIntro = document.getElementById('inIntro').value;
-        const valCategory = document.querySelector('#radCategory .active').dataset.val;
-        const valAge = document.querySelector('#radAge .active').dataset.val;
-        const valMethod = document.querySelector('#radMethod .active').dataset.val;
-        const valUrl = document.getElementById('inUrl').value;
-
-        // ================= 核心：根据语言组装并映射正确的参数 =================
-        if (isEn) {
-            // 【英文版表单预填】
-            p.append('game-name', valName);
-            p.append('game-icon', valIcon);
-            p.append('author-name', valAuthor);
-            p.append('contact-email', valEmail);
-            p.append('version', valVersion);
-            p.append('short-description', valIntro);
-            
-            // 将中文分类映射为英文表单的文本选项，才能正确选中
-            const catMap = { "休闲": "Casual", "益智": "Puzzle", "射击": "Shooter", "冒险": "Adventure", "其他": "Other" };
-            p.append('game-category', catMap[valCategory] || valCategory); 
-            
-            // 将中文适龄映射为英文表单的文本选项
-            const ageMap = { "全年龄": "All Ages", "6+": "6+", "12+": "12+", "16+": "16+", "18+": "18+" };
-            p.append('age-rating', ageMap[valAge] || valAge);
-            
-            p.append('submission-method', valMethod); // Tally 后台选项值本身是 link / code
-            if (valMethod === 'link') {
-                p.append('game-url', valUrl);
-            }
-        } else {
-            // 【中文版表单预填】（拼音 Slug）
-            p.append('you-xi-ming-cheng', valName);
-            p.append('you-xi-tu-biao', valIcon);
-            p.append('zuo-zhe-shu-ming', valAuthor);
-            p.append('lian-xi-you-xiang', valEmail);
-            p.append('ban-ben-hao', valVersion);
-            p.append('yi-ju-hua-jian-jie', valIntro);
-            p.append('you-xi-fen-lei', valCategory);
-            p.append('shi-ling-fen-ji', valAge);
-            p.append('tou-gao-fang-shi', valMethod);
-            if (valMethod === 'link') {
-                p.append('you-xi-lian-jie', valUrl);
-            }
-        }
-
-        // ================= 根据语言切换表单 ID =================
         // 中文表单: 7XlY69 | 英文表单: xVx8XG
         const baseUrl = isEn ? 'https://tally.so/embed/xVx8XG' : 'https://tally.so/embed/7XlY69';
-        const finalUrl = `${baseUrl}?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1&${p.toString()}`;
+        // 不再预填任何参数，用户直接在 Tally 里填
+        const finalUrl = `${baseUrl}?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1`;
         
         document.getElementById('tallyContainer').innerHTML = `
             <iframe data-tally-src="${finalUrl}" loading="lazy" width="100%" height="800" frameborder="0"></iframe>
         `;
         
         if (typeof Tally !== 'undefined') Tally.loadEmbeds();
-        closeModal('stepForm');
+        closeModal('stepAuth');
         openModal('stepTally');
     };
-}
-
-function saveDraft() {
-    const data = {
-        name: document.getElementById('inName').value,
-        icon: document.getElementById('inIcon').value,
-        author: document.getElementById('inAuthor').value,
-        email: document.getElementById('inEmail').value,
-        version: document.getElementById('inVersion').value,
-        intro: document.getElementById('inIntro').value,
-        url: document.getElementById('inUrl').value,
-        cat: document.querySelector('#radCategory .active').dataset.val,
-        age: document.querySelector('#radAge .active').dataset.val,
-        method: document.querySelector('#radMethod .active').dataset.val
-    };
-    try { localStorage.setItem('lelele_draft', JSON.stringify(data)); } catch (e) {}
-}
-
-function restoreDraft() {
-    const str = localStorage.getItem('lelele_draft');
-    if (!str) return;
-    
-    try {
-        const data = JSON.parse(str);
-        if (data.name) document.getElementById('inName').value = data.name;
-        if (data.icon) document.getElementById('inIcon').value = data.icon;
-        if (data.author) document.getElementById('inAuthor').value = data.author;
-        if (data.email) document.getElementById('inEmail').value = data.email;
-        if (data.version) document.getElementById('inVersion').value = data.version;
-        if (data.intro) document.getElementById('inIntro').value = data.intro;
-        if (data.url) document.getElementById('inUrl').value = data.url;
-        
-        const setRad = (id, val) => {
-            document.querySelectorAll(`#${id} .radio-btn`).forEach(b => b.classList.toggle('active', b.dataset.val === val));
-        };
-        if (data.cat) setRad('radCategory', data.cat);
-        if (data.age) setRad('radAge', data.age);
-        if (data.method) {
-            setRad('radMethod', data.method);
-            document.getElementById('groupUrl').style.display = data.method === 'link' ? 'block' : 'none';
-        }
-    } catch (e) {}
 }
 
 // ==================== Tally 提交监听（postMessage） ====================
 window.addEventListener("message", function(event) {
     if (event.data && event.data.type === "tally-form-submitted") {
-        try { localStorage.removeItem('lelele_draft'); } catch (e) {}
         document.querySelectorAll('.modal-overlay.active').forEach(el => el.classList.remove('active'));
         alert('提交成功！我们将尽快审核。\nSubmitted successfully! We will review it soon.');
         window.location.href = window.location.pathname + "?submitted=1";
