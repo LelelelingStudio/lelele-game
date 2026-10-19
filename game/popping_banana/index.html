@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<!-- PWA manifest 动态加载 -->
+<script>
+  (function(){var lang=document.documentElement.getAttribute('data-lang')||'zh';var manifestMap={zh:'/manifest-zh.json',en:'/manifest-en.json',ja:'/manifest-ja.json',fr:'/manifest-fr.json'};var link=document.createElement('link');link.rel='manifest';link.href=manifestMap[lang]||'/manifest-zh.json';document.head.appendChild(link);})();
+</script>
+<!-- 苹果设备兼容 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/LOGO.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=2.0">
+  <title>🍌 香蕉大亨 · 了了了游</title>
+  <style>
+.site-logo-container {
+    display: inline-block;
+    z-index: 1000;
+    position: relative;
+}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: linear-gradient(145deg, #1e1a1f 0%, #2d2133 100%);
+      font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+      color: #f5e7d3;
+    }
+    .game-wrapper {
+      max-width: 1100px;
+      width: 100%;
+      background: rgba(255, 248, 235, 0.06);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 3.5rem;
+      padding: 2rem 2.2rem;
+      box-shadow: 0 30px 50px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 215, 130, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 1.8rem;
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .studio-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .studio-name {
+      font-size: 1.1rem;
+      font-weight: 500;
+      letter-spacing: 2px;
+      color: #e7c78b;
+      text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.35);
+      padding: 0.3rem 1.2rem;
+      border-radius: 3rem;
+      display: inline-block;
+      width: fit-content;
+    }
+    .studio-motto {
+      font-size: 0.75rem;
+      color: #b9a68c;
+      letter-spacing: 1px;
+      margin-left: 0.5rem;
+    }
+    .return-link {
+      background: #4a3b2f;
+      color: #ffde9e;
+      text-decoration: none;
+      padding: 0.6rem 1.4rem;
+      border-radius: 2.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+      border: 1px solid #7b623a;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    .return-link:hover {
+      background: #6b5232;
+      border-color: #d4a853;
+      color: #fff3cf;
+      transform: translateY(-1px);
+    }
+    .main-panel {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .click-area {
+      flex: 1 1 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 50% 30%, #382e24, #1f1818);
+      border-radius: 4rem;
+      padding: 2rem 1rem;
+      box-shadow: inset 0 -8px 0 rgba(0, 0, 0, 0.5), 0 20px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid #5f4a30;
+    }
+    .banana-container {
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.05s ease;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .banana-emoji {
+      font-size: min(18vw, 12rem);
+      filter: drop-shadow(0 18px 15px rgba(0, 0, 0, 0.7));
+      transition: transform 0.08s;
+    }
+    .banana-container:active .banana-emoji {
+      transform: scale(0.82);
+    }
+    .click-counter {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: #2b1e13;
+      padding: 0.3rem 1.8rem;
+      border-radius: 3rem;
+      margin-top: 0.5rem;
+      color: #ffe4a8;
+      letter-spacing: 1px;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+    }
+    .bc-display {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-top: 0.8rem;
+      background: #0a0c0a;
+      padding: 0.4rem 1.6rem;
+      border-radius: 3rem;
+      font-weight: bold;
+      font-size: 1.3rem;
+      border: 1px solid #c9a135;
+      color: #f7d44a;
+      box-shadow: 0 0 18px #b8860b40;
+    }
+    .floating-text {
+      position: absolute;
+      font-weight: bold;
+      pointer-events: none;
+      animation: floatUp 1s ease-out forwards;
+      z-index: 20;
+      color: #ffd966;
+      text-shadow: 0 0 10px black;
+    }
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0) scale(1); }
+      80% { opacity: 0.7; transform: translateY(-55px) scale(1.3); }
+      100% { opacity: 0; transform: translateY(-70px) scale(0.8); }
+    }
+    .coin-pop {
+      color: #ffb800;
+      font-weight: 900;
+      font-size: 1.5rem;
+    }
+    .right-panel {
+      flex: 2 1 500px;
+      background: rgba(20, 15, 15, 0.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 2.5rem;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      border: 1px solid #4d3b28;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .tab-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .tab-btn {
+      background: #2f251c;
+      border: none;
+      color: #d3b690;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 0.85rem;
+      border: 1px solid transparent;
+    }
+    .tab-btn.active {
+      background: #c49a2c;
+      color: #1e1408;
+      border-color: #ffda85;
+      box-shadow: 0 0 15px #f0b532;
+    }
+    .tab-content {
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .tab-content.active {
+      display: flex;
+    }
+    .shop-item {
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 1.5rem;
+      padding: 0.9rem 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #4c3a27;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .shop-item button {
+      background: #cc9f2c;
+      border: none;
+      color: #1e1307;
+      font-weight: bold;
+      padding: 0.5rem 1.2rem;
+      border-radius: 2rem;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 4px 0 #7a5816;
+      font-size: 0.8rem;
+    }
+    .shop-item button:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #7a5816;
+    }
+    .shop-item button:disabled {
+      background: #5e5542;
+      color: #2b2b2b;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+    .prestige-btn {
+      background: #f3c542;
+      font-weight: 900;
+      font-size: 1.2rem;
+      padding: 0.8rem 2rem;
+    }
+    .stats {
+      font-size: 0.85rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      background: #1a1310;
+      padding: 0.8rem 1.2rem;
+      border-radius: 2rem;
+    }
+    .skin-gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+    .skin-icon {
+      font-size: 2.5rem;
+      background: #2a221b;
+      border-radius: 1rem;
+      padding: 0.4rem;
+      border: 2px solid #5e4b30;
+    }
+    .skin-icon.owned {
+      border-color: #f3b53c;
+      background: #3a311f;
+    }
+    /* 弹窗通用 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-box {
+      background: #2c2418;
+      border: 2px solid #e5b448;
+      border-radius: 2rem;
+      padding: 2rem;
+      text-align: center;
+      max-width: 450px;
+      width: 90%;
+      color: #f7e5c2;
+    }
+    .modal-box h2 {
+      color: #f7d44a;
+      margin-bottom: 1rem;
+    }
+    .modal-box button {
+      background: #cc9f2c;
+      border: none;
+      font-weight: bold;
+      padding: 0.7rem 2rem;
+      border-radius: 2rem;
+      cursor: pointer;
+      margin: 0.5rem;
+      box-shadow: 0 4px 0 #7a5816;
+    }
+    .big-banana {
+      font-size: 5rem;
+      margin: 1rem 0;
+    }
+    .race-stats {
+      display: flex;
+      justify-content: space-around;
+      margin: 1rem 0;
+      font-size: 1.2rem;
+    }
+  </style>
+<!-- 了了了岭用户系统-样式与SDK -->
+<link rel="stylesheet" href="../../../common-user.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+<div class="site-logo-container">
+    <img src="https://leleleling.site/LOGO.svg" 
+         onerror="this.onerror=null; this.src='https://leleleling.surge.sh/LOGO.svg';" 
+         alt="Logo" 
+         style="height: 40px; width: 40px; border-radius: 50%; margin: 10px;">
+</div>
+<!-- 了了了岭用户系统-顶部挂件 -->
+<div id="userWidget" style="position:fixed;top:15px;right:20px;z-index:9999;"></div>
+
+<div class="game-wrapper" id="gameWrapper">
+  <div class="top-bar">
+    <div class="studio-brand">
+      <span class="studio-name">🍌 了了了岭工作室 · 了了了游</span>
+      <span class="studio-motto">✨ 用少量的资源制作高质量产品 ✨</span>
+    </div>
+    <a href="../../index.html" class="return-link" title="返回了了了游主站">← 返回了了了游</a>
+  </div>
+
+  <div class="main-panel">
+    <div class="click-area">
+      <div class="banana-container" id="bananaContainer">
+        <span class="banana-emoji" id="bananaEmoji">🍌</span>
+        <div class="click-counter" id="clickCounter">0 🍌</div>
+        <div class="bc-display" id="bcDisplay">💰 0 香蕉币</div>
+      </div>
+      <div style="margin-top:1rem; font-size:0.8rem; color:#aa9478; display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center;">
+        <span>空格键也能点</span>
+        <button id="soloRaceBtn" style="background:none;border:1px solid #b3954a;color:#ffda85;padding:0.3rem 1rem;border-radius:2rem;cursor:pointer;">🎮 香蕉大比拼</button>
+        <button id="duoRaceBtn" style="background:none;border:1px solid #b3954a;color:#ffda85;padding:0.3rem 1rem;border-radius:2rem;cursor:pointer;">👥 双人对战</button>
+      </div>
+    </div>
+
+    <div class="right-panel" id="rightPanel">
+      <div class="tab-nav">
+        <button class="tab-btn active" data-tab="upgrades">⚡升级</button>
+        <button class="tab-btn" data-tab="fruits">🍉水果</button>
+        <button class="tab-btn" data-tab="skins">🎨皮肤</button>
+        <button class="tab-btn" data-tab="consumables">🧪消耗品</button>
+        <button class="tab-btn" data-tab="collection">📚图鉴</button>
+        <button class="tab-btn" data-tab="prestige">🌟转生</button>
+      </div>
+      <div class="tab-content active" id="tab-upgrades"></div>
+      <div class="tab-content" id="tab-fruits"></div>
+      <div class="tab-content" id="tab-skins"></div>
+      <div class="tab-content" id="tab-consumables"></div>
+      <div class="tab-content" id="tab-collection"></div>
+      <div class="tab-content" id="tab-prestige"></div>
+    </div>
+  </div>
+
+  <div class="stats" id="statsBar">
+    <span>🖱️ 总点击: <strong id="lifetimeClicks">0</strong></span>
+    <span>⚡ 力量: <strong id="clickPowerStat">1</strong></span>
+    <span>🔄 自动/秒: <strong id="autoStat">0</strong></span>
+    <span>💥 暴击: <strong id="critStat">0%</strong></span>
+    <span>💰 香蕉币概率: <strong id="bcChanceStat">1.00%</strong></span>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ---------- 数据定义 ----------
+    const SKIN_LIST = [
+      { id: 'banana', emoji: '🍌', name: '经典香蕉', rarity: 'common' },
+      { id: 'golden', emoji: '🍋', name: '黄金香蕉', rarity: 'rare' },
+      { id: 'choco', emoji: '🍫', name: '巧克力蕉', rarity: 'rare' },
+      { id: 'alien', emoji: '👽🍌', name: '外星香蕉', rarity: 'epic' },
+      { id: 'fire', emoji: '🔥🍌', name: '烈焰香蕉', rarity: 'epic' },
+      { id: 'ice', emoji: '❄️🍌', name: '冰霜香蕉', rarity: 'epic' },
+      { id: 'pixel', emoji: '🟩🍌', name: '像素香蕉', rarity: 'legendary' },
+      { id: 'rainbow', emoji: '🌈🍌', name: '彩虹香蕉', rarity: 'legendary' },
+      { id: 'crystal', emoji: '💎🍌', name: '水晶香蕉', rarity: 'legendary' },
+    ];
+    const FRUIT_LIST = [
+      { id: 'apple', emoji: '🍎', name: '苹果', cost: 120, desc: '全局产量 +8%' },
+      { id: 'orange', emoji: '🍊', name: '橙子', cost: 350, desc: '香蕉币掉落率 +0.4%' },
+      { id: 'watermelon', emoji: '🍉', name: '西瓜', cost: 900, desc: '点击力量 +2' },
+      { id: 'grape', emoji: '🍇', name: '葡萄', cost: 1800, desc: '暴击率 +3%' },
+      { id: 'strawberry', emoji: '🍓', name: '草莓', cost: 4000, desc: '自动点击 +1/秒' },
+    ];
+
+    // 初始游戏状态
+    const defaultGame = {
+      bananas: 0,
+      bananaCoins: 0,
+      lifetimeClicks: 0,
+      prestigeCoins: 0,
+      clickPowerLevel: 0,
+      autoClickerLevel: 0,
+      critChanceLevel: 0,
+      critMultiplierLevel: 0,
+      bcDropChanceLevel: 0,
+      fruitsUnlocked: [],
+      ownedSkins: ['banana'],
+      activeSkin: 'banana',
+      permUpgrades: { globalMul: 0, startPower: 0, bcBonus: 0 },
+      lastSaveTime: Date.now(),
+      goldenTimeUntil: 0,
+      prestigeCount: 0,
+      bestSoloScore: 0,
+    };
+
+    let game = JSON.parse(JSON.stringify(defaultGame));
+
+    // 存档操作
+    function saveGame() {
+      game.lastSaveTime = Date.now();
+      localStorage.setItem('bananaClickerSaveV2', JSON.stringify(game));
+    }
+    function loadGame() {
+      const saved = localStorage.getItem('bananaClickerSaveV2');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          game = Object.assign(JSON.parse(JSON.stringify(defaultGame)), parsed);
+        } catch (e) { resetGame(); }
+      } else {
+        // 首次打开，稍后触发引导
+      }
+    }
+    function resetGame() {
+      game = JSON.parse(JSON.stringify(defaultGame));
+      localStorage.removeItem('bananaClickerSaveV2');
+      saveGame();
+    }
+
+    // 破产检查
+    function checkBankruptcy() {
+      if (game.bananaCoins < 0) {
+        alert('💸 你破产了！所有数据将被重置。');
+        resetGame();
+        updateUI();
+        renderAll();
+        showTutorial(); // 重置后可再次引导
+      }
+    }
+
+    // 数值计算
+    function getClickPower() {
+      let base = 1 + game.clickPowerLevel + (game.permUpgrades.startPower || 0);
+      if (game.fruitsUnlocked.includes('watermelon')) base += 2;
+      return base;
+    }
+    function getBCDropChance() {
+      let chance = 0.01 + game.bcDropChanceLevel * 0.005 + (game.permUpgrades.bcBonus || 0) * 0.01;
+      if (game.fruitsUnlocked.includes('orange')) chance += 0.004;
+      return Math.min(chance, 0.5);
+    }
+    function getCritChance() {
+      let crit = game.critChanceLevel * 0.02;
+      if (game.fruitsUnlocked.includes('grape')) crit += 0.03;
+      return Math.min(crit, 0.75);
+    }
+    function getCritMultiplier() {
+      return 2 + game.critMultiplierLevel * 0.6;
+    }
+    function getGlobalMultiplier() {
+      let mul = 1 + game.permUpgrades.globalMul * 0.12;
+      if (game.fruitsUnlocked.includes('apple')) mul += 0.08;
+      return mul;
+    }
+    function getBPS() {
+      let auto = game.autoClickerLevel;
+      if (game.fruitsUnlocked.includes('strawberry')) auto += 1;
+      return auto * getClickPower() * getGlobalMultiplier();
+    }
+    function isGoldenTime() {
+      return Date.now() < game.goldenTimeUntil;
+    }
+    function effectiveBCChance() {
+      return isGoldenTime() ? getBCDropChance() * 2 : getBCDropChance();
+    }
+
+    // 基础动作
+    function addBananas(amount) { game.bananas += amount; }
+    function clickBanana(manual = true) {
+      if (manual) game.lifetimeClicks++;
+      let power = getClickPower();
+      let multiplier = getGlobalMultiplier();
+      let total = power * multiplier;
+      let crit = false;
+      if (Math.random() < getCritChance()) {
+        total *= getCritMultiplier();
+        crit = true;
+      }
+      game.bananas += total;
+      if (Math.random() < effectiveBCChance()) {
+        game.bananaCoins += 1;
+        spawnFloatingText('💰 +1 香蕉币', true);
+      }
+      if (manual) spawnFloatingText((crit ? '💥 ' : '') + '+' + total.toFixed(1), false);
+      updateUI();
+      checkBankruptcy();
+      saveGame();
+    }
+    function spawnFloatingText(text, isCoin) {
+      const container = document.getElementById('bananaContainer');
+      const el = document.createElement('div');
+      el.className = 'floating-text' + (isCoin ? ' coin-pop' : '');
+      el.textContent = text;
+      el.style.left = (40 + Math.random() * 40) + '%';
+      el.style.top = '10%';
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 1000);
+    }
+
+    // 离线收益
+    function applyOfflineProgress() {
+      const now = Date.now();
+      const elapsed = (now - (game.lastSaveTime || now)) / 1000;
+      if (elapsed > 5 && getBPS() > 0) {
+        const offlineBananas = Math.floor(getBPS() * elapsed);
+        if (offlineBananas > 0) {
+          game.bananas += offlineBananas;
+          alert(`⏳ 离线 ${Math.floor(elapsed)} 秒，自动收获了 ${offlineBananas} 🍌`);
+        }
+      }
+    }
+
+    // ---------- UI更新与渲染 ----------
+    function updateUI() {
+      document.getElementById('clickCounter').textContent = Math.floor(game.bananas) + ' 🍌';
+      document.getElementById('bcDisplay').textContent = '💰 ' + game.bananaCoins + ' 香蕉币';
+      document.getElementById('lifetimeClicks').textContent = game.lifetimeClicks;
+      document.getElementById('clickPowerStat').textContent = getClickPower().toFixed(1);
+      document.getElementById('autoStat').textContent = game.autoClickerLevel + (game.fruitsUnlocked.includes('strawberry') ? 1 : 0);
+      document.getElementById('critStat').textContent = (getCritChance() * 100).toFixed(1) + '%';
+      document.getElementById('bcChanceStat').textContent = (effectiveBCChance() * 100).toFixed(2) + '%';
+    }
+    function updateBananaEmoji() {
+      const skin = SKIN_LIST.find(s => s.id === game.activeSkin);
+      document.getElementById('bananaEmoji').textContent = skin ? skin.emoji : '🍌';
+    }
+
+    // 购买辅助
+    function trySpend(amount) {
+      if (game.bananaCoins >= amount) {
+        game.bananaCoins -= amount;
+        updateUI();
+        checkBankruptcy();
+        return true;
+      }
+      return false;
+    }
+
+    // 升级定义
+    const upgrades = [
+      { id: 'clickPower', name: '点击力量', icon: '💪', getLevel: () => game.clickPowerLevel, getCost: lvl => Math.floor(10 * Math.pow(1.55, lvl)), onBuy: () => { game.clickPowerLevel++; } },
+      { id: 'autoClicker', name: '自动点击器', icon: '🤖', getLevel: () => game.autoClickerLevel, getCost: lvl => Math.floor(60 * Math.pow(1.9, lvl)), onBuy: () => { game.autoClickerLevel++; } },
+      { id: 'critChance', name: '暴击几率', icon: '🎯', getLevel: () => game.critChanceLevel, getCost: lvl => Math.floor(130 * Math.pow(1.7, lvl)), onBuy: () => { game.critChanceLevel++; } },
+      { id: 'critMulti', name: '暴击倍率', icon: '💥', getLevel: () => game.critMultiplierLevel, getCost: lvl => Math.floor(220 * Math.pow(1.8, lvl)), onBuy: () => { game.critMultiplierLevel++; } },
+      { id: 'bcChance', name: '香蕉币掉落率', icon: '💰', getLevel: () => game.bcDropChanceLevel, getCost: lvl => Math.floor(500 * Math.pow(2.0, lvl)), onBuy: () => { game.bcDropChanceLevel++; } },
+    ];
+
+    function renderUpgrades() {
+      const container = document.getElementById('tab-upgrades');
+      container.innerHTML = upgrades.map(u => {
+        const lvl = u.getLevel();
+        const cost = u.getCost(lvl);
+        const canBuy = game.bananaCoins >= cost;
+        return `<div class="shop-item">
+          <span>${u.icon} ${u.name} <small>(Lv.${lvl})</small></span>
+          <button onclick="window.buyUpgrade('${u.id}')" ${!canBuy ? 'disabled' : ''}>💰 ${cost} 香蕉币</button>
+        </div>`;
+      }).join('');
+    }
+    window.buyUpgrade = function(id) {
+      const u = upgrades.find(x => x.id === id);
+      if (!u) return;
+      const cost = u.getCost(u.getLevel());
+      if (trySpend(cost)) {
+        u.onBuy();
+        renderAll();
+        saveGame();
+      }
+    };
+
+    function renderFruits() {
+      const container = document.getElementById('tab-fruits');
+      container.innerHTML = FRUIT_LIST.map(f => {
+        const owned = game.fruitsUnlocked.includes(f.id);
+        return `<div class="shop-item">
+          <span>${f.emoji} ${f.name} - ${f.desc}</span>
+          ${owned ? '<span style="color:#b9a04b;">✅ 已解锁</span>' : `<button onclick="window.buyFruit('${f.id}')" ${game.bananaCoins < f.cost ? 'disabled' : ''}>💰 ${f.cost} 香蕉币</button>`}
+        </div>`;
+      }).join('');
+    }
+    window.buyFruit = function(id) {
+      const fruit = FRUIT_LIST.find(f => f.id === id);
+      if (!fruit || game.fruitsUnlocked.includes(id)) return;
+      if (trySpend(fruit.cost)) {
+        game.fruitsUnlocked.push(id);
+        renderAll();
+        saveGame();
+      }
+    };
+
+    function renderSkins() {
+      const container = document.getElementById('tab-skins');
+      const blindBoxCost = 180;
+      container.innerHTML = `
+        <div class="shop-item">
+          <span>🎁 随机皮肤盲盒</span>
+          <button onclick="window.buyBlindBox()" ${game.bananaCoins < blindBoxCost ? 'disabled' : ''}>💰 ${blindBoxCost} 香蕉币</button>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:0.8rem; margin-top:0.5rem;">
+          ${SKIN_LIST.map(s => {
+            const owned = game.ownedSkins.includes(s.id);
+            const active = game.activeSkin === s.id;
+            return `<div class="skin-icon ${owned ? 'owned' : ''}" style="opacity:${owned?1:0.4};" title="${s.name} (${s.rarity})">${s.emoji}${active ? '✅' : ''}</div>`;
+          }).join('')}
+        </div>
+        <button onclick="window.equipRandomSkin()" style="margin-top:0.5rem;">🎲 随机装备已拥有皮肤</button>
+      `;
+    }
+    window.buyBlindBox = function() {
+      if (!trySpend(180)) return;
+      const pool = SKIN_LIST.filter(s => !game.ownedSkins.includes(s.id));
+      if (pool.length === 0) {
+        game.bananaCoins += 50;
+        alert('你已经集齐所有皮肤！退还50 香蕉币');
+        updateUI();
+        return;
+      }
+      const randomSkin = pool[Math.floor(Math.random() * pool.length)];
+      game.ownedSkins.push(randomSkin.id);
+      if (game.activeSkin === 'banana') game.activeSkin = randomSkin.id;
+      updateBananaEmoji();
+      renderAll();
+      saveGame();
+      alert(`获得新皮肤：${randomSkin.name} ${randomSkin.emoji}`);
+    };
+    window.equipRandomSkin = function() {
+      if (game.ownedSkins.length === 0) return;
+      const random = game.ownedSkins[Math.floor(Math.random() * game.ownedSkins.length)];
+      game.activeSkin = random;
+      updateBananaEmoji();
+      renderAll();
+      saveGame();
+    };
+
+    function renderConsumables() {
+      const container = document.getElementById('tab-consumables');
+      container.innerHTML = `
+        <div class="shop-item">
+          <span>⏳ 黄金时间 (10分钟 香蕉币率翻倍)</span>
+          <button onclick="window.buyGoldenTime()" ${game.bananaCoins < 45 ? 'disabled' : ''}>💰 45 香蕉币</button>
+        </div>
+        <div class="shop-item">
+          <span>🍀 幸运饼干 (随机奖励)</span>
+          <button onclick="window.buyLuckyCookie()" ${game.bananaCoins < 80 ? 'disabled' : ''}>💰 80 香蕉币</button>
+        </div>
+      `;
+    }
+    window.buyGoldenTime = function() {
+      if (trySpend(45)) {
+        game.goldenTimeUntil = Date.now() + 10 * 60 * 1000;
+        renderAll();
+        saveGame();
+      }
+    };
+    window.buyLuckyCookie = function() {
+      if (!trySpend(80)) return;
+      const rewardBC = Math.floor(Math.random() * 8) + 3;
+      game.bananaCoins += rewardBC;
+      game.bananas += Math.floor(Math.random() * 500 + 200);
+      alert(`🍀 幸运饼干：获得 ${rewardBC} 香蕉币和一些香蕉！`);
+      updateUI();
+      checkBankruptcy();
+      saveGame();
+    };
+
+    function renderCollection() {
+      const container = document.getElementById('tab-collection');
+      container.innerHTML = `<h3>🍌 皮肤图鉴 (${game.ownedSkins.length}/${SKIN_LIST.length})</h3>
+      <div class="skin-gallery">
+        ${SKIN_LIST.map(s => `<div class="skin-icon ${game.ownedSkins.includes(s.id)?'owned':''}" title="${s.name}">${s.emoji}</div>`).join('')}
+      </div>`;
+    }
+
+    function renderPrestige() {
+      const container = document.getElementById('tab-prestige');
+      const requiredClicks = 150000 * (game.prestigeCount + 1);
+      const canPrestige = game.lifetimeClicks >= requiredClicks;
+      const nextPC = Math.floor(Math.sqrt(game.lifetimeClicks / 100000)) + 1;
+      container.innerHTML = `
+        <div style="background:#221c12;padding:1rem;border-radius:1.5rem;">
+          <p>🌟 转生需求：总点击 ${requiredClicks} 次 (当前 ${game.lifetimeClicks})</p>
+          <p>💎 转生获得黄金香蕉币：预计 ${nextPC} PC</p>
+          <button class="prestige-btn" onclick="window.doPrestige()" ${!canPrestige ? 'disabled' : ''}>转生 Ascend</button>
+          <div style="margin-top:1rem;">
+            <strong>永久升级 (花费PC)：</strong>
+            <div class="shop-item"><span>🌍 全局产量 +12%</span><button onclick="window.buyPerm('globalMul', 1)">1 PC</button></div>
+            <div class="shop-item"><span>⚡ 起始力量 +1</span><button onclick="window.buyPerm('startPower', 2)">2 PC</button></div>
+            <div class="shop-item"><span>💰 香蕉币基础概率 +1%</span><button onclick="window.buyPerm('bcBonus', 3)">3 PC</button></div>
+          </div>
+          <p>当前PC: ${game.prestigeCoins}</p>
+        </div>`;
+    }
+    window.doPrestige = function() {
+      const required = 150000 * (game.prestigeCount + 1);
+      if (game.lifetimeClicks < required) return;
+      const earnedPC = Math.floor(Math.sqrt(game.lifetimeClicks / 100000)) + 1;
+      game.prestigeCoins += earnedPC;
+      game.prestigeCount++;
+      game.bananas = 0;
+      game.bananaCoins = 0;
+      game.clickPowerLevel = 0;
+      game.autoClickerLevel = 0;
+      game.critChanceLevel = 0;
+      game.critMultiplierLevel = 0;
+      game.bcDropChanceLevel = 0;
+      game.lifetimeClicks = 0;
+      game.goldenTimeUntil = 0;
+      updateUI();
+      renderAll();
+      saveGame();
+      alert(`🌟 转生成功！获得 ${earnedPC} 黄金香蕉币。`);
+    };
+    window.buyPerm = function(key, cost) {
+      if (game.prestigeCoins < cost) return;
+      game.prestigeCoins -= cost;
+      game.permUpgrades[key]++;
+      updateUI();
+      renderAll();
+      saveGame();
+    };
+
+    function renderAll() {
+      renderUpgrades();
+      renderFruits();
+      renderSkins();
+      renderConsumables();
+      renderCollection();
+      renderPrestige();
+    }
+
+    // ---------- 小游戏：单人比拼 ----------
+    function startSoloRace() {
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      let timeLeft = 10;
+      let clicks = 0;
+      overlay.innerHTML = `
+        <div class="modal-box">
+          <h2>🏆 香蕉大比拼 (单人)</h2>
+          <p>倒计时 <span id="raceTimer">10</span> 秒</p>
+          <div class="big-banana" id="raceBanana">🍌</div>
+          <p>点击次数: <span id="raceClicks">0</span></p>
+          <p>最佳记录: ${game.bestSoloScore} 次</p>
+          <button id="closeRaceBtn" class="close-btn">结束挑战</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      const timerEl = document.getElementById('raceTimer');
+      const clicksEl = document.getElementById('raceClicks');
+      const bananaEl = document.getElementById('raceBanana');
+      const interval = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          endRace();
+        }
+      }, 1000);
+
+      function endRace() {
+        bananaEl.style.pointerEvents = 'none';
+        const reward = Math.floor(clicks / 5);
+        game.bananaCoins += reward;
+        if (clicks > game.bestSoloScore) game.bestSoloScore = clicks;
+        updateUI();
+        checkBankruptcy();
+        saveGame();
+        overlay.remove();
+        alert(`⏰ 时间到！你点击了 ${clicks} 次，获得 ${reward} 香蕉币！`);
+      }
+
+      bananaEl.addEventListener('click', () => {
+        clicks++;
+        clicksEl.textContent = clicks;
+      });
+      document.getElementById('closeRaceBtn').addEventListener('click', () => {
+        clearInterval(interval);
+        endRace();
+      });
+    }
+
+    // ---------- 双人对战 ----------
+    function startDuoRace() {
+      if (game.bananaCoins < 20) {
+        alert('至少需要20香蕉币才能发起双人对战（每人10币）！');
+        return;
+      }
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      let timeLeft = 10;
+      let clicksA = 0;
+      let clicksB = 0;
+      const betPerPlayer = 10; // 每人下注10币
+      game.bananaCoins -= betPerPlayer * 2;
+      updateUI();
+      saveGame();
+
+      overlay.innerHTML = `
+        <div class="modal-box">
+          <h2>👥 双人对战</h2>
+          <p>各下注10香蕉币 | 倒计时 <span id="duoTimer">10</span> 秒</p>
+          <div class="race-stats">
+            <div><strong>玩家A (按 A)</strong><br><span id="clicksA">0</span></div>
+            <div><strong>玩家B (按 L)</strong><br><span id="clicksB">0</span></div>
+          </div>
+          <button id="closeDuoBtn" class="close-btn">提前结束</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      const timerEl = document.getElementById('duoTimer');
+      const clicksAEl = document.getElementById('clicksA');
+      const clicksBEl = document.getElementById('clicksB');
+
+      function handleKey(e) {
+        if (e.key === 'a' || e.key === 'A') {
+          clicksA++;
+          clicksAEl.textContent = clicksA;
+        } else if (e.key === 'l' || e.key === 'L') {
+          clicksB++;
+          clicksBEl.textContent = clicksB;
+        }
+      }
+      window.addEventListener('keydown', handleKey);
+
+      const interval = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          endDuo();
+        }
+      }, 1000);
+
+      function endDuo() {
+        window.removeEventListener('keydown', handleKey);
+        let rewardA = 0, rewardB = 0;
+        if (clicksA > clicksB) {
+          rewardA = betPerPlayer * 2;
+        } else if (clicksB > clicksA) {
+          rewardB = betPerPlayer * 2;
+        } else {
+          rewardA = betPerPlayer;
+          rewardB = betPerPlayer;
+        }
+        // 退回给“系统”（即当前玩家）的奖励：视为玩家A的收益
+        game.bananaCoins += rewardA; // 玩家A赢得奖池，B为电脑/朋友，我们只操作主账户
+        updateUI();
+        checkBankruptcy();
+        saveGame();
+        overlay.remove();
+        alert(`⚔️ 对战结束！A: ${clicksA}次, B: ${clicksB}次。你获得了 ${rewardA} 香蕉币。`);
+      }
+
+      document.getElementById('closeDuoBtn').addEventListener('click', () => {
+        clearInterval(interval);
+        endDuo();
+      });
+    }
+
+    // ---------- 新手引导 ----------
+    function showTutorial() {
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.innerHTML = `
+        <div class="modal-box">
+          <h2>🍌 欢迎来到香蕉大亨！</h2>
+          <p>点击中央的大香蕉，每次点击有概率获得<b>香蕉币</b>。</p>
+          <p>使用香蕉币在<b>右侧商城</b>购买升级、解锁水果和皮肤。</p>
+          <p>按<b>空格键</b>也能点击。积累点击后可<b>转生</b>获取永久加成。</p>
+          <p>挑战<b>香蕉大比拼</b>小游戏，赢取更多奖励！</p>
+          <button id="startGameBtn">开始游戏</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      document.getElementById('startGameBtn').addEventListener('click', () => {
+        overlay.remove();
+        saveGame();
+      });
+    }
+
+    // 自动点击循环
+    setInterval(() => {
+      if (game.autoClickerLevel > 0 || game.fruitsUnlocked.includes('strawberry')) {
+        let clicks = game.autoClickerLevel + (game.fruitsUnlocked.includes('strawberry') ? 1 : 0);
+        for (let i = 0; i < clicks; i++) clickBanana(false);
+        saveGame();
+      }
+      if (game.goldenTimeUntil && Date.now() > game.goldenTimeUntil) {
+        game.goldenTimeUntil = 0;
+      }
+    }, 1000);
+
+    // 标签切换
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // 主点击与快捷键
+    document.getElementById('bananaContainer').addEventListener('click', () => clickBanana(true));
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && document.activeElement === document.body) {
+        e.preventDefault();
+        clickBanana(true);
+      }
+    });
+
+    // 小游戏按钮
+    document.getElementById('soloRaceBtn').addEventListener('click', startSoloRace);
+    document.getElementById('duoRaceBtn').addEventListener('click', startDuoRace);
+
+    // 初始化
+    loadGame();
+    const hasSave = localStorage.getItem('bananaClickerSaveV2') !== null;
+    applyOfflineProgress();
+    updateBananaEmoji();
+    updateUI();
+    renderAll();
+    saveGame();
+    if (!hasSave) showTutorial();
+
+    // 定时存档
+    setInterval(saveGame, 30000);
+    window.addEventListener('beforeunload', saveGame);
+  })();
+</script>
+<!-- 了了了岭用户系统-核心逻辑 -->
+<script src="../../../common-user.js"></script>
+<!-- PWA Service Worker 注册 -->
+<script>
+if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js').then(function(reg){console.log('✅ PWA Service Worker 注册成功');}).catch(function(err){console.log('❌ PWA Service Worker 注册失败:',err);});}
+</script>
+</body>
+
+</html>
