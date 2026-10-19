@@ -1,6 +1,34 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-lang="zh">
 <head>
+    <!-- 必须在 style 之前同步执行，防止页面闪烁 -->
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+
+                if (urlLang === 'en' || urlLang === 'zh') {
+                    lang = urlLang;
+                } else if (storedLang === 'en' || storedLang === 'zh') {
+                    lang = storedLang;
+                } else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) {
+                        lang = 'zh';
+                    } else if (navLang.indexOf('en') === 0) {
+                        lang = 'en';
+                    } else {
+                        lang = 'zh'; // 其他语言默认中文
+                    }
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="了了了游 · 独立游戏聚合导航站，发现好玩的小游戏">
