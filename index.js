@@ -1,6 +1,6 @@
 /**
  * 了了了游 - 前端核心逻辑 (最终修复版)
- * 包含：多语言、数据加载、公告展示、快捷弹窗、收藏夹、投稿流程、Tally 双语完美预填
+ * 包含：多语言优先级、数据加载、公告展示、快捷弹窗、收藏夹、Tally 双语完美预填
  */
 
 // ==================== 全局工具函数 ====================
@@ -24,33 +24,41 @@ window.closeModal = function(modalId) {
     if (el) el.classList.remove('active');
 };
 
-// ==================== 多语言切换 ====================
-window.setLang = function(lang) {
+// ==================== 多语言切换（重构版） ====================
+// 核心逻辑：切换 UI 状态；如果 save 为 true，则保存到 localStorage
+function applyLang(lang, save) {
     document.documentElement.setAttribute('data-lang', lang);
     document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
     
+    // 动态更新网页标题
+    document.title = lang === 'zh' ? '了了了游' : 'lelele Game';
+
+    // 更新按钮激活状态
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.langBtn === lang);
     });
     
-    try {
-        localStorage.setItem('lelele_lang', lang);
-    } catch (e) {}
-
     // 更新页脚协议链接
     const suffix = lang === 'en' ? '?lang=en' : '';
     if (document.getElementById('linkRules')) document.getElementById('linkRules').href = 'game_rules.html' + suffix;
     if (document.getElementById('linkPrivacy')) document.getElementById('linkPrivacy').href = 'privacy.html' + suffix;
     if (document.getElementById('linkCopyright')) document.getElementById('linkCopyright').href = 'copyright.html' + suffix;
+
+    // 只有用户主动点击时才保存到本地
+    if (save) {
+        try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
+    }
+}
+
+// 暴露给 HTML 按钮点击使用
+window.setLang = function(lang) {
+    applyLang(lang, true);
 };
 
+// 初始化：仅同步 UI 状态，因为 data-lang 已在 <head> 的同步脚本中根据优先级设置好了
 function initLanguage() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlLang = urlParams.get('lang');
-    const storedLang = localStorage.getItem('lelele_lang');
-    
-    if (urlLang === 'en' || urlLang === 'zh') setLang(urlLang);
-    else if (storedLang === 'en' || storedLang === 'zh') setLang(storedLang);
+    const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
+    applyLang(currentLang, false);
 }
 
 // ==================== 收藏夹逻辑 ====================
@@ -79,6 +87,8 @@ document.getElementById('openFavBtn').addEventListener('click', () => {
 function renderFavoritesList() {
     const container = document.getElementById('favListContainer');
     const favs = getFavorites();
+    const lang = document.documentElement.getAttribute('data-lang');
+    const langSuffix = lang === 'en' ? '&lang=en' : '';
     
     if (favs.length === 0) {
         container.innerHTML = `
@@ -99,7 +109,7 @@ function renderFavoritesList() {
 
     container.innerHTML = `<div class="fav-list">
         ${favGames.map(game => `
-            <div class="fav-item" onclick="window.location.href='game.html?id=${game.id}'">
+            <div class="fav-item" onclick="window.location.href='game.html?id=${game.id}${langSuffix}'">
                 <div class="fav-item-icon">${game.icon || '🎮'}</div>
                 <div class="fav-item-info">
                     <div class="fav-item-name">${escapeHtml(game.name)}</div>
@@ -264,8 +274,11 @@ function showPreview(game) {
     if (game.ageRating) tagsHtml += `<span class="preview-tag age">${escapeHtml(game.ageRating)}</span>`;
     document.getElementById('prevTags').innerHTML = tagsHtml;
     
+    // 跳转详情页时，带上语言参数
     document.getElementById('btnDetail').onclick = () => {
-        window.location.href = `game.html?id=${game.id}`;
+        const lang = document.documentElement.getAttribute('data-lang');
+        const langSuffix = lang === 'en' ? '&lang=en' : '';
+        window.location.href = `game.html?id=${game.id}${langSuffix}`;
     };
     
     document.getElementById('btnPlay').onclick = () => {
@@ -369,7 +382,7 @@ function initSubmitFlow() {
         const valMethod = document.querySelector('#radMethod .active').dataset.val;
         const valUrl = document.getElementById('inUrl').value;
 
-        // ================= 核心修复：根据语言组装并映射正确的参数 =================
+        // ================= 核心：根据语言组装并映射正确的参数 =================
         if (isEn) {
             // 【英文版表单预填】
             p.append('game-name', valName);
