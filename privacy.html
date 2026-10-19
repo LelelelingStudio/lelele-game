@@ -6,20 +6,22 @@
     <title>隐私政策 · Privacy Policy</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
-        body { font-family: -apple-system, sans-serif; background: #f4f7fc; color: #1e293b; line-height: 1.8; padding: 2rem 1.5rem; }
-        .container { max-width: 800px; margin: 0 auto; background: #fff; border-radius: 24px; padding: 3rem; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif; background: #f4f7fc; color: #1e293b; line-height: 1.8; padding: 0 1.5rem 2.5rem; display: flex; flex-direction: column; min-height: 100vh; }
+        .container { max-width: 800px; width: 100%; margin: 2rem auto 0; background: #fff; border-radius: 36px; padding: 3.5rem 4rem; box-shadow: 0 20px 60px rgba(0,0,0,0.04); flex: 1; }
+        .back-home { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; color: #4f46e5; text-decoration: none; font-weight: 600; margin-bottom: 1.2rem; padding: 0.4rem 1rem; border-radius: 30px; background: rgba(79,70,229,0.06); border: 1px solid rgba(79,70,229,0.12); }
         h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #0f172a; }
         .subhead { color: #64748b; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #e2e8f0; }
         h2 { font-size: 1.3rem; margin: 2rem 0 1rem; color: #1e293b; padding-left: 0.5rem; border-left: 4px solid #4f46e5; }
         p { margin: 0.8rem 0; color: #475569; }
         ul { margin: 0.8rem 0 1rem 1.5rem; color: #475569; }
         a { color: #4f46e5; text-decoration: none; }
-        .back-btn { display: inline-block; margin-bottom: 1.5rem; padding: 0.5rem 1rem; background: rgba(79,70,229,0.1); color: #4f46e5; border-radius: 20px; font-weight: 600; font-size: 0.9rem; }
+        @media (max-width: 640px) { .container { padding: 2rem 1.2rem; border-radius: 24px; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="index.html" class="back-btn">← 返回首页</a>
+        <a href="index.html" class="back-home" id="backHomeBtn">← 返回首页</a>
         <h1>隐私政策</h1>
         <div class="subhead">最后更新：2026 年 10 月 18 日</div>
 
@@ -49,5 +51,9 @@
         <h2>5. 未成年人保护</h2>
         <p>若您是未满 14 周岁的儿童，请在监护人陪同下阅读本政策。我们不会主动收集未满 14 周岁儿童的个人信息。若发现误收，我们将及时删除。</p>
     </div>
+    <script>
+        const urlLang = new URLSearchParams(window.location.search).get('lang');
+        if(urlLang === 'en') document.getElementById('backHomeBtn').href = 'index.html?lang=en';
+    </script>
 </body>
 </html>
