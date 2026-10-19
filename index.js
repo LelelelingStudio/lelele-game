@@ -1,13 +1,9 @@
 /**
  * 了了了游 - 前端核心逻辑
- * 包含：多语言切换、公告加载、游戏数据渲染、快捷弹窗、收藏系统、投稿流程
+ * 包含：多语言、数据加载、公告展示、快捷弹窗、收藏夹、投稿流程、Tally 事件监听
  */
 
 // ==================== 全局工具函数 ====================
-
-/**
- * 防止 XSS 注入的 HTML 转义函数
- */
 function escapeHtml(str) {
     if (str === null || str === undefined) return '';
     return String(str)
@@ -18,9 +14,6 @@ function escapeHtml(str) {
         .replace(/'/g, '&#39;');
 }
 
-/**
- * 弹窗控制
- */
 window.openModal = function(modalId) {
     const el = document.getElementById(modalId);
     if (el) el.classList.add('active');
@@ -31,59 +24,103 @@ window.closeModal = function(modalId) {
     if (el) el.classList.remove('active');
 };
 
-// ==================== 多语言切换逻辑 ====================
-
+// ==================== 多语言切换 ====================
 window.setLang = function(lang) {
     document.documentElement.setAttribute('data-lang', lang);
     document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
     
-    // 更新按钮激活状态
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.langBtn === lang);
     });
     
-    // 存储到本地
     try {
         localStorage.setItem('lelele_lang', lang);
-    } catch (e) {
-        console.warn('无法保存语言设置', e);
-    }
+    } catch (e) {}
 
-    // 更新页脚各协议链接的语言参数
+    // 更新页脚协议链接
     const suffix = lang === 'en' ? '?lang=en' : '';
-    const linkRules = document.getElementById('linkRules');
-    const linkPrivacy = document.getElementById('linkPrivacy');
-    const linkCopyright = document.getElementById('linkCopyright');
-    
-    if (linkRules) linkRules.href = 'game_rules.html' + suffix;
-    if (linkPrivacy) linkPrivacy.href = 'privacy.html' + suffix;
-    if (linkCopyright) linkCopyright.href = 'copyright.html' + suffix;
+    if (document.getElementById('linkRules')) document.getElementById('linkRules').href = 'game_rules.html' + suffix;
+    if (document.getElementById('linkPrivacy')) document.getElementById('linkPrivacy').href = 'privacy.html' + suffix;
+    if (document.getElementById('linkCopyright')) document.getElementById('linkCopyright').href = 'copyright.html' + suffix;
 };
 
-// 页面初始化时检查语言状态
 function initLanguage() {
     const urlParams = new URLSearchParams(window.location.search);
     const urlLang = urlParams.get('lang');
     const storedLang = localStorage.getItem('lelele_lang');
     
-    if (urlLang === 'en' || urlLang === 'zh') {
-        setLang(urlLang);
-    } else if (storedLang === 'en' || storedLang === 'zh') {
-        setLang(storedLang);
-    }
+    if (urlLang === 'en' || urlLang === 'zh') setLang(urlLang);
+    else if (storedLang === 'en' || storedLang === 'zh') setLang(storedLang);
 }
 
-// ==================== 公告板块逻辑 ====================
+// ==================== 收藏夹逻辑 ====================
+function getFavorites() {
+    try { return JSON.parse(localStorage.getItem('lelele_favs') || '[]'); } 
+    catch (e) { return []; }
+}
 
+function saveFavorites(favs) {
+    try { localStorage.setItem('lelele_favs', JSON.stringify(favs)); } catch (e) {}
+}
+
+window.removeFavorite = function(id, event) {
+    if (event) event.stopPropagation();
+    let favs = getFavorites();
+    favs = favs.filter(f => f !== String(id));
+    saveFavorites(favs);
+    renderFavoritesList();
+};
+
+document.getElementById('openFavBtn').addEventListener('click', () => {
+    renderFavoritesList();
+    openModal('favoritesModal');
+});
+
+function renderFavoritesList() {
+    const container = document.getElementById('favListContainer');
+    const favs = getFavorites();
+    
+    if (favs.length === 0) {
+        container.innerHTML = `
+            <div class="status-message">
+                <span class="zh-inline">你还没有收藏任何游戏哦，快去逛逛吧！</span>
+                <span class="en-inline">You have no favorites yet.</span>
+            </div>
+        `;
+        return;
+    }
+
+    // 从全局 gameData 过滤
+    const favGames = gameData.filter(g => favs.includes(String(g.id)));
+
+    if (favGames.length === 0) {
+        container.innerHTML = `<div class="status-message">收藏的游戏似乎已下架。</div>`;
+        return;
+    }
+
+    container.innerHTML = `<div class="fav-list">
+        ${favGames.map(game => `
+            <div class="fav-item" onclick="window.location.href='game.html?id=${game.id}'">
+                <div class="fav-item-icon">${game.icon || '🎮'}</div>
+                <div class="fav-item-info">
+                    <div class="fav-item-name">${escapeHtml(game.name)}</div>
+                    <div class="fav-item-cat">${escapeHtml(game.category || '未分类')}</div>
+                </div>
+                <button class="fav-item-remove" onclick="removeFavorite('${game.id}', event)" title="取消收藏">×</button>
+            </div>
+        `).join('')}
+    </div>`;
+}
+
+// ==================== 公告加载 ====================
 async function loadAnnouncements() {
     try {
         const res = await fetch('announcements.json');
         if (!res.ok) return;
         let data = await res.json();
         
-        const now = new Date().setHours(0, 0, 0, 0); // 今天 00:00:00
+        const now = new Date().setHours(0, 0, 0, 0);
         
-        // 1. 过滤有效公告（已发布且未过期）
         data = data.filter(item => {
             const pub = new Date(item.publishDate).getTime();
             const exp = new Date(item.expireDate).getTime();
@@ -91,13 +128,9 @@ async function loadAnnouncements() {
             return pub <= now && exp >= now;
         });
         
-        // 2. 按发布时间倒序排列
         data.sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
-        
-        // 3. 截取最多 3 条
         data = data.slice(0, 3);
         
-        // 4. 渲染或隐藏
         if (data.length > 0) {
             renderAnnouncements(data);
         }
@@ -136,8 +169,7 @@ function renderAnnouncements(list) {
     container.style.display = 'block';
 }
 
-// ==================== 游戏数据加载与渲染 ====================
-
+// ==================== 游戏数据与渲染 ====================
 let gameData = [];
 let currentType = 'local';
 let searchKeyword = '';
@@ -147,7 +179,6 @@ async function loadGames() {
     const grid = document.getElementById('gamesGrid');
     const status = document.getElementById('statusMessage');
     
-    // 显示骨架屏
     grid.innerHTML = Array.from({ length: 8 }).map(() => `
         <div class="skeleton-card">
             <div class="skeleton-icon"></div>
@@ -166,10 +197,7 @@ async function loadGames() {
     } catch (e) {
         grid.innerHTML = '';
         status.style.display = 'block';
-        status.innerHTML = `
-            <span class="zh-inline">数据加载失败，请刷新重试。</span>
-            <span class="en-inline">Failed to load data.</span>
-        `;
+        status.innerHTML = `<span class="zh-inline">数据加载失败，请刷新重试。</span><span class="en-inline">Failed to load data.</span>`;
         return;
     }
     
@@ -189,43 +217,31 @@ function renderGames() {
 
     if (filtered.length === 0) {
         status.style.display = 'block';
-        status.innerHTML = `
-            <span class="zh-inline">暂无游戏，敬请期待 ✨</span>
-            <span class="en-inline">No games yet ✨</span>
-        `;
+        status.innerHTML = `<span class="zh-inline">暂无游戏，敬请期待 ✨</span><span class="en-inline">No games yet ✨</span>`;
     } else {
         status.style.display = 'none';
         filtered.forEach(g => {
             const card = document.createElement('div');
             card.className = 'game-card';
-            card.setAttribute('tabindex', '0'); // 支持键盘聚焦
+            card.setAttribute('tabindex', '0');
             card.innerHTML = `
                 <div class="game-icon">${g.icon || '🎮'}</div>
                 <div class="game-name">${escapeHtml(g.name)}</div>
             `;
             card.onclick = () => showPreview(g);
-            // 键盘支持：回车打开
             card.onkeydown = (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    showPreview(g);
-                }
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showPreview(g); }
             };
             grid.appendChild(card);
         });
     }
 }
 
-// 搜索绑定
 document.getElementById('searchInput').addEventListener('input', (e) => {
     clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => {
-        searchKeyword = e.target.value;
-        renderGames();
-    }, 200);
+    searchTimer = setTimeout(() => { searchKeyword = e.target.value; renderGames(); }, 200);
 });
 
-// 分类切换绑定
 document.getElementById('typeNav').addEventListener('click', (e) => {
     const btn = e.target.closest('.type-btn');
     if (!btn) return;
@@ -235,55 +251,32 @@ document.getElementById('typeNav').addEventListener('click', (e) => {
     renderGames();
 });
 
-// ==================== 游戏预览弹窗与收藏 ====================
-
+// ==================== 游戏快捷预览与收藏 ====================
 let currentPreviewGame = null;
 
 function showPreview(game) {
     currentPreviewGame = game;
     
-    // 填充数据
     document.getElementById('prevIcon').textContent = game.icon || '🎮';
     document.getElementById('prevName').textContent = game.name;
     
     let tagsHtml = '';
-    if (game.category) {
-        tagsHtml += `<span class="preview-tag">${escapeHtml(game.category)}</span>`;
-    }
-    if (game.ageRating) {
-        tagsHtml += `<span class="preview-tag age">${escapeHtml(game.ageRating)}</span>`;
-    }
+    if (game.category) tagsHtml += `<span class="preview-tag">${escapeHtml(game.category)}</span>`;
+    if (game.ageRating) tagsHtml += `<span class="preview-tag age">${escapeHtml(game.ageRating)}</span>`;
     document.getElementById('prevTags').innerHTML = tagsHtml;
     
-    // 绑定详情按钮
     document.getElementById('btnDetail').onclick = () => {
         window.location.href = `game.html?id=${game.id}`;
     };
     
-    // 绑定直接游玩按钮
     document.getElementById('btnPlay').onclick = () => {
-        if (game.url) {
-            window.open(game.url, '_blank', 'noopener,noreferrer');
-        } else {
-            alert('该游戏暂无可用链接。');
-        }
+        if (game.url) window.open(game.url, '_blank', 'noopener,noreferrer');
     };
     
-    // 更新收藏按钮状态
     updateFavUI(game.id);
     openModal('gamePreview');
 }
 
-// 获取收藏列表
-function getFavorites() {
-    try {
-        return JSON.parse(localStorage.getItem('lelele_favs') || '[]');
-    } catch (e) {
-        return [];
-    }
-}
-
-// 更新预览弹窗的收藏按钮 UI
 function updateFavUI(gameId) {
     const favs = getFavorites();
     const isFav = favs.includes(String(gameId));
@@ -298,7 +291,6 @@ function updateFavUI(gameId) {
     }
 }
 
-// 切换收藏状态
 window.toggleFavFromPreview = function() {
     if (!currentPreviewGame) return;
     
@@ -311,19 +303,12 @@ window.toggleFavFromPreview = function() {
         favs.push(gameId);
     }
     
-    try {
-        localStorage.setItem('lelele_favs', JSON.stringify(favs));
-    } catch (e) {
-        console.warn('无法保存收藏', e);
-    }
-    
+    saveFavorites(favs);
     updateFavUI(gameId);
 };
 
 // ==================== 投稿流程逻辑 ====================
-
 function initSubmitFlow() {
-    // 1. 须知
     document.getElementById('openSubmitGuide').onclick = () => {
         document.getElementById('chkGuide').checked = false;
         document.getElementById('chkGuideEn').checked = false;
@@ -331,43 +316,30 @@ function initSubmitFlow() {
         openModal('stepGuide');
     };
     
-    // 两个复选框控制按钮状态
-    const chkGuide = document.getElementById('chkGuide');
-    const chkGuideEn = document.getElementById('chkGuideEn');
-    const btnToStep2 = document.getElementById('btnToStep2');
-    
-    chkGuide.onchange = chkGuideEn.onchange = (e) => {
-        btnToStep2.disabled = !e.target.checked;
+    document.getElementById('chkGuide').onchange = document.getElementById('chkGuideEn').onchange = (e) => {
+        document.getElementById('btnToStep2').disabled = !e.target.checked;
     };
     
-    btnToStep2.onclick = () => {
+    document.getElementById('btnToStep2').onclick = () => {
         closeModal('stepGuide');
         openModal('stepAuth');
     };
 
-    // 2. 授权
-    const chkAuth = document.getElementById('chkAuth');
-    const chkAuthEn = document.getElementById('chkAuthEn');
-    const btnToStep3 = document.getElementById('btnToStep3');
-    
-    chkAuth.onchange = chkAuthEn.onchange = (e) => {
-        btnToStep3.disabled = !e.target.checked;
+    document.getElementById('chkAuth').onchange = document.getElementById('chkAuthEn').onchange = (e) => {
+        document.getElementById('btnToStep3').disabled = !e.target.checked;
     };
     
-    btnToStep3.onclick = () => {
+    document.getElementById('btnToStep3').onclick = () => {
         closeModal('stepAuth');
         openModal('stepForm');
         restoreDraft();
     };
 
-    // 3. 表单交互
     document.querySelectorAll('.radio-group').forEach(group => {
         group.addEventListener('click', (e) => {
             if (e.target.classList.contains('radio-btn')) {
                 group.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
-                
-                // 切换方式时显示/隐藏 URL 输入框
                 if (group.id === 'radMethod') {
                     document.getElementById('groupUrl').style.display = e.target.dataset.val === 'link' ? 'block' : 'none';
                 }
@@ -376,15 +348,14 @@ function initSubmitFlow() {
         });
     });
     
-    // 输入时保存草稿
     ['inName', 'inIcon', 'inAuthor', 'inEmail', 'inVersion', 'inIntro', 'inUrl'].forEach(id => {
         document.getElementById(id).addEventListener('input', saveDraft);
     });
 
-    // 4. 跳转 Tally
     document.getElementById('btnToTally').onclick = () => {
         if (!document.getElementById('preForm').reportValidity()) return;
         
+        // ================= 核心：根据拼音 Slug 映射预填参数 =================
         const p = new URLSearchParams();
         p.append('you-xi-ming-cheng', document.getElementById('inName').value);
         p.append('you-xi-tu-biao', document.getElementById('inIcon').value);
@@ -400,7 +371,14 @@ function initSubmitFlow() {
             p.append('you-xi-lian-jie', document.getElementById('inUrl').value);
         }
 
-        const finalUrl = `https://tally.so/embed/7XlY69?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1&${p.toString()}`;
+        // ================= 表单嵌入 URL =================
+        // 【注意】等你做好了英文版 Tally，只需在这里加一个判断：
+        // const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+        // const baseUrl = isEn ? 'https://tally.so/embed/英文ID' : 'https://tally.so/embed/7XlY69';
+        
+        const baseUrl = 'https://tally.so/embed/7XlY69';
+        const finalUrl = `${baseUrl}?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1&${p.toString()}`;
+        
         document.getElementById('tallyContainer').innerHTML = `
             <iframe data-tally-src="${finalUrl}" loading="lazy" width="100%" height="800" frameborder="0"></iframe>
         `;
@@ -411,7 +389,6 @@ function initSubmitFlow() {
     };
 }
 
-// 保存草稿
 function saveDraft() {
     const data = {
         name: document.getElementById('inName').value,
@@ -425,14 +402,9 @@ function saveDraft() {
         age: document.querySelector('#radAge .active').dataset.val,
         method: document.querySelector('#radMethod .active').dataset.val
     };
-    try {
-        localStorage.setItem('lelele_draft', JSON.stringify(data));
-    } catch (e) {
-        console.warn('无法保存草稿', e);
-    }
+    try { localStorage.setItem('lelele_draft', JSON.stringify(data)); } catch (e) {}
 }
 
-// 恢复草稿
 function restoreDraft() {
     const str = localStorage.getItem('lelele_draft');
     if (!str) return;
@@ -448,40 +420,45 @@ function restoreDraft() {
         if (data.url) document.getElementById('inUrl').value = data.url;
         
         const setRad = (id, val) => {
-            document.querySelectorAll(`#${id} .radio-btn`).forEach(b => {
-                b.classList.toggle('active', b.dataset.val === val);
-            });
+            document.querySelectorAll(`#${id} .radio-btn`).forEach(b => b.classList.toggle('active', b.dataset.val === val));
         };
-        
         if (data.cat) setRad('radCategory', data.cat);
         if (data.age) setRad('radAge', data.age);
         if (data.method) {
             setRad('radMethod', data.method);
             document.getElementById('groupUrl').style.display = data.method === 'link' ? 'block' : 'none';
         }
-    } catch (e) {
-        console.warn('草稿解析失败', e);
-    }
+    } catch (e) {}
 }
 
-// ==================== 页面加载完成后执行 ====================
+// ==================== Tally 提交监听（postMessage） ====================
+// 这是根据 Tally 官方建议添加的跨域通信监听
+window.addEventListener("message", function(event) {
+    if (event.data && event.data.type === "tally-form-submitted") {
+        // 1. 清理草稿
+        try { localStorage.removeItem('lelele_draft'); } catch (e) {}
+        
+        // 2. 关闭所有弹窗
+        document.querySelectorAll('.modal-overlay.active').forEach(el => el.classList.remove('active'));
+        
+        // 3. 提示用户
+        alert('提交成功！我们将尽快审核。\nSubmitted successfully! We will review it soon.');
+        
+        // 4. 刷新当前页，清空 URL 参数
+        window.location.href = window.location.pathname + "?submitted=1";
+    }
+});
 
+// ==================== 页面初始化 ====================
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. 处理 URL 参数（Tally 提交成功返回）
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('submitted') === '1') {
-        localStorage.removeItem('lelele_draft');
-        alert('提交成功！草稿已清理。\nSubmitted successfully! Draft cleared.');
+        // 如果是刷新回来的，清理一下 URL，不弹窗
         window.history.replaceState({}, document.title, window.location.pathname);
     }
     
-    // 2. 初始化多语言
     initLanguage();
-    
-    // 3. 加载数据
     loadGames();
     loadAnnouncements();
-    
-    // 4. 绑定投稿流程
     initSubmitFlow();
 });
