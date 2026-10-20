@@ -1,0 +1,32 @@
+{
+  "id": 12,
+  "name_zh": "levil-evil",
+  "name_en": "levil-evil",
+  "icon": "😈",
+  "category_zh": "冒险",
+  "category_en": "Adventure",
+  "ageRating_zh": "全年龄",
+  "ageRating_en": "All Ages",
+  "version": "v.2.0.0",
+  "author": "Kevin Liao",
+  "url": "https://levil-evil.surge.sh",
+  "screenshots": [
+    "https://levil-evil.surge.sh/levil.png"
+  ],
+  "description_zh": "跑酷并闯关，通过重重障碍。\n一句话，红温游戏。",
+  "description_en": "Parkour and clear levels, overcoming various obstacles.\nA one-liner, rage-inducing game.",
+  "updateLog_zh": [
+    {
+      "version": "v.2.0.0",
+      "date": "2026-10-20",
+      "content": "游戏首发上线！"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v.2.0.0",
+      "date": "2026-10-20",
+      "content": "Initial release!"
+    }
+  ]
+}
