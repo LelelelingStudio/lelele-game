@@ -38,7 +38,7 @@ function applyLang(lang, save) {
         try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
     }
 
-    // 【新增】切换语言时，重新渲染游戏列表和收藏夹，以更新文字
+    // 切换语言时，重新渲染游戏列表和收藏夹，以更新文字
     if (typeof gameData !== 'undefined' && gameData.length > 0) {
         renderGames();
     }
@@ -109,7 +109,6 @@ function renderFavoritesList() {
 
     container.innerHTML = `<div class="fav-list">
         ${favGames.map(game => {
-            // 【修改】适配双语字段
             const gameName = isEn ? (game.name_en || game.name_zh || game.name) : (game.name_zh || game.name_en || game.name);
             const gameCat = isEn ? (game.category_en || game.category_zh || game.category || 'Uncategorized') : (game.category_zh || game.category_en || game.category || '未分类');
             
@@ -227,7 +226,6 @@ function renderGames() {
 
     const filtered = gameData.filter(g => {
         const matchType = g.type === currentType;
-        // 【修改】搜索时，根据当前语言匹配游戏名
         const targetName = isEn ? (g.name_en || g.name_zh || g.name || '') : (g.name_zh || g.name_en || g.name || '');
         const matchSearch = !searchKeyword || targetName.toLowerCase().includes(searchKeyword.toLowerCase());
         return matchType && matchSearch;
@@ -239,7 +237,6 @@ function renderGames() {
     } else {
         status.style.display = 'none';
         filtered.forEach(g => {
-            // 【修改】渲染卡片时，根据当前语言显示对应名称
             const gameName = isEn ? (g.name_en || g.name_zh || g.name) : (g.name_zh || g.name_en || g.name);
             
             const card = document.createElement('div');
@@ -279,7 +276,6 @@ function showPreview(game) {
     currentPreviewGame = game;
     const isEn = document.documentElement.getAttribute('data-lang') === 'en';
     
-    // 【修改】快捷预览弹窗，适配双语
     const gameName = isEn ? (game.name_en || game.name_zh || game.name) : (game.name_zh || game.name_en || game.name);
     const gameCat = isEn ? (game.category_en || game.category_zh || game.category) : (game.category_zh || game.category_en || game.category);
     const gameAge = isEn ? (game.ageRating_en || game.ageRating_zh || game.ageRating) : (game.ageRating_zh || game.ageRating_en || game.ageRating);
@@ -297,7 +293,14 @@ function showPreview(game) {
         window.location.href = `game.html?id=${game.id}${langSuffix}`;
     };
     
+    // 【修改】在直接进入游戏的点击事件中增加 Edgemetry 事件上报
     document.getElementById('btnPlay').onclick = () => {
+        if (typeof edgemetry !== 'undefined') {
+            edgemetry('play-game', { 
+                gameId: String(game.id), 
+                gameName: game.name_zh || game.name 
+            });
+        }
         if (game.url) window.open(game.url, '_blank', 'noopener,noreferrer');
     };
     
@@ -335,7 +338,7 @@ window.toggleFavFromPreview = function() {
     updateFavUI(gameId);
 };
 
-// ==================== 投稿流程逻辑 (精简版：直接打开 Tally) ====================
+// ==================== 投稿流程逻辑 ====================
 function initSubmitFlow() {
     document.getElementById('openSubmitGuide').onclick = () => {
         document.getElementById('chkGuide').checked = false;
@@ -360,14 +363,11 @@ function initSubmitFlow() {
         document.getElementById('btnToTally').disabled = !e.target.checked;
     };
     
-    // 授权通过，直接展示 Tally
     document.getElementById('btnToTally').onclick = () => {
         if (document.getElementById('btnToTally').disabled) return;
         
         const isEn = document.documentElement.getAttribute('data-lang') === 'en';
-        // 中文表单: 7XlY69 | 英文表单: xVx8XG
         const baseUrl = isEn ? 'https://tally.so/embed/xVx8XG' : 'https://tally.so/embed/7XlY69';
-        // 不再预填任何参数，用户直接在 Tally 里填
         const finalUrl = `${baseUrl}?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1`;
         
         document.getElementById('tallyContainer').innerHTML = `
@@ -380,7 +380,7 @@ function initSubmitFlow() {
     };
 }
 
-// ==================== Tally 提交监听（postMessage） ====================
+// ==================== Tally 提交监听 ====================
 window.addEventListener("message", function(event) {
     if (event.data && event.data.type === "tally-form-submitted") {
         document.querySelectorAll('.modal-overlay.active').forEach(el => el.classList.remove('active'));
