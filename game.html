@@ -402,8 +402,10 @@
 
             if (typeof edgemetry !== 'undefined') {
                 edgemetry('play-game', { 
-                    gameId: String(currentGameId), 
-                    gameName: currentGameData.name_zh || currentGameData.name 
+                    props: {
+                        gameId: String(currentGameId), 
+                        gameName: currentGameData.name_zh || currentGameData.name 
+                    }
                 });
             }
 
