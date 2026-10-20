@@ -293,15 +293,11 @@ function showPreview(game) {
         window.location.href = `game.html?id=${game.id}${langSuffix}`;
     };
     
-        // 【修改】在直接进入游戏的点击事件中增加 Edgemetry 事件上报
+            // 【修改】将游戏名拼接到事件名中，以便在后台直接查看每个游戏的点击量
     document.getElementById('btnPlay').onclick = () => {
         if (typeof edgemetry !== 'undefined') {
-            edgemetry('play-game', { 
-                props: {
-                    gameId: String(game.id), 
-                    gameName: game.name_zh || game.name 
-                }
-            });
+            const gameName = game.name_zh || game.name;
+            edgemetry('play-game_' + gameName); 
         }
         if (game.url) window.open(game.url, '_blank', 'noopener,noreferrer');
     };
