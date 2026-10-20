@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="了了了游游戏守则 · 内容规范、投稿授权、未成年人保护与免责声明">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>了了了游游戏守则 · lelele Game Rules</title>
+    <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", sans-serif;
+            background: #f4f7fc;
+            color: #1e293b;
+            line-height: 1.8;
+            padding: 0 1.5rem 2.5rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== 语言切换 ===== */
+        .lang-bar {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: flex-end;
+            padding: 0.8rem 0 0;
+        }
+        .lang-switch {
+            display: flex;
+            gap: 2px;
+            background: rgba(148, 163, 184, 0.12);
+            border-radius: 30px;
+            padding: 3px;
+        }
+        .lang-btn {
+            padding: 4px 16px;
+            border: none;
+            border-radius: 24px;
+            background: transparent;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .lang-btn.active {
+            background: #4f46e5;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+        }
+        .lang-btn:hover:not(.active) { color: #1e293b; }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 0.8rem auto 0;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 36px;
+            padding: 3.5rem 4rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(148, 163, 184, 0.10);
+            flex: 1;
+        }
+
+        .back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.9rem;
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            background: rgba(79, 70, 229, 0.06);
+            border: 1px solid rgba(79, 70, 229, 0.12);
+            transition: all 0.2s;
+        }
+        .back-home:hover { background: rgba(79, 70, 229, 0.12); }
+
+        .brand-bar {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px 20px;
+            margin-bottom: 2.2rem;
+            padding-bottom: 1.4rem;
+            border-bottom: 2px solid rgba(79, 70, 229, 0.12);
+        }
+        .brand-logo {
+            height: 40px;
+            width: auto;
+        }
+        .brand-name {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #0f172a 0%, #4f46e5 85%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.4px;
+        }
+        .brand-sub {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-left: auto;
+            background: rgba(79, 70, 229, 0.05);
+            padding: 0.3rem 1.2rem;
+            border-radius: 30px;
+            border: 1px solid rgba(79, 70, 229, 0.08);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin: 1.8rem 0 0.4rem 0;
+            color: #0f172a;
+            letter-spacing: -0.6px;
+        }
+
+        .subhead {
+            font-size: 1rem;
+            color: #64748b;
+            margin-bottom: 2.8rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 0.6rem;
+        }
+        .subhead .highlight { color: #4f46e5; font-weight: 700; }
+        .subhead .version {
+            font-size: 0.85rem;
+            background: rgba(79, 70, 229, 0.06);
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            color: #4f46e5;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 2.8rem 0 1rem 0;
+            color: #0f172a;
+            padding-left: 0.9rem;
+            border-left: 6px solid #4f46e5;
+            line-height: 1.3;
+            scroll-margin-top: 1rem;
+        }
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 650;
+            margin: 1.8rem 0 0.6rem 0;
+            color: #1e293b;
+        }
+        p { margin: 0.7rem 0; color: #334155; }
+        ul, ol { margin: 0.8rem 0 1.2rem 1.8rem; color: #334155; }
+        li { margin: 0.5rem 0; }
+
+        .badge {
+            display: inline-block;
+            background: #4f46e5;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.1rem 0.7rem;
+            border-radius: 20px;
+            letter-spacing: 0.4px;
+            vertical-align: middle;
+            margin-right: 0.4rem;
+            font-family: monospace;
+        }
+        .badge-outline {
+            display: inline-block;
+            background: transparent;
+            color: #4f46e5;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.1rem 0.7rem;
+            border-radius: 20px;
+            border: 1px solid rgba(79, 70, 229, 0.3);
+            letter-spacing: 0.3px;
+            vertical-align: middle;
+            margin-right: 0.4rem;
+        }
+
+        .highlight-box {
+            background: rgba(79, 70, 229, 0.04);
+            border-left: 5px solid #4f46e5;
+            padding: 1.2rem 1.8rem;
+            border-radius: 0 14px 14px 0;
+            margin: 1.6rem 0;
+        }
+        .highlight-box strong { color: #4f46e5; }
+
+        .rights-box {
+            background: rgba(16, 185, 129, 0.05);
+            border-left: 5px solid #10b981;
+            padding: 1.2rem 1.8rem;
+            border-radius: 0 14px 14px 0;
+            margin: 1.6rem 0;
+        }
+        .rights-box strong { color: #059669; }
+
+        .warn-box {
+            background: rgba(245, 158, 11, 0.06);
+            border-left: 5px solid #f59e0b;
+            padding: 1.2rem 1.8rem;
+            border-radius: 0 14px 14px 0;
+            margin: 1.6rem 0;
+        }
+        .warn-box strong { color: #b45309; }
+
+        .legal-link {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px dashed rgba(79, 70, 229, 0.25);
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .legal-link:hover { border-bottom-color: #4f46e5; color: #4338ca; }
+
+        .ref-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.2rem 0;
+            font-size: 0.95rem;
+        }
+        .ref-table th {
+            background: #f1f5f9;
+            text-align: left;
+            padding: 0.6rem 1rem;
+            border: 1px solid #e2e8f0;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .ref-table td {
+            padding: 0.6rem 1rem;
+            border: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+        .ref-table a {
+            color: #4f46e5;
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(79,70,229,0.2);
+        }
+        .ref-table a:hover { border-bottom-color: #4f46e5; }
+
+        .footer-note {
+            margin-top: 3.5rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.15);
+            font-size: 0.9rem;
+            color: #94a3b8;
+            text-align: center;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+        .footer-note a { color: #4f46e5; text-decoration: none; font-weight: 500; }
+        .footer-note a:hover { text-decoration: underline; }
+
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text { display: block; }
+        html[data-lang="zh"] .zh-inline { display: inline; }
+        html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="en"] .en-inline { display: inline; }
+        html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+        html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
+
+        @media (max-width: 640px) {
+            body { padding: 0 0.6rem 1rem; }
+            .container { padding: 1.8rem 1.2rem; border-radius: 24px; }
+            .brand-bar { flex-direction: column; align-items: flex-start; gap: 6px; }
+            .brand-sub { margin-left: 0; font-size: 0.75rem; padding: 0.2rem 0.8rem; }
+            h1 { font-size: 1.9rem; }
+            h2 { font-size: 1.4rem; padding-left: 0.6rem; border-left-width: 4px; }
+            .subhead { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+            .ref-table { font-size: 0.8rem; }
+            .ref-table th, .ref-table td { padding: 0.4rem 0.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="lang-bar">
+    <div class="lang-switch" role="group" aria-label="语言 / Language">
+        <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+        <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
+    </div>
+</div>
+
+<div class="container">
+
+    <a class="back-home" href="index.html" id="backHomeBtn">
+        <span class="zh-inline">← 返回了了了游首页</span>
+        <span class="en-inline">← Back to lelele Home</span>
+    </a>
+
+    <div class="brand-bar">
+        <img src="lelelegame.svg" alt="Logo" class="brand-logo">
+        <span class="brand-name">了了了游</span>
+        <span class="brand-sub">
+            <span class="zh-inline">lelele Game · 游戏守则</span>
+            <span class="en-inline">lelele Game · Game Rules</span>
+        </span>
+    </div>
+
+    <!-- 中文版（完整还原） -->
+    <div class="zh-text">
+        <h1>📜 了了了游游戏守则</h1>
+        <div class="subhead">
+            <span><span class="highlight">版本 4.0.0</span> · 最后更新：2026 年 10 月 18 日</span>
+            <span class="version">📌 适用于所有投稿及展示游戏</span>
+        </div>
+
+        <h2>第一章 总则</h2>
+        <p><span class="badge">1.1</span> 了了了游（以下简称“本平台”）是了了了岭工作室（以下简称“工作室”）旗下的游戏聚合导航站，部署于 <a href="https://game.leleleling.site" class="legal-link" target="_blank" rel="noopener">game.leleleling.site</a>，为玩家提供游戏发现入口，并为独立游戏开发者、小型团队及个人创作者提供作品展示机会。</p>
+        <p><span class="badge">1.2</span> 本平台仅托管纯前端代码，包括 HTML、CSS、JavaScript、JSON 及配套的图片、音频、字体等静态资源。本平台不接收、不托管、不运行以下类型的代码或项目：带有服务端逻辑的代码（如 Node.js、Python、Java、PHP、Go 后端服务）、需要数据库支撑的项目、需要构建步骤才能产出可运行产物的框架项目（如 React、Vue、Angular 等 SPA 的源码工程），以及任何需要服务器环境才能启动的完整项目。投稿者提交前应确保代码可在纯静态环境下直接打开运行。</p>
+        <p><span class="badge">1.3</span> 本守则适用于所有在本平台投稿、展示、推荐或通过任何形式收录的游戏，以及使用本平台服务的所有用户。凡使用本平台服务者，即视为已阅读并同意本守则；投稿者另须在提交投稿时单独确认《投稿授权与撤回规则》（见第四章）。</p>
+        <p><span class="badge">1.4</span> 本平台严格遵守《中华人民共和国网络安全法》《中华人民共和国未成年人保护法》《未成年人网络保护条例》《中华人民共和国个人信息保护法》《中华人民共和国著作权法》《中华人民共和国民法典》《互联网信息服务管理办法》及国家新闻出版署、国家互联网信息办公室发布的相关规定，坚持“健康、积极、创新、合规”的内容导向。</p>
+        <p><span class="badge">1.5</span> 本平台保留根据法律法规变化及运营需要修订本守则的权利。修订版本将提前在 <a href="https://game.leleleling.site" class="legal-link" target="_blank" rel="noopener">game.leleleling.site</a> 公告，自公告之日起生效。涉及投稿者权利义务实质性变更的条款，平台将以站内公告和邮件双重方式提示。</p>
+
+        <h2>第二章 游戏内容规范</h2>
+        <p>所有投稿至本平台的游戏，必须遵守以下内容标准。</p>
+
+        <h3>2.1 禁止内容（负面清单）</h3>
+        <ul>
+            <li><strong>危害国家安全与主权：</strong>包括但不限于颠覆国家政权、分裂国家、破坏国家统一、损害国家荣誉和利益、泄露国家秘密、破坏民族团结等。</li>
+            <li><strong>宣扬暴力与血腥：</strong>过度渲染暴力、恐怖、血腥场景，教唆犯罪或传授犯罪方法，或鼓励自残、自杀等危害行为。</li>
+            <li><strong>色情与低俗：</strong>任何形式的色情、淫秽、性暗示、裸体或软色情内容。</li>
+            <li><strong>赌博与毒品：</strong>涉及赌博、赌场、博彩、毒品、管制药品及任何与毒品相关的活动。</li>
+            <li><strong>侵犯他人合法权益：</strong>侵犯知识产权、名誉权、肖像权、隐私权、个人信息权益等。</li>
+            <li><strong>危害未成年人身心健康：</strong>恐怖、惊悚、低俗、不良诱导等可能对未成年人造成不良影响的内容。</li>
+            <li><strong>违反公序良俗：</strong>违背社会公德、宗教歧视、种族歧视、性别歧视、地域歧视及其他违反社会主义核心价值观的内容。</li>
+        </ul>
+
+        <h3>2.2 适龄提示与分级管理</h3>
+        <p>投稿者须根据游戏实际内容，从以下分级中如实选择：<strong>全年龄 / 6岁以上 / 12岁以上 / 16岁以上 / 18岁以上</strong>。本平台在游戏详情页显著标注适龄提示。其中“全年龄”对应《网络游戏适龄提示》团体标准中适合所有年龄段的内容基准；“12岁以上”“16岁以上”与团体标准的 12+、16+ 标识保持一致；“6岁以上”为在本平台内对低龄友好内容所做的细化；“18岁以上”用于本平台审核中认为需要成年提示的内容，不作为团体标准标识使用。</p>
+        <p>投稿者故意虚报适龄分级的，平台有权下架并按第七章处理。</p>
+
+        <div class="highlight-box">
+            <strong>📌 相关依据：</strong>
+            <a class="legal-link" href="https://flk.npc.gov.cn/detail?id=ff8081818f197cf001905e567af635a0&fileId=&type=&title=%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD%E6%9C%AA%E6%88%90%E5%B9%B4%E4%BA%BA%E4%BF%9D%E6%8A%A4%E6%B3%95" target="_blank" rel="noopener">《中华人民共和国未成年人保护法》</a> ｜
+            <a class="legal-link" href="https://www.gov.cn/zhengce/content/202310/content_6911288.htm" target="_blank" rel="noopener">《未成年人网络保护条例》</a> ｜
+            <a class="legal-link" href="https://www.nppa.gov.cn" target="_blank" rel="noopener">《网络游戏适龄提示》团体标准</a>
+        </div>
+
+        <h3>2.3 游戏质量与技术安全</h3>
+        <ul>
+            <li><strong>可运行性：</strong>游戏应具备基本的可玩性和功能完整性，不得存在严重 bug、崩溃、无法启动或核心功能缺失。</li>
+            <li><strong>纯前端兼容：</strong>游戏必须可在静态托管环境中直接运行。使用模块化开发或构建工具的，投稿者须提供已构建完成、可直接部署的产物，而非需要平台执行构建的源码工程。</li>
+            <li><strong>隐私保护：</strong>游戏不得在未经用户明确授权的情况下收集、存储或传输个人信息。任何数据收集须遵循最小必要原则，符合《个人信息保护法》第六条、第十三条的要求。</li>
+            <li><strong>链接安全：</strong>外链游戏必须确保链接安全，不得跳转至恶意网站、钓鱼网站或含病毒、木马的页面。</li>
+            <li><strong>代码安全：</strong>平台将对代码进行初步安全扫描，投稿者应保证代码不包含后门、恶意脚本、挖矿程序或其他危害用户设备及信息安全的内容。</li>
+        </ul>
+
+        <h3>2.4 鼓励的游戏类型</h3>
+        <ul>
+            <li><strong>教育益智类：</strong>有助于提高知识水平、培养逻辑思维、锻炼反应能力的游戏。</li>
+            <li><strong>文化传承类：</strong>弘扬中华优秀传统文化、传播历史知识、展示民族艺术特色的游戏。</li>
+            <li><strong>创新创意类：</strong>玩法新颖、美术风格独特、技术实现有突破的游戏。</li>
+            <li><strong>公益与社会责任类：</strong>关注环境保护、扶贫助残、心理健康等社会议题的游戏。</li>
+        </ul>
+        <p>本平台不支持纯粹以盈利为目的、缺乏内容质量或存在诱导消费行为的游戏。</p>
+
+        <h2>第三章 版权与知识产权</h2>
+        <p><span class="badge">3.1</span> 投稿者须保证对投稿作品拥有合法、完整的著作权，或已获得权利人的充分授权。若因版权问题引发纠纷，由投稿者承担相应责任；本平台在接到符合法定要求的侵权通知后，将依照《民法典》第 1195 条及时采取删除、屏蔽、断开链接等必要措施。平台在接到通知前不承担对投稿内容的事前审查义务，但平台主动发现明显侵权内容的，有权自行下架。</p>
+        <p><span class="badge">3.2</span> 对于以“代码”方式投稿的游戏，投稿者授予本平台一项 <strong>非独占、可撤回</strong> 的展示许可，用于在平台展示、运行、测试及宣传推广。该许可不改变著作权归属——<strong>著作权仍归投稿者所有</strong>，投稿者保留署名权，并有权依据第四章撤回授权。</p>
+        <p><span class="badge">3.3</span> 对于以“链接”方式投稿的游戏，本平台仅作为导航入口展示，不主张对游戏内容的任何知识产权。游戏的著作权及相关权利仍归原权利人或开发者所有。</p>
+        <p><span class="badge">3.4</span> 本平台尊重知识产权，反对抄袭、盗版、非法转载。一经查实，立即下架侵权游戏，并视情节暂停或永久取消投稿资格，向权利人及有关部门报告。</p>
+        <p><span class="badge">3.5</span> 投稿者在游戏描述、截图等材料中使用第三方素材的，须确保已获合法授权并注明来源。</p>
+
+        <div class="highlight-box">
+            <strong>📌 相关依据：</strong>
+            <a class="legal-link" href="https://flk.npc.gov.cn/detail?id=ff808081752b7d430175e4766bab1557&fileId=&type=&title=%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD%E8%91%97%E4%BD%9C%E6%9D%83%E6%B3%95" target="_blank" rel="noopener">《中华人民共和国著作权法》</a> ｜
+            <a class="legal-link" href="https://flk.npc.gov.cn/detail?id=ff808081729d1efe01729d50b5c500bf&fileId=&type=&title=%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD%E6%B0%91%E6%B3%95%E5%85%B8" target="_blank" rel="noopener">《中华人民共和国民法典》（侵权责任编）</a> ｜
+            <a class="legal-link" href="https://flk.npc.gov.cn/detail?id=ff8080816f3cbb3c016f413992b21db9&fileId=&type=&title=%E4%BF%A1%E6%81%AF%E7%BD%91%E7%BB%9C%E4%BC%A0%E6%92%AD%E6%9D%83%E4%BF%9D%E6%8A%A4%E6%9D%A1%E4%BE%8B" target="_blank" rel="noopener">《信息网络传播权保护条例》</a>
+        </div>
+
+        <h2 id="submit">第四章 投稿授权与撤回规则</h2>
+        <p>本章是投稿者与平台之间的核心约定。</p>
+
+        <h3>4.1 平台获得的许可</h3>
+        <ul>
+            <li>在平台展示游戏名称、图标、简介、截图及试玩入口；</li>
+            <li>为审核、测试、安全检测之目的运行该游戏；</li>
+            <li>在平台官方渠道对游戏进行推荐介绍；</li>
+            <li>对展示信息进行必要的排版、分类和格式调整，不改变游戏内容本身。</li>
+        </ul>
+        <p>上述许可不构成著作权转让，不影响投稿者将同一作品授权给其他平台，也不限制投稿者自行运营。</p>
+
+        <h3>4.2 投稿者保留的权利</h3>
+        <div class="rights-box">
+            <ul style="margin-bottom:0;">
+                <li><strong>著作权归属：</strong>作品著作权及相关知识产权始终归投稿者所有；</li>
+                <li><strong>署名权：</strong>平台展示时如实标注投稿者提供的作者名称；</li>
+                <li><strong>撤回权：</strong>可随时书面通知平台撤回授权，无需说明理由；</li>
+                <li><strong>知情权：</strong>审核结果及不通过理由以邮件告知；</li>
+                <li><strong>申诉权：</strong>对审核结果或违规处理有异议的，可依据 4.5 条申诉；</li>
+                <li><strong>多平台发布权：</strong>同一作品可同时在其他平台发布，本平台不设排他限制。</li>
+            </ul>
+        </div>
+
+        <h3>4.3 撤回流程</h3>
+        <ul>
+            <li>投稿者通过 <a href="mailto:leleleling@2980.com" class="legal-link">leleleling@2980.com</a> 提出撤回请求，注明游戏名称及投稿时使用的联系方式；</li>
+            <li>平台在收到请求后 <strong>7 个工作日内</strong> 确认并下架；</li>
+            <li>自下架之日起 <strong>30 个自然日内</strong> 停止对该作品的新增使用；</li>
+            <li>已发布的宣传物料在 <strong>90 个自然日内</strong> 完成替换或删除；</li>
+            <li>撤回不影响撤回前平台已合法产生的展示行为。</li>
+        </ul>
+
+        <h3>4.4 审核流程与时限</h3>
+        <ul>
+            <li>平台在收到投稿后 <strong>7 个工作日内</strong> 完成审核，通过预留邮箱告知结果；</li>
+            <li>审核未通过的，附具体原因及可操作的修改建议；</li>
+            <li>同一作品最多可重新提交 <strong>2 次</strong>；超过 2 次仍未通过的，需间隔 <strong>30 个自然日</strong> 后方可再次提交；</li>
+            <li>审核通过的游戏收录至相应分类，并享有平台基础宣传资源。</li>
+        </ul>
+
+        <h3>4.5 申诉渠道</h3>
+        <p>对审核结果、下架处理或违规认定有异议的，可在收到通知后 <strong>15 个自然日内</strong> 通过 <a href="mailto:leleleling@2980.com" class="legal-link">leleleling@2980.com</a> 提出申诉，平台将在 <strong>7 个工作日内</strong> 复核并书面答复。申诉期间不停止已作出的处理决定的执行，复核结论为最终结论。</p>
+
+        <div class="warn-box">
+            <strong>⚠️ 双方共同遵守：</strong>平台行使审核权、下架权时说明依据；投稿者行使撤回权、申诉权时提供真实身份与作品信息。任何一方不得滥用权利损害对方合法权益。
+        </div>
+
+        <h2>第五章 未成年人保护</h2>
+        <ul>
+            <li><strong>适龄提示：</strong>每个游戏详情页显著标注适龄分级；</li>
+            <li><strong>家长指引：</strong>对含有轻微刺激或需一定心理承受能力的内容，标注“家长指引”；</li>
+            <li><strong>内容过滤：</strong>不展示色情、暴力、赌博等危害未成年人身心健康的内容；</li>
+            <li><strong>举报通道：</strong>涉及未成年人的举报在 <strong>48 小时内</strong> 初步响应，一般内容举报在 <strong>7 个工作日内</strong> 响应，举报邮箱 <a href="mailto:leleleling@2980.com" class="legal-link">leleleling@2980.com</a>；</li>
+            <li><strong>消费提示：</strong>本平台不提供游戏内购，外链游戏的消费行为由玩家自行负责。</li>
+        </ul>
+
+        <div class="highlight-box">
+            <strong>📌 相关依据：</strong>
+            <a class="legal-link" href="https://www.gov.cn/zhengce/content/202310/content_6911288.htm" target="_blank" rel="noopener">《未成年人网络保护条例》</a> ｜
+            <a class="legal-link" href="https://flk.npc.gov.cn/detail?id=ff8081818f197cf001905e567af635a0&fileId=&type=&title=%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD%E6%9C%AA%E6%88%90%E5%B9%B4%E4%BA%BA%E4%BF%9D%E6%8A%A4%E6%B3%95" target="_blank" rel="noopener">《中华人民共和国未成年人保护法》</a> ｜
+            <a class="legal-link" href="https://www.nppa.gov.cn" target="_blank" rel="noopener">国家新闻出版署防沉迷相关规定</a>
+        </div>
+
+        <h2>第六章 免责声明</h2>
+        <p><span class="badge">6.1</span> 本平台仅作为游戏展示与导航窗口，不运营游戏内服务，不参与游戏的商业运营（收费、充值、道具交易等）。玩家与游戏运营方之间的纠纷由双方自行解决。</p>
+        <p><span class="badge">6.2</span> 外链游戏的链接稳定性、内容安全性和服务可靠性由该游戏运营方负责，本平台不对第三方网站的内容、隐私保护及安全性承担责任。</p>
+        <p><span class="badge">6.3</span> 代码游戏虽经初步安全检测，但平台无法保证绝对安全。建议玩家在隔离环境中运行，平台对因运行代码游戏导致的设备损坏、数据丢失或信息泄露，在法律强制规定范围之外不承担责任。</p>
+        <p><span class="badge">6.4</span> <strong>避风港适用：</strong>权利人认为平台展示的游戏侵犯其合法权益的，可向平台提交包含权属证明、侵权链接及联系方式的书面通知。平台核实后依照《民法典》第 1195 条及时采取删除、下架等必要措施。平台已履行通知—删除义务的，依法不承担连带责任。</p>
+        <p><span class="badge">6.5</span> 因不可抗力（自然灾害、网络攻击、政策调整等）导致服务中断或数据丢失的，平台不承担赔偿责任，但应及时公告并尽力恢复。</p>
+
+        <div class="highlight-box">
+            <strong>📌 相关依据：</strong>
+            <a class="legal-link" href="https://flk.npc.gov.cn/detail?id=ff808081729d1efe01729d50b5c500bf&fileId=&type=&title=%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD%E6%B0%91%E6%B3%95%E5%85%B8" target="_blank" rel="noopener">《中华人民共和国民法典》（侵权责任编）</a> ｜
+            <a class="legal-link" href="https://flk.npc.gov.cn" target="_blank" rel="noopener">《中华人民共和国电子商务法》</a> ｜
+            <a class="legal-link" href="https://flk.npc.gov.cn/detail?id=ff8081819c230fa1019c2d0fca0b4b0a&fileId=&type=&title=%E4%BA%92%E8%81%94%E7%BD%91%E4%BF%A1%E6%81%AF%E6%9C%8D%E5%8A%A1%E7%AE%A1%E7%90%86%E5%8A%9E%E6%B3%95" target="_blank" rel="noopener">《互联网信息服务管理办法》</a>
+        </div>
+
+        <h2>第七章 违规处理</h2>
+        <ul>
+            <li><span class="badge-outline">警告</span> <strong>轻微违规：</strong>书面警告，给予 7 个工作日整改期。</li>
+            <li><span class="badge-outline">下架</span> <strong>严重违规：</strong>立即下架，暂停投稿资格。</li>
+            <li><span class="badge-outline">永久封禁</span> <strong>重大违规：</strong>涉及违法、色情、赌博、恶意代码的，永久禁止投稿，并向监管部门报告。</li>
+            <li><span class="badge-outline">通报</span> <strong>社会影响恶劣：</strong>在官方渠道通报违规情况。</li>
+        </ul>
+        <p>处理时说明所依据的条款。被处理方有权依据 4.5 条申诉。</p>
+
+        <h2>第八章 附则</h2>
+        <p><span class="badge">8.1</span> 本守则由了了了岭工作室制定并负责解释。咨询邮箱：<a href="mailto:leleleling@2980.com" class="legal-link">leleleling@2980.com</a>。</p>
+        <p><span class="badge">8.2</span> 本守则条款与国家现行法律、行政法规冲突的，以法律法规为准，冲突条款自动失效，其余条款继续有效。</p>
+        <p><span class="badge">8.3</span> 本守则自发布之日起生效。投稿者提交投稿并确认《投稿授权与撤回规则》时，即视为同意本守则全部内容。</p>
+        <p><span class="badge">8.4</span> 修订版本提前在 <a href="https://game.leleleling.site" class="legal-link" target="_blank" rel="noopener">game.leleleling.site</a> 公告，自公告之日起生效。</p>
+
+        <h2>附录：相关法律法规与行业规范索引</h2>
+        <p>以下链接均指向国家法律法规数据库或发布机构官网的稳定入口：</p>
+
+        <table class="ref-table">
+            <thead>
+                <tr><th>文件名称</th><th>发布机构</th><th>查阅</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>《中华人民共和国网络安全法》（2025 修正）</td><td>全国人大常委会</td><td><a href="http://www.npc.gov.cn/c2/c30834/202510/t20251028_449048.html" target="_blank" rel="noopener">查看修正决定</a></td></tr>
+                <tr><td>《中华人民共和国未成年人保护法》</td><td>全国人大常委会</td><td><a href="https://flk.npc.gov.cn/detail?id=ff8081818f197cf001905e567af635a0&fileId=&type=&title=%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD%E6%9C%AA%E6%88%90%E5%B9%B4%E4%BA%BA%E4%BF%9D%E6%8A%A4%E6%B3%95" target="_blank" rel="noopener">国家法律法规数据库</a></td></tr>
+                <tr><td>《未成年人网络保护条例》</td><td>国务院</td><td><a href="https://www.gov.cn/zhengce/content/202310/content_6911288.htm" target="_blank" rel="noopener">中国政府网</a></td></tr>
+                <tr><td>《中华人民共和国著作权法》</td><td>全国人大常委会</td><td><a href="https://flk.npc.gov.cn/detail?id=ff808081752b7d430175e4766bab1557&fileId=&type=&title=%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD%E8%91%97%E4%BD%9C%E6%9D%83%E6%B3%95" target="_blank" rel="noopener">国家法律法规数据库</a></td></tr>
+                <tr><td>《中华人民共和国个人信息保护法》</td><td>全国人大常委会</td><td><a href="https://flk.npc.gov.cn/detail?id=ff8081817b6472a3017b656cc2040044&fileId=&type=&title=%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD%E4%B8%AA%E4%BA%BA%E4%BF%A1%E6%81%AF%E4%BF%9D%E6%8A%A4%E6%B3%95" target="_blank" rel="noopener">国家法律法规数据库</a></td></tr>
+                <tr><td>《中华人民共和国民法典》（侵权责任编）</td><td>全国人大常委会</td><td><a href="https://flk.npc.gov.cn/detail?id=ff808081729d1efe01729d50b5c500bf&fileId=&type=&title=%E4%B8%AD%E5%8D%8E%E4%BA%BA%E6%B0%91%E5%85%B1%E5%92%8C%E5%9B%BD%E6%B0%91%E6%B3%95%E5%85%B8" target="_blank" rel="noopener">国家法律法规数据库</a></td></tr>
+                <tr><td>《信息网络传播权保护条例》</td><td>国务院</td><td><a href="https://flk.npc.gov.cn/detail?id=ff8080816f3cbb3c016f413992b21db9&fileId=&type=&title=%E4%BF%A1%E6%81%AF%E7%BD%91%E7%BB%9C%E4%BC%A0%E6%92%AD%E6%9D%83%E4%BF%9D%E6%8A%A4%E6%9D%A1%E4%BE%8B" target="_blank" rel="noopener">国家法律法规数据库</a></td></tr>
+                <tr><td>《互联网信息服务管理办法》</td><td>国务院</td><td><a href="https://flk.npc.gov.cn/detail?id=ff8081819c230fa1019c2d0fca0b4b0a&fileId=&type=&title=%E4%BA%92%E8%81%94%E7%BD%91%E4%BF%A1%E6%81%AF%E6%9C%8D%E5%8A%A1%E7%AE%A1%E7%90%86%E5%8A%9E%E6%B3%95" target="_blank" rel="noopener">国家法律法规数据库</a></td></tr>
+                <tr><td>《网络游戏适龄提示》团体标准</td><td>中国音像与数字出版协会</td><td><a href="https://www.nppa.gov.cn" target="_blank" rel="noopener">国家新闻出版署</a></td></tr>
+            </tbody>
+        </table>
+
+        <div class="footer-note">
+            <span>© 2026 了了了岭工作室 · 了了了游</span>
+            <a href="https://game.leleleling.site" target="_blank" rel="noopener">访问平台</a>
+            <a href="mailto:leleleling@2980.com">联系我们</a>
+            <span>｜ 版本 4.0.0</span>
+            <span>｜ 更新日期：2026年10月18日</span>
+        </div>
+    </div>
+
+    <!-- English version -->
+    <div class="en-text">
+        <h1>📜 lelele Game Rules</h1>
+        <div class="subhead">
+            <span><span class="highlight">Version 4.0.0</span> · Last updated: October 18, 2026</span>
+            <span class="version">📌 Applies to all submitted and displayed games</span>
+        </div>
+
+        <h2>Chapter 1 General Provisions</h2>
+        <p><span class="badge">1.1</span> lelele Game (the “Platform”) is a game aggregation and navigation site operated by leleleling Studio (the “Studio”), deployed at <a href="https://game.leleleling.site" class="legal-link" target="_blank" rel="noopener">game.leleleling.site</a>. It provides game discovery for players and exhibition opportunities for independent developers, small teams, and individual creators.</p>
+        <p><span class="badge">1.2</span> The Platform hosts <strong>pure front-end code only</strong>, including HTML, CSS, JavaScript, JSON, and accompanying static assets such as images, audio, and fonts. The Platform does not accept, host, or run code or projects that contain server-side logic (e.g., Node.js, Python, Java, PHP, Go backends), require a database, require a build step to produce a runnable artifact (e.g., React, Vue, Angular SPA source projects), or require a server environment to start. Submitters must ensure their code runs directly in a static hosting environment.</p>
+        <p><span class="badge">1.3</span> These Rules apply to all games submitted, displayed, recommended, or indexed on the Platform, and to all users. Use of the Platform constitutes acceptance of these Rules. Submitters must separately confirm the Submission License and Withdrawal Rules (Chapter 4) at the time of submission.</p>
+        <p><span class="badge">1.4</span> The Platform complies with the Cybersecurity Law, the Law on the Protection of Minors, the Regulations on the Protection of Minors in Cyberspace, the Personal Information Protection Law, the Copyright Law, the Civil Code, the Measures for the Administration of Internet Information Services, and relevant regulations issued by the National Press and Publication Administration and the Cyberspace Administration of China.</p>
+        <p><span class="badge">1.5</span> The Platform may revise these Rules based on legal and operational needs. Revised versions will be announced in advance at <a href="https://game.leleleling.site" class="legal-link" target="_blank" rel="noopener">game.leleleling.site</a> and take effect upon announcement. Material changes affecting submitters’ rights will be notified via site announcement and email.</p>
+
+        <h2>Chapter 2 Content Standards</h2>
+        <h3>2.1 Prohibited Content</h3>
+        <ul>
+            <li><strong>National security and sovereignty:</strong> content that subverts state power, splits the country, undermines national unity, harms national honor and interests, leaks state secrets, or damages ethnic solidarity.</li>
+            <li><strong>Violence and gore:</strong> excessive violence, terror, gore, incitement to crime, or encouragement of self-harm or suicide.</li>
+            <li><strong>Pornography and vulgarity:</strong> pornographic, obscene, sexually suggestive, nudity, or soft-porn content in any form.</li>
+            <li><strong>Gambling and drugs:</strong> gambling, casinos, betting, drugs, controlled substances, or drug-related activities.</li>
+            <li><strong>Infringement:</strong> infringement of intellectual property, reputation, portrait rights, privacy, or personal information rights.</li>
+            <li><strong>Harm to minors:</strong> content that may adversely affect the physical or mental health of minors.</li>
+            <li><strong>Public order and morals:</strong> content contrary to social morality, religious, racial, gender, or regional discrimination, or otherwise contrary to core socialist values.</li>
+        </ul>
+
+        <h3>2.2 Age Ratings</h3>
+        <p>Submitters must truthfully select an age rating: <strong>All Ages / 6+ / 12+ / 16+ / 18+</strong>. The Platform prominently displays the rating on each game detail page. “All Ages” corresponds to the baseline of the <em>Age Rating for Online Games</em> group standard; “12+” and “16+” align with the 12+ and 16+ labels of that standard; “6+” is a Platform-specific refinement for young-child-friendly content; “18+” is used for content the Platform deems to require an adult advisory and is not a group-standard label.</p>
+        <p>Deliberate misrepresentation of an age rating may result in removal under Chapter 7.</p>
+
+        <h3>2.3 Quality and Technical Safety</h3>
+        <ul>
+            <li><strong>Runnability:</strong> games must be basically playable and functionally complete, without severe bugs, crashes, or missing core functions.</li>
+            <li><strong>Pure front-end compatibility:</strong> games must run directly in static hosting. If built with tooling, submitters must provide the built, deployable output—not source projects requiring the Platform to run a build.</li>
+            <li><strong>Privacy:</strong> no collection, storage, or transmission of personal information without explicit authorization. Any data collection must follow the minimum-necessity principle under Articles 6 and 13 of the Personal Information Protection Law.</li>
+            <li><strong>Link safety:</strong> external links must not lead to malicious, phishing, or malware-containing sites.</li>
+            <li><strong>Code safety:</strong> the Platform performs an initial security scan; submitters warrant that code contains no backdoors, malicious scripts, mining programs, or other harmful content.</li>
+        </ul>
+
+        <h2>Chapter 3 Copyright and Intellectual Property</h2>
+        <p><span class="badge">3.1</span> Submitters warrant that they own the copyright in their submitted works or have obtained full authorization. Copyright disputes are the responsibility of the submitter. Upon receipt of a valid infringement notice, the Platform will take necessary measures such as deletion, blocking, or disabling access in accordance with Article 1195 of the Civil Code. The Platform has no prior review obligation before receiving notice, but may remove obviously infringing content on its own initiative.</p>
+        <p><span class="badge">3.2</span> For code-based submissions, the submitter grants the Platform a <strong>non-exclusive, revocable</strong> license to display, run, test, and promote the game on the Platform. This license does not transfer copyright—<strong>copyright remains with the submitter</strong>, who retains the right of attribution and may withdraw the license under Chapter 4.</p>
+        <p><span class="badge">3.3</span> For link-based submissions, the Platform acts solely as a navigation entrance and claims no intellectual property rights in the game content.</p>
+        <p><span class="badge">3.4</span> The Platform respects intellectual property and opposes plagiarism, piracy, and unauthorized reproduction. Confirmed infringement will result in immediate removal and may lead to suspension or permanent disqualification from submission.</p>
+        <p><span class="badge">3.5</span> Submitters using third-party assets in descriptions or screenshots must ensure authorization and attribute the source.</p>
+
+        <h2 id="submit">Chapter 4 Submission License and Withdrawal Rules</h2>
+        <h3>4.1 License Granted to the Platform</h3>
+        <ul>
+            <li>Display the game name, icon, description, screenshots, and playable entrance on the Platform;</li>
+            <li>Run the game for review, testing, and security scanning;</li>
+            <li>Recommend and introduce the game through official Platform channels;</li>
+            <li>Make necessary layout and formatting adjustments without altering the game content itself.</li>
+        </ul>
+        <p>This license does not constitute a copyright transfer, does not restrict the submitter from licensing the same work to other platforms, and does not restrict self-operation.</p>
+
+        <h3>4.2 Rights Retained by the Submitter</h3>
+        <div class="rights-box">
+            <ul style="margin-bottom:0;">
+                <li><strong>Copyright ownership:</strong> remains with the submitter;</li>
+                <li><strong>Attribution:</strong> the Platform credits the author name provided;</li>
+                <li><strong>Withdrawal:</strong> the submitter may withdraw the license in writing at any time, without giving reasons;</li>
+                <li><strong>Information:</strong> review results and reasons for rejection are communicated by email;</li>
+                <li><strong>Appeal:</strong> review results and enforcement decisions may be appealed under 4.5;</li>
+                <li><strong>Multi-platform publishing:</strong> the same work may be published on other platforms without exclusivity restrictions.</li>
+            </ul>
+        </div>
+
+        <h3>4.3 Withdrawal Process</h3>
+        <ul>
+            <li>Submit a withdrawal request to <a href="mailto:leleleling@2980.com" class="legal-link">leleleling@2980.com</a>, stating the game name and the contact used at submission;</li>
+            <li>The Platform confirms and removes the game within <strong>3 business days</strong>;</li>
+            <li>New use ceases within <strong>30 calendar days</strong> of removal;</li>
+            <li>Published promotional materials are replaced or removed within <strong>90 calendar days</strong>;</li>
+            <li>Withdrawal does not affect lawful display that occurred before withdrawal.</li>
+        </ul>
+
+        <h3>4.4 Review Timeline</h3>
+        <ul>
+            <li>Review is completed within <strong>5 business days</strong> of receipt, with the result sent to the provided email;</li>
+            <li>Rejections include specific reasons and actionable revision suggestions;</li>
+            <li>A work may be resubmitted at most <strong>2 times</strong>; after that, a <strong>30-calendar-day</strong> interval is required;</li>
+            <li>Approved games are listed in the appropriate category and receive basic promotional resources.</li>
+        </ul>
+
+        <h3>4.5 Appeals</h3>
+        <p>Appeals against review results, removal, or violation determinations may be filed within <strong>15 calendar days</strong> of notice by emailing <a href="mailto:leleleling@2980.com" class="legal-link">leleleling@2980.com</a>. The Platform will review and respond in writing within <strong>7 business days</strong>. Appeals do not suspend the enforcement decision; the review conclusion is final.</p>
+
+        <h2>Chapter 5 Protection of Minors</h2>
+        <ul>
+            <li><strong>Age ratings:</strong> prominently displayed on each game detail page;</li>
+            <li><strong>Parental guidance:</strong> noted for mildly intense content or content requiring a certain level of psychological maturity;</li>
+            <li><strong>Content filtering:</strong> no pornographic, violent, or gambling content harmful to minors;</li>
+            <li><strong>Reporting:</strong> reports involving minors are initially responded to within <strong>48 hours</strong>; general reports within <strong>5 business days</strong>. Report to <a href="mailto:leleleling@2980.com" class="legal-link">leleleling@2980.com</a>;</li>
+            <li><strong>Purchases:</strong> the Platform does not offer in-game purchases; purchases in external games are the player’s responsibility.</li>
+        </ul>
+
+        <h2>Chapter 6 Disclaimer</h2>
+        <p><span class="badge">6.1</span> The Platform serves solely as a game exhibition and navigation window. It does not operate in-game services or participate in commercial operations such as charging, top-ups, or item trading. Disputes between players and game operators are resolved between those parties.</p>
+        <p><span class="badge">6.2</span> For linked games, link stability, content safety, and service reliability are the responsibility of the game operator. The Platform is not responsible for third-party content, privacy practices, or security.</p>
+        <p><span class="badge">6.3</span> Code-based games undergo initial security scanning, but absolute safety cannot be guaranteed. Players are advised to run games in isolated environments. Outside legally mandatory scope, the Platform is not liable for device damage, data loss, or information leakage arising from running code-based games.</p>
+        <p><span class="badge">6.4</span> <strong>Safe harbor:</strong> rights holders who believe content on the Platform infringes their rights may submit a written notice with ownership proof, the infringing link, and contact information. Upon verification, the Platform will take necessary measures such as removal under Article 1195 of the Civil Code. Having fulfilled the notice-and-takedown obligation, the Platform is not jointly liable.</p>
+        <p><span class="badge">6.5</span> The Platform is not liable for service interruption or data loss caused by force majeure (natural disasters, cyberattacks, policy changes, etc.), but will announce and restore service promptly.</p>
+
+        <h2>Chapter 7 Enforcement</h2>
+        <ul>
+            <li><span class="badge-outline">Warning</span> <strong>Minor violations:</strong> written warning with a 7-business-day rectification period.</li>
+            <li><span class="badge-outline">Removal</span> <strong>Serious violations:</strong> immediate removal and suspension of submission privileges.</li>
+            <li><span class="badge-outline">Permanent ban</span> <strong>Major violations:</strong> involving illegality, pornography, gambling, or malicious code—permanent disqualification and reporting to regulators.</li>
+            <li><span class="badge-outline">Public notice</span> <strong>Severe social impact:</strong> public notice on official channels.</li>
+        </ul>
+        <p>Enforcement decisions state the provision relied upon. Affected parties may appeal under 4.5.</p>
+
+        <h2>Chapter 8 Supplementary Provisions</h2>
+        <p><span class="badge">8.1</span> These Rules are formulated and interpreted by leleleling Studio. Inquiries: <a href="mailto:leleleling@2980.com" class="legal-link">leleleling@2980.com</a>.</p>
+        <p><span class="badge">8.2</span> If any provision conflicts with mandatory law or administrative regulations, the law prevails and the conflicting provision becomes invalid; the remaining provisions remain in effect.</p>
+        <p><span class="badge">8.3</span> These Rules take effect upon publication. Submission and confirmation of the Submission License and Withdrawal Rules constitute acceptance of these Rules.</p>
+        <p><span class="badge">8.4</span> Revisions are announced in advance at <a href="https://game.leleleling.site" class="legal-link" target="_blank" rel="noopener">game.leleleling.site</a> and take effect upon announcement.</p>
+
+        <h2>Appendix: Index of Laws, Regulations, and Industry Standards</h2>
+        <table class="ref-table">
+            <thead>
+                <tr><th>Document</th><th>Issuing Authority</th><th>Access</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Cybersecurity Law (2025 Amendment)</td><td>NPC Standing Committee</td><td><a href="http://www.npc.gov.cn/c2/c30834/202510/t20251028_449048.html" target="_blank" rel="noopener">Amendment Decision</a></td></tr>
+                <tr><td>Law on the Protection of Minors</td><td>NPC Standing Committee</td><td><a href="https://flk.npc.gov.cn" target="_blank" rel="noopener">National Laws Database</a></td></tr>
+                <tr><td>Regulations on the Protection of Minors in Cyberspace</td><td>State Council</td><td><a href="https://www.gov.cn/zhengce/content/202310/content_6911288.htm" target="_blank" rel="noopener">gov.cn</a></td></tr>
+                <tr><td>Copyright Law</td><td>NPC Standing Committee</td><td><a href="https://flk.npc.gov.cn" target="_blank" rel="noopener">National Laws Database</a></td></tr>
+                <tr><td>Personal Information Protection Law</td><td>NPC Standing Committee</td><td><a href="https://flk.npc.gov.cn" target="_blank" rel="noopener">National Laws Database</a></td></tr>
+                <tr><td>Civil Code (Tort Liability)</td><td>NPC Standing Committee</td><td><a href="https://flk.npc.gov.cn" target="_blank" rel="noopener">National Laws Database</a></td></tr>
+                <tr><td>Regulations on the Protection of the Right to Network Dissemination of Information</td><td>State Council</td><td><a href="https://flk.npc.gov.cn" target="_blank" rel="noopener">National Laws Database</a></td></tr>
+                <tr><td>Measures for the Administration of Internet Information Services</td><td>State Council</td><td><a href="https://www.gov.cn/zhengce/202409/content_6977283.htm" target="_blank" rel="noopener">gov.cn</a></td></tr>
+                <tr><td>Age Rating for Online Games (Group Standard)</td><td>CADPA</td><td><a href="https://www.nppa.gov.cn" target="_blank" rel="noopener">NPPA</a></td></tr>
+            </tbody>
+        </table>
+
+        <div class="footer-note">
+            <span>© 2026 leleleling Studio · lelele Game</span>
+            <a href="https://game.leleleling.site" target="_blank" rel="noopener">Visit Platform</a>
+            <a href="mailto:leleleling@2980.com">Contact Us</a>
+            <span>｜ Version 4.0.0</span>
+            <span>｜ Updated: October 18, 2026</span>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function setLang(lang) {
+        document.documentElement.setAttribute('data-lang', lang);
+        document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+        document.querySelectorAll('.lang-btn').forEach(function (btn) {
+            btn.classList.toggle('active', btn.dataset.langBtn === lang);
+        });
+        try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
+        
+        const backHome = document.getElementById('backHomeBtn');
+        if(lang === 'en') backHome.href = 'index.html?lang=en';
+        else backHome.href = 'index.html';
+    }
+    
+    const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
+    setLang(currentLang);
+</script>
+
+</body>
+</html>
