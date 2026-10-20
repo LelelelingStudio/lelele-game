@@ -37,6 +37,14 @@ function applyLang(lang, save) {
     if (save) {
         try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
     }
+
+    // 【新增】切换语言时，重新渲染游戏列表和收藏夹，以更新文字
+    if (typeof gameData !== 'undefined' && gameData.length > 0) {
+        renderGames();
+    }
+    if (document.getElementById('favoritesModal').classList.contains('active')) {
+        renderFavoritesList();
+    }
 }
 
 window.setLang = function(lang) {
@@ -74,8 +82,8 @@ document.getElementById('openFavBtn').addEventListener('click', () => {
 function renderFavoritesList() {
     const container = document.getElementById('favListContainer');
     const favs = getFavorites();
-    const lang = document.documentElement.getAttribute('data-lang');
-    const langSuffix = lang === 'en' ? '&lang=en' : '';
+    const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+    const langSuffix = isEn ? '&lang=en' : '';
     
     if (favs.length === 0) {
         container.innerHTML = `
@@ -90,21 +98,31 @@ function renderFavoritesList() {
     const favGames = gameData.filter(g => favs.includes(String(g.id)));
 
     if (favGames.length === 0) {
-        container.innerHTML = `<div class="status-message">收藏的游戏似乎已下架。</div>`;
+        container.innerHTML = `
+            <div class="status-message">
+                <span class="zh-inline">收藏的游戏似乎已下架。</span>
+                <span class="en-inline">Favorited games seem to be removed.</span>
+            </div>
+        `;
         return;
     }
 
     container.innerHTML = `<div class="fav-list">
-        ${favGames.map(game => `
+        ${favGames.map(game => {
+            // 【修改】适配双语字段
+            const gameName = isEn ? (game.name_en || game.name_zh || game.name) : (game.name_zh || game.name_en || game.name);
+            const gameCat = isEn ? (game.category_en || game.category_zh || game.category || 'Uncategorized') : (game.category_zh || game.category_en || game.category || '未分类');
+            
+            return `
             <div class="fav-item" onclick="window.location.href='game.html?id=${game.id}${langSuffix}'">
                 <div class="fav-item-icon">${game.icon || '🎮'}</div>
                 <div class="fav-item-info">
-                    <div class="fav-item-name">${escapeHtml(game.name)}</div>
-                    <div class="fav-item-cat">${escapeHtml(game.category || '未分类')}</div>
+                    <div class="fav-item-name">${escapeHtml(gameName)}</div>
+                    <div class="fav-item-cat">${escapeHtml(gameCat)}</div>
                 </div>
                 <button class="fav-item-remove" onclick="removeFavorite('${game.id}', event)" title="取消收藏">×</button>
             </div>
-        `).join('')}
+        `}).join('')}
     </div>`;
 }
 
@@ -205,9 +223,13 @@ function renderGames() {
     const status = document.getElementById('statusMessage');
     grid.innerHTML = '';
 
+    const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+
     const filtered = gameData.filter(g => {
         const matchType = g.type === currentType;
-        const matchSearch = !searchKeyword || g.name.toLowerCase().includes(searchKeyword.toLowerCase());
+        // 【修改】搜索时，根据当前语言匹配游戏名
+        const targetName = isEn ? (g.name_en || g.name_zh || g.name || '') : (g.name_zh || g.name_en || g.name || '');
+        const matchSearch = !searchKeyword || targetName.toLowerCase().includes(searchKeyword.toLowerCase());
         return matchType && matchSearch;
     });
 
@@ -217,12 +239,15 @@ function renderGames() {
     } else {
         status.style.display = 'none';
         filtered.forEach(g => {
+            // 【修改】渲染卡片时，根据当前语言显示对应名称
+            const gameName = isEn ? (g.name_en || g.name_zh || g.name) : (g.name_zh || g.name_en || g.name);
+            
             const card = document.createElement('div');
             card.className = 'game-card';
             card.setAttribute('tabindex', '0');
             card.innerHTML = `
                 <div class="game-icon">${g.icon || '🎮'}</div>
-                <div class="game-name">${escapeHtml(g.name)}</div>
+                <div class="game-name">${escapeHtml(gameName)}</div>
             `;
             card.onclick = () => showPreview(g);
             card.onkeydown = (e) => {
@@ -252,18 +277,23 @@ let currentPreviewGame = null;
 
 function showPreview(game) {
     currentPreviewGame = game;
+    const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+    
+    // 【修改】快捷预览弹窗，适配双语
+    const gameName = isEn ? (game.name_en || game.name_zh || game.name) : (game.name_zh || game.name_en || game.name);
+    const gameCat = isEn ? (game.category_en || game.category_zh || game.category) : (game.category_zh || game.category_en || game.category);
+    const gameAge = isEn ? (game.ageRating_en || game.ageRating_zh || game.ageRating) : (game.ageRating_zh || game.ageRating_en || game.ageRating);
     
     document.getElementById('prevIcon').textContent = game.icon || '🎮';
-    document.getElementById('prevName').textContent = game.name;
+    document.getElementById('prevName').textContent = gameName;
     
     let tagsHtml = '';
-    if (game.category) tagsHtml += `<span class="preview-tag">${escapeHtml(game.category)}</span>`;
-    if (game.ageRating) tagsHtml += `<span class="preview-tag age">${escapeHtml(game.ageRating)}</span>`;
+    if (gameCat) tagsHtml += `<span class="preview-tag">${escapeHtml(gameCat)}</span>`;
+    if (gameAge) tagsHtml += `<span class="preview-tag age">${escapeHtml(gameAge)}</span>`;
     document.getElementById('prevTags').innerHTML = tagsHtml;
     
     document.getElementById('btnDetail').onclick = () => {
-        const lang = document.documentElement.getAttribute('data-lang');
-        const langSuffix = lang === 'en' ? '&lang=en' : '';
+        const langSuffix = isEn ? '&lang=en' : '';
         window.location.href = `game.html?id=${game.id}${langSuffix}`;
     };
     
@@ -281,10 +311,10 @@ function updateFavUI(gameId) {
     const btn = document.getElementById('btnFav');
     
     if (isFav) {
-        btn.innerHTML = '🌟 已收藏';
+        btn.innerHTML = '<span class="zh-inline">🌟 已收藏</span><span class="en-inline">🌟 Favorited</span>';
         btn.classList.add('fav-active');
     } else {
-        btn.innerHTML = '⭐ 收藏';
+        btn.innerHTML = '<span class="zh-inline">⭐ 收藏</span><span class="en-inline">⭐ Favorite</span>';
         btn.classList.remove('fav-active');
     }
 }
