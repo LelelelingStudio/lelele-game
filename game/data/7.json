@@ -1,22 +1,19 @@
 {
   "id": 7,
-  "name": "点击按钮小游戏",
+  "name_zh": "点击按钮小游戏",
+  "name_en": "Point The Button",
   "icon": "🔘",
-  "category": "休闲",
-  "ageRating": "全年龄",
+  "category_zh": "休闲",
+  "category_en": "Casual",
+  "ageRating_zh": "全年龄",
+  "ageRating_en": "All Ages",
   "version": "v1.0.0",
   "author": "了了了岭工作室",
   "url": "/game/others/2026_7_7/point_the_button/index.html",
   "banner": "/game/others/2026_7_7/point_the_button/banner.png",
-  "screenshots": [
-    "/game/others/2026_7_7/point_the_button/banner.png"
-  ],
-  "description": "暂无详细简介，作者正在努力编写中。你可以直接点击上方按钮开始游戏体验。",
-  "updateLog": [
-    {
-      "version": "v1.0.0",
-      "date": "2026-10-19",
-      "content": "游戏首发上线！"
-    }
-  ]
+  "screenshots": ["/game/others/2026_7_7/point_the_button/banner.png"],
+  "description_zh": "暂无详细简介，作者正在努力编写中。你可以直接点击上方按钮开始游戏体验。",
+  "description_en": "No detailed description yet. Click the Play button above to experience the game.",
+  "updateLog_zh": [{"version": "v1.0.0", "date": "2026-10-19", "content": "游戏首发上线！"}],
+  "updateLog_en": [{"version": "v1.0.0", "date": "2026-10-19", "content": "Initial release!"}]
 }
