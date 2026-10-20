@@ -342,7 +342,8 @@
         let currentGameId = null;
         let currentGameData = null;
         const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
-        const textSuffix = currentLang === 'en' ? '?lang=en' : '';
+        const isEn = currentLang === 'en';
+        const textSuffix = isEn ? '?lang=en' : '';
 
         document.getElementById('backBtn').href = 'index.html' + textSuffix;
         document.getElementById('errorBackBtn').href = 'index.html' + textSuffix;
@@ -355,10 +356,9 @@
         };
 
         window.closeLightbox = function(event) {
-            // 只有点击背景或关闭按钮才关闭
             if (event.target.id === 'lightbox' || event.target.classList.contains('lightbox-close')) {
                 document.getElementById('lightbox').classList.remove('active');
-                setTimeout(() => { document.getElementById('lightboxImg').src = ''; }, 300); // 防止关闭时图片突然消失
+                setTimeout(() => { document.getElementById('lightboxImg').src = ''; }, 300);
             }
         };
 
@@ -391,7 +391,7 @@
 
         window.playGame = function() {
             if (!currentGameData || !currentGameData.url) {
-                alert(currentLang === 'en' ? 'No playable link available.' : '该游戏暂无可用链接。');
+                alert(isEn ? 'No playable link available.' : '该游戏暂无可用链接。');
                 return;
             }
             window.open(currentGameData.url, '_blank', 'noopener,noreferrer');
@@ -399,7 +399,9 @@
 
         // ==================== 页面渲染 ====================
         function renderGamePage(game) {
-            document.title = `${game.name || (currentLang === 'en' ? 'Unknown' : '未知游戏')} · 了了了游`;
+            // 【修改】适配双语标题
+            const gameName = isEn ? (game.name_en || game.name_zh || game.name) : (game.name_zh || game.name_en || game.name);
+            document.title = `${gameName || (isEn ? 'Unknown' : '未知游戏')} · 了了了游`;
 
             const bannerArea = document.getElementById('bannerArea');
             const bannerIcon = document.getElementById('bannerIcon');
@@ -407,34 +409,39 @@
                 bannerArea.style.backgroundImage = `url('${escapeHtml(game.banner)}')`;
                 bannerArea.classList.remove('no-image');
                 bannerIcon.style.display = 'none';
-                bannerArea.setAttribute('title', currentLang === 'en' ? 'Click to enlarge' : '点击查看大图');
+                bannerArea.setAttribute('title', isEn ? 'Click to enlarge' : '点击查看大图');
             } else {
                 bannerArea.style.backgroundImage = 'linear-gradient(135deg, rgba(79,70,229,0.1) 0%, rgba(124,58,237,0.1) 100%)';
                 bannerArea.classList.add('no-image');
-                bannerArea.onclick = null; // 取消点击事件
+                bannerArea.onclick = null;
                 bannerIcon.style.display = 'block';
                 bannerIcon.textContent = game.icon || '🎮';
             }
 
-            document.getElementById('gameTitle').textContent = game.name || (currentLang === 'en' ? 'Unknown' : '未知游戏');
+            document.getElementById('gameTitle').textContent = gameName;
+            
+            // 【修改】适配双语标签
+            const gameCat = isEn ? (game.category_en || game.category_zh || game.category) : (game.category_zh || game.category_en || game.category);
+            const gameAge = isEn ? (game.ageRating_en || game.ageRating_zh || game.ageRating) : (game.ageRating_zh || game.ageRating_en || game.ageRating);
             
             let tagsHtml = '';
-            if (game.category) tagsHtml += `<span class="tag">${escapeHtml(game.category)}</span>`;
-            if (game.ageRating) tagsHtml += `<span class="tag age">${escapeHtml(game.ageRating)}</span>`;
+            if (gameCat) tagsHtml += `<span class="tag">${escapeHtml(gameCat)}</span>`;
+            if (gameAge) tagsHtml += `<span class="tag age">${escapeHtml(gameAge)}</span>`;
             if (game.version) tagsHtml += `<span class="tag version">${escapeHtml(game.version)}</span>`;
             document.getElementById('metaTags').innerHTML = tagsHtml;
 
             const authorBar = document.getElementById('authorBar');
             if (game.author) {
-                const authorLabel = currentLang === 'en' ? 'Developer' : '开发者';
+                const authorLabel = isEn ? 'Developer' : '开发者';
                 authorBar.innerHTML = `${authorLabel}: <strong>${escapeHtml(game.author)}</strong>`;
             } else {
                 authorBar.style.display = 'none';
             }
 
-            let descText = game.description || game.intro;
+            // 【修改】适配双语简介
+            let descText = isEn ? (game.description_en || game.description_zh || game.description) : (game.description_zh || game.description_en || game.description);
             if (!descText) {
-                descText = currentLang === 'en' ? 'No description provided yet.' : '这个游戏很神秘，作者还没有写详细简介。';
+                descText = isEn ? 'No description provided yet.' : '这个游戏很神秘，作者还没有写详细简介。';
             }
             document.getElementById('gameDesc').textContent = descText;
 
@@ -447,14 +454,15 @@
                 `).join('');
             }
 
-            // 渲染更新日志
-            if (game.updateLog && Array.isArray(game.updateLog) && game.updateLog.length > 0) {
+            // 【修改】适配双语更新日志
+            const logs = isEn ? (game.updateLog_en || game.updateLog_zh || game.updateLog) : (game.updateLog_zh || game.updateLog_en || game.updateLog);
+            if (logs && Array.isArray(logs) && logs.length > 0) {
                 document.getElementById('updateLogContainer').style.display = 'block';
                 const timeline = document.getElementById('timeline');
-                timeline.innerHTML = game.updateLog.map(log => `
+                timeline.innerHTML = logs.map(log => `
                     <div class="timeline-item">
                         <div class="timeline-header">
-                            <span class="timeline-version">${escapeHtml(log.version || (currentLang === 'en' ? 'Update' : '更新'))}</span>
+                            <span class="timeline-version">${escapeHtml(log.version || (isEn ? 'Update' : '更新'))}</span>
                             <span class="timeline-date">${escapeHtml(log.date || '')}</span>
                         </div>
                         <div class="timeline-content">${escapeHtml(log.content || '')}</div>
@@ -473,7 +481,7 @@
             currentGameId = urlParams.get('id');
 
             if (!currentGameId) {
-                showError(currentLang === 'en' ? 'Missing game ID parameter.' : '缺少游戏 ID 参数，无法加载。');
+                showError(isEn ? 'Missing game ID parameter.' : '缺少游戏 ID 参数，无法加载。');
                 return;
             }
 
@@ -493,21 +501,29 @@
                     const baseGame = baseData.find(g => String(g.id) === String(currentGameId));
                     
                     if (baseGame) {
+                        // 【修改】兜底逻辑也适配双语
                         currentGameData = {
-                            id: baseGame.id, name: baseGame.name, icon: baseGame.icon,
-                            category: baseGame.category, ageRating: baseGame.ageRating,
-                            url: baseGame.url, version: baseGame.version || (currentLang === 'en' ? 'Unknown' : '未知版本'),
-                            description: currentLang === 'en' ? 'No detailed description yet. Click Play to try.' : '暂无详细简介，作者可能正在努力编写中。你可以直接点击上方按钮开始游戏体验。'
+                            id: baseGame.id, icon: baseGame.icon,
+                            name_zh: baseGame.name_zh || baseGame.name,
+                            name_en: baseGame.name_en || baseGame.name,
+                            category_zh: baseGame.category_zh || baseGame.category,
+                            category_en: baseGame.category_en || baseGame.category,
+                            ageRating_zh: baseGame.ageRating_zh || baseGame.ageRating,
+                            ageRating_en: baseGame.ageRating_en || baseGame.ageRating,
+                            url: baseGame.url, 
+                            version: baseGame.version || (isEn ? 'Unknown' : '未知版本'),
+                            description_zh: '暂无详细简介，作者可能正在努力编写中。你可以直接点击上方按钮开始游戏体验。',
+                            description_en: 'No detailed description yet. Click Play to try.'
                         };
                         renderGamePage(currentGameData);
                         return;
                     }
                 }
 
-                showError(currentLang === 'en' ? 'Game not found or removed.' : '该游戏不存在或已被下架。');
+                showError(isEn ? 'Game not found or removed.' : '该游戏不存在或已被下架。');
             } catch (e) {
                 console.error('加载失败:', e);
-                showError(currentLang === 'en' ? 'Network error, please try again later.' : '网络或数据加载失败，请稍后重试。');
+                showError(isEn ? 'Network error, please try again later.' : '网络或数据加载失败，请稍后重试。');
             }
         }
 
