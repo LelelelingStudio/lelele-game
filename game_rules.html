@@ -170,6 +170,37 @@
             color: #4f46e5;
         }
 
+        /* ===== 生效提示横幅 ===== */
+        .notice-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.9rem;
+            margin: 0 0 2.4rem 0;
+            padding: 1.2rem 1.6rem;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.075) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid rgba(79, 70, 229, 0.18);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.06);
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: #334155;
+        }
+        .notice-box .notice-icon {
+            flex-shrink: 0;
+            font-size: 1.35rem;
+            line-height: 1.5;
+        }
+        .notice-box .notice-body { flex: 1; min-width: 0; }
+        .notice-box strong { color: #4f46e5; font-weight: 700; }
+        .notice-link {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 700;
+            border-bottom: 1px dashed rgba(79, 70, 229, 0.35);
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .notice-link:hover { color: #4338ca; border-bottom-color: #4338ca; }
+
         h2 {
             font-size: 1.6rem;
             font-weight: 700;
@@ -312,6 +343,7 @@
             .subhead { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
             .ref-table { font-size: 0.8rem; }
             .ref-table th, .ref-table td { padding: 0.4rem 0.6rem; }
+            .notice-box { padding: 0.95rem 1.05rem; font-size: 0.88rem; gap: 0.6rem; }
         }
     </style>
 </head>
@@ -346,6 +378,13 @@
         <div class="subhead">
             <span><span class="highlight">版本 4.0.1</span> · 最后更新：2026 年 10 月 20 日</span>
             <span class="version">📌 适用于所有投稿及展示游戏</span>
+        </div>
+
+        <div class="notice-box">
+            <div class="notice-icon">📢</div>
+            <div class="notice-body">
+                <strong>生效提示：</strong>本守则（版本 4.0.1）将于 <strong>2026 年 10 月 25 日</strong> 正式生效。在此之前，若您对本次更新存在异议，可通过 <a href="mailto:leleleling@2980.com" class="legal-link">leleleling@2980.com</a> 发送邮件申诉，理由合理的，本平台会将版本调回 <a href="game_rules_old.html" class="notice-link"><strong>4.0.0</strong></a>。具体更新信息请查看 <a href="https://game.leleleling.site" class="notice-link">了了了游官网</a> 发布的公告通知。
+            </div>
         </div>
 
         <h2>第一章 总则</h2>
@@ -540,6 +579,13 @@
         <div class="subhead">
             <span><span class="highlight">Version 4.0.1</span> · Last updated: October 20, 2026</span>
             <span class="version">📌 Applies to all submitted and displayed games</span>
+        </div>
+
+        <div class="notice-box">
+            <div class="notice-icon">📢</div>
+            <div class="notice-body">
+                <strong>Effective Notice:</strong> These Rules (Version 4.0.1) will officially take effect on <strong>October 25, 2026</strong>. Before that date, if you object to this update, you may appeal by emailing <a href="mailto:leleleling@2980.com" class="legal-link">leleleling@2980.com</a>. Where the reasons are justified, the Platform will revert the version to <a href="game_rules_old.html" class="notice-link"><strong>4.0.0</strong></a>. For detailed update information, please refer to the announcement published on the <a href="https://game.leleleling.site" class="notice-link">lelele Game official website</a>.
+            </div>
         </div>
 
         <h2>Chapter 1 General Provisions</h2>
