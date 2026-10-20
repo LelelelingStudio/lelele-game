@@ -1,20 +1,20 @@
 [
   {
-    "id": "20261018-launch",
-    "title_zh": "了了了游正式上线",
-    "title_en": "lelele Game is Live",
-    "content_zh": "欢迎来到了了了游！我们致力于为你发现更多好玩、有趣的独立游戏。\n如果你也是游戏开发者，欢迎点击右上角的「投稿」加入我们。",
-    "content_en": "Welcome to lelele Game! We are dedicated to discovering more fun and interesting indie games.\nIf you are a game developer, feel free to click 'Submit' in the top right corner to join us.",
+    "id": "20261018-launch-support-merged",
+    "title_zh": "了了了游正式上线 & 支持我们",
+    "title_en": "lelele Game is Live & Support Us",
+    "content_zh": "欢迎来到了了了游！我们致力于为你发现更多好玩、有趣的独立游戏。\n如果你也是游戏开发者，欢迎点击右上角的「投稿」加入我们。\n如果你喜欢了了了游，欢迎通过右上角的「❤️ 支持我们」按钮为我们提供支持。感谢你的认可！",
+    "content_en": "Welcome to lelele Game! We are dedicated to discovering more fun and interesting indie games.\nIf you are a game developer, feel free to click 'Submit' in the top right corner to join us.\nIf you like lelele Game, welcome to support us via the '❤️ Support Us' button in the top right corner. Thank you!",
     "publishDate": "2026-10-18",
-    "expireDate": "2027-10-19"
+    "expireDate": "2027-12-31"
   },
   {
-    "id": "20261020-support",
-    "title_zh": "支持我们",
-    "title_en": "Support Us",
-    "content_zh": "如果你喜欢了了了游，欢迎通过右上角的「❤️ 支持我们」按钮为我们提供支持。感谢你的认可！",
-    "content_en": "If you like lelele Game, welcome to support us via the '❤️ Support Us' button in the top right corner. Thank you!",
-    "publishDate": "2026-10-18",
-    "expireDate": "2026-12-31"
+    "id": "20261020-rules-4.0.1",
+    "title_zh": "了了了游游戏守则更新至 4.0.1 版本",
+    "title_en": "lelele Game Rules Updated to Version 4.0.1",
+    "content_zh": "【了了了游游戏守则】已更新至版本 4.0.1，更新内容如下：\n1. 纠正了部分法律文件链接的错误\n2. 修改了平台在部分业务上的响应时间\n3. 优化了一些已知的问题\n\n新的守则正式生效时间为 2026 年 10 月 25 日。在此之前，如有人认为该版本存在不妥，可通过发送邮件至 leleleling@2980.com 进行申诉；申诉审批通过后，将恢复到 4.0.0 版本。",
+    "content_en": "The lelele Game Rules have been updated to version 4.0.1. The updates are as follows:\n1. Corrected errors in some legal document links.\n2. Modified the platform's response times for certain business matters.\n3. Optimized some known issues.\n\nThe new rules will officially take effect on October 25, 2026. Before then, if anyone believes that any part of this version is inappropriate, they may appeal by sending an email to leleleling@2980.com. After the appeal is approved, the rules will be reverted to version 4.0.0.",
+    "publishDate": "2026-10-20",
+    "expireDate": "2027-12-31"
   }
 ]
