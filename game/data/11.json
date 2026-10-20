@@ -1,0 +1,19 @@
+{
+  "id": 11,
+  "name_zh": "吃星球小作战",
+  "name_en": "Eat Planet",
+  "icon": "🌍",
+  "category_zh": "休闲",
+  "category_en": "Casual",
+  "ageRating_zh": "全年龄",
+  "ageRating_en": "All Ages",
+  "version": "v1.0.0",
+  "author": "了了了岭工作室",
+  "url": "/game/eat_planet/index.html",
+  "banner": "/game/eat_planet/banner.png",
+  "screenshots": ["/game/eat_planet/banner.png"],
+  "description_zh": "暂无详细简介，作者正在努力编写中。你可以直接点击上方按钮开始游戏体验。",
+  "description_en": "No detailed description yet. Click the Play button above to experience the game.",
+  "updateLog_zh": [{"version": "v1.0.0", "date": "2026-10-19", "content": "游戏首发上线！"}],
+  "updateLog_en": [{"version": "v1.0.0", "date": "2026-10-19", "content": "Initial release!"}]
+}
