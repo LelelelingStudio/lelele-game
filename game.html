@@ -26,6 +26,10 @@
     <meta name="theme-color" content="#4f46e5">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <title>加载中... · 了了了游</title>
+
+    <!-- 【新增：Edgemetry 统计代码】 -->
+    <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
+
     <style>
         .zh-text, .en-text { display: none; }
         html[data-lang="zh"] .zh-text { display: block; }
@@ -389,17 +393,25 @@
             updateFavBtn();
         };
 
+        // 【修改】在 playGame 函数中增加 Edgemetry 事件上报
         window.playGame = function() {
             if (!currentGameData || !currentGameData.url) {
                 alert(isEn ? 'No playable link available.' : '该游戏暂无可用链接。');
                 return;
             }
+
+            if (typeof edgemetry !== 'undefined') {
+                edgemetry('play-game', { 
+                    gameId: String(currentGameId), 
+                    gameName: currentGameData.name_zh || currentGameData.name 
+                });
+            }
+
             window.open(currentGameData.url, '_blank', 'noopener,noreferrer');
         };
 
         // ==================== 页面渲染 ====================
         function renderGamePage(game) {
-            // 【修改】适配双语标题
             const gameName = isEn ? (game.name_en || game.name_zh || game.name) : (game.name_zh || game.name_en || game.name);
             document.title = `${gameName || (isEn ? 'Unknown' : '未知游戏')} · 了了了游`;
 
@@ -420,7 +432,6 @@
 
             document.getElementById('gameTitle').textContent = gameName;
             
-            // 【修改】适配双语标签
             const gameCat = isEn ? (game.category_en || game.category_zh || game.category) : (game.category_zh || game.category_en || game.category);
             const gameAge = isEn ? (game.ageRating_en || game.ageRating_zh || game.ageRating) : (game.ageRating_zh || game.ageRating_en || game.ageRating);
             
@@ -438,14 +449,12 @@
                 authorBar.style.display = 'none';
             }
 
-            // 【修改】适配双语简介
             let descText = isEn ? (game.description_en || game.description_zh || game.description) : (game.description_zh || game.description_en || game.description);
             if (!descText) {
                 descText = isEn ? 'No description provided yet.' : '这个游戏很神秘，作者还没有写详细简介。';
             }
             document.getElementById('gameDesc').textContent = descText;
 
-            // 渲染游戏截图
             if (game.screenshots && Array.isArray(game.screenshots) && game.screenshots.length > 0) {
                 document.getElementById('screenshotsContainer').style.display = 'block';
                 const grid = document.getElementById('screenshotsGrid');
@@ -454,7 +463,6 @@
                 `).join('');
             }
 
-            // 【修改】适配双语更新日志
             const logs = isEn ? (game.updateLog_en || game.updateLog_zh || game.updateLog) : (game.updateLog_zh || game.updateLog_en || game.updateLog);
             if (logs && Array.isArray(logs) && logs.length > 0) {
                 document.getElementById('updateLogContainer').style.display = 'block';
@@ -501,7 +509,6 @@
                     const baseGame = baseData.find(g => String(g.id) === String(currentGameId));
                     
                     if (baseGame) {
-                        // 【修改】兜底逻辑也适配双语
                         currentGameData = {
                             id: baseGame.id, icon: baseGame.icon,
                             name_zh: baseGame.name_zh || baseGame.name,
