@@ -393,7 +393,7 @@
             updateFavBtn();
         };
 
-        // 【修改】在 playGame 函数中增加 Edgemetry 事件上报
+                // 【修改】将游戏名拼接到事件名中，以便在后台直接查看每个游戏的点击量
         window.playGame = function() {
             if (!currentGameData || !currentGameData.url) {
                 alert(isEn ? 'No playable link available.' : '该游戏暂无可用链接。');
@@ -401,13 +401,12 @@
             }
 
             if (typeof edgemetry !== 'undefined') {
-                edgemetry('play-game', { 
-                    props: {
-                        gameId: String(currentGameId), 
-                        gameName: currentGameData.name_zh || currentGameData.name 
-                    }
-                });
+                const gameName = currentGameData.name_zh || currentGameData.name;
+                edgemetry('play-game_' + gameName);
             }
+
+            window.open(currentGameData.url, '_blank', 'noopener,noreferrer');
+        };
 
             window.open(currentGameData.url, '_blank', 'noopener,noreferrer');
         };
