@@ -1,35 +1,21 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<!-- PWA manifest 动态加载 -->
+<!-- 全站统一组件：样式 -->
+<link rel="stylesheet" href="https://game.leleleling.site/common.css">
+<!-- 强制标记为游戏页，让公告弹窗 15 秒自动消失 -->
 <script>
-  (function(){var lang=document.documentElement.getAttribute('data-lang')||'zh';var manifestMap={zh:'/manifest-zh.json',en:'/manifest-en.json',ja:'/manifest-ja.json',fr:'/manifest-fr.json'};var link=document.createElement('link');link.rel='manifest';link.href=manifestMap[lang]||'/manifest-zh.json';document.head.appendChild(link);})();
+  window.forceGamePage = true;
 </script>
-<!-- 苹果设备兼容 -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="/LOGO.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🌽 玉米工厂大亨 · 品种纪元</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-<!-- 了了了岭用户系统-样式与SDK -->
-<link rel="stylesheet" href="../../../common-user.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
-<div class="site-logo-container">
-    <img src="https://leleleling.site/LOGO.svg" 
-         onerror="this.onerror=null; this.src='https://leleleling.surge.sh/LOGO.svg';" 
-         alt="Logo" 
-         style="height: 40px; width: 40px; border-radius: 50%; margin: 10px;">
-</div>
-<!-- 了了了岭用户系统-顶部挂件 -->
-<div id="userWidget" style="position:fixed;top:15px;right:20px;z-index:9999;"></div>
-
     <div class="container">
         <header>
             <h1><i class="fas fa-seedling"></i> 玉米工厂大亨 · 品种纪元</h1>
@@ -183,12 +169,9 @@
     </div>
 
     <script src="game.js"></script>
-<!-- 了了了岭用户系统-核心逻辑 -->
-<script src="../../../common-user.js"></script>
-<!-- PWA Service Worker 注册 -->
-<script>
-if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js').then(function(reg){console.log('✅ PWA Service Worker 注册成功');}).catch(function(err){console.log('❌ PWA Service Worker 注册失败:',err);});}
-</script>
+<!-- 全站统一组件：脚本 -->
+<script src="https://game.leleleling.site/common.js" defer></script>
+<script async src="https://tally.so/widgets/embed.js"></script>
 </body>
 
 </html>
