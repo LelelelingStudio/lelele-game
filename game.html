@@ -27,7 +27,10 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <title>加载中... · 了了了游</title>
 
-    <!-- 【新增：Edgemetry 统计代码】 -->
+    <!-- 引入全局样式 -->
+    <link rel="stylesheet" href="common.css">
+
+    <!-- 统计代码 -->
     <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
 
     <style>
@@ -42,18 +45,19 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background: linear-gradient(145deg, #f0f4f9 0%, #e8ecf5 100%);
+            background: var(--bg-gradient);
             font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-            color: #1e293b;
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
+            transition: background 0.3s, color 0.3s;
         }
 
         .top-bar {
             width: 100%;
-            background: rgba(255, 255, 255, 0.75);
+            background: var(--card-bg);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             padding: 12px 28px;
@@ -61,6 +65,7 @@
             top: 0;
             z-index: 100;
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
+            border-bottom: 1px solid var(--card-border);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -70,7 +75,7 @@
             align-items: center;
             gap: 6px;
             text-decoration: none;
-            color: #4f46e5;
+            color: var(--primary);
             font-weight: 600;
             font-size: 0.95rem;
             padding: 8px 16px;
@@ -79,16 +84,49 @@
             transition: all 0.2s;
         }
         .back-btn:hover { background: rgba(79, 70, 229, 0.15); }
+        
         .site-title {
             font-weight: 800;
             font-size: 1.1rem;
-            color: #1e293b;
+            color: var(--text-main);
             display: flex;
             align-items: center;
             gap: 8px;
             cursor: pointer;
         }
         .site-title img { height: 24px; }
+        .logo-fallback { font-size: 1.2rem; line-height: 1; }
+
+        /* 语言切换 - 强制覆盖原生样式 */
+        .lang-switch {
+            display: inline-flex; 
+            background: rgba(148, 163, 184, 0.15);
+            border-radius: 30px; 
+            padding: 3px;
+            border: none;
+        }
+        .lang-btn {
+            padding: 6px 16px; 
+            border: none; 
+            border-radius: 24px; 
+            background: transparent;
+            font-size: 0.85rem; 
+            font-weight: 600; 
+            color: var(--text-muted); 
+            cursor: pointer;
+            transition: all 0.2s; 
+            font-family: inherit;
+            outline: none;
+            -webkit-appearance: none;
+            margin: 0;
+            line-height: 1.2;
+        }
+        .lang-btn.active { 
+            background: #4f46e5; 
+            color: #fff !important; 
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25); 
+        }
+        .lang-btn:hover:not(.active) { color: var(--text-main); }
 
         .main-container {
             width: 100%;
@@ -99,9 +137,10 @@
         }
 
         .game-detail-card {
-            background: #fff;
+            background: var(--card-bg);
             border-radius: 24px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--card-border);
             overflow: hidden;
             display: none;
             animation: fadeIn 0.4s ease;
@@ -139,7 +178,7 @@
         .game-title {
             font-size: 2.2rem;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--text-main);
             margin-bottom: 12px;
             line-height: 1.2;
         }
@@ -149,11 +188,11 @@
             font-weight: 600;
             padding: 4px 12px;
             border-radius: 20px;
-            background: #f1f5f9;
-            color: #475569;
+            background: rgba(148,163,184,0.1);
+            color: var(--text-muted);
         }
         .tag.age { background: rgba(16, 185, 129, 0.1); color: #059669; }
-        .tag.version { background: rgba(79, 70, 229, 0.1); color: #4f46e5; }
+        .tag.version { background: rgba(79, 70, 229, 0.1); color: var(--primary); }
 
         .action-buttons { display: flex; gap: 12px; align-items: center; }
         .btn {
@@ -161,28 +200,28 @@
             padding: 14px 32px; border-radius: 30px; font-size: 1.05rem; font-weight: 700;
             border: none; cursor: pointer; transition: all 0.2s; text-decoration: none; font-family: inherit;
         }
-        .btn-play { background: #4f46e5; color: #fff; box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3); }
-        .btn-play:hover { background: #4338ca; transform: translateY(-2px); box-shadow: 0 12px 24px rgba(79, 70, 229, 0.4); }
+        .btn-play { background: var(--primary); color: #fff; box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3); }
+        .btn-play:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 12px 24px rgba(79, 70, 229, 0.4); }
         
-        .btn-fav { background: #f1f5f9; color: #1e293b; padding: 14px 20px; box-shadow: none; }
-        .btn-fav:hover { background: #e2e8f0; }
+        .btn-fav { background: rgba(148,163,184,0.1); color: var(--text-main); padding: 14px 20px; box-shadow: none; }
+        .btn-fav:hover { background: rgba(148,163,184,0.2); }
         .btn-fav.active { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
         .btn-fav.active:hover { background: #fde68a; }
 
         .author-bar {
-            display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: #64748b;
-            margin-top: 16px; padding-top: 16px; border-top: 1px dashed #e2e8f0;
+            display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: var(--text-muted);
+            margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--card-border);
         }
-        .author-bar strong { color: #1e293b; }
+        .author-bar strong { color: var(--text-main); }
 
         .section-title {
-            font-size: 1.2rem; font-weight: 700; color: #0f172a;
-            margin: 30px 0 16px; padding-left: 10px; border-left: 4px solid #4f46e5;
+            font-size: 1.2rem; font-weight: 700; color: var(--text-main);
+            margin: 30px 0 16px; padding-left: 10px; border-left: 4px solid var(--primary);
         }
         
         .game-description {
-            font-size: 1rem; line-height: 1.8; color: #334155; white-space: pre-wrap;
-            background: #f8fafc; padding: 24px; border-radius: 16px; border: 1px solid #f1f5f9;
+            font-size: 1rem; line-height: 1.8; color: var(--text-main); white-space: pre-wrap;
+            background: rgba(148,163,184,0.05); padding: 24px; border-radius: 16px; border: 1px solid var(--card-border);
         }
 
         /* 截图展示区 */
@@ -199,26 +238,26 @@
             border-radius: 12px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--card-border);
         }
         .screenshot-img:hover {
             transform: scale(1.03);
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
 
-        .timeline { position: relative; padding-left: 20px; border-left: 2px solid #e2e8f0; margin-left: 10px; }
+        .timeline { position: relative; padding-left: 20px; border-left: 2px solid var(--card-border); margin-left: 10px; }
         .timeline-item { position: relative; margin-bottom: 24px; }
         .timeline-item:last-child { margin-bottom: 0; }
         .timeline-item::before {
             content: ''; position: absolute; left: -25px; top: 4px; width: 12px; height: 12px;
-            border-radius: 50%; background: #4f46e5; border: 2px solid #fff; box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+            border-radius: 50%; background: var(--primary); border: 2px solid var(--card-bg); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
         }
         .timeline-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
-        .timeline-version { font-weight: 700; color: #0f172a; }
-        .timeline-date { font-size: 0.85rem; color: #94a3b8; }
-        .timeline-content { font-size: 0.95rem; color: #475569; line-height: 1.6; white-space: pre-wrap; }
+        .timeline-version { font-weight: 700; color: var(--text-main); }
+        .timeline-date { font-size: 0.85rem; color: var(--text-muted); }
+        .timeline-content { font-size: 0.95rem; color: var(--text-main); line-height: 1.6; white-space: pre-wrap; }
 
-        .loading-state, .error-state { text-align: center; padding: 60px 20px; color: #64748b; font-size: 1.1rem; display: none; }
+        .loading-state, .error-state { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 1.1rem; display: none; }
         .error-state .btn { margin-top: 20px; }
 
         /* 全屏图片预览遮罩 */
@@ -263,9 +302,18 @@
         <a href="index.html" class="back-btn" id="backBtn">
             ← <span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span>
         </a>
+        
+        <!-- 顶部 Logo + 兜底 -->
         <div class="site-title" onclick="window.location.href='index.html'">
-            <img src="lelelegame.svg" alt="Logo" onerror="this.style.display='none'">
+            <img src="lelelegame.svg" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span class="logo-fallback" style="display:none;">🎮</span>
             <span class="zh-inline">了了了游</span><span class="en-inline">lelele Game</span>
+        </div>
+
+        <!-- 语言切换 -->
+        <div class="lang-switch" role="group">
+            <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+            <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
         </div>
     </div>
 
@@ -335,6 +383,9 @@
         <img id="lightboxImg" src="" alt="Preview" onclick="event.stopPropagation()">
     </div>
 
+    <!-- 引入全局脚本 -->
+    <script src="common.js" defer></script>
+
     <script>
         function escapeHtml(str) {
             if (str === null || str === undefined) return '';
@@ -345,12 +396,19 @@
 
         let currentGameId = null;
         let currentGameData = null;
-        const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
-        const isEn = currentLang === 'en';
-        const textSuffix = isEn ? '?lang=en' : '';
 
-        document.getElementById('backBtn').href = 'index.html' + textSuffix;
-        document.getElementById('errorBackBtn').href = 'index.html' + textSuffix;
+        // 动态获取当前语言，避免硬编码
+        function isEn() {
+            return document.documentElement.getAttribute('data-lang') === 'en';
+        }
+
+        // 更新语言相关的链接
+        function updateLinks() {
+            const suffix = isEn() ? '?lang=en' : '';
+            document.getElementById('backBtn').href = 'index.html' + suffix;
+            document.getElementById('errorBackBtn').href = 'index.html' + suffix;
+        }
+        updateLinks();
 
         // ==================== 图片预览 (Lightbox) 逻辑 ====================
         window.openLightbox = function(imgSrc) {
@@ -393,10 +451,9 @@
             updateFavBtn();
         };
 
-                // 【修改】将游戏名拼接到事件名中，以便在后台直接查看每个游戏的点击量
         window.playGame = function() {
             if (!currentGameData || !currentGameData.url) {
-                alert(isEn ? 'No playable link available.' : '该游戏暂无可用链接。');
+                alert(isEn() ? 'No playable link available.' : '该游戏暂无可用链接。');
                 return;
             }
 
@@ -408,12 +465,11 @@
             window.open(currentGameData.url, '_blank', 'noopener,noreferrer');
         };
 
-            
-
         // ==================== 页面渲染 ====================
         function renderGamePage(game) {
-            const gameName = isEn ? (game.name_en || game.name_zh || game.name) : (game.name_zh || game.name_en || game.name);
-            document.title = `${gameName || (isEn ? 'Unknown' : '未知游戏')} · 了了了游`;
+            const en = isEn();
+            const gameName = en ? (game.name_en || game.name_zh || game.name) : (game.name_zh || game.name_en || game.name);
+            document.title = `${gameName || (en ? 'Unknown' : '未知游戏')} · 了了了游`;
 
             const bannerArea = document.getElementById('bannerArea');
             const bannerIcon = document.getElementById('bannerIcon');
@@ -421,7 +477,7 @@
                 bannerArea.style.backgroundImage = `url('${escapeHtml(game.banner)}')`;
                 bannerArea.classList.remove('no-image');
                 bannerIcon.style.display = 'none';
-                bannerArea.setAttribute('title', isEn ? 'Click to enlarge' : '点击查看大图');
+                bannerArea.setAttribute('title', en ? 'Click to enlarge' : '点击查看大图');
             } else {
                 bannerArea.style.backgroundImage = 'linear-gradient(135deg, rgba(79,70,229,0.1) 0%, rgba(124,58,237,0.1) 100%)';
                 bannerArea.classList.add('no-image');
@@ -432,8 +488,8 @@
 
             document.getElementById('gameTitle').textContent = gameName;
             
-            const gameCat = isEn ? (game.category_en || game.category_zh || game.category) : (game.category_zh || game.category_en || game.category);
-            const gameAge = isEn ? (game.ageRating_en || game.ageRating_zh || game.ageRating) : (game.ageRating_zh || game.ageRating_en || game.ageRating);
+            const gameCat = en ? (game.category_en || game.category_zh || game.category) : (game.category_zh || game.category_en || game.category);
+            const gameAge = en ? (game.ageRating_en || game.ageRating_zh || game.ageRating) : (game.ageRating_zh || game.ageRating_en || game.ageRating);
             
             let tagsHtml = '';
             if (gameCat) tagsHtml += `<span class="tag">${escapeHtml(gameCat)}</span>`;
@@ -443,15 +499,15 @@
 
             const authorBar = document.getElementById('authorBar');
             if (game.author) {
-                const authorLabel = isEn ? 'Developer' : '开发者';
+                const authorLabel = en ? 'Developer' : '开发者';
                 authorBar.innerHTML = `${authorLabel}: <strong>${escapeHtml(game.author)}</strong>`;
             } else {
                 authorBar.style.display = 'none';
             }
 
-            let descText = isEn ? (game.description_en || game.description_zh || game.description) : (game.description_zh || game.description_en || game.description);
+            let descText = en ? (game.description_en || game.description_zh || game.description) : (game.description_zh || game.description_en || game.description);
             if (!descText) {
-                descText = isEn ? 'No description provided yet.' : '这个游戏很神秘，作者还没有写详细简介。';
+                descText = en ? 'No description provided yet.' : '这个游戏很神秘，作者还没有写详细简介。';
             }
             document.getElementById('gameDesc').textContent = descText;
 
@@ -463,14 +519,14 @@
                 `).join('');
             }
 
-            const logs = isEn ? (game.updateLog_en || game.updateLog_zh || game.updateLog) : (game.updateLog_zh || game.updateLog_en || game.updateLog);
+            const logs = en ? (game.updateLog_en || game.updateLog_zh || game.updateLog) : (game.updateLog_zh || game.updateLog_en || game.updateLog);
             if (logs && Array.isArray(logs) && logs.length > 0) {
                 document.getElementById('updateLogContainer').style.display = 'block';
                 const timeline = document.getElementById('timeline');
                 timeline.innerHTML = logs.map(log => `
                     <div class="timeline-item">
                         <div class="timeline-header">
-                            <span class="timeline-version">${escapeHtml(log.version || (isEn ? 'Update' : '更新'))}</span>
+                            <span class="timeline-version">${escapeHtml(log.version || (en ? 'Update' : '更新'))}</span>
                             <span class="timeline-date">${escapeHtml(log.date || '')}</span>
                         </div>
                         <div class="timeline-content">${escapeHtml(log.content || '')}</div>
@@ -479,8 +535,6 @@
             }
 
             updateFavBtn();
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('gameCard').style.display = 'block';
         }
 
         // ==================== 数据加载 ====================
@@ -489,7 +543,7 @@
             currentGameId = urlParams.get('id');
 
             if (!currentGameId) {
-                showError(isEn ? 'Missing game ID parameter.' : '缺少游戏 ID 参数，无法加载。');
+                showError(isEn() ? 'Missing game ID parameter.' : '缺少游戏 ID 参数，无法加载。');
                 return;
             }
 
@@ -499,6 +553,8 @@
                 if (detailRes.ok) {
                     currentGameData = await detailRes.json();
                     renderGamePage(currentGameData);
+                    document.getElementById('loadingState').style.display = 'none';
+                    document.getElementById('gameCard').style.display = 'block';
                     return;
                 }
                 
@@ -518,19 +574,21 @@
                             ageRating_zh: baseGame.ageRating_zh || baseGame.ageRating,
                             ageRating_en: baseGame.ageRating_en || baseGame.ageRating,
                             url: baseGame.url, 
-                            version: baseGame.version || (isEn ? 'Unknown' : '未知版本'),
+                            version: baseGame.version || (isEn() ? 'Unknown' : '未知版本'),
                             description_zh: '暂无详细简介，作者可能正在努力编写中。你可以直接点击上方按钮开始游戏体验。',
                             description_en: 'No detailed description yet. Click Play to try.'
                         };
                         renderGamePage(currentGameData);
+                        document.getElementById('loadingState').style.display = 'none';
+                        document.getElementById('gameCard').style.display = 'block';
                         return;
                     }
                 }
 
-                showError(isEn ? 'Game not found or removed.' : '该游戏不存在或已被下架。');
+                showError(isEn() ? 'Game not found or removed.' : '该游戏不存在或已被下架。');
             } catch (e) {
                 console.error('加载失败:', e);
-                showError(isEn ? 'Network error, please try again later.' : '网络或数据加载失败，请稍后重试。');
+                showError(isEn() ? 'Network error, please try again later.' : '网络或数据加载失败，请稍后重试。');
             }
         }
 
@@ -541,7 +599,25 @@
             document.getElementById('errorMsg').textContent = msg;
         }
 
-        init();
+        // ==================== 接管全局语言切换 ====================
+        const originalSetLang = window.setLang;
+        window.setLang = function(lang) {
+            if (originalSetLang) originalSetLang(lang);
+            updateLinks();
+            if (typeof currentGameData !== 'undefined' && currentGameData) {
+                renderGamePage(currentGameData);
+            }
+        };
+
+        // ==================== 页面初始化 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初始化 UI 语言状态
+            const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
+            if (typeof window.setLang === 'function') {
+                window.setLang(currentLang);
+            }
+            init();
+        });
     </script>
 </body>
 </html>
