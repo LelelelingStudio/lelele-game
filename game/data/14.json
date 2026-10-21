@@ -1,0 +1,30 @@
+{
+  "id": 14,
+  "name_zh": "钢铁军团",
+  "name_en": "Iron Legion",
+  "icon": "⚔️",
+  "category_zh": "射击",
+  "category_en": "Shooter",
+  "ageRating_zh": "12+",
+  "ageRating_en": "12+",
+  "version": "v1.0.0",
+  "author": "Jonathan",
+  "url": "https://jonathanxu-games.netlify.app/games/army-war-3d.html",
+  "screenshots": [],
+  "description_zh": "守住你的基地！敌军将一波接一波地进攻 —— 击杀敌军赚取金钱。\n\n【详细玩法】\n可以买步兵坦克等部队。\n操作：左键 点选/拖框选，WASD平移视角，滚轮 缩放，右键机动(直奔目标)/点敌人=集火，Q/E旋转视角，空格 停止所选部队，Esc 暂停。\n游戏目标：击退敌方军队，游戏结束的唯一条件是己方失败。",
+  "description_en": "Defend your base! Enemy forces will attack wave after wave -- kill enemies to earn money.\n\n[Detailed Gameplay]\nYou can buy infantry, tanks, and other units.\nControls: Left click to select/drag select, WASD to pan camera, Scroll wheel to zoom, Right click to move (direct to target) / click enemy to focus fire, Q/E to rotate camera, Space to stop selected units, Esc to pause.\nGoal: Repel the enemy army. The only condition for game over is your defeat.",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-21",
+      "content": "游戏首发上线！"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-21",
+      "content": "Initial release!"
+    }
+  ]
+}
