@@ -30,7 +30,6 @@
             document.documentElement.classList.add('dark-mode');
         }
 
-        // 提供全局切换接口
         window.toggleTheme = function() {
             const isDark = document.documentElement.classList.toggle('dark-mode');
             localStorage.setItem('lelele_theme', isDark ? 'dark' : 'light');
@@ -39,7 +38,7 @@
 
     // ==================== Footer 注入逻辑 ====================
     function injectFooter() {
-        if (document.querySelector('.common-footer')) return; // 防止重复注入
+        if (document.querySelector('.common-footer')) return;
         const lang = getLang();
         const suffix = lang === 'en' ? '?lang=en' : '';
         
@@ -52,7 +51,6 @@
             <a href="${MAIN_SITE_URL}/copyright.html${suffix}">${lang === 'zh' ? '版权投诉' : 'Copyright'}</a>
         `;
         
-        // 如果原本有 footer，就替换掉；没有就追加
         const oldFooter = document.querySelector('footer:not(.common-footer)');
         if (oldFooter) {
             oldFooter.replaceWith(footer);
@@ -76,14 +74,12 @@
         const btnTop = document.getElementById('commonBtnTop');
         const btnFeedback = document.getElementById('commonBtnFeedback');
 
-        // 回到顶部逻辑
         window.addEventListener('scroll', () => {
             if (window.scrollY > 300) btnTop.classList.add('show');
             else btnTop.classList.remove('show');
         });
         btnTop.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        // 反馈弹窗逻辑 (使用 Tally)
         btnFeedback.onclick = () => {
             if (typeof Tally !== 'undefined') {
                 try {
@@ -103,10 +99,8 @@
         e.preventDefault();
         deferredPrompt = e;
         
-        // 1分钟后提示安装
         setTimeout(() => {
             if (!deferredPrompt) return;
-            
             if (localStorage.getItem('lelele_pwa_dismissed') === 'true') return;
 
             const isEn = getLang() === 'en';
@@ -142,12 +136,12 @@
             `;
             document.body.appendChild(pwaBanner);
 
-            document.getElementById('pwaInstallBtn').addEventListener('click', async () => {
+            document.getElementById('pwaInstallBtn').addEventListener('click', () => {
+                // 【修复】只要点击按钮，立即隐藏自定义弹窗，后续交由浏览器原生 UI 接管
+                pwaBanner.remove();
                 if (deferredPrompt) {
                     deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    if (outcome === 'accepted') pwaBanner.remove();
-                    deferredPrompt = null;
+                    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
                 }
             });
 
@@ -164,7 +158,6 @@
 
     async function initAnnouncements() {
         try {
-            // 使用主站绝对路径拉取公告，解决外网游戏跨域读不到 JSON 的问题
             const res = await fetch(`${MAIN_SITE_URL}/announcements.json`);
             if (!res.ok) return;
             let allData = await res.json();
@@ -219,7 +212,7 @@
 
     function renderIndexAnnouncements(top3Data, closedObj) {
         const listEl = document.getElementById('announcementsList');
-        if (!listEl) return; // 游戏内没有公告列表容器，直接跳过
+        if (!listEl) return;
         
         const container = document.getElementById('announcementsContainer');
         const renderList = top3Data.filter(item => {
@@ -308,15 +301,11 @@
             });
             setStorage('lelele_read_announcements', readList);
             
-            // 【修改】使用绝对路径，兼容外网游戏
             if (!window.location.pathname.endsWith('index.html') && window.location.hostname === 'game.leleleling.site' && window.location.pathname !== '/') {
-                // 如果在主站的其他页面
                 window.open(MAIN_SITE_URL + '/index.html' + (isEn ? '?lang=en' : ''), '_blank');
             } else if (window.location.hostname !== 'game.leleleling.site') {
-                // 如果在外网游戏
                 window.open(MAIN_SITE_URL + '/index.html' + (isEn ? '?lang=en' : ''), '_blank');
             } else {
-                // 已经在主站首页了
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
             
