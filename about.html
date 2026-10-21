@@ -28,6 +28,9 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <title>关于我们 · 了了了游</title>
     
+    <!-- 引入全局样式 -->
+    <link rel="stylesheet" href="common.css">
+    
     <!-- 统计代码 -->
     <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
     
@@ -45,14 +48,15 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background: linear-gradient(145deg, #f0f4f9 0%, #e8ecf5 100%);
+            background: var(--bg-gradient);
             font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-            color: #1e293b;
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 0 1.5rem 3rem;
+            transition: background 0.3s, color 0.3s;
         }
 
         /* ===== 顶部导航 ===== */
@@ -69,7 +73,7 @@
             align-items: center;
             gap: 6px;
             text-decoration: none;
-            color: #4f46e5;
+            color: var(--primary);
             font-weight: 600;
             font-size: 0.95rem;
             padding: 8px 16px;
@@ -78,32 +82,55 @@
             transition: all 0.2s;
         }
         .back-btn:hover { background: rgba(79, 70, 229, 0.15); }
-        .site-logo { height: 36px; width: auto; cursor: pointer; transition: transform 0.2s; }
-        .site-logo:hover { transform: scale(1.05); }
         
-        /* 语言切换 */
+        .logo-container { display: flex; align-items: center; cursor: pointer; }
+        .site-logo { height: 36px; width: auto; transition: transform 0.2s; }
+        .site-logo:hover { transform: scale(1.05); }
+        .logo-fallback { font-size: 1.8rem; line-height: 1; }
+        
+        /* 语言切换 - 强制覆盖原生样式 */
         .lang-switch {
-            display: flex; gap: 2px; background: rgba(148, 163, 184, 0.12);
-            border-radius: 30px; padding: 3px;
+            display: inline-flex; 
+            background: rgba(148, 163, 184, 0.15);
+            border-radius: 30px; 
+            padding: 3px;
+            border: none;
         }
         .lang-btn {
-            padding: 4px 12px; border: none; border-radius: 24px; background: transparent;
-            font-size: 0.8rem; font-weight: 600; color: #64748b; cursor: pointer;
-            transition: all 0.2s; font-family: inherit;
+            padding: 6px 16px; 
+            border: none; 
+            border-radius: 24px; 
+            background: transparent;
+            font-size: 0.85rem; 
+            font-weight: 600; 
+            color: var(--text-muted); 
+            cursor: pointer;
+            transition: all 0.2s; 
+            font-family: inherit;
+            outline: none;
+            -webkit-appearance: none;
+            margin: 0;
+            line-height: 1.2;
         }
-        .lang-btn.active { background: #4f46e5; color: #fff; box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25); }
-        .lang-btn:hover:not(.active) { color: #1e293b; }
+        .lang-btn.active { 
+            background: #4f46e5; 
+            color: #fff !important; 
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25); 
+        }
+        .lang-btn:hover:not(.active) { 
+            color: var(--text-main); 
+        }
 
         /* ===== 主内容区 ===== */
         .main-container {
             width: 100%;
             max-width: 900px;
-            background: rgba(255, 255, 255, 0.85);
+            background: var(--card-bg);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-radius: 36px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.04);
-            border: 1px solid rgba(148, 163, 184, 0.1);
+            border: 1px solid var(--card-border);
             padding: 4rem 3.5rem;
             animation: fadeIn 0.6s ease-out;
         }
@@ -114,13 +141,19 @@
             text-align: center;
             margin-bottom: 4rem;
             padding-bottom: 3rem;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+            border-bottom: 1px solid var(--card-border);
         }
-        .hero-icon { font-size: 4rem; margin-bottom: 1.5rem; line-height: 1; }
+        .hero-icon { 
+            display: flex; justify-content: center; align-items: center; 
+            margin-bottom: 1.5rem; height: 80px;
+        }
+        .hero-img { height: 80px; width: auto; max-width: 100%; object-fit: contain; }
+        .hero-emoji { font-size: 4rem; line-height: 1; }
+        
         .hero h1 {
             font-size: 2.6rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #1e293b 0%, #4f46e5 80%);
+            background: linear-gradient(135deg, var(--text-main) 0%, var(--primary) 80%);
             background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 1rem;
@@ -128,7 +161,7 @@
         }
         .hero p {
             font-size: 1.15rem;
-            color: #64748b;
+            color: var(--text-muted);
             max-width: 650px;
             margin: 0 auto;
             line-height: 1.8;
@@ -144,17 +177,17 @@
         .section-title {
             font-size: 1.5rem;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--text-main);
             margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
             gap: 10px;
             padding-bottom: 10px;
-            border-bottom: 2px solid rgba(79, 70, 229, 0.1);
+            border-bottom: 2px solid var(--card-border);
         }
         .section p {
             font-size: 1.05rem;
-            color: #334155;
+            color: var(--text-main);
             line-height: 2;
             margin-bottom: 1.2rem;
             text-align: justify;
@@ -163,15 +196,15 @@
 
         /* 正文内的超链接 */
         .content-link {
-            color: #4f46e5;
+            color: var(--primary);
             font-weight: 600;
             text-decoration: none;
             border-bottom: 1px dashed rgba(79, 70, 229, 0.4);
             transition: all 0.2s;
         }
         .content-link:hover {
-            color: #4338ca;
-            border-bottom-color: #4f46e5;
+            color: var(--primary-hover);
+            border-bottom-color: var(--primary);
             background: rgba(79, 70, 229, 0.05);
         }
 
@@ -180,15 +213,15 @@
             list-style: none;
             padding: 0;
             margin: 1.5rem 0;
-            background: #f8fafc;
+            background: rgba(148, 163, 184, 0.05);
             border-radius: 16px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--card-border);
             overflow: hidden;
         }
         .rights-list li {
             padding: 1.5rem;
-            border-bottom: 1px solid #e2e8f0;
-            color: #475569;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--text-main);
             line-height: 1.7;
             position: relative;
             padding-left: 3.5rem;
@@ -202,7 +235,7 @@
             font-size: 1.2rem;
         }
         .rights-list li strong {
-            color: #1e293b;
+            color: var(--text-main);
             margin-right: 4px;
         }
 
@@ -214,36 +247,36 @@
             margin: 1.5rem 0;
         }
         .product-item {
-            background: #fff;
-            border: 1px solid #e2e8f0;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
             padding: 12px 16px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             gap: 10px;
             font-size: 0.95rem;
-            color: #475569;
+            color: var(--text-main);
             text-decoration: none;
             transition: all 0.2s;
         }
         .product-item:hover {
-            border-color: #4f46e5;
+            border-color: var(--primary);
             box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);
             transform: translateY(-2px);
         }
         .product-item.active {
             background: rgba(79, 70, 229, 0.04);
             border-color: rgba(79, 70, 229, 0.2);
-            color: #4f46e5;
+            color: var(--primary);
             font-weight: 600;
         }
         .product-item.disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            background: #f8fafc;
+            background: transparent;
         }
         .product-item.disabled:hover {
-            border-color: #e2e8f0;
+            border-color: var(--card-border);
             box-shadow: none;
             transform: none;
         }
@@ -252,9 +285,9 @@
         .changelog-box {
             display: flex;
             height: 400px;
-            background: #fff;
+            background: var(--card-bg);
             border-radius: 16px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--card-border);
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0,0,0,0.02);
         }
@@ -262,8 +295,8 @@
         /* 左侧版本列表 */
         .changelog-sidebar {
             width: 220px;
-            background: #f8fafc;
-            border-right: 1px solid #e2e8f0;
+            background: rgba(148, 163, 184, 0.05);
+            border-right: 1px solid var(--card-border);
             overflow-y: auto;
             flex-shrink: 0;
         }
@@ -271,43 +304,43 @@
             padding: 16px 20px;
             cursor: pointer;
             border-left: 4px solid transparent;
-            border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+            border-bottom: 1px solid var(--card-border);
             transition: all 0.2s;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .changelog-item:hover { background: rgba(241, 245, 249, 0.8); }
+        .changelog-item:hover { background: rgba(148, 163, 184, 0.1); }
         .changelog-item.active {
-            background: #fff;
-            border-left-color: #4f46e5;
+            background: var(--card-bg);
+            border-left-color: var(--primary);
         }
-        .version-tag { font-weight: 700; color: #334155; font-size: 1rem; }
-        .changelog-item.active .version-tag { color: #4f46e5; }
-        .version-date { font-size: 0.75rem; color: #94a3b8; }
+        .version-tag { font-weight: 700; color: var(--text-main); font-size: 1rem; }
+        .changelog-item.active .version-tag { color: var(--primary); }
+        .version-date { font-size: 0.75rem; color: var(--text-muted); }
 
         /* 右侧内容区 */
         .changelog-content {
             flex: 1;
             padding: 30px;
             overflow-y: auto;
-            color: #475569;
+            color: var(--text-main);
         }
         .changelog-content h4 {
             font-size: 1.3rem;
-            color: #0f172a;
+            color: var(--text-main);
             margin-bottom: 1rem;
             padding-bottom: 0.8rem;
-            border-bottom: 1px dashed #cbd5e1;
+            border-bottom: 1px dashed var(--card-border);
             display: flex;
             align-items: center;
             gap: 12px;
         }
         .changelog-content h4 span.date {
             font-size: 0.85rem;
-            color: #94a3b8;
+            color: var(--text-muted);
             font-weight: 400;
-            background: #f1f5f9;
+            background: rgba(148, 163, 184, 0.1);
             padding: 2px 8px;
             border-radius: 10px;
         }
@@ -316,57 +349,45 @@
             line-height: 1.8;
             white-space: pre-wrap; /* 保留换行符 */
         }
-        .changelog-loading { text-align: center; padding: 40px; color: #94a3b8; }
+        .changelog-loading { text-align: center; padding: 40px; color: var(--text-muted); }
 
         /* ===== 联系方式 ===== */
         .contact-box {
             text-align: center;
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(124, 58, 237, 0.05) 100%);
+            background: rgba(79, 70, 229, 0.05);
             border-radius: 24px;
             padding: 3rem 2rem;
             margin-top: 3.5rem;
-            border: 1px solid rgba(79, 70, 229, 0.1);
+            border: 1px solid var(--card-border);
         }
         .contact-box h3 {
             font-size: 1.3rem;
             font-weight: 800;
-            color: #0f172a;
+            color: var(--text-main);
             margin-bottom: 1rem;
         }
         .contact-email {
             display: inline-block;
             font-size: 1.3rem;
             font-weight: 700;
-            color: #4f46e5;
+            color: var(--primary);
             text-decoration: none;
             padding: 12px 32px;
-            background: #fff;
+            background: var(--card-bg);
             border-radius: 30px;
             margin-bottom: 1.5rem;
             box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
             transition: all 0.2s;
         }
         .contact-email:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(79, 70, 229, 0.2); }
-        .contact-box p { font-size: 0.95rem; color: #64748b; }
-
-        /* ===== 底部 Footer ===== */
-        footer {
-            width: 100%;
-            max-width: 900px;
-            text-align: center;
-            padding: 20px;
-            color: #94a3b8;
-            font-size: 13px;
-            border-top: 1px solid rgba(148, 163, 184, 0.1);
-            margin-top: 20px;
-        }
-        footer a { color: #4f46e5; text-decoration: none; margin: 0 6px; }
-        footer a:hover { text-decoration: underline; }
+        .contact-box p { font-size: 0.95rem; color: var(--text-muted); }
 
         @media (max-width: 768px) {
             .main-container { padding: 2.5rem 1.5rem; border-radius: 24px; }
             .hero h1 { font-size: 2rem; }
             .hero p { font-size: 1rem; }
+            .hero-img { height: 64px; }
+            .hero-emoji { font-size: 3rem; }
             .section-title { font-size: 1.3rem; }
             .section p { font-size: 0.95rem; }
             .top-bar { padding: 10px 0; }
@@ -377,7 +398,7 @@
             .changelog-box { flex-direction: column; height: 500px; }
             .changelog-sidebar { 
                 width: 100%; height: 120px; border-right: none; 
-                border-bottom: 1px solid #e2e8f0; display: flex; 
+                border-bottom: 1px solid var(--card-border); display: flex; 
                 overflow-x: auto; overflow-y: hidden; 
             }
             .changelog-item { 
@@ -385,7 +406,7 @@
                 flex-direction: column; align-items: flex-start; 
                 justify-content: center; min-width: 120px; padding: 12px;
             }
-            .changelog-item.active { border-left-color: transparent; border-bottom-color: #4f46e5; }
+            .changelog-item.active { border-left-color: transparent; border-bottom-color: var(--primary); }
             .changelog-content { padding: 20px; }
         }
     </style>
@@ -397,7 +418,12 @@
         <a href="index.html" class="back-btn" id="backBtn">
             ← <span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span>
         </a>
-        <img src="lelelegame.svg" alt="了了了游" class="site-logo" onclick="window.location.href='index.html'" onerror="this.style.display='none'">
+        
+        <!-- 顶部 Logo + 兜底 -->
+        <div class="logo-container" onclick="window.location.href='index.html'">
+            <img src="lelelegame.svg" alt="了了了游" class="site-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span class="logo-fallback" style="display:none;">🎮</span>
+        </div>
         
         <!-- 语言切换 -->
         <div class="lang-switch" role="group">
@@ -411,7 +437,11 @@
         
         <!-- Hero -->
         <div class="hero">
-            <div class="hero-icon">🎮</div>
+            <!-- Hero Logo + 兜底 -->
+            <div class="hero-icon">
+                <img src="lelelegame.svg" alt="了了了游" class="hero-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <span class="hero-emoji" style="display:none;">🎮</span>
+            </div>
             <h1>
                 <span class="zh-inline">发现独立游戏的魅力</span>
                 <span class="en-inline">Discover the charm of indie games</span>
@@ -542,16 +572,11 @@
 
     </div>
 
-    <!-- 底部 Footer -->
-    <footer>
-        © 2026 <span class="zh-inline">了了了岭工作室 · 了了了游</span><span class="en-inline">Leleleling Studio · lelele Game</span> ｜
-        <a href="game_rules.html" id="linkRules"><span class="zh-inline">游戏守则</span><span class="en-inline">Rules</span></a> ｜
-        <a href="privacy.html" id="linkPrivacy"><span class="zh-inline">隐私政策</span><span class="en-inline">Privacy</span></a> ｜
-        <a href="copyright.html" id="linkCopyright"><span class="zh-inline">版权投诉</span><span class="en-inline">Copyright</span></a>
-    </footer>
+    <!-- 引入全局脚本 -->
+    <script src="common.js" defer></script>
 
     <script>
-        // 语言切换逻辑
+        // ==================== 语言切换逻辑 ====================
         function setLang(lang) {
             document.documentElement.setAttribute('data-lang', lang);
             document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
@@ -564,14 +589,9 @@
 
             const backBtn = document.getElementById('backBtn');
             if(backBtn) backBtn.href = lang === 'en' ? 'index.html?lang=en' : 'index.html';
-
-            const suffix = lang === 'en' ? '?lang=en' : '';
-            if (document.getElementById('linkRules')) document.getElementById('linkRules').href = 'game_rules.html' + suffix;
-            if (document.getElementById('linkPrivacy')) document.getElementById('linkPrivacy').href = 'privacy.html' + suffix;
-            if (document.getElementById('linkCopyright')) document.getElementById('linkCopyright').href = 'copyright.html' + suffix;
             
             // 切换语言时重新渲染日志
-            if (changelogData.length > 0) renderChangelog();
+            if (typeof changelogData !== 'undefined' && changelogData.length > 0) renderChangelog();
         }
 
         // ==================== 更新日志逻辑 ====================
