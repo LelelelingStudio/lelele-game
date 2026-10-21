@@ -1,23 +1,16 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<!-- PWA manifest 动态加载 -->
+<!-- 全站统一组件：样式 -->
+<link rel="stylesheet" href="https://game.leleleling.site/common.css">
+<!-- 强制标记为游戏页，让公告弹窗 15 秒自动消失 -->
 <script>
-  (function(){var lang=document.documentElement.getAttribute('data-lang')||'zh';var manifestMap={zh:'/manifest-zh.json',en:'/manifest-en.json',ja:'/manifest-ja.json',fr:'/manifest-fr.json'};var link=document.createElement('link');link.rel='manifest';link.href=manifestMap[lang]||'/manifest-zh.json';document.head.appendChild(link);})();
+  window.forceGamePage = true;
 </script>
-<!-- 苹果设备兼容 -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="/LOGO.svg">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=2.0">
   <title>🍌 香蕉大亨 · 了了了游</title>
   <style>
-.site-logo-container {
-    display: inline-block;
-    z-index: 1000;
-    position: relative;
-}
     * {
       margin: 0;
       padding: 0;
@@ -336,21 +329,9 @@
       font-size: 1.2rem;
     }
   </style>
-<!-- 了了了岭用户系统-样式与SDK -->
-<link rel="stylesheet" href="../../../common-user.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
-<div class="site-logo-container">
-    <img src="https://leleleling.site/LOGO.svg" 
-         onerror="this.onerror=null; this.src='https://leleleling.surge.sh/LOGO.svg';" 
-         alt="Logo" 
-         style="height: 40px; width: 40px; border-radius: 50%; margin: 10px;">
-</div>
-<!-- 了了了岭用户系统-顶部挂件 -->
-<div id="userWidget" style="position:fixed;top:15px;right:20px;z-index:9999;"></div>
-
 <div class="game-wrapper" id="gameWrapper">
   <div class="top-bar">
     <div class="studio-brand">
@@ -457,9 +438,9 @@
         try {
           const parsed = JSON.parse(saved);
           game = Object.assign(JSON.parse(JSON.stringify(defaultGame)), parsed);
+          // 兼容老存档：确保 permUpgrades 字段齐全
+          game.permUpgrades = Object.assign({ globalMul: 0, startPower: 0, bcBonus: 0 }, game.permUpgrades || {});
         } catch (e) { resetGame(); }
-      } else {
-        // 首次打开，稍后触发引导
       }
     }
     function resetGame() {
@@ -475,7 +456,7 @@
         resetGame();
         updateUI();
         renderAll();
-        showTutorial(); // 重置后可再次引导
+        showTutorial();
       }
     }
 
@@ -534,7 +515,6 @@
       }
       if (manual) spawnFloatingText((crit ? '💥 ' : '') + '+' + total.toFixed(1), false);
       updateUI();
-      checkBankruptcy();
       saveGame();
     }
     function spawnFloatingText(text, isCoin) {
@@ -658,14 +638,13 @@
       `;
     }
     window.buyBlindBox = function() {
-      if (!trySpend(180)) return;
+      // 修复：先检查是否已集齐，集齐时不扣费，避免"扣180退50净亏130"
       const pool = SKIN_LIST.filter(s => !game.ownedSkins.includes(s.id));
       if (pool.length === 0) {
-        game.bananaCoins += 50;
-        alert('你已经集齐所有皮肤！退还50 香蕉币');
-        updateUI();
+        alert('你已经集齐所有皮肤！');
         return;
       }
+      if (!trySpend(180)) return;
       const randomSkin = pool[Math.floor(Math.random() * pool.length)];
       game.ownedSkins.push(randomSkin.id);
       if (game.activeSkin === 'banana') game.activeSkin = randomSkin.id;
@@ -727,6 +706,8 @@
       const requiredClicks = 150000 * (game.prestigeCount + 1);
       const canPrestige = game.lifetimeClicks >= requiredClicks;
       const nextPC = Math.floor(Math.sqrt(game.lifetimeClicks / 100000)) + 1;
+      // 修复：buyPerm 按钮按余额加 disabled，避免点了没反馈
+      const pc = game.prestigeCoins;
       container.innerHTML = `
         <div style="background:#221c12;padding:1rem;border-radius:1.5rem;">
           <p>🌟 转生需求：总点击 ${requiredClicks} 次 (当前 ${game.lifetimeClicks})</p>
@@ -734,9 +715,9 @@
           <button class="prestige-btn" onclick="window.doPrestige()" ${!canPrestige ? 'disabled' : ''}>转生 Ascend</button>
           <div style="margin-top:1rem;">
             <strong>永久升级 (花费PC)：</strong>
-            <div class="shop-item"><span>🌍 全局产量 +12%</span><button onclick="window.buyPerm('globalMul', 1)">1 PC</button></div>
-            <div class="shop-item"><span>⚡ 起始力量 +1</span><button onclick="window.buyPerm('startPower', 2)">2 PC</button></div>
-            <div class="shop-item"><span>💰 香蕉币基础概率 +1%</span><button onclick="window.buyPerm('bcBonus', 3)">3 PC</button></div>
+            <div class="shop-item"><span>🌍 全局产量 +12%</span><button onclick="window.buyPerm('globalMul', 1)" ${pc < 1 ? 'disabled' : ''}>1 PC</button></div>
+            <div class="shop-item"><span>⚡ 起始力量 +1</span><button onclick="window.buyPerm('startPower', 2)" ${pc < 2 ? 'disabled' : ''}>2 PC</button></div>
+            <div class="shop-item"><span>💰 香蕉币基础概率 +1%</span><button onclick="window.buyPerm('bcBonus', 3)" ${pc < 3 ? 'disabled' : ''}>3 PC</button></div>
           </div>
           <p>当前PC: ${game.prestigeCoins}</p>
         </div>`;
@@ -781,6 +762,8 @@
 
     // ---------- 小游戏：单人比拼 ----------
     function startSoloRace() {
+      // 修复：防重入，已有弹窗时不再打开
+      if (document.querySelector('.modal-overlay')) return;
       const overlay = document.createElement('div');
       overlay.className = 'modal-overlay';
       let timeLeft = 10;
@@ -800,6 +783,7 @@
       const timerEl = document.getElementById('raceTimer');
       const clicksEl = document.getElementById('raceClicks');
       const bananaEl = document.getElementById('raceBanana');
+      let ended = false; // 防止 endRace 重复执行
       const interval = setInterval(() => {
         timeLeft--;
         timerEl.textContent = timeLeft;
@@ -810,12 +794,12 @@
       }, 1000);
 
       function endRace() {
-        bananaEl.style.pointerEvents = 'none';
+        if (ended) return;
+        ended = true;
         const reward = Math.floor(clicks / 5);
         game.bananaCoins += reward;
         if (clicks > game.bestSoloScore) game.bestSoloScore = clicks;
         updateUI();
-        checkBankruptcy();
         saveGame();
         overlay.remove();
         alert(`⏰ 时间到！你点击了 ${clicks} 次，获得 ${reward} 香蕉币！`);
@@ -833,6 +817,8 @@
 
     // ---------- 双人对战 ----------
     function startDuoRace() {
+      // 修复：防重入
+      if (document.querySelector('.modal-overlay')) return;
       if (game.bananaCoins < 20) {
         alert('至少需要20香蕉币才能发起双人对战（每人10币）！');
         return;
@@ -842,10 +828,7 @@
       let timeLeft = 10;
       let clicksA = 0;
       let clicksB = 0;
-      const betPerPlayer = 10; // 每人下注10币
-      game.bananaCoins -= betPerPlayer * 2;
-      updateUI();
-      saveGame();
+      const betPerPlayer = 10;
 
       overlay.innerHTML = `
         <div class="modal-box">
@@ -875,6 +858,7 @@
       }
       window.addEventListener('keydown', handleKey);
 
+      let ended = false; // 防止 endDuo 重复执行
       const interval = setInterval(() => {
         timeLeft--;
         timerEl.textContent = timeLeft;
@@ -885,18 +869,20 @@
       }, 1000);
 
       function endDuo() {
+        if (ended) return;
+        ended = true;
         window.removeEventListener('keydown', handleKey);
-        let rewardA = 0, rewardB = 0;
+        let rewardA = 0;
         if (clicksA > clicksB) {
           rewardA = betPerPlayer * 2;
         } else if (clicksB > clicksA) {
-          rewardB = betPerPlayer * 2;
+          rewardA = 0;
         } else {
           rewardA = betPerPlayer;
-          rewardB = betPerPlayer;
         }
-        // 退回给“系统”（即当前玩家）的奖励：视为玩家A的收益
-        game.bananaCoins += rewardA; // 玩家A赢得奖池，B为电脑/朋友，我们只操作主账户
+        // 修复：扣费移到 endDuo，中途退出不扣；扣完补 checkBankruptcy
+        game.bananaCoins -= betPerPlayer * 2;
+        game.bananaCoins += rewardA;
         updateUI();
         checkBankruptcy();
         saveGame();
@@ -912,6 +898,7 @@
 
     // ---------- 新手引导 ----------
     function showTutorial() {
+      if (document.querySelector('.modal-overlay')) return;
       const overlay = document.createElement('div');
       overlay.className = 'modal-overlay';
       overlay.innerHTML = `
@@ -956,7 +943,9 @@
     // 主点击与快捷键
     document.getElementById('bananaContainer').addEventListener('click', () => clickBanana(true));
     window.addEventListener('keydown', (e) => {
+      // 修复：有弹窗打开时不触发主页面点击，避免双人对战/新手引导期间误点
       if (e.code === 'Space' && document.activeElement === document.body) {
+        if (document.querySelector('.modal-overlay')) return;
         e.preventDefault();
         clickBanana(true);
       }
@@ -967,26 +956,22 @@
     document.getElementById('duoRaceBtn').addEventListener('click', startDuoRace);
 
     // 初始化
+    const hasSaveBeforeLoad = localStorage.getItem('bananaClickerSaveV2') !== null;
     loadGame();
-    const hasSave = localStorage.getItem('bananaClickerSaveV2') !== null;
     applyOfflineProgress();
     updateBananaEmoji();
     updateUI();
     renderAll();
     saveGame();
-    if (!hasSave) showTutorial();
+    if (!hasSaveBeforeLoad) showTutorial();
 
     // 定时存档
     setInterval(saveGame, 30000);
     window.addEventListener('beforeunload', saveGame);
   })();
 </script>
-<!-- 了了了岭用户系统-核心逻辑 -->
-<script src="../../../common-user.js"></script>
-<!-- PWA Service Worker 注册 -->
-<script>
-if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js').then(function(reg){console.log('✅ PWA Service Worker 注册成功');}).catch(function(err){console.log('❌ PWA Service Worker 注册失败:',err);});}
-</script>
+<!-- 全站统一组件：脚本 -->
+<script src="https://game.leleleling.site/common.js" defer></script>
+<script async src="https://tally.so/widgets/embed.js"></script>
 </body>
-
 </html>
