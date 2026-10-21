@@ -248,13 +248,83 @@
             transform: none;
         }
 
+        /* ===== 更新日志 (Changelog) 模块 ===== */
+        .changelog-box {
+            display: flex;
+            height: 400px;
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+        
+        /* 左侧版本列表 */
+        .changelog-sidebar {
+            width: 220px;
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        .changelog-item {
+            padding: 16px 20px;
+            cursor: pointer;
+            border-left: 4px solid transparent;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .changelog-item:hover { background: rgba(241, 245, 249, 0.8); }
+        .changelog-item.active {
+            background: #fff;
+            border-left-color: #4f46e5;
+        }
+        .version-tag { font-weight: 700; color: #334155; font-size: 1rem; }
+        .changelog-item.active .version-tag { color: #4f46e5; }
+        .version-date { font-size: 0.75rem; color: #94a3b8; }
+
+        /* 右侧内容区 */
+        .changelog-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            color: #475569;
+        }
+        .changelog-content h4 {
+            font-size: 1.3rem;
+            color: #0f172a;
+            margin-bottom: 1rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px dashed #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .changelog-content h4 span.date {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            font-weight: 400;
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .changelog-text {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            white-space: pre-wrap; /* 保留换行符 */
+        }
+        .changelog-loading { text-align: center; padding: 40px; color: #94a3b8; }
+
         /* ===== 联系方式 ===== */
         .contact-box {
             text-align: center;
             background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(124, 58, 237, 0.05) 100%);
             border-radius: 24px;
             padding: 3rem 2rem;
-            margin-top: 3rem;
+            margin-top: 3.5rem;
             border: 1px solid rgba(79, 70, 229, 0.1);
         }
         .contact-box h3 {
@@ -302,6 +372,21 @@
             .top-bar { padding: 10px 0; }
             .rights-list li { padding-left: 2.8rem; }
             .rights-list li::before { left: 0.8rem; }
+            
+            /* 更新日志移动端适配 */
+            .changelog-box { flex-direction: column; height: 500px; }
+            .changelog-sidebar { 
+                width: 100%; height: 120px; border-right: none; 
+                border-bottom: 1px solid #e2e8f0; display: flex; 
+                overflow-x: auto; overflow-y: hidden; 
+            }
+            .changelog-item { 
+                border-left: none; border-bottom: 4px solid transparent; 
+                flex-direction: column; align-items: flex-start; 
+                justify-content: center; min-width: 120px; padding: 12px;
+            }
+            .changelog-item.active { border-left-color: transparent; border-bottom-color: #4f46e5; }
+            .changelog-content { padding: 20px; }
         }
     </style>
 </head>
@@ -425,6 +510,22 @@
             </div>
         </div>
 
+        <!-- 更新日志 (Changelog) -->
+        <div class="section">
+            <div class="section-title">
+                <span class="zh-inline">📝 更新日志</span>
+                <span class="en-inline">📝 Changelog</span>
+            </div>
+            <div class="changelog-box">
+                <div class="changelog-sidebar" id="changelogList">
+                    <div class="changelog-loading">Loading...</div>
+                </div>
+                <div class="changelog-content" id="changelogDetail">
+                    <!-- 内容动态加载 -->
+                </div>
+            </div>
+        </div>
+
         <!-- 联系方式 -->
         <div class="contact-box">
             <div class="zh-text">
@@ -450,6 +551,7 @@
     </footer>
 
     <script>
+        // 语言切换逻辑
         function setLang(lang) {
             document.documentElement.setAttribute('data-lang', lang);
             document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
@@ -467,11 +569,76 @@
             if (document.getElementById('linkRules')) document.getElementById('linkRules').href = 'game_rules.html' + suffix;
             if (document.getElementById('linkPrivacy')) document.getElementById('linkPrivacy').href = 'privacy.html' + suffix;
             if (document.getElementById('linkCopyright')) document.getElementById('linkCopyright').href = 'copyright.html' + suffix;
+            
+            // 切换语言时重新渲染日志
+            if (changelogData.length > 0) renderChangelog();
         }
 
+        // ==================== 更新日志逻辑 ====================
+        let changelogData = [];
+        let activeVersionIndex = 0;
+
+        async function loadChangelog() {
+            try {
+                const res = await fetch('changelog.json');
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                changelogData = await res.json();
+                
+                if (changelogData.length > 0) {
+                    renderChangelog();
+                } else {
+                    document.getElementById('changelogList').innerHTML = '<div class="changelog-loading">暂无日志</div>';
+                }
+            } catch (e) {
+                document.getElementById('changelogList').innerHTML = '<div class="changelog-loading">日志加载失败</div>';
+                console.warn('更新日志加载失败:', e);
+            }
+        }
+
+        function renderChangelog() {
+            const listContainer = document.getElementById('changelogList');
+            const detailContainer = document.getElementById('changelogDetail');
+            const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+
+            // 渲染左侧列表
+            listContainer.innerHTML = changelogData.map((item, index) => {
+                const activeClass = index === activeVersionIndex ? 'active' : '';
+                return `
+                    <div class="changelog-item ${activeClass}" onclick="selectVersion(${index})">
+                        <span class="version-tag">${item.version}</span>
+                        <span class="version-date">${item.date}</span>
+                    </div>
+                `;
+            }).join('');
+
+            // 渲染右侧详情
+            if (changelogData[activeVersionIndex]) {
+                const activeData = changelogData[activeVersionIndex];
+                const content = isEn ? (activeData.content_en || activeData.content_zh) : (activeData.content_zh || activeData.content_en);
+                const title = isEn ? 'Update Details' : '更新详情';
+                
+                detailContainer.innerHTML = `
+                    <h4>${activeData.version} <span class="date">${activeData.date}</span></h4>
+                    <div class="changelog-text">${escapeHtml(content || '暂无详细说明')}</div>
+                `;
+            }
+        }
+
+        window.selectVersion = function(index) {
+            activeVersionIndex = index;
+            renderChangelog();
+        };
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+        }
+
+        // ==================== 页面初始化 ====================
         document.addEventListener('DOMContentLoaded', () => {
             const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
             setLang(currentLang);
+            loadChangelog(); // 初始化加载日志
         });
     </script>
 </body>
