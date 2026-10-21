@@ -1,14 +1,32 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<!-- PWA manifest 动态加载 -->
+<!-- PWA manifest 动态加载（绝对路径） -->
 <script>
-  (function(){var lang=document.documentElement.getAttribute('data-lang')||'zh';var manifestMap={zh:'/manifest-zh.json',en:'/manifest-en.json',ja:'/manifest-ja.json',fr:'/manifest-fr.json'};var link=document.createElement('link');link.rel='manifest';link.href=manifestMap[lang]||'/manifest-zh.json';document.head.appendChild(link);})();
+  (function(){
+    var lang = document.documentElement.getAttribute('data-lang') || 'zh';
+    var manifestMap = {
+      zh: 'https://game.leleleling.site/manifest-zh.json',
+      en: 'https://game.leleleling.site/manifest-en.json',
+      ja: 'https://game.leleleling.site/manifest-ja.json',
+      fr: 'https://game.leleleling.site/manifest-fr.json'
+    };
+    var link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = manifestMap[lang] || manifestMap.zh;
+    document.head.appendChild(link);
+  })();
 </script>
 <!-- 苹果设备兼容 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="/LOGO.svg">
+<link rel="apple-touch-icon" href="https://game.leleleling.site/LOGO.svg">
+<!-- 全站统一组件：样式 -->
+<link rel="stylesheet" href="https://game.leleleling.site/common.css">
+<!-- 强制标记为游戏页，让公告弹窗 15 秒自动消失 -->
+<script>
+  window.forceGamePage = true;
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>卡牌2048 - 多难度挑战</title>
@@ -46,6 +64,14 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+        }
+
+        /* ===== 全站深色模式适配（游戏本身为深色，仅微调） ===== */
+        html.dark-mode body {
+            background: linear-gradient(135deg, #1a252f, #0f172a);
+        }
+        html.dark-mode #game-container {
+            background: rgba(44, 62, 80, 0.95);
         }
 
         #game-container {
@@ -259,9 +285,8 @@
             padding-bottom: 5px;
         }
 
-        /* ========== 卡牌样式 ========== */
+        /* ========== 卡牌基础样式（通用，不设置定位） ========== */
         .card {
-            width: 90%;
             height: 60px;
             background: var(--card-bg);
             border-radius: 10px;
@@ -272,19 +297,26 @@
             font-size: 24px;
             color: var(--text-dark);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            position: absolute;
             transition: all 0.3s ease;
             cursor: pointer;
             border: 2px solid transparent;
         }
 
-        .card:hover {
+        /* 仅堆叠区卡牌使用绝对定位，避免污染 .card-option */
+        .card-stack .card {
+            position: absolute;
+            left: 5%;
+            right: 5%;
+            width: auto;
+        }
+
+        .card-stack .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
             z-index: 100;
         }
 
-        .card.dragging {
+        .card-stack .card.dragging {
             opacity: 0.8;
             transform: scale(1.05);
             z-index: 1000;
@@ -590,14 +622,14 @@
             }
         }
     </style>
-<!-- 了了了岭用户系统-样式与SDK -->
-<link rel="stylesheet" href="../../../common-user.css">
+<!-- 了了了岭用户系统-样式与SDK（绝对路径） -->
+<link rel="stylesheet" href="https://game.leleleling.site/common-user.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
 <div class="site-logo-container">
-    <img src="https://leleleling.site/LOGO.svg" 
+    <img src="https://game.leleleling.site/LOGO.svg" 
          onerror="this.onerror=null; this.src='https://leleleling.surge.sh/LOGO.svg';" 
          alt="Logo" 
          style="height: 40px; width: 40px; border-radius: 50%; margin: 10px;">
@@ -795,10 +827,10 @@
         // ========== 游戏配置 ==========
         const gameConfig = {
             slots: 4,
-            maxStackHeight: 10, // 每堆最多卡牌数
+            maxStackHeight: 10,
             maxValue: 2048,
             score: 0,
-            highScore: localStorage.getItem('card2048_highScore') || 0,
+            highScore: parseInt(localStorage.getItem('card2048_highScore'), 10) || 0,
             combo: 0,
             gameState: 'playing', // playing, gameover
             difficulty: 'easy', // easy, hard, master
@@ -808,10 +840,10 @@
                 wild: { cost: 50, count: 0 },
                 slot: { cost: 100, count: 0 }
             },
-            maxGeneratedValue: 1, // 初始最大生成值为1
-            secondLargestValue: 1, // 第二大值
-            moveHistory: [], // 用于撤销功能
-            maxHistory: 10 // 最大历史记录数
+            maxGeneratedValue: 1,
+            secondLargestValue: 1,
+            moveHistory: [],
+            maxHistory: 10
         };
 
         // ========== 游戏数据 ==========
@@ -819,7 +851,6 @@
         let cardOptions = [null, null, null];
         let activePowerup = null;
         let draggedCard = null;
-        let is2048Exploding = false; // 新增标志，防止2048爆炸时触发游戏结束
 
         // ========== DOM元素 ==========
         const scoreEl = document.getElementById('score');
@@ -834,29 +865,19 @@
 
         // ========== 游戏初始化 ==========
         function initGame() {
-            // 重置游戏状态
             gameConfig.score = 0;
             gameConfig.combo = 0;
             gameConfig.gameState = 'playing';
             gameConfig.maxGeneratedValue = 1;
             gameConfig.secondLargestValue = 1;
             gameConfig.moveHistory = [];
-            is2048Exploding = false;
             
-            // 清空卡牌堆
             cardStacks = [[], [], [], []];
             
-            // 初始化卡牌选项
             initCardOptions();
-            
-            // 更新UI
             updateUI();
             updateCardStacks();
-            
-            // 隐藏消息
             hideMessage();
-            
-            // 更新难度规则说明
             updateDifficultyRules();
             
             console.log(`游戏初始化完成，难度：${gameConfig.difficulty}`);
@@ -902,52 +923,39 @@
         // ========== 初始化卡牌选项 ==========
         function initCardOptions() {
             cardOptions = [];
-            
-            // 确保生成3张卡牌
             for (let i = 0; i < 3; i++) {
                 cardOptions.push(generateCardValue());
-                updateCardOption(i);
             }
-            
-            // 更新卡牌数量显示
-            updateCardCount();
+            updateAllCardOptions();
         }
 
         // ========== 更新卡牌数量显示 ==========
         function updateCardCount() {
-            const cardCount = cardOptions.filter(opt => opt !== null).length;
-            cardCountEl.textContent = `(${cardCount}/∞)`;
+            const count = cardOptions.filter(opt => opt !== null).length;
+            cardCountEl.textContent = `(${count}/∞)`;
         }
 
         // ========== 生成卡牌数值 ==========
         function generateCardValue() {
-            // 获取当前所有卡牌的值
             const allCardValues = getAllCardValues();
             
-            // 如果还没有卡牌，生成1
             if (allCardValues.length === 0) {
                 return 1;
             }
             
-            // 计算第二大值
             const uniqueValues = [...new Set(allCardValues)].sort((a, b) => a - b);
-            gameConfig.secondLargestValue = uniqueValues.length >= 2 ? 
-                uniqueValues[uniqueValues.length - 2] : 1;
+            gameConfig.secondLargestValue = uniqueValues.length >= 2 
+                ? uniqueValues[uniqueValues.length - 2] 
+                : 1;
             
-            // 限制生成的最大值不超过第二大值
             const maxAllowed = Math.max(1, gameConfig.secondLargestValue);
-            
-            // 生成2的幂次方值，不超过maxAllowed
             const possibleValues = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048];
             const allowedValues = possibleValues.filter(v => v <= maxAllowed);
             
-            // 70%几率生成小值，30%几率生成允许的最大值
             if (Math.random() < 0.7 && allowedValues.length > 1) {
-                // 从较小的值中随机选择（排除最大值）
                 const smallerValues = allowedValues.slice(0, -1);
                 return smallerValues[Math.floor(Math.random() * smallerValues.length)];
             } else {
-                // 选择允许的最大值
                 return allowedValues[allowedValues.length - 1];
             }
         }
@@ -955,25 +963,21 @@
         // ========== 获取所有卡牌值 ==========
         function getAllCardValues() {
             const values = [];
-            
-            // 从卡牌堆中获取
             for (const stack of cardStacks) {
                 for (const card of stack) {
                     values.push(card.value);
                 }
             }
-            
-            // 从选项卡牌中获取
             for (const option of cardOptions) {
                 if (option && option !== 'wild') values.push(option);
             }
-            
             return values;
         }
 
-        // ========== 更新卡牌选项显示 ==========
+        // ========== 更新单个卡牌选项 ==========
         function updateCardOption(index) {
             const optionEl = document.getElementById(`option-${index}`);
+            if (!optionEl) return;
             
             if (index < cardOptions.length && cardOptions[index] !== undefined && cardOptions[index] !== null) {
                 const value = cardOptions[index];
@@ -990,7 +994,8 @@
                 optionEl.dataset.type = 'option';
                 optionEl.dataset.index = index;
                 
-                // 添加拖拽事件
+                // 防止重复绑定
+                optionEl.removeEventListener('dragstart', handleDragStart);
                 optionEl.addEventListener('dragstart', handleDragStart);
             } else {
                 optionEl.className = 'card-option empty';
@@ -1004,26 +1009,22 @@
 
         // ========== 更新所有卡牌选项显示 ==========
         function updateAllCardOptions() {
-            // 清空当前显示
-            const cardOptionsContainer = document.getElementById('card-options');
-            cardOptionsContainer.innerHTML = '';
+            const container = document.getElementById('card-options');
+            container.innerHTML = '';
             
-            // 重新添加所有卡牌选项
             for (let i = 0; i < cardOptions.length; i++) {
-                const optionEl = document.createElement('div');
-                optionEl.id = `option-${i}`;
-                cardOptionsContainer.appendChild(optionEl);
+                const el = document.createElement('div');
+                el.id = `option-${i}`;
+                container.appendChild(el);
                 updateCardOption(i);
             }
             
-            // 更新卡牌数量显示
             updateCardCount();
         }
 
         // ========== 更新卡牌堆显示 ==========
         function updateCardStacks() {
-            // 如果正在2048爆炸，跳过游戏结束检查
-            if (is2048Exploding) return;
+            if (gameConfig.gameState === 'gameover') return;
             
             for (let i = 0; i < gameConfig.slots; i++) {
                 const stackEl = document.getElementById(`stack-${i}`);
@@ -1032,13 +1033,11 @@
                 const stack = cardStacks[i];
                 const stackHeight = stack.length;
                 
-                // 检查是否游戏结束（牌堆触底）
                 if (stackHeight >= gameConfig.maxStackHeight) {
                     gameOver();
                     return;
                 }
                 
-                // 创建堆叠卡牌
                 for (let j = 0; j < stackHeight; j++) {
                     const card = stack[j];
                     const cardEl = document.createElement('div');
@@ -1049,12 +1048,11 @@
                     cardEl.dataset.value = card.value;
                     cardEl.dataset.type = 'stack';
                     
-                    // 设置位置（堆叠效果）
-                    const offset = (stackHeight - j - 1) * 5; // 每张牌向下偏移5px
+                    // 修复：堆叠视觉方向（底层在下，顶层在上）
+                    const offset = j * 5;
                     cardEl.style.bottom = `${10 + offset}px`;
                     cardEl.style.zIndex = j;
                     
-                    // 添加拖拽事件（只对最顶上的牌）
                     if (j === stackHeight - 1) {
                         cardEl.draggable = true;
                         cardEl.addEventListener('dragstart', handleDragStart);
@@ -1065,14 +1063,9 @@
             }
         }
 
-        // ========== 保存游戏状态 ==========
-        function saveGameState() {
-            if (gameConfig.moveHistory.length >= gameConfig.maxHistory) {
-                gameConfig.moveHistory.shift(); // 移除最旧的记录
-            }
-            
-            // 深度复制当前游戏状态
-            const state = {
+        // ========== 快照 / 历史记录 ==========
+        function makeSnapshot() {
+            return {
                 score: gameConfig.score,
                 combo: gameConfig.combo,
                 maxGeneratedValue: gameConfig.maxGeneratedValue,
@@ -1080,11 +1073,16 @@
                 cardStacks: JSON.parse(JSON.stringify(cardStacks)),
                 cardOptions: [...cardOptions]
             };
-            
-            gameConfig.moveHistory.push(state);
         }
 
-        // ========== 处理拖拽开始 ==========
+        function pushHistory(snapshot) {
+            if (gameConfig.moveHistory.length >= gameConfig.maxHistory) {
+                gameConfig.moveHistory.shift();
+            }
+            gameConfig.moveHistory.push(snapshot);
+        }
+
+        // ========== 拖拽开始 ==========
         function handleDragStart(event) {
             if (gameConfig.gameState !== 'playing') {
                 event.preventDefault();
@@ -1094,30 +1092,23 @@
             draggedCard = {
                 type: event.target.dataset.type,
                 value: event.target.dataset.value,
-                slot: event.target.dataset.slot ? parseInt(event.target.dataset.slot) : null,
-                index: event.target.dataset.index ? parseInt(event.target.dataset.index) : null,
+                slot: event.target.dataset.slot ? parseInt(event.target.dataset.slot, 10) : null,
+                index: event.target.dataset.index ? parseInt(event.target.dataset.index, 10) : null,
                 element: event.target
             };
             
             event.target.classList.add('dragging');
-            
-            // 设置拖拽图像
-            setTimeout(() => {
-                event.target.style.opacity = '0.4';
-            }, 0);
+            setTimeout(() => { event.target.style.opacity = '0.4'; }, 0);
         }
 
-        // ========== 处理放置 ==========
+        // ========== 放置区 ==========
         function setupDropZones() {
-            const slots = document.querySelectorAll('.card-slot');
-            
-            slots.forEach(slot => {
+            document.querySelectorAll('.card-slot').forEach(slot => {
                 slot.addEventListener('dragover', handleDragOver);
                 slot.addEventListener('drop', handleDrop);
                 slot.addEventListener('dragleave', handleDragLeave);
             });
             
-            // 也允许拖放到卡牌上
             document.addEventListener('dragover', handleDragOver);
             document.addEventListener('drop', handleDrop);
             document.addEventListener('dragleave', handleDragLeave);
@@ -1125,7 +1116,6 @@
 
         function handleDragOver(event) {
             event.preventDefault();
-            
             if (!draggedCard || gameConfig.gameState !== 'playing') return;
             
             const slotEl = event.target.closest('.card-slot');
@@ -1147,32 +1137,32 @@
             }
             
             let targetSlot;
-            
-            // 确定目标位置
             if (slotEl) {
-                // 拖放到空位
-                targetSlot = parseInt(slotEl.dataset.slot);
+                targetSlot = parseInt(slotEl.dataset.slot, 10);
             } else if (event.target.classList.contains('card')) {
-                // 拖放到卡牌上
-                targetSlot = parseInt(event.target.dataset.slot);
+                targetSlot = parseInt(event.target.dataset.slot, 10);
             } else {
                 resetDragState();
                 return;
             }
             
-            // 保存当前状态用于撤销
-            saveGameState();
+            if (isNaN(targetSlot) || targetSlot < 0 || targetSlot >= cardStacks.length) {
+                resetDragState();
+                return;
+            }
             
-            // 处理放置逻辑
-            handleCardPlacement(draggedCard, targetSlot);
+            // 修复：先快照，放置成功才写入历史
+            const snapshot = makeSnapshot();
+            const success = handleCardPlacement(draggedCard, targetSlot);
+            if (success) {
+                pushHistory(snapshot);
+            }
             
-            // 重置拖拽状态
             resetDragState();
         }
 
         function handleDragLeave(event) {
             if (!draggedCard) return;
-            
             const slotEl = event.target.closest('.card-slot');
             if (slotEl) {
                 slotEl.style.borderColor = 'rgba(255, 255, 255, 0.2)';
@@ -1186,7 +1176,6 @@
                 draggedCard.element.style.opacity = '1';
             }
             
-            // 重置所有槽位样式
             document.querySelectorAll('.card-slot').forEach(slot => {
                 slot.style.borderColor = 'rgba(255, 255, 255, 0.2)';
                 slot.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
@@ -1195,88 +1184,69 @@
             draggedCard = null;
         }
 
-        // ========== 处理卡牌放置 ==========
+        // ========== 卡牌放置（返回是否成功） ==========
         function handleCardPlacement(card, targetSlot) {
             const targetStack = cardStacks[targetSlot];
-            const cardValue = card.value === 'wild' ? 'wild' : parseInt(card.value);
+            const cardValue = card.value === 'wild' ? 'wild' : parseInt(card.value, 10);
             
-            // 检查放置是否有效
             if (card.type === 'option') {
-                // 从选项区拖出的卡牌
                 const optionIndex = card.index;
                 
-                // 检查目标堆是否为空或顶部卡牌值 >= 当前卡牌值
-                if (targetStack.length === 0 || 
-                    cardValue === 'wild' || 
-                    targetStack[targetStack.length - 1].value >= cardValue) {
-                    
-                    // 添加到堆顶
-                    if (cardValue === 'wild') {
-                        // 万能卡需要用户选择数字
-                        const value = prompt('请输入万能卡的数字（必须是2的幂次方，如1,2,4,8...）：');
-                        const numValue = parseInt(value);
-                        
-                        if (!value || isNaN(numValue) || !isPowerOfTwo(numValue)) {
-                            alert('请输入有效的2的幂次方数字！');
-                            return;
-                        }
-                        
-                        targetStack.push({ value: numValue });
-                    } else {
-                        targetStack.push({ value: cardValue });
-                    }
-                    
-                    // 移除选项卡牌
-                    cardOptions.splice(optionIndex, 1);
-                    
-                    // 检查是否需要补充卡牌
-                    checkAndRefillCardOptions();
-                    
-                    // 检查合并（包括2048爆炸）
-                    checkMerge(targetSlot);
-                } else {
+                if (!(targetStack.length === 0 || 
+                      cardValue === 'wild' || 
+                      targetStack[targetStack.length - 1].value >= cardValue)) {
                     alert('只能将小牌放在大牌上！');
-                    return;
+                    return false;
                 }
+                
+                if (cardValue === 'wild') {
+                    const value = prompt('请输入万能卡的数字（必须是2的幂次方，如1,2,4,8...）：');
+                    const numValue = parseInt(value, 10);
+                    
+                    if (!value || isNaN(numValue) || !isPowerOfTwo(numValue)) {
+                        alert('请输入有效的2的幂次方数字！');
+                        return false;
+                    }
+                    targetStack.push({ value: numValue });
+                } else {
+                    targetStack.push({ value: cardValue });
+                }
+                
+                cardOptions.splice(optionIndex, 1);
+                checkAndRefillCardOptions();
+                checkMerge(targetSlot);
+                
             } else if (card.type === 'stack') {
-                // 从堆中拖出的卡牌（只能是顶部卡牌）
                 const sourceSlot = card.slot;
                 const sourceStack = cardStacks[sourceSlot];
                 
-                // 确保是顶部卡牌
                 if (card.index !== sourceStack.length - 1) {
                     alert('只能移动最顶上的卡牌！');
-                    return;
+                    return false;
                 }
                 
-                // 不能移动到自己的位置
                 if (sourceSlot === targetSlot) {
-                    return;
+                    return false;
                 }
                 
-                // 检查目标堆是否为空或顶部卡牌值 >= 当前卡牌值
-                if (targetStack.length === 0 || targetStack[targetStack.length - 1].value >= cardValue) {
-                    // 从源堆移除
-                    sourceStack.pop();
-                    
-                    // 添加到目标堆
-                    targetStack.push({ value: cardValue });
-                    
-                    // 检查合并（包括2048爆炸）
-                    checkMerge(targetSlot);
-                } else {
+                if (!(targetStack.length === 0 || 
+                      targetStack[targetStack.length - 1].value >= cardValue)) {
                     alert('只能将小牌放在大牌上！');
-                    return;
+                    return false;
                 }
+                
+                sourceStack.pop();
+                targetStack.push({ value: cardValue });
+                checkMerge(targetSlot);
             }
             
-            // 更新显示
             updateCardStacks();
             updateAllCardOptions();
             updateUI();
+            return true;
         }
 
-        // ========== 检查是否是2的幂次方 ==========
+        // ========== 2 的幂次方校验 ==========
         function isPowerOfTwo(n) {
             if (n <= 0) return false;
             return (n & (n - 1)) === 0;
@@ -1290,10 +1260,8 @@
             let comboCount = 0;
             let merged = false;
             
-            // 从顶部开始检查合并
             do {
                 merged = false;
-                
                 if (stack.length >= 2) {
                     const topIndex = stack.length - 1;
                     const secondIndex = stack.length - 2;
@@ -1301,22 +1269,17 @@
                     if (stack[topIndex].value === stack[secondIndex].value) {
                         const newValue = stack[topIndex].value * 2;
                         
-                        // 检查是否是2048（大师难度特殊效果）
                         if (gameConfig.difficulty === 'master' && newValue === 2048) {
-                            // 大师难度：2048爆炸效果
                             handle2048Explosion(slotIndex, secondIndex);
-                            return; // 爆炸后停止合并检查
+                            return;
                         } else {
-                            // 正常合并
                             stack[secondIndex].value = newValue;
-                            stack.pop(); // 移除顶部牌
+                            stack.pop();
                             
-                            // 更新最大生成值
                             if (newValue > gameConfig.maxGeneratedValue) {
                                 gameConfig.maxGeneratedValue = newValue;
                             }
                             
-                            // 增加连续合成计数
                             comboCount++;
                             merged = true;
                         }
@@ -1324,7 +1287,6 @@
                 }
             } while (merged && stack.length >= 2);
             
-            // 计算得分
             if (comboCount > 0) {
                 gameConfig.combo = comboCount;
                 addScore(comboCount);
@@ -1332,57 +1294,43 @@
                 gameConfig.combo = 0;
             }
             
-            // 更新显示
             updateCardStacks();
             updateUI();
         }
 
-        // ========== 处理2048爆炸效果 ==========
+        // ========== 2048 爆炸 ==========
         function handle2048Explosion(slotIndex, cardIndex) {
-            is2048Exploding = true; // 设置标志，防止触发游戏结束
-            
             const stack = cardStacks[slotIndex];
             
-            // 移除2048卡牌
-            stack.splice(cardIndex, 1);
+            // 修复：移除两张 1024（cardIndex 和其上方一张）
+            stack.splice(cardIndex, 2);
             
-            // 增加1000积分
             gameConfig.score += 1000;
             
-            // 生成小卡牌（3-6张随机小卡牌，避免过多）
-            const numCards = Math.floor(Math.random() * 4) + 3; // 3-6张
+            const numCards = Math.floor(Math.random() * 4) + 3;
             const smallCards = [];
+            const possibleValues = [1, 2, 4, 8, 16];
             
             for (let i = 0; i < numCards; i++) {
-                // 生成小数字（1, 2, 4, 8, 16）
-                const possibleValues = [1, 2, 4, 8, 16];
-                const randomValue = possibleValues[Math.floor(Math.random() * possibleValues.length)];
-                smallCards.push(randomValue);
+                smallCards.push(possibleValues[Math.floor(Math.random() * possibleValues.length)]);
             }
             
-            // 将小卡牌添加到卡牌刷新区
             cardOptions.push(...smallCards);
             
-            // 显示爆炸消息
             showMessage(
                 '🎉 2048爆炸！',
                 `你成功合成了2048卡牌！获得了1000积分，并产生了${numCards}张小卡牌！`
             );
             
-            // 更新显示
             updateCardStacks();
             updateAllCardOptions();
             updateUI();
             
-            // 重置爆炸标志
-            is2048Exploding = false;
-            
             console.log(`2048爆炸！产生了${numCards}张小卡牌，获得1000积分`);
         }
 
-        // ========== 检查并补充卡牌选项 ==========
+        // ========== 补充卡牌选项 ==========
         function checkAndRefillCardOptions() {
-            // 大师难度：只有当卡牌数量低于3时才补充
             if (gameConfig.difficulty === 'master') {
                 if (cardOptions.length < 3) {
                     const needed = 3 - cardOptions.length;
@@ -1391,21 +1339,16 @@
                     }
                 }
             } else {
-                // 简单和困难难度：保持3张卡牌
                 while (cardOptions.length < 3) {
                     cardOptions.push(generateCardValue());
                 }
             }
         }
 
-        // ========== 添加分数 ==========
+        // ========== 加分 ==========
         function addScore(comboCount) {
-            let points = 0;
+            let points = comboCount;
             
-            // 基础分：每次合并加1分
-            points += comboCount;
-            
-            // 连续合成额外分：2^(n-1)
             if (comboCount > 1) {
                 for (let i = 1; i <= comboCount; i++) {
                     points += Math.pow(2, i - 1);
@@ -1414,26 +1357,26 @@
             
             gameConfig.score += points;
             
-            // 更新最高分
             if (gameConfig.score > gameConfig.highScore) {
                 gameConfig.highScore = gameConfig.score;
-                localStorage.setItem('card2048_highScore', gameConfig.highScore);
+                localStorage.setItem('card2048_highScore', String(gameConfig.highScore));
             }
             
             console.log(`连续合成 ${comboCount} 次，获得 ${points} 分`);
         }
 
-        // ========== 手动刷新卡牌选项 ==========
-        function refreshCardOptions() {
-            if (gameConfig.score < 5) {
-                alert('分数不足！需要5分才能刷新卡牌。');
-                return;
+        // ========== 刷新卡牌（带扣分，修复重复扣分） ==========
+        function refreshCardOptions(cost = 5) {
+            if (typeof cost !== 'number' || isNaN(cost)) cost = 5;
+            
+            if (gameConfig.score < cost) {
+                alert(`分数不足！需要${cost}分才能刷新卡牌。`);
+                return false;
             }
             
-            gameConfig.score -= 5;
+            gameConfig.score -= cost;
             
             if (gameConfig.difficulty === 'master') {
-                // 大师难度：保留现有卡牌，补充到至少3张
                 if (cardOptions.length < 3) {
                     const needed = 3 - cardOptions.length;
                     for (let i = 0; i < needed; i++) {
@@ -1441,7 +1384,6 @@
                     }
                 }
             } else {
-                // 简单和困难难度：完全刷新
                 cardOptions = [];
                 for (let i = 0; i < 3; i++) {
                     cardOptions.push(generateCardValue());
@@ -1451,10 +1393,11 @@
             updateAllCardOptions();
             updateUI();
             
-            console.log('手动刷新了卡牌选项');
+            console.log(`刷新了卡牌选项（消耗 ${cost} 分）`);
+            return true;
         }
 
-        // ========== 撤销上一步 ==========
+        // ========== 撤销 ==========
         function undoMove() {
             if (gameConfig.score < 10) {
                 alert('分数不足！需要10分才能撤销。');
@@ -1466,19 +1409,15 @@
                 return;
             }
             
-            gameConfig.score -= 10;
-            
-            // 恢复到上一个状态
             const prevState = gameConfig.moveHistory.pop();
             
-            gameConfig.score = prevState.score;
+            gameConfig.score = prevState.score - 10;
             gameConfig.combo = prevState.combo;
             gameConfig.maxGeneratedValue = prevState.maxGeneratedValue;
             gameConfig.secondLargestValue = prevState.secondLargestValue;
             cardStacks = prevState.cardStacks;
             cardOptions = prevState.cardOptions;
             
-            // 更新显示
             updateCardStacks();
             updateAllCardOptions();
             updateUI();
@@ -1486,46 +1425,39 @@
             console.log('撤销了上一步操作');
         }
 
-        // ========== 更新UI ==========
+        // ========== 更新 UI ==========
         function updateUI() {
-            // 更新分数
             scoreEl.textContent = gameConfig.score;
             highScoreEl.textContent = gameConfig.highScore;
             comboEl.textContent = gameConfig.combo;
             
-            // 计算剩余空格
             let emptySlots = 0;
             for (const stack of cardStacks) {
                 if (stack.length === 0) emptySlots++;
             }
             emptySlotsEl.textContent = emptySlots;
             
-            // 更新道具按钮状态
             updatePowerupButtons();
         }
 
-        // ========== 更新道具按钮 ==========
+        // ========== 道具按钮状态 ==========
         function updatePowerupButtons() {
             const refreshBtn = document.getElementById('powerup-refresh');
             const bombBtn = document.getElementById('powerup-bomb');
             const wildBtn = document.getElementById('powerup-wild');
             const slotBtn = document.getElementById('powerup-slot');
             
-            // 根据难度启用/禁用道具
             if (gameConfig.difficulty === 'hard' || gameConfig.difficulty === 'master') {
-                // 困难和大师难度：禁用炸弹卡和万能卡
                 bombBtn.classList.add('disabled');
                 wildBtn.classList.add('disabled');
                 slotBtn.classList.add('disabled');
                 
-                // 只启用刷新卡牌（如果分数足够）
                 if (gameConfig.score >= gameConfig.powerups.refresh.cost) {
                     refreshBtn.classList.remove('disabled');
                 } else {
                     refreshBtn.classList.add('disabled');
                 }
             } else {
-                // 简单难度：正常启用
                 if (gameConfig.score >= gameConfig.powerups.refresh.cost) {
                     refreshBtn.classList.remove('disabled');
                 } else {
@@ -1544,13 +1476,13 @@
                     wildBtn.classList.add('disabled');
                 }
                 
-                // 额外空格（暂时禁用）
                 slotBtn.classList.add('disabled');
             }
         }
 
         // ========== 游戏结束 ==========
         function gameOver() {
+            if (gameConfig.gameState === 'gameover') return;
             gameConfig.gameState = 'gameover';
             
             showMessage(
@@ -1561,45 +1493,30 @@
             console.log('游戏结束，最终得分：', gameConfig.score);
         }
 
-        // ========== 显示消息 ==========
+        // ========== 消息显示 ==========
         function showMessage(title, text) {
             messageTitleEl.textContent = title;
             messageTextEl.textContent = text;
             messageOverlayEl.classList.add('show');
         }
 
-        // ========== 隐藏消息 ==========
         function hideMessage() {
             messageOverlayEl.classList.remove('show');
         }
 
         // ========== 道具系统 ==========
         function setupPowerups() {
-            // 刷新卡牌
+            // 刷新卡牌（统一由 refreshCardOptions 扣分）
             document.getElementById('powerup-refresh').addEventListener('click', () => {
                 if (gameConfig.gameState !== 'playing') return;
-                
-                // 检查是否被禁用
-                if (document.getElementById('powerup-refresh').classList.contains('disabled')) {
-                    return;
-                }
-                
-                if (gameConfig.score < gameConfig.powerups.refresh.cost) {
-                    alert('分数不足！');
-                    return;
-                }
-                
-                gameConfig.score -= gameConfig.powerups.refresh.cost;
-                refreshCardOptions(); // 使用已有的刷新函数
-                
-                console.log('使用了刷新卡牌道具');
+                if (document.getElementById('powerup-refresh').classList.contains('disabled')) return;
+                refreshCardOptions(gameConfig.powerups.refresh.cost);
             });
             
-            // 炸弹卡
+            // 炸弹卡：点击后进入选择目标状态
             document.getElementById('powerup-bomb').addEventListener('click', () => {
                 if (gameConfig.gameState !== 'playing') return;
                 
-                // 检查是否被禁用
                 if (document.getElementById('powerup-bomb').classList.contains('disabled')) {
                     alert('当前难度无法使用炸弹卡！');
                     return;
@@ -1612,15 +1529,12 @@
                 
                 activePowerup = 'bomb';
                 alert('点击要炸掉的卡牌（最顶上的牌）');
-                
-                console.log('激活了炸弹卡道具');
             });
             
             // 万能卡
             document.getElementById('powerup-wild').addEventListener('click', () => {
                 if (gameConfig.gameState !== 'playing') return;
                 
-                // 检查是否被禁用
                 if (document.getElementById('powerup-wild').classList.contains('disabled')) {
                     alert('当前难度无法使用万能卡！');
                     return;
@@ -1631,17 +1545,14 @@
                     return;
                 }
                 
-                // 添加一张万能卡到选项区
                 if (gameConfig.difficulty === 'master') {
-                    // 大师难度：直接添加到卡牌刷新区
                     cardOptions.push('wild');
                     updateAllCardOptions();
                 } else {
-                    // 简单难度：添加到空位
                     const emptyIndex = cardOptions.findIndex(opt => !opt);
                     if (emptyIndex !== -1) {
                         cardOptions[emptyIndex] = 'wild';
-                        updateCardOption(emptyIndex);
+                        updateAllCardOptions();
                     } else {
                         cardOptions.push('wild');
                         updateAllCardOptions();
@@ -1654,49 +1565,43 @@
                 console.log('获得了万能卡');
             });
             
-            // 卡牌点击事件（用于道具）
+            // 点击卡牌 → 炸掉（修复：成功后扣分并记录历史）
             document.addEventListener('click', (event) => {
-                if (activePowerup === 'bomb' && event.target.classList.contains('card')) {
-                    const card = event.target;
-                    const slot = parseInt(card.dataset.slot);
-                    const index = parseInt(card.dataset.index);
-                    
-                    // 确保点击的是最顶上的牌
-                    if (index === cardStacks[slot].length - 1) {
-                        // 保存状态
-                        saveGameState();
-                        
-                        // 移除这张牌
-                        cardStacks[slot].pop();
-                        updateCardStacks();
-                        updateUI();
-                        
-                        activePowerup = null;
-                        alert('卡牌已被炸掉！');
-                    } else {
-                        alert('只能炸掉最顶上的卡牌！');
-                    }
+                if (activePowerup !== 'bomb') return;
+                if (!event.target.classList.contains('card')) return;
+                
+                const card = event.target;
+                if (card.dataset.type !== 'stack') return;
+                
+                const slot = parseInt(card.dataset.slot, 10);
+                const index = parseInt(card.dataset.index, 10);
+                
+                if (isNaN(slot) || isNaN(index)) return;
+                
+                if (index === cardStacks[slot].length - 1) {
+                    const snapshot = makeSnapshot();
+                    cardStacks[slot].pop();
+                    gameConfig.score -= gameConfig.powerups.bomb.cost;
+                    pushHistory(snapshot);
+                    updateCardStacks();
+                    updateUI();
+                    activePowerup = null;
+                    alert('卡牌已被炸掉！');
+                } else {
+                    alert('只能炸掉最顶上的卡牌！');
                 }
             });
         }
 
-        // ========== 设置难度切换 ==========
+        // ========== 难度切换 ==========
         function setupDifficultySwitching() {
             document.querySelectorAll('.difficulty-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    // 移除所有按钮的active类
                     document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
-                    
-                    // 添加active类到当前按钮
                     btn.classList.add('active');
                     
-                    // 更新当前难度
                     gameConfig.difficulty = btn.dataset.difficulty;
-                    
-                    // 更新难度规则说明
                     updateDifficultyRules();
-                    
-                    // 重新开始游戏
                     initGame();
                 });
             });
@@ -1704,41 +1609,33 @@
 
         // ========== 页面加载完成 ==========
         document.addEventListener('DOMContentLoaded', () => {
-            // 初始化游戏
             initGame();
-            
-            // 设置拖拽放置区
             setupDropZones();
-            
-            // 设置道具系统
             setupPowerups();
-            
-            // 设置难度切换
             setupDifficultySwitching();
             
-            // 设置重新开始按钮
             document.getElementById('restart-btn').addEventListener('click', initGame);
-            
-            // 设置继续按钮
             document.getElementById('continue-btn').addEventListener('click', hideMessage);
-            
-            // 设置手动刷新按钮
-            document.getElementById('manual-refresh-btn').addEventListener('click', refreshCardOptions);
-            
-            // 设置撤销按钮
+            document.getElementById('manual-refresh-btn').addEventListener('click', () => refreshCardOptions(5));
             document.getElementById('undo-btn').addEventListener('click', undoMove);
             
-            // 设置初始最高分
             highScoreEl.textContent = gameConfig.highScore;
             
             console.log('卡牌2048游戏已加载完成！');
         });
     </script>
-<!-- 了了了岭用户系统-核心逻辑 -->
-<script src="../../../common-user.js"></script>
-<!-- PWA Service Worker 注册 -->
+<!-- 了了了岭用户系统-核心逻辑（绝对路径） -->
+<script src="https://game.leleleling.site/common-user.js"></script>
+<!-- 全站统一组件：脚本 -->
+<script src="https://game.leleleling.site/common.js" defer></script>
+<script async src="https://tally.so/widgets/embed.js"></script>
+<!-- PWA Service Worker 注册（绝对路径，外网域名会因跨域失败属预期） -->
 <script>
-if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js').then(function(reg){console.log('✅ PWA Service Worker 注册成功');}).catch(function(err){console.log('❌ PWA Service Worker 注册失败:',err);});}
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('https://game.leleleling.site/sw.js')
+    .then(function(reg){ console.log('✅ PWA Service Worker 注册成功'); })
+    .catch(function(err){ console.log('❌ PWA Service Worker 注册失败:', err); });
+}
 </script>
 </body>
 
