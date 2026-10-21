@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<!-- PWA manifest 动态加载 -->
+<!-- PWA manifest 动态加载（绝对路径） -->
 <script>
-  (function(){var lang=document.documentElement.getAttribute('data-lang')||'zh';var manifestMap={zh:'/manifest-zh.json',en:'/manifest-en.json',ja:'/manifest-ja.json',fr:'/manifest-fr.json'};var link=document.createElement('link');link.rel='manifest';link.href=manifestMap[lang]||'/manifest-zh.json';document.head.appendChild(link);})();
+  (function(){var lang=document.documentElement.getAttribute('data-lang')||'zh';var manifestMap={zh:'https://game.leleleling.site/manifest-zh.json',en:'https://game.leleleling.site/manifest-en.json',ja:'https://game.leleleling.site/manifest-ja.json',fr:'https://game.leleleling.site/manifest-fr.json'};var link=document.createElement('link');link.rel='manifest';link.href=manifestMap[lang]||'https://game.leleleling.site/manifest-zh.json';document.head.appendChild(link);})();
 </script>
 <!-- 苹果设备兼容 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="/LOGO.svg">
+<link rel="apple-touch-icon" href="https://game.leleleling.site/LOGO.svg">
+<!-- 全站统一组件：样式 -->
+<link rel="stylesheet" href="https://game.leleleling.site/common.css">
+<!-- 强制标记为游戏页，让公告弹窗 15 秒自动消失 -->
+<script>
+  window.forceGamePage = true;
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D射击 · 十一合一 · 完全版</title>
@@ -130,14 +136,14 @@
         .inventory-panel h4 { margin: 0 0 5px 0; font-size: 14px; color: #ffaa00; }
         .inventory-panel div { margin: 2px 0; }
     </style>
-<!-- 了了了岭用户系统-样式与SDK -->
-<link rel="stylesheet" href="../../../common-user.css">
+<!-- 了了了岭用户系统-样式与SDK（绝对路径） -->
+<link rel="stylesheet" href="https://game.leleleling.site/common-user.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
 <div class="site-logo-container">
-    <img src="https://leleleling.site/LOGO.svg" 
+    <img src="https://game.leleleling.site/LOGO.svg" 
          onerror="this.onerror=null; this.src='https://leleleling.surge.sh/LOGO.svg';" 
          alt="Logo" 
          style="height: 40px; width: 40px; border-radius: 50%; margin: 10px;">
@@ -250,7 +256,15 @@
         controls.addEventListener('unlock', () => instructionsDiv.classList.remove('hidden'));
         renderer.domElement.addEventListener('click', () => controls.lock());
 
+        // 修复：忽略输入框内的按键，避免管理员密码框无法输入 W/A/S/D/空格
+        function isTypingTarget(el) {
+            if (!el) return false;
+            const tag = el.tagName;
+            return tag === 'INPUT' || tag === 'TEXTAREA' || el.isContentEditable;
+        }
+
         document.addEventListener('keydown', (e) => {
+            if (isTypingTarget(e.target)) return;
             switch(e.code) {
                 case 'KeyW': keyState.w = true; e.preventDefault(); break;
                 case 'KeyA': keyState.a = true; e.preventDefault(); break;
@@ -260,6 +274,7 @@
             }
         });
         document.addEventListener('keyup', (e) => {
+            if (isTypingTarget(e.target)) return;
             switch(e.code) {
                 case 'KeyW': keyState.w = false; e.preventDefault(); break;
                 case 'KeyA': keyState.a = false; e.preventDefault(); break;
@@ -727,8 +742,6 @@
                     };
                 }
             },
-            // v2-v9 由于篇幅，省略完整代码，但实际包含所有版本（功能与原始相同）
-            // 这里仅展示关键部分，保证最终文件完整性
             2: {
     name: 'v2 人形敌人',
     init: () => {
@@ -1733,7 +1746,7 @@
                                 if (distToPlayer < 40 && now - enemy.userData.lastShoot > 1.2) {
                                     const start = enemy.position.clone().add(new THREE.Vector3(0,0.9,0));
                                     const dirToPlayer = new THREE.Vector3().subVectors(player.position.clone().add(new THREE.Vector3(0,1,0)), start).normalize();
-                                    dirToPlayer.y = 0; // 水平弹道
+                                    dirToPlayer.y = 0;
                                     dirToPlayer.normalize();
                                     const bullet = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8), new THREE.MeshStandardMaterial({color: reg.color, emissive:0x220000}));
                                     bullet.position.copy(start);
@@ -1742,7 +1755,6 @@
                                     enemy.userData.lastShoot = now;
                                 }
                             }
-                            // 敌人互射（不同阵营）
                             for (let other of enemies) {
                                 if (other === enemy) continue;
                                 if (other.userData.region.name === enemy.userData.region.name) continue;
@@ -2207,10 +2219,6 @@
             }
         };
 
-        // 补充 v2-v9 的完整实现（为节省篇幅，此处使用实际已有代码，确保完整）
-        // 由于代码量巨大，此处仅展示框架，但最终文件会包含所有版本的完整实现。
-        // 为确保可运行，我们已经在本地测试中包含了所有版本的代码。
-
         // --- 大厅逻辑 ---
         const lobbyDiv = document.getElementById('lobby');
         const grid = document.getElementById('version-grid');
@@ -2300,6 +2308,14 @@
                 adminStatusSpan.textContent = "❌ 密码错误";
                 adminStatusSpan.style.color = "#ff8888";
                 setTimeout(() => { adminStatusSpan.textContent = ""; }, 2000);
+            }
+        });
+
+        // 修复：管理员密码框按回车直接触发解锁
+        adminPasswordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                unlockAllBtn.click();
             }
         });
 
@@ -2424,11 +2440,14 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
     </script>
-<!-- 了了了岭用户系统-核心逻辑 -->
-<script src="../../../common-user.js"></script>
-<!-- PWA Service Worker 注册 -->
+<!-- 了了了岭用户系统-核心逻辑（绝对路径） -->
+<script src="https://game.leleleling.site/common-user.js"></script>
+<!-- 全站统一组件：脚本 -->
+<script src="https://game.leleleling.site/common.js" defer></script>
+<script async src="https://tally.so/widgets/embed.js"></script>
+<!-- PWA Service Worker 注册（绝对路径，外网域名会因跨域失败属预期） -->
 <script>
-if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js').then(function(reg){console.log('✅ PWA Service Worker 注册成功');}).catch(function(err){console.log('❌ PWA Service Worker 注册失败:',err);});}
+if('serviceWorker'in navigator){navigator.serviceWorker.register('https://game.leleleling.site/sw.js').then(function(reg){console.log('✅ PWA Service Worker 注册成功');}).catch(function(err){console.log('❌ PWA Service Worker 注册失败:',err);});}
 </script>
 </body>
 
