@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="关于了了了游 · 发现独立游戏的魅力">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>关于我们 · 了了了游</title>
+    
+    <!-- 统计代码 -->
+    <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
+    
+    <style>
+        /* ===== 多语言控制 ===== */
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text { display: block; }
+        html[data-lang="zh"] .zh-inline { display: inline; }
+        html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="en"] .en-inline { display: inline; }
+        html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+        html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
+
+        /* ===== 全局重置 ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: linear-gradient(145deg, #f0f4f9 0%, #e8ecf5 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 1.5rem 3rem;
+        }
+
+        /* ===== 顶部导航 ===== */
+        .top-bar {
+            width: 100%;
+            max-width: 900px;
+            padding: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: #4f46e5;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 8px 16px;
+            background: rgba(79, 70, 229, 0.08);
+            border-radius: 30px;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: rgba(79, 70, 229, 0.15); }
+        .site-logo { height: 36px; width: auto; cursor: pointer; transition: transform 0.2s; }
+        .site-logo:hover { transform: scale(1.05); }
+        
+        /* 语言切换 */
+        .lang-switch {
+            display: flex; gap: 2px; background: rgba(148, 163, 184, 0.12);
+            border-radius: 30px; padding: 3px;
+        }
+        .lang-btn {
+            padding: 4px 12px; border: none; border-radius: 24px; background: transparent;
+            font-size: 0.8rem; font-weight: 600; color: #64748b; cursor: pointer;
+            transition: all 0.2s; font-family: inherit;
+        }
+        .lang-btn.active { background: #4f46e5; color: #fff; box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25); }
+        .lang-btn:hover:not(.active) { color: #1e293b; }
+
+        /* ===== 主内容区 ===== */
+        .main-container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 36px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            padding: 4rem 3.5rem;
+            animation: fadeIn 0.6s ease-out;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ===== Hero 区域 ===== */
+        .hero {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+        }
+        .hero-icon { font-size: 4rem; margin-bottom: 1.5rem; line-height: 1; }
+        .hero h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1e293b 0%, #4f46e5 80%);
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+        .hero p {
+            font-size: 1.15rem;
+            color: #64748b;
+            max-width: 650px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* ===== 内容排版 ===== */
+        .section {
+            margin-bottom: 3.5rem;
+        }
+        .section:last-child {
+            margin-bottom: 0;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(79, 70, 229, 0.1);
+        }
+        .section p {
+            font-size: 1.05rem;
+            color: #334155;
+            line-height: 2;
+            margin-bottom: 1.2rem;
+            text-align: justify;
+        }
+        .section p:last-child { margin-bottom: 0; }
+
+        /* 正文内的超链接 */
+        .content-link {
+            color: #4f46e5;
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 1px dashed rgba(79, 70, 229, 0.4);
+            transition: all 0.2s;
+        }
+        .content-link:hover {
+            color: #4338ca;
+            border-bottom-color: #4f46e5;
+            background: rgba(79, 70, 229, 0.05);
+        }
+
+        /* ===== 开发者权益列表 ===== */
+        .rights-list {
+            list-style: none;
+            padding: 0;
+            margin: 1.5rem 0;
+            background: #f8fafc;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+        .rights-list li {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #475569;
+            line-height: 1.7;
+            position: relative;
+            padding-left: 3.5rem;
+        }
+        .rights-list li:last-child { border-bottom: none; }
+        .rights-list li::before {
+            content: '💡';
+            position: absolute;
+            left: 1.2rem;
+            top: 1.5rem;
+            font-size: 1.2rem;
+        }
+        .rights-list li strong {
+            color: #1e293b;
+            margin-right: 4px;
+        }
+
+        /* ===== 工作室产品矩阵 ===== */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 1.5rem 0;
+        }
+        .product-item {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            padding: 12px 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            color: #475569;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .product-item:hover {
+            border-color: #4f46e5;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);
+            transform: translateY(-2px);
+        }
+        .product-item.active {
+            background: rgba(79, 70, 229, 0.04);
+            border-color: rgba(79, 70, 229, 0.2);
+            color: #4f46e5;
+            font-weight: 600;
+        }
+        .product-item.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: #f8fafc;
+        }
+        .product-item.disabled:hover {
+            border-color: #e2e8f0;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* ===== 联系方式 ===== */
+        .contact-box {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(124, 58, 237, 0.05) 100%);
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            margin-top: 3rem;
+            border: 1px solid rgba(79, 70, 229, 0.1);
+        }
+        .contact-box h3 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 1rem;
+        }
+        .contact-email {
+            display: inline-block;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #4f46e5;
+            text-decoration: none;
+            padding: 12px 32px;
+            background: #fff;
+            border-radius: 30px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+            transition: all 0.2s;
+        }
+        .contact-email:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(79, 70, 229, 0.2); }
+        .contact-box p { font-size: 0.95rem; color: #64748b; }
+
+        /* ===== 底部 Footer ===== */
+        footer {
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+            padding: 20px;
+            color: #94a3b8;
+            font-size: 13px;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+            margin-top: 20px;
+        }
+        footer a { color: #4f46e5; text-decoration: none; margin: 0 6px; }
+        footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            .main-container { padding: 2.5rem 1.5rem; border-radius: 24px; }
+            .hero h1 { font-size: 2rem; }
+            .hero p { font-size: 1rem; }
+            .section-title { font-size: 1.3rem; }
+            .section p { font-size: 0.95rem; }
+            .top-bar { padding: 10px 0; }
+            .rights-list li { padding-left: 2.8rem; }
+            .rights-list li::before { left: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部导航 -->
+    <div class="top-bar">
+        <a href="index.html" class="back-btn" id="backBtn">
+            ← <span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span>
+        </a>
+        <img src="lelelegame.svg" alt="了了了游" class="site-logo" onclick="window.location.href='index.html'" onerror="this.style.display='none'">
+        
+        <!-- 语言切换 -->
+        <div class="lang-switch" role="group">
+            <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+            <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
+        </div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="main-container">
+        
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-icon">🎮</div>
+            <h1>
+                <span class="zh-inline">发现独立游戏的魅力</span>
+                <span class="en-inline">Discover the charm of indie games</span>
+            </h1>
+            <p>
+                <span class="zh-inline">一个由热爱驱动的游戏聚合导航站。我们致力于为玩家寻找好玩的游戏，也为独立创作者提供一个被看见的舞台。</span>
+                <span class="en-inline">A passion-driven game aggregation and navigation site. We are dedicated to finding fun games for players and providing a stage to be seen for independent creators.</span>
+            </p>
+        </div>
+
+        <!-- 关于了了了游 -->
+        <div class="section">
+            <div class="section-title">
+                <span class="zh-inline">🌟 关于「了了了游」</span>
+                <span class="en-inline">🌟 About lelele Game</span>
+            </div>
+            <div class="zh-text">
+                <p>「了了了游」是由了了了岭工作室倾力打造的独立游戏聚合与分发平台。作为一个充满热情的初创项目，我们目睹了太多优秀的独立游戏因为缺乏宣发资源、不懂营销而被迫沉寂。为了打破这种信息壁垒，我们搭建了这个纯净、高效的导航站，旨在让那些藏在角落的创意宝藏重新焕发光彩。</p>
+                
+                <p>作为一个专注于游戏发现的门户，我们为玩家提供了极其丝滑的浏览体验。这里没有繁琐的注册流程，没有强制下载的客户端，更没有喧宾夺主的干扰元素。你只需轻轻一点，即可快速预览游戏详情、将心仪的作品加入本地收藏，或一键直达游戏本体，享受最纯粹的游玩乐趣。同时，平台原生支持中英双语无缝切换，无论你是国内玩家还是海外受众，都能毫无障碍地探索这片游戏海洋。</p>
+                
+                <p>在内容生态上，我们将游戏严格划分为「本站游戏」与「外网游戏」，并设立了包含休闲、益智、射击、冒险等多个细分标签，帮助玩家精准找到对口味的作品。更重要的是，我们对上架游戏有着严苛的质量把控——所有代码都必须经过基础的安全扫描，且确保不含恶意脚本与病毒，力求为你提供一个安全、绿色的游戏环境。</p>
+                
+                <p>「了了了游」于 <strong>2026 年 10 月 18 日</strong> 正式上线。我们不仅仅是一个简单的列表，更希望成为连接创作者与玩家的情感纽带。为了保障所有用户的权益，我们在收集极少必要信息的同时，也严格恪守 <a href="privacy.html" class="content-link">《隐私政策》</a>，确保您的数据绝对安全。未来，我们将持续迭代，引入更多互动功能，让每一次点击都充满惊喜。</p>
+            </div>
+            <div class="en-text">
+                <p>lelele Game is an independent game aggregation and distribution platform meticulously crafted by leleleling Studio. As a passionate startup project, we have witnessed too many excellent indie games forced into silence due to a lack of promotional resources and marketing knowledge. To break this information barrier, we built this pure and efficient navigation site, aiming to let those creative treasures hidden in the corners shine again.</p>
+                
+                <p>As a portal focused on game discovery, we provide players with an extremely smooth browsing experience. There are no cumbersome registration processes, no mandatory client downloads, and no distracting elements. With just a single click, you can quickly preview game details, add your favorite works to local bookmarks, or navigate directly to the game itself to enjoy pure gaming fun. Meanwhile, the platform natively supports seamless switching between Chinese and English, allowing players worldwide to explore this gaming ocean without barriers.</p>
+                
+                <p>In terms of content ecosystem, we strictly categorize games into "Local Games" and "External Games", and set up detailed tags including Casual, Puzzle, Shooter, Adventure, etc., to help players accurately find works that suit their tastes. More importantly, we have strict quality control for listed games—all code must undergo basic security scanning, ensuring no malicious scripts or viruses, striving to provide you with a safe and green gaming environment.</p>
+                
+                <p>lelele Game officially launched on <strong>October 18, 2026</strong>. We are not just a simple list, but hope to become an emotional bond connecting creators and players. To protect the rights of all users, while collecting minimal necessary information, we strictly abide by our <a href="privacy.html?lang=en" class="content-link">Privacy Policy</a> to ensure your data is absolutely safe. In the future, we will continue to iterate and introduce more interactive features, making every click full of surprises.</p>
+            </div>
+        </div>
+
+        <!-- 给开发者的承诺 -->
+        <div class="section">
+            <div class="section-title">
+                <span class="zh-inline">🤝 致独立开发者</span>
+                <span class="en-inline">🤝 To Indie Developers</span>
+            </div>
+            <div class="zh-text">
+                <p>我们深知，独立开发是一条孤独且艰难的路。每一个像素、每一行代码都凝聚着创作者的心血。因此，在「了了了游」，我们将开发者的权益永远放在首位，并郑重向您承诺：</p>
+                <ul class="rights-list">
+                    <li><strong>非独占、可撤回的展示许可：</strong>您的作品可以同时在其他任何平台发布，我们绝不要求独家授权。并且，您随时可以通过邮件申请下架。在收到您的撤回请求后，我们将严格按照 <a href="game_rules.html#submit" class="content-link">《游戏守则》第四章</a> 的规定，在 <strong>7 个工作日内</strong> 确认并下架您的作品，绝不拖延。</li>
+                    <li><strong>绝对的著作权保障：</strong>作品的著作权及相关知识产权始终属于您，我们仅在平台范围内进行合法的展示与推广。如果您发现平台上有侵犯您权益的内容，请参考 <a href="copyright.html" class="content-link">《版权与侵权投诉指引》</a> 提交通知，我们将依法履行“通知—删除”义务，保护您的合法权益。</li>
+                </ul>
+                <p>我们不会向独立开发者收取任何上架费用，只希望为您提供一个纯粹的展示窗口。在投稿前，请务必阅读 <a href="game_rules.html" class="content-link">《了了了游游戏守则》</a>，了解平台的内容规范与审核标准（审核周期通常为 7 个工作日）。</p>
+            </div>
+            <div class="en-text">
+                <p>We know that indie development is a lonely and difficult path. Every pixel and every line of code embodies the creator's hard work. Therefore, at lelele Game, we always put developers' rights first and solemnly promise you:</p>
+                <ul class="rights-list">
+                    <li><strong>Non-exclusive, revocable license:</strong> Your work can be published on any other platform simultaneously. We never require exclusivity. You can request removal via email at any time. Upon receiving your withdrawal request, we will strictly follow <a href="game_rules.html?lang=en#submit" class="content-link">Chapter 4 of the Game Rules</a> and confirm and remove your work within <strong>7 business days</strong>, without delay.</li>
+                    <li><strong>Absolute copyright protection:</strong> The copyright and related intellectual property rights always belong to you. We only display and promote them legally within the platform. If you find content on the platform that infringes your rights, please refer to the <a href="copyright.html?lang=en" class="content-link">Copyright Infringement Guidelines</a> to submit a notice. We will fulfill the "notice-and-takedown" obligation under the law to protect your legitimate rights.</li>
+                </ul>
+                <p>We do not charge indie developers any listing fees; we just want to provide a pure showcase window for you. Before submitting, please be sure to read the <a href="game_rules.html?lang=en" class="content-link">lelele Game Rules</a> to understand the platform's content standards and review criteria (the review period is typically 7 business days).</p>
+            </div>
+        </div>
+
+        <!-- 关于工作室 -->
+        <div class="section">
+            <div class="section-title">
+                <span class="zh-inline">🏢 关于「了了了岭工作室」</span>
+                <span class="en-inline">🏢 About leleleling Studio</span>
+            </div>
+            <div class="zh-text">
+                <p>「了了了岭工作室」成立于 <strong>2026 年 1 月 26 日</strong>，由一位 14 岁的独立开发者创办。我们坚持“极简即最强”的核心理念——用最少的资源，做最实用的工具。在技术路线上，我们所有的项目都基于纯原生 Web 技术（HTML/CSS/JavaScript），不依赖任何第三方框架或库。</p>
+                <p>我们不仅仅是一个聚合站，更是一个充满创意的产品矩阵。目前，工作室规划了 7 款核心产品，其中 3 款已正式开放：</p>
+                <div class="product-grid">
+                    <a href="https://al.leleleling.site" target="_blank" class="product-item active">✅ 了了了AI (智能助手)</a>
+                    <a href="https://search.leleleling.site" target="_blank" class="product-item active">✅ 了了了搜 (聚合搜索)</a>
+                    <a href="https://game.leleleling.site" target="_blank" class="product-item active">✅ 了了了游 (小游戏平台)</a>
+                    <span class="product-item disabled">🔧 了了了读 (制作中)</span>
+                    <span class="product-item disabled">🔧 了了了助 (制作中)</span>
+                    <span class="product-item disabled">🔧 了了了新闻 (制作中)</span>
+                    <span class="product-item disabled">🔧 了了了试卷 (制作中)</span>
+                </div>
+                <p>目前官网正在重做中，AI 服务（了了了AI）正常开放。作为个人项目，我们经费有限，每次 AI 调用都有成本，你的每一次使用和支持，都能帮助工作室走得更远 ❤️。</p>
+                <p><em>小提示：名字里的“了”读 le（一声），不是 liao 哦～ 另外，我们的 AI 助手叫“小了”，网址是 al.leleleling.site（是字母 l，不是字母 i 哦！）。</em></p>
+            </div>
+            <div class="en-text">
+                <p>Founded on <strong>January 26, 2026</strong>, by a 14-year-old indie developer, leleleling Studio adheres to the core philosophy of "Minimalist is the strongest"—doing the most practical things with the fewest resources. On the technical route, all our projects are based on pure native Web technologies (HTML/CSS/JavaScript), without relying on any third-party frameworks or libraries.</p>
+                <p>We are not just an aggregation site, but a creative product matrix. Currently, the studio has planned 7 core products, 3 of which are officially open:</p>
+                <div class="product-grid">
+                    <a href="https://al.leleleling.site" target="_blank" class="product-item active">✅ lelele AI (Assistant)</a>
+                    <a href="https://search.leleleling.site" target="_blank" class="product-item active">✅ lelele Search</a>
+                    <a href="https://game.leleleling.site" target="_blank" class="product-item active">✅ lelele Game</a>
+                    <span class="product-item disabled">🔧 lelele Read (WIP)</span>
+                    <span class="product-item disabled">🔧 lelele Help (WIP)</span>
+                    <span class="product-item disabled">🔧 lelele News (WIP)</span>
+                    <span class="product-item disabled">🔧 lelele Test (WIP)</span>
+                </div>
+                <p>The official website is currently being redone, and AI services are operating normally. As a personal project with limited funding, every AI call has a cost. Every use and support from you helps the studio go further ❤️.</p>
+                <p><em>Tip: Our AI assistant is named "小了" (Xiaole), and the URL is al.leleleling.site (it's the letter l, not the letter i!).</em></p>
+            </div>
+        </div>
+
+        <!-- 联系方式 -->
+        <div class="contact-box">
+            <div class="zh-text">
+                <h3>📬 联系我们</h3>
+                <a href="mailto:leleleling@2980.com" class="contact-email">leleleling@2980.com</a>
+                <p>无论您是想投稿游戏、反馈建议，还是需要下架作品，都欢迎随时通过邮件联系我们。</p>
+            </div>
+            <div class="en-text">
+                <h3>📬 Contact Us</h3>
+                <a href="mailto:leleleling@2980.com" class="contact-email">leleleling@2980.com</a>
+                <p>Whether you want to submit a game, give feedback, or request removal, please feel free to contact us via email.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 底部 Footer -->
+    <footer>
+        © 2026 <span class="zh-inline">了了了岭工作室 · 了了了游</span><span class="en-inline">Leleleling Studio · lelele Game</span> ｜
+        <a href="game_rules.html" id="linkRules"><span class="zh-inline">游戏守则</span><span class="en-inline">Rules</span></a> ｜
+        <a href="privacy.html" id="linkPrivacy"><span class="zh-inline">隐私政策</span><span class="en-inline">Privacy</span></a> ｜
+        <a href="copyright.html" id="linkCopyright"><span class="zh-inline">版权投诉</span><span class="en-inline">Copyright</span></a>
+    </footer>
+
+    <script>
+        function setLang(lang) {
+            document.documentElement.setAttribute('data-lang', lang);
+            document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.langBtn === lang);
+            });
+            
+            try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
+
+            const backBtn = document.getElementById('backBtn');
+            if(backBtn) backBtn.href = lang === 'en' ? 'index.html?lang=en' : 'index.html';
+
+            const suffix = lang === 'en' ? '?lang=en' : '';
+            if (document.getElementById('linkRules')) document.getElementById('linkRules').href = 'game_rules.html' + suffix;
+            if (document.getElementById('linkPrivacy')) document.getElementById('linkPrivacy').href = 'privacy.html' + suffix;
+            if (document.getElementById('linkCopyright')) document.getElementById('linkCopyright').href = 'copyright.html' + suffix;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
+            setLang(currentLang);
+        });
+    </script>
+</body>
+</html>
