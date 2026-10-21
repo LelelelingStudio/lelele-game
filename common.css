@@ -22,7 +22,7 @@ html.dark-mode {
     --modal-border: rgba(255, 255, 255, 0.15);
 }
 
-/* 全局深色模式基础适配，尽量不影响原有背景 */
+/* 全局深色模式基础适配 */
 html.dark-mode body {
     background: var(--bg-gradient) !important;
     color: var(--text-main) !important;
@@ -92,8 +92,47 @@ html.dark-mode body {
 }
 .common-modal-close:hover { background: var(--danger); color: #fff; }
 
-/* ===== 公告卡片增强 ===== */
-.announce-card { position: relative; }
+/* ===== 公告卡片核心样式补全 ===== */
+.announce-card {
+    position: relative;
+    background: var(--card-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 16px;
+    padding: 16px 20px;
+    border-left: 5px solid var(--primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    border-top: 1px solid var(--card-border);
+    border-right: 1px solid var(--card-border);
+    border-bottom: 1px solid var(--card-border);
+    color: var(--text-main);
+    margin-bottom: 12px;
+}
+.announce-top { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: flex-start; 
+    margin-bottom: 8px; 
+    gap: 16px; 
+}
+.announce-name { 
+    font-weight: 700; 
+    font-size: 1rem; 
+    color: var(--text-main); 
+}
+.announce-date { 
+    font-size: 0.8rem; 
+    color: var(--text-muted); 
+    white-space: nowrap; 
+}
+.announce-content { 
+    font-size: 0.92rem; 
+    color: var(--text-main); 
+    line-height: 1.7; 
+    white-space: pre-wrap; 
+    opacity: 0.9;
+}
+
 .announce-close {
     position: absolute; top: 12px; right: 12px; background: none; border: none;
     font-size: 1.2rem; color: var(--text-muted); cursor: pointer; line-height: 1;
@@ -158,14 +197,12 @@ html.dark-mode body {
 
 /* ===== 深色模式兼容原有组件 ===== */
 html.dark-mode .game-card, 
-html.dark-mode .announce-card,
 html.dark-mode .fav-item {
     background: var(--card-bg) !important;
     border-color: var(--card-border) !important;
     color: var(--text-main) !important;
 }
-html.dark-mode .game-name, 
-html.dark-mode .announce-name {
+html.dark-mode .game-name {
     color: var(--text-main) !important;
 }
 html.dark-mode .search-wrapper,
