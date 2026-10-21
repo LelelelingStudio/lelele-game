@@ -21,6 +21,34 @@
     };
     const getLang = () => document.documentElement.getAttribute('data-lang') || 'zh';
 
+    // ==================== 【核心】全局多语言切换 ====================
+    // 直接暴露到 window 上，任何页面点击按钮都会调用这里
+    window.setLang = function(lang) {
+        // 1. 切换 HTML 属性，激活 CSS 中的多语言控制
+        document.documentElement.setAttribute('data-lang', lang);
+        document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+        
+        // 2. 更新所有语言按钮的激活状态
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.langBtn === lang);
+        });
+        
+        // 3. 记忆用户的偏好
+        try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
+
+        // 4. 重新渲染全局 Footer
+        injectFooter();
+        
+        // 5. 如果公告数据已经加载，重新渲染公告栏（处理双语标题和内容）
+        if (typeof allValidAnnouncements !== 'undefined' && allValidAnnouncements.length > 0) {
+            const closedObj = getStorage('lelele_closed_announcements', {});
+            renderIndexAnnouncements(allValidAnnouncements.slice(0, 3), closedObj);
+        }
+
+        // 6. 广播事件，通知各个页面自己刷新内部内容（如游戏列表、详情页）
+        window.dispatchEvent(new Event('langChanged'));
+    };
+
     // ==================== 深色模式逻辑 ====================
     function initTheme() {
         const savedTheme = localStorage.getItem('lelele_theme');
@@ -38,7 +66,9 @@
 
     // ==================== Footer 注入逻辑 ====================
     function injectFooter() {
-        if (document.querySelector('.common-footer')) return;
+        const existingFooter = document.querySelector('.common-footer');
+        if (existingFooter) existingFooter.remove(); // 先删旧的，确保语言切换时重新生成
+        
         const lang = getLang();
         const suffix = lang === 'en' ? '?lang=en' : '';
         
@@ -83,6 +113,7 @@
         btnFeedback.onclick = () => {
             if (typeof Tally !== 'undefined') {
                 try {
+                    // 如果以后有具体的 Tally 反馈表单 ID，填在这里
                     Tally.openPopup('你的反馈表单ID'); 
                 } catch (e) {
                     alert(getLang() === 'en' ? 'Feedback form is being prepared.' : '反馈表单准备中，即将开放。');
@@ -137,7 +168,7 @@
             document.body.appendChild(pwaBanner);
 
             document.getElementById('pwaInstallBtn').addEventListener('click', () => {
-                // 【修复】只要点击按钮，立即隐藏自定义弹窗，后续交由浏览器原生 UI 接管
+                // 修复：点击按钮无论成败，立刻隐藏自定义横幅，交由系统原生接管
                 pwaBanner.remove();
                 if (deferredPrompt) {
                     deferredPrompt.prompt();
@@ -164,6 +195,7 @@
             
             const now = new Date().setHours(0, 0, 0, 0);
             
+            // 过滤有效公告
             allValidAnnouncements = allData.filter(item => {
                 const pub = new Date(item.publishDate).getTime();
                 const exp = new Date(item.expireDate).getTime();
@@ -173,6 +205,7 @@
 
             const top3Data = allValidAnnouncements.slice(0, 3);
 
+            // 清理 LocalStorage 记录
             const readList = getStorage('lelele_read_announcements', []);
             const closedObj = getStorage('lelele_closed_announcements', {});
             const top3Ids = top3Data.map(a => a.id);
@@ -186,11 +219,14 @@
             }
             if (closedChanged) setStorage('lelele_closed_announcements', closedObj);
 
+            // 渲染公告（首页有对应容器才会渲染）
             renderIndexAnnouncements(top3Data, closedObj);
 
+            // 触发未读弹窗
             const hasUnread = top3Data.some(item => !newReadList.includes(item.id));
             if (hasUnread) showUnreadModal(top3Ids);
 
+            // 5分钟定时器：检查 24 小时关闭期是否结束
             setInterval(() => {
                 const currentClosed = getStorage('lelele_closed_announcements', {});
                 let changed = false;
@@ -212,11 +248,12 @@
 
     function renderIndexAnnouncements(top3Data, closedObj) {
         const listEl = document.getElementById('announcementsList');
-        if (!listEl) return;
+        if (!listEl) return; // 如果当前页面没有公告列表容器，直接返回
         
         const container = document.getElementById('announcementsContainer');
         const renderList = top3Data.filter(item => {
             const closeTime = closedObj[item.id];
+            // 如果24小时内关闭过，不显示
             if (closeTime && (Date.now() - closeTime < 24 * 60 * 60 * 1000)) return false;
             return true;
         });
@@ -288,6 +325,7 @@
         document.body.appendChild(overlay);
 
         let autoCloseTimer;
+        // 如果是游戏页面，15秒后自动消失
         if (isGamePage) {
             autoCloseTimer = setTimeout(() => {
                 if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
@@ -301,6 +339,7 @@
             });
             setStorage('lelele_read_announcements', readList);
             
+            // 跳转逻辑：使用绝对路径
             if (!window.location.pathname.endsWith('index.html') && window.location.hostname === 'game.leleleling.site' && window.location.pathname !== '/') {
                 window.open(MAIN_SITE_URL + '/index.html' + (isEn ? '?lang=en' : ''), '_blank');
             } else if (window.location.hostname !== 'game.leleleling.site') {
@@ -375,15 +414,11 @@
         injectFloatingTools();
         initAnnouncements();
         
-        const originalSetLang = window.setLang;
-        window.setLang = function(lang) {
-            if (originalSetLang) originalSetLang(lang);
-            injectFooter();
-            if (allValidAnnouncements.length > 0) {
-                const closedObj = getStorage('lelele_closed_announcements', {});
-                renderIndexAnnouncements(allValidAnnouncements.slice(0, 3), closedObj);
-            }
-        };
+        // 初始化语言按钮高亮状态
+        const currentLang = getLang();
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.langBtn === currentLang);
+        });
     });
 
     // ==================== 注册 PWA Service Worker ====================
