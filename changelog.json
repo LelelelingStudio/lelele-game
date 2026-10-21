@@ -1,5 +1,11 @@
 [
   {
+    "version": "1.8.1",
+    "date": "2026-10-21",
+    "content_zh": "1. 针对近期开发者的投稿反馈，深度优化了 Tally 表单的提交流程。\n2. 调整代码提交方式为上传 zip/rar 压缩包，并新增「单文件代码直接粘贴」选项，大幅降低上传损坏率。\n3. 补充了关于审核邮件通知的温馨提示，引导开发者留意垃圾邮件箱，确保信息触达率。",
+    "content_en": "1. Deeply optimized the Tally form submission process based on recent developer feedback. \n2. Changed the code submission method to zip/rar archive upload and added a 'Single File Code Paste' option, significantly reducing upload corruption rates. \n3. Added reminders regarding review email notifications, guiding developers to check their spam folders to ensure information delivery."
+  },
+  {
     "version": "1.8.0",
     "date": "2026-10-21",
     "content_zh": "1. 全新上线独立的「更新日志」模块，支持按版本维度精准追溯平台历史迭代。\n2. 深度集成 Edgemetry 无埋点统计系统，实现全站 PV/UV 及游戏点击转化率的精准追踪。\n3. 全面优化底层资源加载策略，显著提升全平台页面的首屏渲染速度与响应能力。",
