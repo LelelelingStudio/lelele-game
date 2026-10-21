@@ -1,0 +1,30 @@
+{
+  "id": 13,
+  "name_zh": "荒野生存3D",
+  "name_en": "Wilds Survival 3D",
+  "icon": "🔥",
+  "category_zh": "冒险",
+  "category_en": "Adventure",
+  "ageRating_zh": "12+",
+  "ageRating_en": "12+",
+  "version": "v1.0.0",
+  "author": "Jonathan",
+  "url": "https://jonathanxu-games.netlify.app/games/wilds-survival.html",
+  "screenshots": [],
+  "description_zh": "没有怪物，但要真实地活下去：吃饱、喝足、保暖，撑过 3 天！答题赚「知识点」，买装备、学知识，让你活得更轻松。\n\n【详细玩法】\n游戏目标：活3天\n游戏开始：开始时，可以带5样东西\n游戏操作：鼠标转视角 · WASD 移动 · E 砍树/采集/钓鱼/喝水 · F 吃东西 · G 喝水 · C 合成建造 · B 营地商店 · Q 答题赚知识点 · T 扎营(需帐篷)",
+  "description_en": "No monsters, just survive realistically: eat well, drink enough, stay warm, and survive for 3 days! Answer questions to earn 'Knowledge Points', buy equipment, and learn to make survival easier.\n\n[Detailed Gameplay]\nGoal: Survive for 3 days\nStart: You can bring 5 items at the beginning\nControls: Mouse to look around · WASD to move · E to chop/gather/fish/drink · F to eat · G to drink · C to craft/build · B for Camp Shop · Q to answer questions for Knowledge Points · T to camp (requires tent)",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-21",
+      "content": "游戏首发上线！"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-21",
+      "content": "Initial release!"
+    }
+  ]
+}
