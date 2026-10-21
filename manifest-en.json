@@ -1,0 +1,22 @@
+{
+  "name": "Lelele Game",
+  "short_name": "Lelele Game",
+  "description": "Discover the charm of indie games",
+  "start_url": "/?lang=en",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
