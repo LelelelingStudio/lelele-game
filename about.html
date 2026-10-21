@@ -88,7 +88,7 @@
         .site-logo:hover { transform: scale(1.05); }
         .logo-fallback { font-size: 1.8rem; line-height: 1; }
         
-        /* 语言切换 - 强制覆盖原生样式 */
+        /* 语言切换 */
         .lang-switch {
             display: inline-flex; 
             background: rgba(148, 163, 184, 0.15);
@@ -576,24 +576,6 @@
     <script src="common.js" defer></script>
 
     <script>
-        // ==================== 语言切换逻辑 ====================
-        function setLang(lang) {
-            document.documentElement.setAttribute('data-lang', lang);
-            document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
-            
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.langBtn === lang);
-            });
-            
-            try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
-
-            const backBtn = document.getElementById('backBtn');
-            if(backBtn) backBtn.href = lang === 'en' ? 'index.html?lang=en' : 'index.html';
-            
-            // 切换语言时重新渲染日志
-            if (typeof changelogData !== 'undefined' && changelogData.length > 0) renderChangelog();
-        }
-
         // ==================== 更新日志逻辑 ====================
         let changelogData = [];
         let activeVersionIndex = 0;
@@ -656,9 +638,29 @@
 
         // ==================== 页面初始化 ====================
         document.addEventListener('DOMContentLoaded', () => {
+            // 先同步 UI 状态（common.js 会接管语言）
             const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
-            setLang(currentLang);
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.langBtn === currentLang);
+            });
+            if(currentLang === 'en') {
+                document.getElementById('backBtn').href = 'index.html?lang=en';
+            } else {
+                document.getElementById('backBtn').href = 'index.html';
+            }
+
             loadChangelog(); // 初始化加载日志
+
+            // 监听全局语言切换事件
+            window.addEventListener('langChanged', () => {
+                const lang = document.documentElement.getAttribute('data-lang');
+                if(lang === 'en') {
+                    document.getElementById('backBtn').href = 'index.html?lang=en';
+                } else {
+                    document.getElementById('backBtn').href = 'index.html';
+                }
+                if (changelogData.length > 0) renderChangelog();
+            });
         });
     </script>
 </body>
