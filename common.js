@@ -3,7 +3,9 @@
 
     // ==================== 全局配置 ====================
     const GAME_PATH_KEY = '/game/';
-    const isGamePage = window.location.pathname.includes(GAME_PATH_KEY);
+    // 兼容外网游戏：如果在独立域名，强制认作游戏页
+    const isGamePage = window.location.pathname.includes(GAME_PATH_KEY) || window.forceGamePage === true;
+    const MAIN_SITE_URL = 'https://game.leleleling.site'; // 主站绝对地址
 
     // ==================== 工具函数 ====================
     const getStorage = (key, defaultVal) => {
@@ -45,9 +47,9 @@
         footer.className = 'common-footer';
         footer.innerHTML = `
             © 2026 <span class="${lang === 'zh' ? 'zh-inline' : 'en-inline'}">了了了岭工作室 · 了了了游</span><span class="${lang === 'zh' ? 'en-inline' : 'zh-inline'}">Leleleling Studio · lelele Game</span> ｜
-            <a href="game_rules.html${suffix}">${lang === 'zh' ? '游戏守则' : 'Rules'}</a> ｜
-            <a href="privacy.html${suffix}">${lang === 'zh' ? '隐私政策' : 'Privacy'}</a> ｜
-            <a href="copyright.html${suffix}">${lang === 'zh' ? '版权投诉' : 'Copyright'}</a>
+            <a href="${MAIN_SITE_URL}/game_rules.html${suffix}">${lang === 'zh' ? '游戏守则' : 'Rules'}</a> ｜
+            <a href="${MAIN_SITE_URL}/privacy.html${suffix}">${lang === 'zh' ? '隐私政策' : 'Privacy'}</a> ｜
+            <a href="${MAIN_SITE_URL}/copyright.html${suffix}">${lang === 'zh' ? '版权投诉' : 'Copyright'}</a>
         `;
         
         // 如果原本有 footer，就替换掉；没有就追加
@@ -84,8 +86,6 @@
         // 反馈弹窗逻辑 (使用 Tally)
         btnFeedback.onclick = () => {
             if (typeof Tally !== 'undefined') {
-                // 【注意】这里需要替换为你真实的 Tally 反馈表单 ID
-                // 如果暂时没有，会弹出一个提示，并跳转到主页的反馈区
                 try {
                     Tally.openPopup('你的反馈表单ID'); 
                 } catch (e) {
@@ -107,12 +107,10 @@
         setTimeout(() => {
             if (!deferredPrompt) return;
             
-            // 检查是否已经提示过并点击了“不再提示”
             if (localStorage.getItem('lelele_pwa_dismissed') === 'true') return;
 
             const isEn = getLang() === 'en';
             
-            // 动态创建一个底部悬浮的安装提示条
             const pwaBanner = document.createElement('div');
             pwaBanner.className = 'common-pwa-banner';
             pwaBanner.style.cssText = `
@@ -144,19 +142,15 @@
             `;
             document.body.appendChild(pwaBanner);
 
-            // 处理安装点击
             document.getElementById('pwaInstallBtn').addEventListener('click', async () => {
                 if (deferredPrompt) {
                     deferredPrompt.prompt();
                     const { outcome } = await deferredPrompt.userChoice;
-                    if (outcome === 'accepted') {
-                        pwaBanner.remove();
-                    }
+                    if (outcome === 'accepted') pwaBanner.remove();
                     deferredPrompt = null;
                 }
             });
 
-            // 处理关闭点击
             document.getElementById('pwaCloseBtn').addEventListener('click', () => {
                 pwaBanner.remove();
                 localStorage.setItem('lelele_pwa_dismissed', 'true');
@@ -166,17 +160,17 @@
     });
 
     // ==================== 公告核心逻辑 ====================
-    let allValidAnnouncements = []; // 保存全局有效公告，方便切换语言时重新渲染
+    let allValidAnnouncements = [];
 
     async function initAnnouncements() {
         try {
-            const res = await fetch('announcements.json');
+            // 使用主站绝对路径拉取公告，解决外网游戏跨域读不到 JSON 的问题
+            const res = await fetch(`${MAIN_SITE_URL}/announcements.json`);
             if (!res.ok) return;
             let allData = await res.json();
             
             const now = new Date().setHours(0, 0, 0, 0);
             
-            // 1. 过滤出所有有效的公告
             allValidAnnouncements = allData.filter(item => {
                 const pub = new Date(item.publishDate).getTime();
                 const exp = new Date(item.expireDate).getTime();
@@ -184,54 +178,36 @@
                 return pub <= now && exp >= now;
             }).sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
 
-            // 2. 取前 3 条作为首页展示和未读检测的标准
             const top3Data = allValidAnnouncements.slice(0, 3);
 
-            // 3. 清理 LocalStorage 中的过期记录
             const readList = getStorage('lelele_read_announcements', []);
             const closedObj = getStorage('lelele_closed_announcements', {});
             const top3Ids = top3Data.map(a => a.id);
 
-            // 如果已读列表里有不在前3的，清除掉
             const newReadList = readList.filter(id => top3Ids.includes(id));
-            if (newReadList.length !== readList.length) {
-                setStorage('lelele_read_announcements', newReadList);
-            }
+            if (newReadList.length !== readList.length) setStorage('lelele_read_announcements', newReadList);
 
-            // 清理关闭记录
             let closedChanged = false;
             for (let id in closedObj) {
-                if (!top3Ids.includes(id)) {
-                    delete closedObj[id];
-                    closedChanged = true;
-                }
+                if (!top3Ids.includes(id)) { delete closedObj[id]; closedChanged = true; }
             }
             if (closedChanged) setStorage('lelele_closed_announcements', closedObj);
 
-            // 4. 渲染首页公告 (如果有对应的容器)
             renderIndexAnnouncements(top3Data, closedObj);
 
-            // 5. 未读弹窗检测
             const hasUnread = top3Data.some(item => !newReadList.includes(item.id));
-            if (hasUnread) {
-                showUnreadModal(top3Ids);
-            }
+            if (hasUnread) showUnreadModal(top3Ids);
 
-            // 6. 5分钟定时器：检查是否有关闭满 24 小时的公告
             setInterval(() => {
                 const currentClosed = getStorage('lelele_closed_announcements', {});
                 let changed = false;
                 const nowTime = Date.now();
                 
                 for (let id in currentClosed) {
-                    if (nowTime - currentClosed[id] > 24 * 60 * 60 * 1000) {
-                        delete currentClosed[id];
-                        changed = true;
-                    }
+                    if (nowTime - currentClosed[id] > 24 * 60 * 60 * 1000) { delete currentClosed[id]; changed = true; }
                 }
                 if (changed) {
                     setStorage('lelele_closed_announcements', currentClosed);
-                    // 重新渲染公告，让它重新出现
                     renderIndexAnnouncements(allValidAnnouncements.slice(0, 3), currentClosed);
                 }
             }, 5 * 60 * 1000);
@@ -241,14 +217,11 @@
         }
     }
 
-    // 单独抽离的首页公告渲染函数 (方便语言切换时调用)
     function renderIndexAnnouncements(top3Data, closedObj) {
         const listEl = document.getElementById('announcementsList');
-        if (!listEl) return;
+        if (!listEl) return; // 游戏内没有公告列表容器，直接跳过
         
-        // 确保容器状态
         const container = document.getElementById('announcementsContainer');
-        
         const renderList = top3Data.filter(item => {
             const closeTime = closedObj[item.id];
             if (closeTime && (Date.now() - closeTime < 24 * 60 * 60 * 1000)) return false;
@@ -279,7 +252,6 @@
                 `;
             }).join('');
             
-            // 增加“查看全部”按钮
             if (allValidAnnouncements.length > 0) {
                 let viewAllBtn = document.getElementById('commonViewAllBtn');
                 if (!viewAllBtn) {
@@ -296,17 +268,14 @@
         }
     }
 
-    // ==================== 全局公告关闭逻辑 ====================
     window.closeGlobalAnnounce = function(id, btnEl) {
         const card = btnEl.closest('.announce-card');
         if (card) card.style.display = 'none';
-        
         const closedObj = getStorage('lelele_closed_announcements', {});
         closedObj[id] = Date.now();
         setStorage('lelele_closed_announcements', closedObj);
     };
 
-    // ==================== 未读弹窗逻辑 ====================
     function showUnreadModal(unreadIds) {
         if (document.getElementById('commonUnreadModal')) return;
 
@@ -325,7 +294,6 @@
         `;
         document.body.appendChild(overlay);
 
-        // 游戏内15秒自动消失
         let autoCloseTimer;
         if (isGamePage) {
             autoCloseTimer = setTimeout(() => {
@@ -334,23 +302,29 @@
         }
 
         document.getElementById('btnGoAnnounce').onclick = () => {
-            // 记录已读
             const readList = getStorage('lelele_read_announcements', []);
             unreadIds.forEach(id => {
                 if (!readList.includes(id)) readList.push(id);
             });
             setStorage('lelele_read_announcements', readList);
             
-            // 如果不在首页，跳转新标签页
-            if (!window.location.pathname.endsWith('index.html') && window.location.pathname !== '/') {
-                window.open('index.html' + (isEn ? '?lang=en' : ''), '_blank');
+            // 【修改】使用绝对路径，兼容外网游戏
+            if (!window.location.pathname.endsWith('index.html') && window.location.hostname === 'game.leleleling.site' && window.location.pathname !== '/') {
+                // 如果在主站的其他页面
+                window.open(MAIN_SITE_URL + '/index.html' + (isEn ? '?lang=en' : ''), '_blank');
+            } else if (window.location.hostname !== 'game.leleleling.site') {
+                // 如果在外网游戏
+                window.open(MAIN_SITE_URL + '/index.html' + (isEn ? '?lang=en' : ''), '_blank');
+            } else {
+                // 已经在主站首页了
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
+            
             overlay.parentNode.removeChild(overlay);
             clearTimeout(autoCloseTimer);
         };
     }
 
-    // ==================== 全部公告弹窗 ====================
     function openAllAnnounceModal(allData) {
         if (document.getElementById('commonAllAnnounceModal')) {
             document.getElementById('commonAllAnnounceModal').classList.add('active');
@@ -391,10 +365,7 @@
             const item = allData[index];
             const title = isEn ? (item.title_en || item.title) : (item.title_zh || item.title);
             const content = isEn ? (item.content_en || item.content) : (item.content_zh || item.content);
-            detail.innerHTML = `
-                <h3>${escapeHtml(title)}</h3>
-                <p>${escapeHtml(content)}</p>
-            `;
+            detail.innerHTML = `<h3>${escapeHtml(title)}</h3><p>${escapeHtml(content)}</p>`;
         };
         
         renderDetail(0);
@@ -402,10 +373,8 @@
         sidebar.addEventListener('click', (e) => {
             const menuItem = e.target.closest('.common-announce-menu-item');
             if (!menuItem) return;
-            
             sidebar.querySelectorAll('.common-announce-menu-item').forEach(el => el.classList.remove('active'));
             menuItem.classList.add('active');
-            
             renderDetail(parseInt(menuItem.dataset.index));
         });
     }
@@ -417,13 +386,10 @@
         injectFloatingTools();
         initAnnouncements();
         
-        // 监听语言切换，重新注入 Footer 和 重新渲染公告
         const originalSetLang = window.setLang;
         window.setLang = function(lang) {
             if (originalSetLang) originalSetLang(lang);
             injectFooter();
-            
-            // 如果公告数据已加载，切换语言时重新渲染
             if (allValidAnnouncements.length > 0) {
                 const closedObj = getStorage('lelele_closed_announcements', {});
                 renderIndexAnnouncements(allValidAnnouncements.slice(0, 3), closedObj);
@@ -432,7 +398,7 @@
     });
 
     // ==================== 注册 PWA Service Worker ====================
-    if ('serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator && window.location.hostname === 'game.leleleling.site') {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/sw.js').then((reg) => {
                 console.log('✅ PWA Service Worker 注册成功', reg.scope);
