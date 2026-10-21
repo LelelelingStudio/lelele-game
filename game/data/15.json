@@ -1,0 +1,30 @@
+{
+  "id": 15,
+  "name_zh": "星种",
+  "name_en": "Starseed",
+  "icon": "🌌",
+  "category_zh": "冒险",
+  "category_en": "Adventure",
+  "ageRating_zh": "全年龄",
+  "ageRating_en": "All Ages",
+  "version": "v1.0.0",
+  "author": "了了了岭工作室",
+  "url": "https://starseed-3fgwyvi5.manus.game/",
+  "screenshots": [],
+  "description_zh": "本作由纯 AI 全程构建。游戏主打极高难度的硬核体验，极其考验玩家的极限反应能力与复杂环境下的适应能力。准备好迎接最纯粹的挑战了吗？",
+  "description_en": "This game is entirely built by pure AI. It features a highly difficult hardcore experience, extremely testing the player's ultimate reaction ability and adaptability in complex environments. Are you ready to face the purest challenge?",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-22",
+      "content": "游戏首发上线！"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-22",
+      "content": "Initial release!"
+    }
+  ]
+}
