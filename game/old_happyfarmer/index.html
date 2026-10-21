@@ -1,24 +1,17 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-<!-- PWA manifest 动态加载 -->
+<!-- 全站统一组件：样式 -->
+<link rel="stylesheet" href="https://game.leleleling.site/common.css">
+<!-- 强制标记为游戏页，让公告弹窗 15 秒自动消失 -->
 <script>
-  (function(){var lang=document.documentElement.getAttribute('data-lang')||'zh';var manifestMap={zh:'/manifest-zh.json',en:'/manifest-en.json',ja:'/manifest-ja.json',fr:'/manifest-fr.json'};var link=document.createElement('link');link.rel='manifest';link.href=manifestMap[lang]||'/manifest-zh.json';document.head.appendChild(link);})();
+  window.forceGamePage = true;
 </script>
-<!-- 苹果设备兼容 -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="/LOGO.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>爱种地的农民 - 完整优化版</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-.site-logo-container {
-    display: inline-block;
-    z-index: 1000;
-    position: relative;
-}
         * {
             margin: 0;
             padding: 0;
@@ -311,17 +304,9 @@
             border-radius: 8px;
         }
 
-        .plot.empty .plot-info {
-            color: #5d4037;
-        }
-
-        .plot.locked .plot-info {
-            color: #546e7a;
-        }
-
-        .plot.sick .plot-info {
-            color: #d32f2f;
-        }
+        .plot.empty .plot-info { color: #5d4037; }
+        .plot.locked .plot-info { color: #546e7a; }
+        .plot.sick .plot-info { color: #d32f2f; }
 
         .crop-stage {
             position: absolute;
@@ -437,22 +422,10 @@
             box-shadow: 0 5px 12px rgba(0, 0, 0, 0.08);
         }
 
-        .log-entry.warning {
-            border-left-color: #ff9800;
-            background-color: #fff8e1;
-        }
-        .log-entry.success {
-            border-left-color: #4caf50;
-            background-color: #e8f5e9;
-        }
-        .log-entry.event {
-            border-left-color: #9c27b0;
-            background-color: #f3e5f5;
-        }
-        .log-entry.danger {
-            border-left-color: #f44336;
-            background-color: #ffebee;
-        }
+        .log-entry.warning { border-left-color: #ff9800; background-color: #fff8e1; }
+        .log-entry.success { border-left-color: #4caf50; background-color: #e8f5e9; }
+        .log-entry.event { border-left-color: #9c27b0; background-color: #f3e5f5; }
+        .log-entry.danger { border-left-color: #f44336; background-color: #ffebee; }
 
         .side-panel {
             flex: 1;
@@ -499,14 +472,8 @@
             font-size: 0.85rem;
         }
 
-        .filter-btn.active {
-            background-color: #4caf50;
-            color: white;
-        }
-
-        .filter-btn:hover:not(.active) {
-            background-color: #bdbdbd;
-        }
+        .filter-btn.active { background-color: #4caf50; color: white; }
+        .filter-btn:hover:not(.active) { background-color: #bdbdbd; }
 
         .scrollable {
             max-height: 300px;
@@ -543,17 +510,8 @@
             font-size: 1rem;
         }
 
-        .crop-price, .inventory-amount {
-            color: #ff9800;
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-
-        .crop-growth, .inventory-value {
-            font-size: 0.85rem;
-            color: #666;
-            margin-top: 3px;
-        }
+        .crop-price, .inventory-amount { color: #ff9800; font-weight: bold; font-size: 1.1rem; }
+        .crop-growth, .inventory-value { font-size: 0.85rem; color: #666; margin-top: 3px; }
 
         .storage-info {
             background-color: #f0f0f0;
@@ -597,10 +555,7 @@
             gap: 15px;
         }
 
-        .btn-large {
-            padding: 16px;
-            font-size: 1.1rem;
-        }
+        .btn-large { padding: 16px; font-size: 1.1rem; }
 
         .day-info {
             font-size: 0.9rem;
@@ -652,10 +607,7 @@
             opacity: 0;
         }
 
-        .btn:hover::after {
-            opacity: 1;
-            animation: shine 1.5s;
-        }
+        .btn:hover::after { opacity: 1; animation: shine 1.5s; }
 
         @keyframes shine {
             0% { transform: translateX(-100%) rotate(45deg); }
@@ -679,11 +631,7 @@
             box-shadow: 0 6px 15px rgba(255,152,0,0.4);
         }
 
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 0.85rem;
-            border-radius: 6px;
-        }
+        .btn-small { padding: 6px 12px; font-size: 0.85rem; border-radius: 6px; }
 
         .btn-use-mall-item {
             background: linear-gradient(to bottom, #9c27b0, #7b1fa2);
@@ -754,9 +702,7 @@
             transition: all 0.3s;
         }
 
-        .close-btn:hover {
-            background-color: rgba(255,255,255,0.2);
-        }
+        .close-btn:hover { background-color: rgba(255,255,255,0.2); }
 
         .mall-content, .factory-content, .merchant-content, .skin-content {
             display: flex;
@@ -809,18 +755,8 @@
             margin-bottom: 10px;
         }
 
-        .mall-item-name {
-            font-weight: bold;
-            font-size: 1.2rem;
-            color: #1b5e20;
-        }
-
-        .mall-item-price {
-            font-weight: bold;
-            font-size: 1.3rem;
-            color: #ff9800;
-        }
-
+        .mall-item-name { font-weight: bold; font-size: 1.2rem; color: #1b5e20; }
+        .mall-item-price { font-weight: bold; font-size: 1.3rem; color: #ff9800; }
         .mall-item-desc { color: #666; font-size: 0.9rem; line-height: 1.4; margin-bottom: 10px; }
         .mall-item-effect { color: #4caf50; font-weight: 600; font-size: 0.85rem; }
 
@@ -918,7 +854,6 @@
             to { transform: translateX(100%); opacity: 0; }
         }
 
-        /* 优化新增：搜索框与等级过滤按钮容器 */
         .factory-search-box {
             padding: 10px 20px;
             display: flex;
@@ -970,21 +905,9 @@
             .dialog-content { width: 95%; }
         }
     </style>
-<!-- 了了了岭用户系统-样式与SDK -->
-<link rel="stylesheet" href="../../../common-user.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
-<div class="site-logo-container">
-    <img src="https://leleleling.site/LOGO.svg" 
-         onerror="this.onerror=null; this.src='https://leleleling.surge.sh/LOGO.svg';" 
-         alt="Logo" 
-         style="height: 40px; width: 40px; border-radius: 50%; margin: 10px;">
-</div>
-<!-- 了了了岭用户系统-顶部挂件 -->
-<div id="userWidget" style="position:fixed;top:15px;right:20px;z-index:9999;"></div>
-
     <div class="container">
         <header>
             <h1><i class="fas fa-seedling"></i> 爱种地的农民</h1>
@@ -1091,7 +1014,7 @@
         </div>
     </div>
 
-    <!-- 加工厂对话框 (已优化) -->
+    <!-- 加工厂对话框 -->
     <div id="factory-dialog" class="dialog">
         <div class="dialog-content factory-content">
             <div class="dialog-header">
@@ -1100,7 +1023,6 @@
             </div>
             <p class="factory-description">将你的农产品加工成更值钱的产品！加工需要时间和金币。</p>
             
-            <!-- 新增搜索和等级过滤 -->
             <div class="factory-search-box">
                 <input type="text" id="factory-search-input" placeholder="🔍 搜索加工产品..." />
                 <div style="display: flex; gap: 5px; flex-wrap: wrap;">
@@ -1177,8 +1099,8 @@ const gameState = {
     merchant: { present: false, nextVisit: 0, daysRemaining: 0, priceMultiplier: 1.0 },
     unlockedSkins: ['default', 'spring'], currentSkin: 'default',
     theftProbability: 0.15, lastTheftDay: 0,
-    factoryLevelFilter: null,  // 新增：加工厂等级过滤
-    factorySearchQuery: ''      // 新增：加工厂搜索关键词
+    factoryLevelFilter: null,
+    factorySearchQuery: ''
 };
 
 const gameSkins = [
@@ -1356,6 +1278,7 @@ function initTimer() {
 }
 
 function initNotificationSystem() {
+    if (document.getElementById('notification-container')) return;
     const container = document.createElement('div');
     container.id = 'notification-container';
     container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10000;display:flex;flex-direction:column;gap:10px;max-width:300px;';
@@ -1425,6 +1348,8 @@ function updateTimerDisplay() {
     }
 }
 
+// 修复：updateWeather 只生成"明天"的预测，不覆盖"今天"。
+// 今天的天气由 nextDay 里 gameState.weather = gameState.nextWeather 推进，保证"明天天气XX"预测准确。
 function updateWeather() {
     if (gameState.day % 10 === 0 && gameState.day > 0) {
         const currentIndex = ["春季","夏季","秋季","冬季"].indexOf(gameState.season);
@@ -1440,7 +1365,6 @@ function updateWeather() {
     else if (weatherRoll < 0.9) gameState.nextWeather = "小雨";
     else if (weatherRoll < 0.98) gameState.nextWeather = "大雨";
     else gameState.nextWeather = "暴风雨";
-    gameState.weather = gameState.nextWeather;
 }
 
 function checkMerchant() {
@@ -1654,13 +1578,20 @@ function updateStorageUsage() {
     gameState.storageUsed = totalSize;
 }
 
+// 修复：仓库尚无该商城道具时，从 mallItems 定义查 storageSize，避免购买时低估占用
 function hasStorageSpace(itemName, amount = 1) {
     let itemSize = 1;
     const crop = crops.find(c => c.name === itemName);
-    if (crop) itemSize = crop.size;
-    else {
+    if (crop) {
+        itemSize = crop.size;
+    } else {
         const item = gameState.inventory[itemName];
-        if (item && item.mallItem && item.itemData) itemSize = item.itemData.storageSize || 1;
+        if (item && item.mallItem && item.itemData) {
+            itemSize = item.itemData.storageSize || 1;
+        } else {
+            const mallItem = mallItems.find(m => m.name === itemName);
+            if (mallItem) itemSize = mallItem.storageSize || 1;
+        }
     }
     return (itemSize * amount) <= (gameState.storageCapacity - gameState.storageUsed);
 }
@@ -1694,7 +1625,12 @@ function renderMall() {
         const mallItem = document.createElement('div');
         mallItem.className = 'mall-item';
         const isPurchased = gameState.mallItems[item.id].purchased && item.permanent;
-        const hasActive = item.effect in gameState.activeEffects && (typeof gameState.activeEffects[item.effect] === 'number' ? gameState.activeEffects[item.effect] > 0 : gameState.activeEffects[item.effect]);
+        // 修复：seedMultiplier 初始为 1（数字），需要 >1 才算生效，否则会误判为"生效中"
+        const effectVal = gameState.activeEffects[item.effect];
+        const hasActive = (item.effect in gameState.activeEffects) && (
+            item.effect === 'seedMultiplier' ? effectVal > 1 :
+            (typeof effectVal === 'number' ? effectVal > 0 : !!effectVal)
+        );
         mallItem.innerHTML = `
             <div class="mall-item-header">
                 <div class="mall-item-name">${item.icon} ${item.name}</div>
@@ -1734,7 +1670,7 @@ function buyMallItem(itemId) {
         addLog(`金币不足，无法购买${item.name}！需要${item.price}金币`, "warning");
         return;
     }
-    if (!hasStorageSpace(item.name, item.storageSize || 1)) {
+    if (!hasStorageSpace(item.name, 1)) {
         addLog(`仓库空间不足，无法购买${item.name}！`, "warning");
         return;
     }
@@ -1800,11 +1736,10 @@ function applyConsumableEffect(item) {
     }
 }
 
-// ==================== 加工厂（优化重点） ====================
+// ==================== 加工厂 ====================
 function openFactory() {
     renderFactory();
     document.getElementById('factory-dialog').style.display = 'flex';
-    // 绑定搜索和等级过滤事件
     const searchInput = document.getElementById('factory-search-input');
     searchInput.value = gameState.factorySearchQuery;
     searchInput.oninput = function() {
@@ -1820,7 +1755,6 @@ function openFactory() {
             renderAvailableProducts();
         };
     });
-    // 默认显示可加工
     document.querySelector('.factory-tab[data-tab="available"]').click();
 }
 
@@ -2036,7 +1970,6 @@ function collectProduct(index) {
     renderGame();
 }
 
-// 跳转辅助
 function jumpToCrop(cropId) {
     closeFactory();
     const crop = crops.find(c => c.id === cropId);
@@ -2279,6 +2212,7 @@ function harvestCrop(plotId) {
     }
 }
 
+// 修复：浇水后立即重算 growthStage，让 UI 马上反映生长进度，无需等 nextDay
 function waterAllCrops() {
     if (gameState.gold < 20) { addLog("金币不足！需要20金币", "warning"); return; }
     let count = 0;
@@ -2286,6 +2220,8 @@ function waterAllCrops() {
         if (p.planted && !p.watered && !p.sick) {
             p.watered = true;
             p.growthProgress += gameState.activeEffects.goldenWateringCan ? 1.0 : 0.5;
+            const crop = crops.find(c => c.id === p.crop);
+            p.growthStage = Math.min(Math.floor(p.growthProgress), crop.growthTime);
             count++;
         }
     });
@@ -2331,6 +2267,8 @@ function nextDay() {
     }
     gameState.nextDayCooldown = 30;
     gameState.day++;
+    // 修复：把"明天"的预测转正成"今天"，再生成新的"明天"预测
+    gameState.weather = gameState.nextWeather;
     updateWeather();
     updateItemDurations();
     checkMerchant();
@@ -2513,14 +2451,10 @@ function setupEventListeners() {
 
 // 启动游戏
 window.onload = initGame;
-        <!-- 这里放你提供的完整JavaScript代码 -->
     </script>
-<!-- 了了了岭用户系统-核心逻辑 -->
-<script src="../../../common-user.js"></script>
-<!-- PWA Service Worker 注册 -->
-<script>
-if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js').then(function(reg){console.log('✅ PWA Service Worker 注册成功');}).catch(function(err){console.log('❌ PWA Service Worker 注册失败:',err);});}
-</script>
+<!-- 全站统一组件：脚本 -->
+<script src="https://game.leleleling.site/common.js" defer></script>
+<script async src="https://tally.so/widgets/embed.js"></script>
 </body>
 
 </html>
