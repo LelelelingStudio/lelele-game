@@ -1,5 +1,14 @@
 [
   {
+    "id": "20261021-2.0.0-update",
+    "title_zh": "🎉 全站焕新升级：深色模式与多项实用功能上线！",
+    "title_en": "🎉 Site-Wide Upgrade: Dark Mode & New Practical Features!",
+    "content_zh": "1. 🌗 新增全局深色模式，夜间浏览更护眼。\n2. 💬 新增右下角全局反馈按钮，随时提建议。\n3. 📢 公告系统优化：支持单条公告24小时静音，以及查看全部历史公告。\n4. ⬆️ 新增回到顶部按钮，长页面浏览更方便。\n5. 📱 支持 PWA 安装，可将了了了游添加到桌面。\n6. 🛠️ 统一全站底部导航与语言切换体验，修复了多处视觉细节。",
+    "content_en": "1. 🌗 Added global Dark Mode for a more eye-friendly night browsing experience.\n2. 💬 Added a global feedback button at the bottom right to share your suggestions anytime.\n3. 📢 Optimized announcement system: supports 24-hour mute for individual announcements and viewing all historical announcements.\n4. ⬆️ Added a 'Back to Top' button for easier long-page browsing.\n5. 📱 PWA support: you can now add lelele Game to your home screen.\n6. 🛠️ Unified site-wide footer navigation and language switching experience, and fixed multiple visual details.",
+    "publishDate": "2026-10-21",
+    "expireDate": "2026-10-28"
+  },
+  {
     "id": "20261018-launch-support-merged",
     "title_zh": "了了了游正式上线 & 支持我们",
     "title_en": "lelele Game is Live & Support Us",
