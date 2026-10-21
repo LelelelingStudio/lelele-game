@@ -154,5 +154,31 @@
     "ageRating_en": "All Ages",
     "version": "v.2.0.0",
     "url": "https://levil-evil.surge.sh"
+  },
+  {
+    "id": 13,
+    "name_zh": "荒野生存3D",
+    "name_en": "Wilds Survival 3D",
+    "icon": "🔥",
+    "category_zh": "冒险",
+    "category_en": "Adventure",
+    "type": "external",
+    "ageRating_zh": "12+",
+    "ageRating_en": "12+",
+    "version": "v1.0.0",
+    "url": "https://jonathanxu-games.netlify.app/games/wilds-survival.html"
+  },
+  {
+    "id": 14,
+    "name_zh": "钢铁军团",
+    "name_en": "Iron Legion",
+    "icon": "⚔️",
+    "category_zh": "射击",
+    "category_en": "Shooter",
+    "type": "external",
+    "ageRating_zh": "12+",
+    "ageRating_en": "12+",
+    "version": "v1.0.0",
+    "url": "https://jonathanxu-games.netlify.app/games/army-war-3d.html"
   }
 ]
