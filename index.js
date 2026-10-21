@@ -1,4 +1,4 @@
-// ==================== 全局工具 ====================
+// ==================== 全局工具函数 ====================
 function escapeHtml(str) {
     if (str === null || str === undefined) return '';
     return String(str)
@@ -18,43 +18,6 @@ window.closeModal = function(modalId) {
     const el = document.getElementById(modalId);
     if (el) el.classList.remove('active');
 };
-
-// ==================== 多语言切换 ====================
-function applyLang(lang, save) {
-    document.documentElement.setAttribute('data-lang', lang);
-    document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
-    document.title = lang === 'zh' ? '了了了游' : 'lelele Game';
-
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.langBtn === lang);
-    });
-    
-    const suffix = lang === 'en' ? '?lang=en' : '';
-    if (document.getElementById('linkRules')) document.getElementById('linkRules').href = 'game_rules.html' + suffix;
-    if (document.getElementById('linkPrivacy')) document.getElementById('linkPrivacy').href = 'privacy.html' + suffix;
-    if (document.getElementById('linkCopyright')) document.getElementById('linkCopyright').href = 'copyright.html' + suffix;
-
-    if (save) {
-        try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
-    }
-
-    // 切换语言时，重新渲染游戏列表和收藏夹，以更新文字
-    if (typeof gameData !== 'undefined' && gameData.length > 0) {
-        renderGames();
-    }
-    if (document.getElementById('favoritesModal').classList.contains('active')) {
-        renderFavoritesList();
-    }
-}
-
-window.setLang = function(lang) {
-    applyLang(lang, true);
-};
-
-function initLanguage() {
-    const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
-    applyLang(currentLang, false);
-}
 
 // ==================== 收藏夹逻辑 ====================
 function getFavorites() {
@@ -125,63 +88,6 @@ function renderFavoritesList() {
     </div>`;
 }
 
-// ==================== 公告加载 ====================
-async function loadAnnouncements() {
-    try {
-        const res = await fetch('announcements.json');
-        if (!res.ok) return;
-        let data = await res.json();
-        
-        const now = new Date().setHours(0, 0, 0, 0);
-        
-        data = data.filter(item => {
-            const pub = new Date(item.publishDate).getTime();
-            const exp = new Date(item.expireDate).getTime();
-            if (isNaN(pub) || isNaN(exp)) return false;
-            return pub <= now && exp >= now;
-        });
-        
-        data.sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
-        data = data.slice(0, 3);
-        
-        if (data.length > 0) {
-            renderAnnouncements(data);
-        }
-    } catch (e) {
-        console.warn('公告加载失败:', e);
-    }
-}
-
-function renderAnnouncements(list) {
-    const container = document.getElementById('announcementsContainer');
-    const listEl = document.getElementById('announcementsList');
-    
-    listEl.innerHTML = list.map(item => {
-        const titleZh = item.title_zh || item.title || '';
-        const titleEn = item.title_en || item.title || titleZh;
-        const contentZh = item.content_zh || item.content || '';
-        const contentEn = item.content_en || item.content || contentZh;
-        
-        return `
-            <div class="announce-card">
-                <div class="announce-top">
-                    <div class="announce-name">
-                        <span class="zh-inline">${escapeHtml(titleZh)}</span>
-                        <span class="en-inline">${escapeHtml(titleEn)}</span>
-                    </div>
-                    <div class="announce-date">${escapeHtml(item.publishDate)}</div>
-                </div>
-                <div class="announce-content">
-                    <span class="zh-inline">${escapeHtml(contentZh)}</span>
-                    <span class="en-inline">${escapeHtml(contentEn)}</span>
-                </div>
-            </div>
-        `;
-    }).join('');
-    
-    container.style.display = 'block';
-}
-
 // ==================== 游戏数据与渲染 ====================
 let gameData = [];
 let currentType = 'local';
@@ -217,9 +123,11 @@ async function loadGames() {
     renderGames();
 }
 
-function renderGames() {
+// 暴露给全局使用 (用于 common.js 切换语言时刷新)
+window.renderGames = function() {
     const grid = document.getElementById('gamesGrid');
     const status = document.getElementById('statusMessage');
+    if (!grid) return;
     grid.innerHTML = '';
 
     const isEn = document.documentElement.getAttribute('data-lang') === 'en';
@@ -254,6 +162,9 @@ function renderGames() {
         });
     }
 }
+
+// 内部调用的短名
+const renderGames = window.renderGames;
 
 document.getElementById('searchInput').addEventListener('input', (e) => {
     clearTimeout(searchTimer);
@@ -293,7 +204,6 @@ function showPreview(game) {
         window.location.href = `game.html?id=${game.id}${langSuffix}`;
     };
     
-            // 【修改】将游戏名拼接到事件名中，以便在后台直接查看每个游戏的点击量
     document.getElementById('btnPlay').onclick = () => {
         if (typeof edgemetry !== 'undefined') {
             const gameName = game.name_zh || game.name;
@@ -394,8 +304,20 @@ document.addEventListener('DOMContentLoaded', () => {
         window.history.replaceState({}, document.title, window.location.pathname);
     }
     
-    initLanguage();
+    // 注意：语言和公告已经交由 common.js 处理
     loadGames();
-    loadAnnouncements();
     initSubmitFlow();
+
+    // 更新“关于”按钮的语言参数
+    const aboutBtn = document.getElementById('linkAbout');
+    if (aboutBtn) {
+        aboutBtn.addEventListener('click', function(e) {
+            const currentLang = document.documentElement.getAttribute('data-lang');
+            if (currentLang === 'en') {
+                this.href = 'about.html?lang=en';
+            } else {
+                this.href = 'about.html';
+            }
+        });
+    }
 });
