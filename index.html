@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-lang="zh">
 <head>
+    <!-- 防止页面闪烁的内联脚本 (必须保留在 head) -->
     <script>
         (function() {
             try {
@@ -29,6 +30,10 @@
     <link rel="apple-touch-icon" href="lelelegame.png">
     <link rel="manifest" href="/manifest-zh.json">
     <title>了了了游</title>
+    
+    <!-- 引入全局样式 -->
+    <link rel="stylesheet" href="common.css">
+    
     <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
     <style>
         /* ===== 多语言控制 ===== */
@@ -136,7 +141,6 @@
         .studio-link { background: #4f46e5; color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
         .studio-link:hover { background: #4338ca; transform: translateY(-1px); box-shadow: 0 8px 18px rgba(79, 70, 229, 0.4); }
 
-        /* 新增的关于按钮 */
         .btn-about {
             background: transparent; color: #64748b; border: 1px solid rgba(148, 163, 184, 0.3);
         }
@@ -180,23 +184,13 @@
         }
         .btn-fav-list:hover { background: #fff; color: #4f46e5; border-color: #4f46e5; }
 
-        /* ===== 公告板块 ===== */
+        /* ===== 公告板块容器 ===== */
         .announcements-container {
             width: 100%; max-width: 1100px; margin: 16px auto 0; padding: 0 20px;
             display: none;
         }
         .announcements-title { font-size: 1.1rem; font-weight: 800; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .announcements-list { display: flex; flex-direction: column; gap: 12px; }
-        .announce-card {
-            background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(8px);
-            border-radius: 16px; padding: 16px 20px; border-left: 5px solid #4f46e5;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02); border-top: 1px solid rgba(148, 163, 184, 0.1);
-            border-right: 1px solid rgba(148, 163, 184, 0.1); border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-        }
-        .announce-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 16px; }
-        .announce-name { font-weight: 700; font-size: 1rem; color: #0f172a; }
-        .announce-date { font-size: 0.8rem; color: #94a3b8; white-space: nowrap; }
-        .announce-content { font-size: 0.92rem; color: #475569; line-height: 1.7; white-space: pre-wrap; }
 
         /* ===== 游戏列表 ===== */
         .games-container { width: 100%; max-width: 1100px; margin: 20px auto; padding: 0 20px; flex: 1; }
@@ -243,13 +237,6 @@
         }
 
         .status-message { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 14px; }
-
-        footer {
-            width: 100%; text-align: center; padding: 20px; color: #94a3b8;
-            font-size: 13px; border-top: 1px solid rgba(148, 163, 184, 0.1); margin-top: 20px;
-        }
-        footer a { color: #4f46e5; text-decoration: none; margin: 0 6px; }
-        footer a:hover { text-decoration: underline; }
 
         /* ===== 弹窗通用 ===== */
         .modal-overlay {
@@ -375,7 +362,6 @@
                     <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
                 </div>
                 
-                <!-- 新增：关于按钮 -->
                 <a class="action-btn btn-about" href="about.html" id="linkAbout">
                     <span class="zh-inline">ℹ️ 关于</span><span class="en-inline">ℹ️ About</span>
                 </a>
@@ -414,7 +400,7 @@
         </div>
     </div>
 
-    <!-- 公告板块 -->
+    <!-- 公告板块 (由 common.js 接管渲染，仅保留基本容器) -->
     <div class="announcements-container" id="announcementsContainer">
         <div class="announcements-title">
             <span class="zh-inline">📢 最新公告</span>
@@ -429,12 +415,7 @@
         <div class="status-message" id="statusMessage" style="display:none;"></div>
     </div>
 
-    <footer>
-        © 2026 <span class="zh-inline">了了了岭工作室</span><span class="en-inline">Leleleling Studio</span> ｜
-        <a href="game_rules.html" id="linkRules"><span class="zh-inline">游戏守则</span><span class="en-inline">Rules</span></a> ｜
-        <a href="privacy.html" id="linkPrivacy"><span class="zh-inline">隐私政策</span><span class="en-inline">Privacy</span></a> ｜
-        <a href="copyright.html" id="linkCopyright"><span class="zh-inline">版权投诉</span><span class="en-inline">Copyright</span></a>
-    </footer>
+    <!-- 注意：原有的 <footer> 已被删除，现在由 common.js 自动注入 -->
 
     <!-- 游戏快捷预览弹窗 -->
     <div class="modal-overlay" id="gamePreview">
@@ -538,29 +519,10 @@
         </div>
     </div>
 
-    <!-- 外部 JS 脚本 -->
+    <!-- 引入全局脚本与 index.js -->
+    <script src="common.js" defer></script>
     <script src="index.js" defer></script>
     
-    <!-- 内部微型脚本：处理“关于”按钮的语言参数 -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 监听语言切换按钮点击，更新“关于”链接
-            const aboutBtn = document.getElementById('linkAbout');
-            if (aboutBtn) {
-                // 每次点击时，动态判断当前语言
-                aboutBtn.addEventListener('click', function(e) {
-                    const currentLang = document.documentElement.getAttribute('data-lang');
-                    if (currentLang === 'en') {
-                        this.href = 'about.html?lang=en';
-                    } else {
-                        this.href = 'about.html';
-                    }
-                });
-            }
-        });
-    </script>
-    
-    <!-- Tally SDK -->
     <script async src="https://tally.so/widgets/embed.js"></script>
 </body>
 </html>
