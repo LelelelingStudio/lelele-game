@@ -26,19 +26,23 @@
     <meta name="description" content="了了了游游戏守则 · 内容规范、投稿授权、未成年人保护与免责声明">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <title>了了了游游戏守则 · lelele Game Rules</title>
+    
+    <link rel="stylesheet" href="common.css">
     <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", sans-serif;
-            background: #f4f7fc;
-            color: #1e293b;
+            background: var(--bg-gradient);
+            color: var(--text-main);
             line-height: 1.8;
             padding: 0 1.5rem 2.5rem;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            transition: background 0.3s, color 0.3s;
         }
 
         /* ===== 语言切换 ===== */
@@ -51,42 +55,44 @@
             padding: 0.8rem 0 0;
         }
         .lang-switch {
-            display: flex;
-            gap: 2px;
-            background: rgba(148, 163, 184, 0.12);
+            display: inline-flex;
+            background: rgba(148, 163, 184, 0.15);
             border-radius: 30px;
             padding: 3px;
+            border: none;
         }
         .lang-btn {
-            padding: 4px 16px;
+            padding: 6px 16px;
             border: none;
             border-radius: 24px;
             background: transparent;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 600;
-            color: #64748b;
+            color: var(--text-muted);
             cursor: pointer;
             transition: all 0.2s;
             font-family: inherit;
+            outline: none;
+            -webkit-appearance: none;
         }
         .lang-btn.active {
             background: #4f46e5;
-            color: #fff;
+            color: #fff !important;
             box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
         }
-        .lang-btn:hover:not(.active) { color: #1e293b; }
+        .lang-btn:hover:not(.active) { color: var(--text-main); }
 
         .container {
             max-width: 1000px;
             width: 100%;
             margin: 0.8rem auto 0;
-            background: rgba(255, 255, 255, 0.92);
+            background: var(--card-bg);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border-radius: 36px;
             padding: 3.5rem 4rem;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.02);
-            border: 1px solid rgba(148, 163, 184, 0.10);
+            border: 1px solid var(--card-border);
             flex: 1;
         }
 
@@ -95,17 +101,17 @@
             align-items: center;
             gap: 0.4rem;
             font-size: 0.9rem;
-            color: #4f46e5;
+            color: var(--primary);
             text-decoration: none;
             font-weight: 600;
             margin-bottom: 1.2rem;
             padding: 0.4rem 1rem;
             border-radius: 30px;
-            background: rgba(79, 70, 229, 0.06);
+            background: rgba(79, 70, 229, 0.08);
             border: 1px solid rgba(79, 70, 229, 0.12);
             transition: all 0.2s;
         }
-        .back-home:hover { background: rgba(79, 70, 229, 0.12); }
+        .back-home:hover { background: rgba(79, 70, 229, 0.15); }
 
         .brand-bar {
             display: flex;
@@ -114,16 +120,15 @@
             gap: 14px 20px;
             margin-bottom: 2.2rem;
             padding-bottom: 1.4rem;
-            border-bottom: 2px solid rgba(79, 70, 229, 0.12);
+            border-bottom: 2px solid var(--card-border);
         }
-        .brand-logo {
-            height: 40px;
-            width: auto;
-        }
+        .brand-logo-container { display: flex; align-items: center; }
+        .brand-logo { height: 40px; width: auto; }
+        .brand-logo-fallback { font-size: 2rem; line-height: 1; }
         .brand-name {
             font-size: 1.8rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #0f172a 0%, #4f46e5 85%);
+            background: linear-gradient(135deg, var(--text-main) 0%, var(--primary) 85%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -131,7 +136,7 @@
         }
         .brand-sub {
             font-size: 0.85rem;
-            color: #64748b;
+            color: var(--text-muted);
             margin-left: auto;
             background: rgba(79, 70, 229, 0.05);
             padding: 0.3rem 1.2rem;
@@ -145,29 +150,29 @@
             font-size: 2.4rem;
             font-weight: 800;
             margin: 1.8rem 0 0.4rem 0;
-            color: #0f172a;
+            color: var(--text-main);
             letter-spacing: -0.6px;
         }
 
         .subhead {
             font-size: 1rem;
-            color: #64748b;
+            color: var(--text-muted);
             margin-bottom: 2.8rem;
             padding-bottom: 1.2rem;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+            border-bottom: 1px solid var(--card-border);
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
             align-items: baseline;
             gap: 0.6rem;
         }
-        .subhead .highlight { color: #4f46e5; font-weight: 700; }
+        .subhead .highlight { color: var(--primary); font-weight: 700; }
         .subhead .version {
             font-size: 0.85rem;
             background: rgba(79, 70, 229, 0.06);
             padding: 0.2rem 1rem;
             border-radius: 30px;
-            color: #4f46e5;
+            color: var(--primary);
         }
 
         /* ===== 生效提示横幅 ===== */
@@ -183,7 +188,7 @@
             box-shadow: 0 6px 20px rgba(79, 70, 229, 0.06);
             font-size: 0.95rem;
             line-height: 1.8;
-            color: #334155;
+            color: var(--text-main);
         }
         .notice-box .notice-icon {
             flex-shrink: 0;
@@ -191,23 +196,23 @@
             line-height: 1.5;
         }
         .notice-box .notice-body { flex: 1; min-width: 0; }
-        .notice-box strong { color: #4f46e5; font-weight: 700; }
+        .notice-box strong { color: var(--primary); font-weight: 700; }
         .notice-link {
-            color: #4f46e5;
+            color: var(--primary);
             text-decoration: none;
             font-weight: 700;
             border-bottom: 1px dashed rgba(79, 70, 229, 0.35);
             transition: color 0.2s, border-color 0.2s;
         }
-        .notice-link:hover { color: #4338ca; border-bottom-color: #4338ca; }
+        .notice-link:hover { color: var(--primary-hover); border-bottom-color: var(--primary-hover); }
 
         h2 {
             font-size: 1.6rem;
             font-weight: 700;
             margin: 2.8rem 0 1rem 0;
-            color: #0f172a;
+            color: var(--text-main);
             padding-left: 0.9rem;
-            border-left: 6px solid #4f46e5;
+            border-left: 6px solid var(--primary);
             line-height: 1.3;
             scroll-margin-top: 1rem;
         }
@@ -215,15 +220,15 @@
             font-size: 1.2rem;
             font-weight: 650;
             margin: 1.8rem 0 0.6rem 0;
-            color: #1e293b;
+            color: var(--text-main);
         }
-        p { margin: 0.7rem 0; color: #334155; }
-        ul, ol { margin: 0.8rem 0 1.2rem 1.8rem; color: #334155; }
+        p { margin: 0.7rem 0; color: var(--text-main); }
+        ul, ol { margin: 0.8rem 0 1.2rem 1.8rem; color: var(--text-main); }
         li { margin: 0.5rem 0; }
 
         .badge {
             display: inline-block;
-            background: #4f46e5;
+            background: var(--primary);
             color: white;
             font-size: 0.7rem;
             font-weight: 700;
@@ -237,7 +242,7 @@
         .badge-outline {
             display: inline-block;
             background: transparent;
-            color: #4f46e5;
+            color: var(--primary);
             font-size: 0.7rem;
             font-weight: 700;
             padding: 0.1rem 0.7rem;
@@ -250,12 +255,12 @@
 
         .highlight-box {
             background: rgba(79, 70, 229, 0.04);
-            border-left: 5px solid #4f46e5;
+            border-left: 5px solid var(--primary);
             padding: 1.2rem 1.8rem;
             border-radius: 0 14px 14px 0;
             margin: 1.6rem 0;
         }
-        .highlight-box strong { color: #4f46e5; }
+        .highlight-box strong { color: var(--primary); }
 
         .rights-box {
             background: rgba(16, 185, 129, 0.05);
@@ -276,13 +281,13 @@
         .warn-box strong { color: #b45309; }
 
         .legal-link {
-            color: #4f46e5;
+            color: var(--primary);
             text-decoration: none;
             font-weight: 600;
             border-bottom: 1px dashed rgba(79, 70, 229, 0.25);
             transition: border-color 0.2s, color 0.2s;
         }
-        .legal-link:hover { border-bottom-color: #4f46e5; color: #4338ca; }
+        .legal-link:hover { border-bottom-color: var(--primary); color: var(--primary-hover); }
 
         .ref-table {
             width: 100%;
@@ -291,39 +296,25 @@
             font-size: 0.95rem;
         }
         .ref-table th {
-            background: #f1f5f9;
+            background: rgba(148, 163, 184, 0.05);
             text-align: left;
             padding: 0.6rem 1rem;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--card-border);
             font-weight: 700;
-            color: #0f172a;
+            color: var(--text-main);
         }
         .ref-table td {
             padding: 0.6rem 1rem;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--card-border);
             vertical-align: top;
+            color: var(--text-main);
         }
         .ref-table a {
-            color: #4f46e5;
+            color: var(--primary);
             text-decoration: none;
             border-bottom: 1px dashed rgba(79,70,229,0.2);
         }
-        .ref-table a:hover { border-bottom-color: #4f46e5; }
-
-        .footer-note {
-            margin-top: 3.5rem;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(148, 163, 184, 0.15);
-            font-size: 0.9rem;
-            color: #94a3b8;
-            text-align: center;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 1.5rem;
-        }
-        .footer-note a { color: #4f46e5; text-decoration: none; font-weight: 500; }
-        .footer-note a:hover { text-decoration: underline; }
+        .ref-table a:hover { border-bottom-color: var(--primary); }
 
         .zh-text, .en-text { display: none; }
         html[data-lang="zh"] .zh-text { display: block; }
@@ -364,7 +355,10 @@
     </a>
 
     <div class="brand-bar">
-        <img src="lelelegame.svg" alt="Logo" class="brand-logo">
+        <div class="brand-logo-container">
+            <img src="lelelegame.svg" alt="Logo" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span class="brand-logo-fallback" style="display:none;">🎮</span>
+        </div>
         <span class="brand-name">了了了游</span>
         <span class="brand-sub">
             <span class="zh-inline">lelele Game · 游戏守则</span>
@@ -372,7 +366,7 @@
         </span>
     </div>
 
-    <!-- 中文版（完整还原） -->
+    <!-- 中文版 -->
     <div class="zh-text">
         <h1>📜 了了了游游戏守则</h1>
         <div class="subhead">
@@ -563,14 +557,6 @@
                 <tr><td>《网络游戏适龄提示》团体标准</td><td>中国音像与数字出版协会</td><td><a href="https://www.nppa.gov.cn" target="_blank" rel="noopener">国家新闻出版署</a></td></tr>
             </tbody>
         </table>
-
-        <div class="footer-note">
-            <span>© 2026 了了了岭工作室 · 了了了游</span>
-            <a href="https://game.leleleling.site" target="_blank" rel="noopener">访问平台</a>
-            <a href="mailto:leleleling@2980.com">联系我们</a>
-            <span>｜ 版本 4.0.1</span>
-            <span>｜ 更新日期：2026年10月20日</span>
-        </div>
     </div>
 
     <!-- English version -->
@@ -652,7 +638,7 @@
         <h3>4.3 Withdrawal Process</h3>
         <ul>
             <li>Submit a withdrawal request to <a href="mailto:leleleling@2980.com" class="legal-link">leleleling@2980.com</a>, stating the game name and the contact used at submission;</li>
-            <li>The Platform confirms and removes the game within <strong>3 business days</strong>;</li>
+            <li>The Platform confirms and removes the game within <strong>7 business days</strong>;</li>
             <li>New use ceases within <strong>30 calendar days</strong> of removal;</li>
             <li>Published promotional materials are replaced or removed within <strong>90 calendar days</strong>;</li>
             <li>Withdrawal does not affect lawful display that occurred before withdrawal.</li>
@@ -660,7 +646,7 @@
 
         <h3>4.4 Review Timeline</h3>
         <ul>
-            <li>Review is completed within <strong>5 business days</strong> of receipt, with the result sent to the provided email;</li>
+            <li>Review is completed within <strong>7 business days</strong> of receipt, with the result sent to the provided email;</li>
             <li>Rejections include specific reasons and actionable revision suggestions;</li>
             <li>A work may be resubmitted at most <strong>2 times</strong>; after that, a <strong>30-calendar-day</strong> interval is required;</li>
             <li>Approved games are listed in the appropriate category and receive basic promotional resources.</li>
@@ -674,7 +660,7 @@
             <li><strong>Age ratings:</strong> prominently displayed on each game detail page;</li>
             <li><strong>Parental guidance:</strong> noted for mildly intense content or content requiring a certain level of psychological maturity;</li>
             <li><strong>Content filtering:</strong> no pornographic, violent, or gambling content harmful to minors;</li>
-            <li><strong>Reporting:</strong> reports involving minors are initially responded to within <strong>48 hours</strong>; general reports within <strong>5 business days</strong>. Report to <a href="mailto:leleleling@2980.com" class="legal-link">leleleling@2980.com</a>;</li>
+            <li><strong>Reporting:</strong> reports involving minors are initially responded to within <strong>48 hours</strong>; general reports within <strong>7 business days</strong>. Report to <a href="mailto:leleleling@2980.com" class="legal-link">leleleling@2980.com</a>;</li>
             <li><strong>Purchases:</strong> the Platform does not offer in-game purchases; purchases in external games are the player’s responsibility.</li>
         </ul>
 
@@ -717,19 +703,13 @@
                 <tr><td>Age Rating for Online Games (Group Standard)</td><td>CADPA</td><td><a href="https://www.nppa.gov.cn" target="_blank" rel="noopener">NPPA</a></td></tr>
             </tbody>
         </table>
-
-        <div class="footer-note">
-            <span>© 2026 leleleling Studio · lelele Game</span>
-            <a href="https://game.leleleling.site" target="_blank" rel="noopener">Visit Platform</a>
-            <a href="mailto:leleleling@2980.com">Contact Us</a>
-            <span>｜ Version 4.0.1</span>
-            <span>｜ Updated: October 20, 2026</span>
-        </div>
     </div>
 
 </div>
 
+<script src="common.js" defer></script>
 <script>
+    // 接管全局语言切换，更新返回按钮链接
     function setLang(lang) {
         document.documentElement.setAttribute('data-lang', lang);
         document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
@@ -739,12 +719,13 @@
         try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
         
         const backHome = document.getElementById('backHomeBtn');
-        if(lang === 'en') backHome.href = 'index.html?lang=en';
-        else backHome.href = 'index.html';
+        if(backHome) backHome.href = lang === 'en' ? 'index.html?lang=en' : 'index.html';
     }
     
-    const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
-    setLang(currentLang);
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
+        setLang(currentLang);
+    });
 </script>
 
 </body>
