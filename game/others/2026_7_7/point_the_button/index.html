@@ -1,46 +1,87 @@
 <!DOCTYPE html>
 <html>
-
 <head>
+<!-- 全站统一组件：样式 -->
+<link rel="stylesheet" href="https://game.leleleling.site/common.css">
+<!-- 强制标记为游戏页，让公告弹窗 15 秒自动消失 -->
+<script>
+  window.forceGamePage = true;
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>点击按钮的游戏</title>
 <style>
-button {
-position: fixed;
-cursor: pointer;
-}
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    body {
+        background: #ffffff;
+        color: #222;
+        transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    /* 深色模式适配：本游戏为纯白背景，全站切深色时同步 */
+    html.dark-mode body {
+        background: #0f172a;
+        color: #fff;
+    }
+
+    button {
+        position: fixed;
+        cursor: pointer;
+        padding: 10px 24px;
+        font-size: 16px;
+        z-index: 999;
+        transition: left 0.08s ease-out, top 0.08s ease-out;
+    }
 </style>
 </head>
 
 <body>
-<button>点我！点我！</button>
+<button id="runaway">点我！点我！</button>
 <script>
-document.querySelector('button').addEventListener('mouseenter', function (e) {
-const btn = document.querySelector('button');
-const maxX = window.innerWidth - btn.offsetWidth;
-const maxY = window.innerHeight - btn.offsetHeight;
-let attempts = 0;
-const maxAttempts = 50;
+    var btn = document.getElementById('runaway');
 
-do {
-btn.style.left = Math.random() * maxX + 'px';
-btn.style.top = Math.random() * maxY + 'px';
-attempts++;
-} while (isMouseOverBtn(btn, e.clientX, e.clientY) && attempts < maxAttempts);
-});
+    // 缓存按钮引用 + 兜底窗口过小导致 maxX/maxY 为负的情况
+    function relocate(evt) {
+        var maxX = Math.max(0, window.innerWidth  - btn.offsetWidth);
+        var maxY = Math.max(0, window.innerHeight - btn.offsetHeight);
+        var attempts = 0;
+        var maxAttempts = 50;
+        var mx = evt ? evt.clientX : -1;
+        var my = evt ? evt.clientY : -1;
 
-function isMouseOverBtn(el, mouseX, mouseY) {
-const rect = el.getBoundingClientRect();
-return (
-mouseX >= rect.left &&
-mouseX <= rect.right &&
-mouseY >= rect.top &&
-mouseY <= rect.bottom
-);
-}
-document.querySelector('button').addEventListener('click', function () {
-window.open('https://www.luogu.me/paste/82mfkf9s');
-});
+        do {
+            btn.style.left = Math.random() * maxX + 'px';
+            btn.style.top  = Math.random() * maxY + 'px';
+            attempts++;
+        } while (evt && isMouseOverBtn(btn, mx, my) && attempts < maxAttempts);
+    }
+
+    function isMouseOverBtn(el, mouseX, mouseY) {
+        var rect = el.getBoundingClientRect();
+        return (
+            mouseX >= rect.left &&
+            mouseX <= rect.right &&
+            mouseY >= rect.top &&
+            mouseY <= rect.bottom
+        );
+    }
+
+    btn.addEventListener('mouseenter', relocate);
+
+    btn.addEventListener('click', function () {
+        // 加 noopener，防止被打开的页面通过 window.opener 反向操控本页
+        window.open('https://www.luogu.me/paste/82mfkf9s', '_blank', 'noopener');
+    });
 </script>
+<!-- 全站统一组件：脚本 -->
+<script src="https://game.leleleling.site/common.js" defer></script>
+<script async src="https://tally.so/widgets/embed.js"></script>
 </body>
-
 </html>
