@@ -1,23 +1,16 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<!-- PWA manifest 动态加载 -->
+<!-- 全站统一组件：样式 -->
+<link rel="stylesheet" href="https://game.leleleling.site/common.css">
+<!-- 强制标记为游戏页，让公告弹窗 15 秒自动消失 -->
 <script>
-  (function(){var lang=document.documentElement.getAttribute('data-lang')||'zh';var manifestMap={zh:'/manifest-zh.json',en:'/manifest-en.json',ja:'/manifest-ja.json',fr:'/manifest-fr.json'};var link=document.createElement('link');link.rel='manifest';link.href=manifestMap[lang]||'/manifest-zh.json';document.head.appendChild(link);})();
+  window.forceGamePage = true;
 </script>
-<!-- 苹果设备兼容 -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="/LOGO.svg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>吃星球变大 · 3D自由太空</title>
     <style>
-.site-logo-container {
-    display: inline-block;
-    z-index: 1000;
-    position: relative;
-}
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: #000;
@@ -117,21 +110,9 @@
         .btn-restart.show { display: block; }
         .btn-restart:hover { background: #7c3aed; }
     </style>
-<!-- 了了了岭用户系统-样式与SDK -->
-<link rel="stylesheet" href="../../common-user.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
-<div class="site-logo-container">
-    <img src="https://leleleling.site/LOGO.svg" 
-         onerror="this.onerror=null; this.src='https://leleleling.surge.sh/LOGO.svg';" 
-         alt="Logo" 
-         style="height: 40px; width: 40px; border-radius: 50%; margin: 10px;">
-</div>
-<!-- 了了了岭用户系统-顶部挂件 -->
-<div id="userWidget" style="position:fixed;top:15px;right:20px;z-index:9999;"></div>
-
     <div id="blocker">
         🪐 吃星球变大<br>
         <span>点击屏幕锁定鼠标 · 开始吞噬之旅</span>
@@ -191,7 +172,13 @@
         const blocker = document.getElementById('blocker');
         blocker.addEventListener('click', () => controls.lock());
         controls.addEventListener('lock', () => { blocker.style.display = 'none'; });
-        controls.addEventListener('unlock', () => { blocker.style.display = 'flex'; });
+        controls.addEventListener('unlock', () => {
+            blocker.style.display = 'flex';
+            // 修复：解锁时清空按键状态，避免 W/Shift 卡住
+            Object.keys(keys).forEach(k => keys[k] = false);
+            shiftHeld = false;
+            updateUI();
+        });
 
         // 灯光
         scene.add(new THREE.AmbientLight(0x222244));
@@ -248,6 +235,11 @@
         let gameRunning = true;
         const keys = {};
         let shiftHeld = false;
+
+        // ==================== 缓存 DOM 元素（修复性能：避免每帧查询） ====================
+        const levelTextEl = document.getElementById('levelText');
+        const expTextEl = document.getElementById('expText');
+        const boostTextEl = document.getElementById('boostText');
 
         // ==================== 辅助函数 ====================
         function getPlayerRadius(level) { return CONFIG.PLAYER_BASE_RADIUS + level * CONFIG.PLAYER_RADIUS_PER_LEVEL; }
@@ -314,13 +306,16 @@
             return mesh;
         }
 
+        // 修复：用替换 geometry 代替 scale，避免 CSS2DObject 标签位置被缩放错位
         function updateFoodLabel(foodMesh) {
             const newR = getFoodRadius(foodMesh.userData.level);
             foodMesh.userData.radius = newR;
-            foodMesh.scale.setScalar(newR / (foodMesh.geometry.parameters.radius || newR));
-            if (foodMesh.children[0] && foodMesh.children[0].isCSS2DObject) {
-                foodMesh.children[0].element.textContent = foodMesh.userData.level;
-                foodMesh.children[0].position.y = newR + 4;
+            foodMesh.geometry.dispose();
+            foodMesh.geometry = new THREE.SphereGeometry(newR, 24, 24);
+            const label = foodMesh.children[0];
+            if (label && label.isCSS2DObject) {
+                label.element.textContent = foodMesh.userData.level;
+                label.position.y = newR + 4;
             }
         }
 
@@ -351,16 +346,13 @@
         }
 
         function updateFreeFoods(delta) {
-            // 维护数量
             while (freeFoods.length < CONFIG.FREE_FOOD_COUNT) spawnFreeFood();
-            // 移除太远的
             for (let i = freeFoods.length - 1; i >= 0; i--) {
                 if (player.mesh.position.distanceTo(freeFoods[i].position) > CONFIG.DESPAWN_DIST) {
                     scene.remove(freeFoods[i]);
                     freeFoods.splice(i, 1);
                 }
             }
-            // 随机游荡
             freeFoods.forEach(f => {
                 f.userData.wanderTimer -= delta;
                 if (f.userData.wanderTimer <= 0) {
@@ -447,6 +439,7 @@
         }
 
         function gameOver() {
+            if (!player.alive) return;
             player.alive = false;
             gameRunning = false;
             document.getElementById('gameOverPanel').classList.add('show');
@@ -461,7 +454,6 @@
             player.level = Math.max(1, player.level - 2);
             player.exp = 0;
             const shockR = getPlayerRadius(player.level) * 40;
-            // 冲击波视觉效果
             const waveGeo = new THREE.TorusGeometry(shockR, 2, 16, 64);
             const waveMat = new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0.7 });
             const wave = new THREE.Mesh(waveGeo, waveMat);
@@ -483,42 +475,44 @@
         // ==================== 碰撞检测 ====================
         function checkCollisions() {
             if (!player.alive) return;
-            const pR = getPlayerRadius(player.level);
             const allFoods = [...freeFoods, ...orbitFoods];
             for (let i = allFoods.length - 1; i >= 0; i--) {
                 const f = allFoods[i];
+                // 修复：每次循环重新读取玩家半径，防止升级/降级后半径不更新
+                const pR = getPlayerRadius(player.level);
                 const dist = player.mesh.position.distanceTo(f.position);
                 if (dist < pR + f.userData.radius) {
                     const diff = Math.abs(player.level - f.userData.level);
                     if (diff >= CONFIG.DEATH_LEVEL_DIFF) {
                         if (player.level > f.userData.level) {
                             playerGainExp(10);
-                            removeFood(f, i);
+                            removeFood(f);
                         } else {
                             gameOver();
+                            return;
                         }
-                        return;
-                    }
-                    if (player.level > f.userData.level) {
+                    } else if (player.level > f.userData.level) {
                         const gain = 25 / (player.level - f.userData.level);
                         const loss = 6.25 * (player.level - f.userData.level);
                         playerGainExp(gain);
                         player.combo++;
                         player.comboTimer = 1.8;
                         if (!foodLoseExpCheck(f, loss)) {
-                            removeFood(f, i);
+                            removeFood(f);
                         } else {
                             updateFoodLabel(f);
                         }
                     } else if (player.level < f.userData.level) {
                         const loss = 6.25 * (f.userData.level - player.level);
                         playerLoseExp(loss);
+                        // 修复：如果玩家被降级到死亡，立即退出
+                        if (!player.alive) return;
                     }
                 }
             }
         }
 
-        function removeFood(food, index) {
+        function removeFood(food) {
             scene.remove(food);
             const freeIdx = freeFoods.indexOf(food);
             if (freeIdx !== -1) { freeFoods.splice(freeIdx, 1); return; }
@@ -543,7 +537,6 @@
             if (keys['q']) camera.position.y += speed * delta;
             if (keys['e']) camera.position.y -= speed * delta;
 
-            // 玩家球体跟随摄像机
             player.mesh.position.copy(camera.position);
 
             if (player.comboTimer > 0) {
@@ -554,10 +547,10 @@
 
         // ==================== UI ====================
         function updateUI() {
-            document.getElementById('levelText').textContent = player.level;
-            document.getElementById('expText').textContent = `${Math.floor(player.exp)}/${CONFIG.EXP_PER_LEVEL}`;
-            document.getElementById('boostText').textContent = shiftHeld ? '开' : '关';
-            document.getElementById('boostText').style.color = shiftHeld ? '#4ade80' : '#fff';
+            levelTextEl.textContent = player.level;
+            expTextEl.textContent = `${Math.floor(player.exp)}/${CONFIG.EXP_PER_LEVEL}`;
+            boostTextEl.textContent = shiftHeld ? '开' : '关';
+            boostTextEl.style.color = shiftHeld ? '#4ade80' : '#fff';
         }
 
         // ==================== 键盘事件 ====================
@@ -617,7 +610,6 @@
                 updateOrbitFoods(delta);
             }
 
-            // 更新冲击波
             for (let i = shockwaves.length - 1; i >= 0; i--) {
                 const sw = shockwaves[i];
                 sw.life -= delta;
@@ -643,12 +635,9 @@
         updateUI();
         requestAnimationFrame(animate);
     </script>
-<!-- 了了了岭用户系统-核心逻辑 -->
-<script src="../../common-user.js"></script>
-<!-- PWA Service Worker 注册 -->
-<script>
-if('serviceWorker'in navigator){navigator.serviceWorker.register('/sw.js').then(function(reg){console.log('✅ PWA Service Worker 注册成功');}).catch(function(err){console.log('❌ PWA Service Worker 注册失败:',err);});}
-</script>
+<!-- 全站统一组件：脚本 -->
+<script src="https://game.leleleling.site/common.js" defer></script>
+<script async src="https://tally.so/widgets/embed.js"></script>
 </body>
 
 </html>
