@@ -84,10 +84,15 @@
         // 反馈弹窗逻辑 (使用 Tally)
         btnFeedback.onclick = () => {
             if (typeof Tally !== 'undefined') {
-                // 如果有 Tally 环境，打开官方弹窗
-                Tally.openPopup('你的Tally反馈表单ID'); // 这里待替换
+                // 【注意】这里需要替换为你真实的 Tally 反馈表单 ID
+                // 如果暂时没有，会弹出一个提示，并跳转到主页的反馈区
+                try {
+                    Tally.openPopup('你的反馈表单ID'); 
+                } catch (e) {
+                    alert(getLang() === 'en' ? 'Feedback form is being prepared.' : '反馈表单准备中，即将开放。');
+                }
             } else {
-                alert(getLang() === 'en' ? 'Feedback form loading...' : '反馈表单加载中...');
+                alert(getLang() === 'en' ? 'Feedback form loading...' : '反馈表单加载中，请稍后再试...');
             }
         };
     }
@@ -101,13 +106,68 @@
         // 1分钟后提示安装
         setTimeout(() => {
             if (!deferredPrompt) return;
-            // 展示自定义横幅或弹窗 (此处简化为控制台提示，实际可调出面板)
-            // 如果你想用自定义UI，可以在这里弹窗，按钮点击调用 deferredPrompt.prompt()
-            console.log('PWA 安装条件已满足，可引导用户安装');
+            
+            // 检查是否已经提示过并点击了“不再提示”
+            if (localStorage.getItem('lelele_pwa_dismissed') === 'true') return;
+
+            const isEn = getLang() === 'en';
+            
+            // 动态创建一个底部悬浮的安装提示条
+            const pwaBanner = document.createElement('div');
+            pwaBanner.className = 'common-pwa-banner';
+            pwaBanner.style.cssText = `
+                position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+                background: var(--card-bg); backdrop-filter: blur(10px);
+                border: 1px solid var(--card-border); border-radius: 16px;
+                padding: 16px 24px; display: flex; align-items: center; gap: 16px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 9999;
+                animation: slideUp 0.4s ease; max-width: 90%; width: 400px;
+            `;
+            pwaBanner.innerHTML = `
+                <div style="font-size: 1.8rem;">📱</div>
+                <div style="flex: 1; text-align: left;">
+                    <div style="font-weight: 700; color: var(--text-main); font-size: 1rem; margin-bottom: 4px;">
+                        ${isEn ? 'Install lelele Game' : '安装了了了游'}
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
+                        ${isEn ? 'Add to home screen for a better experience.' : '添加到主屏幕，享受更沉浸的体验。'}
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button id="pwaInstallBtn" style="background: var(--primary); color: #fff; border: none; padding: 6px 12px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 0.85rem;">
+                        ${isEn ? 'Install' : '立即安装'}
+                    </button>
+                    <button id="pwaCloseBtn" style="background: transparent; color: var(--text-muted); border: none; padding: 4px; cursor: pointer; font-size: 0.8rem;">
+                        ${isEn ? 'Dismiss' : '下次再说'}
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(pwaBanner);
+
+            // 处理安装点击
+            document.getElementById('pwaInstallBtn').addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        pwaBanner.remove();
+                    }
+                    deferredPrompt = null;
+                }
+            });
+
+            // 处理关闭点击
+            document.getElementById('pwaCloseBtn').addEventListener('click', () => {
+                pwaBanner.remove();
+                localStorage.setItem('lelele_pwa_dismissed', 'true');
+            });
+
         }, 60000);
     });
 
     // ==================== 公告核心逻辑 ====================
+    let allValidAnnouncements = []; // 保存全局有效公告，方便切换语言时重新渲染
+
     async function initAnnouncements() {
         try {
             const res = await fetch('announcements.json');
@@ -117,7 +177,7 @@
             const now = new Date().setHours(0, 0, 0, 0);
             
             // 1. 过滤出所有有效的公告
-            let validData = allData.filter(item => {
+            allValidAnnouncements = allData.filter(item => {
                 const pub = new Date(item.publishDate).getTime();
                 const exp = new Date(item.expireDate).getTime();
                 if (isNaN(pub) || isNaN(exp)) return false;
@@ -125,7 +185,7 @@
             }).sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
 
             // 2. 取前 3 条作为首页展示和未读检测的标准
-            const top3Data = validData.slice(0, 3);
+            const top3Data = allValidAnnouncements.slice(0, 3);
 
             // 3. 清理 LocalStorage 中的过期记录
             const readList = getStorage('lelele_read_announcements', []);
@@ -149,57 +209,9 @@
             if (closedChanged) setStorage('lelele_closed_announcements', closedObj);
 
             // 4. 渲染首页公告 (如果有对应的容器)
-            const listEl = document.getElementById('announcementsList');
-            if (listEl) {
-                const renderList = top3Data.filter(item => {
-                    const closeTime = closedObj[item.id];
-                    // 如果在 24 小时内关闭过，就不显示
-                    if (closeTime && (Date.now() - closeTime < 24 * 60 * 60 * 1000)) return false;
-                    return true;
-                });
-
-                if (renderList.length > 0) {
-                    document.getElementById('announcementsContainer').style.display = 'block';
-                    listEl.innerHTML = renderList.map(item => {
-                        const titleZh = item.title_zh || item.title || '';
-                        const titleEn = item.title_en || item.title || titleZh;
-                        const contentZh = item.content_zh || item.content || '';
-                        const contentEn = item.content_en || item.content || contentZh;
-                        const lang = getLang();
-                        const title = lang === 'en' ? titleEn : titleZh;
-                        const content = lang === 'en' ? contentEn : contentZh;
-
-                        return `
-                            <div class="announce-card" data-id="${item.id}">
-                                <button class="announce-close" onclick="window.closeGlobalAnnounce('${item.id}', this)">×</button>
-                                <div class="announce-top">
-                                    <div class="announce-name">${escapeHtml(title)}</div>
-                                    <div class="announce-date">${escapeHtml(item.publishDate)}</div>
-                                </div>
-                                <div class="announce-content">${escapeHtml(content)}</div>
-                            </div>
-                        `;
-                    }).join('');
-                    
-                    // 增加“查看全部”按钮
-                    if (top3Data.length > 0) {
-                        let viewAllBtn = document.getElementById('commonViewAllBtn');
-                        if (!viewAllBtn) {
-                            viewAllBtn = document.createElement('button');
-                            viewAllBtn.id = 'commonViewAllBtn';
-                            viewAllBtn.className = 'common-btn-view-all';
-                            viewAllBtn.innerHTML = getLang() === 'en' ? 'View All Announcements ➔' : '查看全部公告 ➔';
-                            viewAllBtn.onclick = () => openAllAnnounceModal(validData);
-                            listEl.parentNode.appendChild(viewAllBtn);
-                        }
-                    }
-                } else {
-                    document.getElementById('announcementsContainer').style.display = 'none';
-                }
-            }
+            renderIndexAnnouncements(top3Data, closedObj);
 
             // 5. 未读弹窗检测
-            // 只有当 top3 里存在没有 readList 里的 id 时，才弹窗
             const hasUnread = top3Data.some(item => !newReadList.includes(item.id));
             if (hasUnread) {
                 showUnreadModal(top3Ids);
@@ -219,13 +231,68 @@
                 }
                 if (changed) {
                     setStorage('lelele_closed_announcements', currentClosed);
-                    // 刷新页面重新渲染（或者你可以写个只重新渲染公告的逻辑）
-                    // location.reload(); // 为了体验，这里暂不刷新，下次刷新页面会出来
+                    // 重新渲染公告，让它重新出现
+                    renderIndexAnnouncements(allValidAnnouncements.slice(0, 3), currentClosed);
                 }
             }, 5 * 60 * 1000);
 
         } catch (e) {
             console.warn('公告加载失败:', e);
+        }
+    }
+
+    // 单独抽离的首页公告渲染函数 (方便语言切换时调用)
+    function renderIndexAnnouncements(top3Data, closedObj) {
+        const listEl = document.getElementById('announcementsList');
+        if (!listEl) return;
+        
+        // 确保容器状态
+        const container = document.getElementById('announcementsContainer');
+        
+        const renderList = top3Data.filter(item => {
+            const closeTime = closedObj[item.id];
+            if (closeTime && (Date.now() - closeTime < 24 * 60 * 60 * 1000)) return false;
+            return true;
+        });
+
+        if (renderList.length > 0) {
+            if (container) container.style.display = 'block';
+            const lang = getLang();
+            
+            listEl.innerHTML = renderList.map(item => {
+                const titleZh = item.title_zh || item.title || '';
+                const titleEn = item.title_en || item.title || titleZh;
+                const contentZh = item.content_zh || item.content || '';
+                const contentEn = item.content_en || item.content || contentZh;
+                const title = lang === 'en' ? titleEn : titleZh;
+                const content = lang === 'en' ? contentEn : contentZh;
+
+                return `
+                    <div class="announce-card" data-id="${item.id}">
+                        <button class="announce-close" onclick="window.closeGlobalAnnounce('${item.id}', this)">×</button>
+                        <div class="announce-top">
+                            <div class="announce-name">${escapeHtml(title)}</div>
+                            <div class="announce-date">${escapeHtml(item.publishDate)}</div>
+                        </div>
+                        <div class="announce-content">${escapeHtml(content)}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            // 增加“查看全部”按钮
+            if (allValidAnnouncements.length > 0) {
+                let viewAllBtn = document.getElementById('commonViewAllBtn');
+                if (!viewAllBtn) {
+                    viewAllBtn = document.createElement('button');
+                    viewAllBtn.id = 'commonViewAllBtn';
+                    viewAllBtn.className = 'common-btn-view-all';
+                    viewAllBtn.onclick = () => openAllAnnounceModal(allValidAnnouncements);
+                    listEl.parentNode.appendChild(viewAllBtn);
+                }
+                viewAllBtn.innerHTML = lang === 'en' ? 'View All Announcements ➔' : '查看全部公告 ➔';
+            }
+        } else {
+            if (container) container.style.display = 'none';
         }
     }
 
@@ -276,7 +343,7 @@
             
             // 如果不在首页，跳转新标签页
             if (!window.location.pathname.endsWith('index.html') && window.location.pathname !== '/') {
-                window.open('index.html', '_blank');
+                window.open('index.html' + (isEn ? '?lang=en' : ''), '_blank');
             }
             overlay.parentNode.removeChild(overlay);
             clearTimeout(autoCloseTimer);
@@ -350,12 +417,29 @@
         injectFloatingTools();
         initAnnouncements();
         
-        // 监听语言切换，重新注入 Footer
+        // 监听语言切换，重新注入 Footer 和 重新渲染公告
         const originalSetLang = window.setLang;
         window.setLang = function(lang) {
             if (originalSetLang) originalSetLang(lang);
             injectFooter();
+            
+            // 如果公告数据已加载，切换语言时重新渲染
+            if (allValidAnnouncements.length > 0) {
+                const closedObj = getStorage('lelele_closed_announcements', {});
+                renderIndexAnnouncements(allValidAnnouncements.slice(0, 3), closedObj);
+            }
         };
     });
+
+    // ==================== 注册 PWA Service Worker ====================
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js').then((reg) => {
+                console.log('✅ PWA Service Worker 注册成功', reg.scope);
+            }).catch((err) => {
+                console.log('❌ PWA Service Worker 注册失败:', err);
+            });
+        });
+    }
 
 })();
