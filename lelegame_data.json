@@ -180,5 +180,18 @@
     "ageRating_en": "12+",
     "version": "v1.0.0",
     "url": "https://jonathanxu-games.netlify.app/games/army-war-3d.html"
+  },
+    {
+    "id": 15,
+    "name_zh": "星种",
+    "name_en": "Starseed",
+    "icon": "🌌",
+    "category_zh": "冒险",
+    "category_en": "Adventure",
+    "type": "local",
+    "ageRating_zh": "全年龄",
+    "ageRating_en": "All Ages",
+    "version": "v1.0.0",
+    "url": "https://starseed-3fgwyvi5.manus.game/"
   }
 ]
