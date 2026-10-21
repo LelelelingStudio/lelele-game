@@ -1,0 +1,116 @@
+[
+  {
+    "version": "1.8.0",
+    "date": "2026-10-21",
+    "content_zh": "1. 全新上线独立的「更新日志」模块，支持按版本维度精准追溯平台历史迭代。\n2. 深度集成 Edgemetry 无埋点统计系统，实现全站 PV/UV 及游戏点击转化率的精准追踪。\n3. 全面优化底层资源加载策略，显著提升全平台页面的首屏渲染速度与响应能力。",
+    "content_en": "1. Launched an independent 'Changelog' module, supporting accurate tracking of platform historical iterations by version. \n2. Deeply integrated the Edgemetry analytics system to achieve precise tracking of site-wide PV/UV and game click conversion rates. \n3. Comprehensively optimized the underlying resource loading strategy, significantly improving the first-screen rendering speed and responsiveness across all platform pages."
+  },
+  {
+    "version": "1.7.2",
+    "date": "2026-10-20",
+    "content_zh": "1. 重构游戏卡片网格布局算法，完美适配多端响应式显示，消除边界溢出问题。\n2. 优化中英双语切换的底层逻辑，彻底解决切换时的页面闪烁与重绘性能损耗。\n3. 调整并统一了全站组件的 UI 视觉规范，提升了界面整体的沉浸感与一致性。",
+    "content_en": "1. Refactored the game card grid layout algorithm for perfect multi-device responsive display, eliminating boundary overflow issues. \n2. Optimized the underlying logic of bilingual switching, completely resolving page flickering and repaint performance losses during switching. \n3. Adjusted and unified the UI visual specifications of site-wide components, enhancing the immersion and consistency of the interface."
+  },
+  {
+    "version": "1.7.1",
+    "date": "2026-10-19",
+    "content_zh": "1. 正式上线「关于我们」独立页面，全方位展示平台愿景与开发者权益承诺。\n2. 完善平台合规体系，引入《隐私政策》与《版权侵权投诉指引》等底层保障入口。\n3. 优化导航栏层级结构与路由分发，大幅提升用户获取平台信息的便捷度。",
+    "content_en": "1. Officially launched the 'About Us' page, comprehensively showcasing the platform's vision and commitments to developer rights. \n2. Improved the platform's compliance system by introducing underlying protection entrances such as the 'Privacy Policy' and 'Copyright Infringement Guidelines'. \n3. Optimized the navigation bar hierarchy and route distribution, greatly enhancing user convenience in accessing platform information."
+  },
+  {
+    "version": "1.7.0",
+    "date": "2026-10-18",
+    "content_zh": "1. 「了了了游」全新架构正式上线！完成了全站底层技术的彻底重构，剥离了历史技术债。\n2. 原生支持中英双语无缝切换，全面拓展了平台服务于全球化用户的能力。\n3. 引入本地化游戏收藏与全局检索功能，大幅优化玩家寻找心仪游戏的心智负担。",
+    "content_en": "1. The brand new architecture of 'lelele Game' officially launched! Completed a thorough refactoring of the entire site's underlying technology, eliminating historical technical debt. \n2. Native support for seamless bilingual (Chinese/English) switching, comprehensively expanding the platform's ability to serve global users. \n3. Introduced local game favorites and global search functions, greatly optimizing the mental burden on players finding their desired games."
+  },
+  {
+    "version": "1.6.1",
+    "date": "2026-10-17",
+    "content_zh": "1. 上线前执行了全链路黑盒测试，修复了若干影响体验的边界缺陷。\n2. 优化了资源请求机制，降低了网络延迟导致的加载失败率。\n3. 完善了全局异常捕获机制，提升了系统整体的鲁棒性。",
+    "content_en": "1. Executed full-link black-box testing prior to launch, fixing several boundary defects affecting the experience. \n2. Optimized the resource request mechanism, reducing the loading failure rate caused by network latency. \n3. Improved the global exception capture mechanism, enhancing the overall robustness of the system."
+  },
+  {
+    "version": "1.6.0",
+    "date": "2026-10-10",
+    "content_zh": "1. 监测到旧版底层源代码存在严重的耦合崩坏，启动紧急技术预案。\n2. 将旧版历史遗留代码全部删除，从零开始搭建全新纯净架构。\n3. 重建了数据分发链路，确保后续版本迭代的稳定性与可维护性。",
+    "content_en": "1. Detected severe coupling corruption in the legacy underlying source code and activated an emergency technical plan. \n2. Deleted all legacy code from the old version and built a brand new pure architecture from scratch. \n3. Rebuilt the data distribution pipeline to ensure the stability and maintainability of future version iterations."
+  },
+  {
+    "version": "1.5.1",
+    "date": "2026-09-20",
+    "content_zh": "1. 了了了游正式启动复出计划，完成服务器及静态资源的重新部署。\n2. 梳理并优化了游戏上架的审核流转链路。\n3. 展开内部封闭测试，收集核心玩家反馈以打磨最终体验。",
+    "content_en": "1. lelele Game officially launched its comeback plan, completing the redeployment of servers and static resources. \n2. Organized and optimized the review workflow for game listings. \n3. Initiated internal closed beta testing, collecting core player feedback to polish the final experience."
+  },
+  {
+    "version": "1.5.0",
+    "date": "2026-07-18",
+    "content_zh": "1. 因工作室内部战略及资源调整，了了了游暂时停止运营并下架。\n2. 下架期间对数据资产进行了全面备份与归档。\n3. 感谢广大玩家的支持，期待未来更完美的重逢。",
+    "content_en": "1. Due to internal strategy and resource adjustments within the studio, lelele Game temporarily suspended operations and was taken offline. \n2. Conducted comprehensive backup and archiving of data assets during the offline period. \n3. Thank you to all players for your support; looking forward to a more perfect reunion in the future."
+  },
+  {
+    "version": "1.4.3",
+    "date": "2026-07-16",
+    "content_zh": "1. 修复了极少数情况下游戏列表渲染失败导致的白屏异常。\n2. 优化了数据解析模块，降低了前端内存占用。\n3. 提升了界面在老旧设备上的兼容性表现。",
+    "content_en": "1. Fixed the abnormal white screen caused by game list rendering failure in rare cases. \n2. Optimized the data parsing module, reducing front-end memory usage. \n3. Improved the interface's compatibility performance on legacy devices."
+  },
+  {
+    "version": "1.4.2",
+    "date": "2026-07-14",
+    "content_zh": "1. 修复了特定浏览器下部分 JS 代码意外泄漏到页面的隐患。\n2. 全面优化了数据加载管道，提升了并发请求时的响应效率。\n3. 增强了前端状态管理的稳定性。",
+    "content_en": "1. Fixed the hidden danger of some JS code accidentally leaking to the page under specific browsers. \n2. Comprehensively optimized the data loading pipeline, improving response efficiency during concurrent requests. \n3. Enhanced the stability of front-end state management."
+  },
+  {
+    "version": "1.4.1",
+    "date": "2026-07-04",
+    "content_zh": "1. 进行了一波深度的体验打磨，修复了此前版本中遗留的各种微小瑕疵。\n2. 优化了底层渲染逻辑，使整体运行更加丝滑流畅。\n3. 修复了部分极端网络环境下的资源加载超时问题。",
+    "content_en": "1. Conducted deep polishing, fixing various minor flaws left in previous versions. \n2. Optimized the underlying rendering logic, making overall operation smoother. \n3. Fixed resource loading timeout issues in some extreme network environments."
+  },
+  {
+    "version": "1.4.0",
+    "date": "2026-07-03",
+    "content_zh": "1. 游戏中心开启临时上限压力测试，一次性部署 20 款完整小游戏。\n2. 游戏涵盖益智、动作、休闲等多种品类（如猜数字、俄罗斯方块、吃豆人等）。\n3. 统一了所有游戏的控制适配，原生支持触屏手势与键盘操作。",
+    "content_en": "1. The game center initiated a temporary upper-limit stress test, deploying 20 complete mini-games at once. \n2. Games cover various categories such as puzzle, action, and casual (e.g., Guess the Number, Tetris, Pac-Man, etc.). \n3. Unified control adaptation for all games, natively supporting touch gestures and keyboard operations."
+  },
+  {
+    "version": "1.3.3",
+    "date": "2026-06-25",
+    "content_zh": "1. 优化了 3D 射击游戏在低端设备上的图形渲染帧率，降低了掉帧率。\n2. 修复了 2048 游戏在移动端触控时偶发的手指滑动误触问题。\n3. 优化了游戏加载页的动画过渡效果。",
+    "content_en": "1. Optimized the graphics rendering frame rate of the 3D shooting game on low-end devices, reducing frame drops. \n2. Fixed the issue in the 2048 game where swipe controls occasionally triggered unintended touches on mobile devices. \n3. Optimized the animation transition effect on the game loading page."
+  },
+  {
+    "version": "1.3.2",
+    "date": "2026-06-23",
+    "content_zh": "1. 修复了了了游中部分游戏在移动端触控失效的核心兼容性问题。\n2. 优化了触控事件分发机制，提升了移动端的操作准确度。\n3. 完善了反馈机制，帮助研发快速定位机型兼容问题。",
+    "content_en": "1. Fixed core compatibility issues where touch controls failed in some games on mobile devices. \n2. Optimized the touch event distribution mechanism, improving mobile operation accuracy. \n3. Improved the feedback mechanism to help R&D quickly locate device compatibility issues."
+  },
+  {
+    "version": "1.3.1",
+    "date": "2026-06-22",
+    "content_zh": "1. 修复了一些已知的问题，优化了游戏的打开逻辑。\n2. 调整了游戏启动时的资源预加载策略。\n3. 提升了部分游戏在后台切换时的存活率。",
+    "content_en": "1. Fixed some known issues and optimized the game's opening logic. \n2. Adjusted the resource preloading strategy when starting games. \n3. Improved the survival rate of some games when switching in the background."
+  },
+  {
+    "version": "1.3.0",
+    "date": "2026-05-22",
+    "content_zh": "1. 了了了游新增本地游戏：了了了派对-欢乐飞行棋。\n2. 支持多人对战模式，优化了物理碰撞检测引擎。\n3. 引入了全新的画面渲染与音效系统，带来更生动的体验。",
+    "content_en": "1. Added a new local game: lelele Party - Happy Flying Chess. \n2. Supports multiplayer battle mode and optimized the physics collision detection engine. \n3. Introduced a brand new graphics rendering and sound effect system for a more vivid experience."
+  },
+  {
+    "version": "1.2.0",
+    "date": "2026-04-18",
+    "content_zh": "1. 了了了游新增 5 款精品本地游戏：爱种地的农民、玉米工厂大亨、点击香蕉等。\n2. 丰富游戏品类矩阵，涵盖模拟经营与休闲解压。\n3. 优化了游戏启动入口的交互响应速度。",
+    "content_en": "1. Added 5 premium local games: Farmer Who Loves Farming, Corn Factory Tycoon, Click Banana, etc. \n2. Enriched the game category matrix, covering simulation management and casual decompression. \n3. Optimized the interaction response speed of the game launch entrance."
+  },
+  {
+    "version": "1.1.0",
+    "date": "2026-03-05",
+    "content_zh": "1. 了了了游新增 4 款本地游戏：3D射击、卡牌2048、扫雷、太空射击。\n2. 针对 3D 射击游戏进行了渲染管线优化，提升画面表现。\n3. 完善了游戏分类标签系统。",
+    "content_en": "1. Added 4 local games: 3D Shooting, Card 2048, Minesweeper, Space Shooting. \n2. Optimized the rendering pipeline specifically for the 3D shooting game to improve visual performance. \n3. Improved the game category tag system."
+  },
+  {
+    "version": "1.0.0",
+    "date": "2026-01-26",
+    "content_zh": "1. 了了了游 1.0 基础版本正式上线。\n2. 整合旗下产品游戏导航入口，搭建首版页面框架。\n3. 确立了了了了游的发展方向与产品矩阵。",
+    "content_en": "1. lelele Game 1.0 basic version officially launched. \n2. Integrated the game navigation entrances of affiliated products and built the first version of the page framework. \n3. Established the development direction and product matrix of lelele Game."
+  }
+]
