@@ -303,14 +303,12 @@
             ← <span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span>
         </a>
         
-        <!-- 顶部 Logo + 兜底 -->
         <div class="site-title" onclick="window.location.href='index.html'">
             <img src="lelelegame.svg" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
             <span class="logo-fallback" style="display:none;">🎮</span>
             <span class="zh-inline">了了了游</span><span class="en-inline">lelele Game</span>
         </div>
 
-        <!-- 语言切换 -->
         <div class="lang-switch" role="group">
             <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
             <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
@@ -333,7 +331,6 @@
         </div>
 
         <div class="game-detail-card" id="gameCard">
-            <!-- 顶部背景图，点击可放大 -->
             <div class="banner-area" id="bannerArea" onclick="openLightbox(this.style.backgroundImage.slice(5, -2))">
                 <div class="banner-icon" id="bannerIcon">🎮</div>
             </div>
@@ -358,7 +355,6 @@
                 </div>
                 <div class="game-description" id="gameDesc"></div>
 
-                <!-- 游戏截图展示区 (动态渲染) -->
                 <div id="screenshotsContainer" style="display:none;">
                     <div class="section-title">
                         <span class="zh-inline">🖼️ 游戏截图</span><span class="en-inline">🖼️ Screenshots</span>
@@ -377,13 +373,11 @@
 
     </div>
 
-    <!-- 全屏图片预览层 -->
     <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
         <span class="lightbox-close">&times;</span>
         <img id="lightboxImg" src="" alt="Preview" onclick="event.stopPropagation()">
     </div>
 
-    <!-- 引入全局脚本 -->
     <script src="common.js" defer></script>
 
     <script>
@@ -397,20 +391,16 @@
         let currentGameId = null;
         let currentGameData = null;
 
-        // 动态获取当前语言，避免硬编码
         function isEn() {
             return document.documentElement.getAttribute('data-lang') === 'en';
         }
 
-        // 更新语言相关的链接
         function updateLinks() {
             const suffix = isEn() ? '?lang=en' : '';
             document.getElementById('backBtn').href = 'index.html' + suffix;
             document.getElementById('errorBackBtn').href = 'index.html' + suffix;
         }
-        updateLinks();
 
-        // ==================== 图片预览 (Lightbox) 逻辑 ====================
         window.openLightbox = function(imgSrc) {
             if (!imgSrc || imgSrc === 'none' || imgSrc === 'url("")') return;
             document.getElementById('lightboxImg').src = imgSrc;
@@ -424,7 +414,6 @@
             }
         };
 
-        // ==================== 收藏与游玩逻辑 ====================
         function getFavorites() {
             try { return JSON.parse(localStorage.getItem('lelele_favs') || '[]'); } catch (e) { return []; }
         }
@@ -465,7 +454,6 @@
             window.open(currentGameData.url, '_blank', 'noopener,noreferrer');
         };
 
-        // ==================== 页面渲染 ====================
         function renderGamePage(game) {
             const en = isEn();
             const gameName = en ? (game.name_en || game.name_zh || game.name) : (game.name_zh || game.name_en || game.name);
@@ -537,7 +525,6 @@
             updateFavBtn();
         }
 
-        // ==================== 数据加载 ====================
         async function init() {
             const urlParams = new URLSearchParams(window.location.search);
             currentGameId = urlParams.get('id');
@@ -599,24 +586,26 @@
             document.getElementById('errorMsg').textContent = msg;
         }
 
-        // ==================== 接管全局语言切换 ====================
-        const originalSetLang = window.setLang;
-        window.setLang = function(lang) {
-            if (originalSetLang) originalSetLang(lang);
-            updateLinks();
-            if (typeof currentGameData !== 'undefined' && currentGameData) {
-                renderGamePage(currentGameData);
-            }
-        };
-
         // ==================== 页面初始化 ====================
         document.addEventListener('DOMContentLoaded', () => {
-            // 初始化 UI 语言状态
+            // 初始化时同步一次语言链接和按钮状态
+            updateLinks();
             const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
-            if (typeof window.setLang === 'function') {
-                window.setLang(currentLang);
-            }
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.langBtn === currentLang);
+            });
+            
+            // 开始加载数据
             init();
+
+            // 【修复】彻底移除对 window.setLang 的覆盖，改用监听全局事件
+            // 当 common.js 触发 langChanged 时，此页面重新渲染内容
+            window.addEventListener('langChanged', () => {
+                updateLinks();
+                if (typeof currentGameData !== 'undefined' && currentGameData) {
+                    renderGamePage(currentGameData);
+                }
+            });
         });
     </script>
 </body>
