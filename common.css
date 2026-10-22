@@ -301,6 +301,22 @@ html.dark-mode .empty-announce-box {
 .common-footer a { color: var(--primary); text-decoration: none; margin: 0 6px; }
 .common-footer a:hover { text-decoration: underline; }
 
+/* 【核心修复】游戏页面的底部栏强制悬浮，不再占位 */
+body.is-game-page .common-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    z-index: 9999;
+    padding: 12px 20px;
+    font-size: 12px;
+    margin-top: 0;
+}
+body.is-game-page .common-footer a { color: #818cf8; }
+
 /* ===== 深色模式兼容原有组件 ===== */
 html.dark-mode .game-card, 
 html.dark-mode .fav-item {
