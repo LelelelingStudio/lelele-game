@@ -41,7 +41,7 @@
     "title_en": "📢 Important Notice to Developers & Game Recommenders",
     "content_zh": "近期，我们注意到部分开发者在提交游戏作品时，选择了【代码上传】方式，但我们接收到的文件存在不完整或损坏的情况。经过排查，原因多为系统对特定代码格式的排斥，或在上传进度条未完成时提前提交了表单。\n\n对此，我们已对投稿表单做出以下优化调整：\n1. 📦 代码提交改为统一上传 zip/rar 压缩包；\n2. 📝 新增「单一文件代码粘贴」提交方式，方便小体积代码直接提交；\n3. 📧 若压缩包体积过大，请直接发送邮件至官方邮箱进行投递。\n\n💡 温馨提醒：我们在处理您的投稿后会发送邮件通知。请务必留意您的【垃圾邮件箱】，并认准由【了了了岭工作室】发送的官方邮件，以免错过重要信息！",
     "content_en": "Recently, we've noticed that some developers used the 'Code Upload' method for game submissions, but the files we received were incomplete or corrupted. We've identified the likely causes: specific code format rejections, or submitting the form before the upload progress finished.\n\nTo fix this, we've updated the submission form with the following improvements:\n1. 📦 Code submissions now require uploading a zip/rar archive;\n2. 📝 Added a 'Single File Code Paste' option for small codebases;\n3. 📧 If your archive is too large, please send it directly to our official email.\n\n💡 Friendly Reminder: We will send an email notification after processing your submission. Please make sure to check your Spam/Junk folder and look out for official emails from [leleleling Studio] so you don't miss any important updates!",
-    "publishDate": "2026-10-20",
+    "publishDate": "2026-10-21",
     "expireDate": "2026-12-31"
   }
 ]
