@@ -1,0 +1,33 @@
+{
+  "id": 17,
+  "name_zh": "Sword Masters",
+  "name_en": "Sword Masters",
+  "icon": "⚔️",
+  "category_zh": "动作",
+  "category_en": "Action",
+  "ageRating_zh": "全年龄",
+  "ageRating_en": "All Ages",
+  "version": "v1.0.0",
+  "author": "Webgamer",
+  "url": "https://swordmasters.io",
+  "banner": "https://cdn.webgamer.io/games/sword-masters-io/sword-masters-io.960x.50pc.avif",
+  "screenshots": [
+    "https://cdn.webgamer.io/games/sword-masters-io/sword-masters-io-1.960x.50pc.avif"
+  ],
+  "description_zh": "装备你的剑，与朋友一起对抗怪物吧！\n\n《Sword Masters》是一款多人在线 MMO 游戏，玩家将穿梭于不同的世界，斩杀各种怪物。",
+  "description_en": "Equip your sword and fight against monsters with your friends! Sword Masters is a multiplayer MMO game where players travel through worlds and slay monsters.",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-22",
+      "content": "游戏上架！"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-22",
+      "content": "Game listed!"
+    }
+  ]
+}
