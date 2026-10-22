@@ -42,7 +42,7 @@
     "id": 4,
     "name_zh": "高级扫雷游戏",
     "name_en": "bomb-deleting game",
-    "icon": "🔢",
+    "icon": "💣",
     "category_zh": "益智",
     "category_en": "Puzzle",
     "type": "local",
