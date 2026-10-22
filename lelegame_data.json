@@ -193,5 +193,18 @@
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
     "url": "https://starseed-3fgwyvi5.manus.game/"
+  },
+    {
+    "id": 16,
+    "name_zh": "MC点击游戏",
+    "name_en": "MC Clicker Game",
+    "icon": "👋",
+    "category_zh": "休闲",
+    "category_en": "Casual",
+    "type": "local",
+    "ageRating_zh": "全年龄",
+    "ageRating_en": "All Ages",
+    "version": "v1.0.0",
+    "url": "/game/MCpointygame/index.html"
   }
 ]
