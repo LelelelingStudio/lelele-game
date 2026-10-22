@@ -1,0 +1,33 @@
+{
+  "id": 16,
+  "name_zh": "MC点击游戏",
+  "name_en": "MC Clicker Game",
+  "icon": "👋",
+  "category_zh": "休闲",
+  "category_en": "Casual",
+  "ageRating_zh": "全年龄",
+  "ageRating_en": "All Ages",
+  "version": "v1.0.0",
+  "author": "Wheat",
+  "url": "/game/MCpointygame/index.html",
+  "banner": "http://gamepic.surge.sh/screenshot-mcpointygame.png",
+  "screenshots": [
+    "http://gamepic.surge.sh/screenshot-mcpointygame.png"
+  ],
+  "description_zh": "一款 MC 主题的点击游戏。\n\n【详细玩法】\n疯狂点击！\n\n【温馨提示】\n请不要使用连点器，保持游戏原本的乐趣哦。",
+  "description_en": "An MC-themed clicker game.\n\n[Gameplay]\nClick like crazy!\n\n[Note]\nPlease do not use auto-clickers, keep the original fun of the game.",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-22",
+      "content": "游戏首发上线！"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-22",
+      "content": "Initial release!"
+    }
+  ]
+}
