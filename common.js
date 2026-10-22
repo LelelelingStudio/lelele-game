@@ -41,7 +41,6 @@
             renderIndexAnnouncements(allValidAnnouncements.slice(0, 3), closedObj);
         }
 
-        // 广播语言切换事件，通知局部页面更新内容
         window.dispatchEvent(new Event('langChanged'));
     };
 
@@ -62,18 +61,18 @@
 
     // ==================== 滑动提示浮窗逻辑 ====================
     function initSlideHint() {
-        // 按页面路径独立记录，防止互相干扰
+        // 游戏页不需要滑动提示
+        if (isGamePage) return;
+
         const pagePath = window.location.pathname;
         const storageKey = `lelele_slide_hint_${pagePath}`;
         const lastShowTime = getStorage(storageKey, 0);
         const now = Date.now();
         const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
 
-        // 1. 如果未满30天，或者当前页面根本不可滑动，则不显示
         if (now - lastShowTime < THIRTY_DAYS) return;
         if (document.documentElement.scrollHeight <= window.innerHeight + 200) return;
 
-        // 2. 创建提示 DOM
         const hint = document.createElement('div');
         hint.className = 'common-slide-hint';
         hint.innerHTML = `
@@ -86,7 +85,6 @@
         `;
         document.body.appendChild(hint);
 
-        // 触发显现动画
         setTimeout(() => hint.classList.add('show'), 100);
 
         let closeTimer = setTimeout(closeHint, 15000);
@@ -94,11 +92,7 @@
         function closeHint() {
             clearTimeout(closeTimer);
             hint.classList.remove('show');
-            
-            // 记录当前时间，30天内不再显示
             setStorage(storageKey, now);
-            
-            // 等待滑出动画结束后移除 DOM
             setTimeout(() => hint.remove(), 400);
         }
 
@@ -142,22 +136,7 @@
             // 2. 应用活动资源
             document.documentElement.classList.add('activity-mode');
 
-            // 动态注入背景和深色模式适配
-            const style = document.createElement('style');
-            const bgUrl = config.assets.background;
-            style.innerHTML = `
-                html.activity-mode body {
-                    background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)), url('${bgUrl}') no-repeat center center fixed !important;
-                    background-size: cover !important;
-                }
-                html.dark-mode.activity-mode body {
-                    background: linear-gradient(rgba(15,23,42,0.85), rgba(15,23,42,0.85)), url('${bgUrl}') no-repeat center center fixed !important;
-                    background-size: cover !important;
-                }
-            `;
-            document.head.appendChild(style);
-
-            // Favicon
+            // Favicon：全站统一替换
             let hasFavicon = false;
             document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]').forEach(favicon => {
                 favicon.href = config.assets.favicon;
@@ -170,7 +149,7 @@
                 document.head.appendChild(link);
             }
 
-            // 替换 Logo
+            // 替换 Logo：全站统一替换
             setTimeout(() => {
                 document.querySelectorAll('img').forEach(img => {
                     if (img.src.includes('lelelegame') && !img.src.includes('-winter')) {
@@ -179,7 +158,28 @@
                 });
             }, 100);
 
-            // 插入 Banner (仅在首页)
+            // --- 以下逻辑针对主站页面（非游戏页）执行背景与雪花 ---
+            if (!isGamePage) {
+                const style = document.createElement('style');
+                const bgUrl = config.assets.background;
+                style.innerHTML = `
+                    html.activity-mode body {
+                        background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)), url('${bgUrl}') no-repeat center center fixed !important;
+                        background-size: cover !important;
+                    }
+                    html.dark-mode.activity-mode body {
+                        background: linear-gradient(rgba(15,23,42,0.85), rgba(15,23,42,0.85)), url('${bgUrl}') no-repeat center center fixed !important;
+                        background-size: cover !important;
+                    }
+                `;
+                document.head.appendChild(style);
+
+                if (config.enableSnowfall) {
+                    initSnowfall();
+                }
+            }
+
+            // 插入 Banner (仅首页有对应容器，游戏页无容器会自动跳过)
             if (document.getElementById('gamesGrid') && document.querySelector('.controls')) {
                 if (!document.querySelector('.activity-banner-container')) {
                     const bannerDiv = document.createElement('div');
@@ -190,7 +190,7 @@
                 }
             }
 
-            // 插入贴纸
+            // 插入贴纸（全站，包括游戏页）
             if (!document.querySelector('.activity-sticker')) {
                 const snowman = document.createElement('img');
                 snowman.src = config.assets.snowman;
@@ -202,11 +202,6 @@
 
                 document.body.appendChild(snowman);
                 document.body.appendChild(tree);
-            }
-
-            // 飘雪特效
-            if (config.enableSnowfall) {
-                initSnowfall();
             }
 
         } catch (e) {
@@ -284,6 +279,7 @@
 
     // ==================== Footer 注入逻辑 ====================
     function injectFooter() {
+        // 游戏页也要有底部栏
         const existingFooter = document.querySelector('.common-footer');
         if (existingFooter) existingFooter.remove();
         
@@ -309,6 +305,8 @@
 
     // ==================== 悬浮工具注入 ====================
     function injectFloatingTools() {
+        // 游戏页隐藏悬浮工具
+        if (isGamePage) return;
         if (document.querySelector('.common-float-tools')) return;
         
         const container = document.createElement('div');
