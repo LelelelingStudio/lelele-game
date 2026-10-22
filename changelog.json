@@ -1,5 +1,17 @@
 [
   {
+    "version": "2.1.1",
+    "date": "2026-10-22",
+    "content_zh": "1. 【游戏上新】休闲品类新游戏《MC 矿工点击器》正式上架！支持直接在线游玩。\n2. 【安全加固】针对《MC 矿工点击器》源码进行了深度审查，修复了底层崩溃隐患，并为其作弊码验证引入了 SHA-512 哈希加密算法。\n3. 【Bug修复】修复了首页公告栏在用户将公告全部关闭后，连空状态提示框和「查看全部」按钮一起消失的 UI 缺陷。",
+    "content_en": "1. [New Game] New casual game 'MC Clicker Game' officially launched! Supports direct online play. \n2. [Security Hardening] Conducted an in-depth code review for 'MC Clicker Game', fixed underlying crash risks, and introduced SHA-512 hash encryption for its cheat code verification. \n3. [Bug Fix] Fixed the UI defect where the announcement bar on the homepage would disappear entirely (including the empty state box and 'View All' button) after users closed all announcements."
+  },
+  {
+    "version": "2.1.0",
+    "date": "2026-10-22",
+    "content_zh": "1. 【架构升级】全新上线通用活动配置系统（activity_whole.json），实现活动资源、时间锁及配色的独立管理与动态加载。\n2. 【冬季限定】正式开启 2026 冬季限定主题！全站飘落浪漫雪花，并自动替换冬日背景、戴帽 Logo、专属 Banner 与角落盲盒贴纸。\n3. 【体验优化】新增全站「滑动提示浮窗」，智能引导用户向下滚动查看内容，并在本地化存储 30 天防重复干扰。\n4. 【功能接入】正式接入 Tally 中英双语「用户满意度评价与反馈」表单，支持通过右下角悬浮按钮一键唤出。\n5. 【Bug修复】彻底修复了游戏详情页（game.html）切换语言时内容不重绘的底层缺陷，实现无缝双语切换。",
+    "content_en": "1. [Architectural Upgrade] Launched a new universal activity configuration system (activity_whole.json), enabling independent management and dynamic loading of activity assets, time locks, and color schemes. \n2. [Winter Limited] Officially launched the 2026 Winter Theme! Romantic snowflakes fall site-wide, with automatic replacement of winter backgrounds, logo, exclusive banners, and blind-box stickers in corners. \n3. [UX Optimization] Added a site-wide 'slide hint floating window', intelligently guiding users to scroll down for more content, with a 30-day local storage anti-disturbance mechanism. \n4. [Feature Integration] Officially integrated the Tally bilingual 'User Satisfaction and Feedback' form, accessible via the floating button in the bottom right corner. \n5. [Bug Fix] Thoroughly fixed the underlying defect where content failed to re-render when switching languages on the game detail page (game.html), achieving seamless bilingual switching."
+  },
+  {
     "version": "2.0.0",
     "date": "2026-10-21",
     "content_zh": "1. 【架构级重构】全站底层升级为 2.0 模块化架构，实现全局语言与底部导航的统一分发。\n2. 引入全站全局深色模式，支持系统级偏好自动检测与本地持久化。\n3. 重构公告系统底层逻辑：新增未读消息推送提醒、单条公告 24 小时静音机制，并引入类似更新日志的「全部公告」独立浏览弹窗。\n4. 新增悬浮实用组件：意见反馈（Tally 接入）、一键回到顶部、PWA 安装提示（1分钟智能触发）。",
