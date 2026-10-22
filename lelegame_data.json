@@ -206,5 +206,18 @@
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
     "url": "/game/MCpointygame/index.html"
+  },
+  {
+    "id": 17,
+    "name_zh": "Sword Masters",
+    "name_en": "Sword Masters",
+    "icon": "⚔️",
+    "category_zh": "动作",
+    "category_en": "Action",
+    "type": "external",
+    "ageRating_zh": "全年龄",
+    "ageRating_en": "All Ages",
+    "version": "v1.0.0",
+    "url": "https://swordmasters.io"
   }
 ]
