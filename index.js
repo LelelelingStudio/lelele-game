@@ -292,10 +292,275 @@ function initSubmitFlow() {
 window.addEventListener("message", function(event) {
     if (event.data && event.data.type === "tally-form-submitted") {
         document.querySelectorAll('.modal-overlay.active').forEach(el => el.classList.remove('active'));
-        alert('提交成功！我们将尽快审核。\nSubmitted successfully! We will review it soon.');
+        alert('提交成功！我们将尽快审核.\nSubmitted successfully! We will review it soon.');
         window.location.href = window.location.pathname + "?submitted=1";
     }
 });
+
+// ==================== 排行榜逻辑 ====================
+(function() {
+    const rankLang = {
+        zh: {
+            title: '游戏排名',
+            subtitle: '全站热度榜',
+            more: '查看更多',
+            modalTitle: '前 25 名排行',
+            noData: '暂无数据',
+            played: '次',
+            view: '查看详情'
+        },
+        en: {
+            title: 'Top Games',
+            subtitle: 'Global popularity ranking',
+            more: 'View More',
+            modalTitle: 'Top 25 Ranking',
+            noData: 'No data available',
+            played: 'plays',
+            view: 'Details'
+        }
+    };
+
+    const ANALYTICS_URL = 'https://analytics.leleleling.site/api/breakdown';
+    const SITE_ID = 1;
+
+    function getCurrentLang() {
+        return document.documentElement.getAttribute('data-lang') || 'zh';
+    }
+
+    function t(key) {
+        const lang = getCurrentLang();
+        return (rankLang[lang] && rankLang[lang][key]) || rankLang.zh[key];
+    }
+
+    function normalizeName(value) {
+        if (!value) return '';
+        return String(value)
+            .replace(/^play-game[_\s-]*/i, '')
+            .replace(/[_-]+/g, ' ')
+            .trim()
+            .toLowerCase();
+    }
+
+    function extractRows(data) {
+        if (!data) return [];
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data.rows)) return data.rows;
+        if (Array.isArray(data.data)) return data.data;
+        if (data.breakdowns && Array.isArray(data.breakdowns.event)) return data.breakdowns.event;
+        if (data.breakdown && Array.isArray(data.breakdown)) return data.breakdown;
+        if (data.result && Array.isArray(data.result)) return data.result;
+        if (data.items && Array.isArray(data.items)) return data.items;
+        return [];
+    }
+
+    function buildLookup(list) {
+        const map = new Map();
+        if (!Array.isArray(list)) return map;
+        list.forEach(game => {
+            const candidates = [
+                game.name_zh,
+                game.name_en,
+                game.name,
+                game.title,
+                game.category_zh,
+                game.category_en
+            ].filter(Boolean);
+
+            candidates.forEach(name => {
+                const key = normalizeName(name);
+                if (key) map.set(key, game);
+            });
+
+            if (game.id !== undefined && game.id !== null) {
+                map.set(String(game.id), game);
+            }
+        });
+        return map;
+    }
+
+    async function fetchCatalog() {
+        try {
+            const res = await fetch('lelegame_data.json', { cache: 'no-store' });
+            if (!res.ok) return [];
+            const json = await res.json();
+            return Array.isArray(json) ? json : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function getGameDetailUrl(id) {
+        const lang = getCurrentLang();
+        return `game.html?id=${encodeURIComponent(id)}&lang=${lang}`;
+    }
+
+    function renderEmpty() {
+        const top3 = document.getElementById('top3RankContainer');
+        if (top3) {
+            top3.innerHTML = `<div class="rank-empty">${t('noData')}</div>`;
+        }
+    }
+
+    function renderTop3(items) {
+        const container = document.getElementById('top3RankContainer');
+        if (!container) return;
+        if (!items || !items.length) {
+            renderEmpty();
+            return;
+        }
+
+        const top3 = items.slice(0, 3);
+        container.innerHTML = top3.map((item, index) => {
+            const medal = ['🥇', '🥈', '🥉'][index] || '🏅';
+            const rankLevel = index + 1;
+            const detailUrl = item.url || '#';
+            const name = item.name || 'Unknown';
+            return `
+                <button class="rank-card rank-${rankLevel}" type="button" style="text-align:left;" onclick="window.location.href='${detailUrl}'">
+                    <div class="rank-card-header">
+                        <div class="rank-medal" aria-label="rank medal">${medal}</div>
+                        <div class="rank-tag">${rankLevel === 1 ? 'No.1' : rankLevel === 2 ? 'No.2' : 'No.3'}</div>
+                    </div>
+                    <div class="rank-main">
+                        <div class="rank-icon">${item.icon || '🎮'}</div>
+                        <div class="rank-name">${escapeHtml(name)}</div>
+                    </div>
+                    <div class="rank-meta">
+                        <div class="rank-count">${item.count} <small>${t('played')}</small></div>
+                        <a href="${detailUrl}" class="rank-link" onclick="event.stopPropagation();">${t('view')}</a>
+                    </div>
+                </button>
+            `;
+        }).join('');
+    }
+
+    function renderModal(items) {
+        const list = document.getElementById('rankModalList');
+        if (!list) return;
+        const top25 = items.slice(0, 25);
+        list.innerHTML = top25.map((item, index) => {
+            const detailUrl = item.url || '#';
+            return `
+                <li class="rank-modal-row">
+                    <div class="rank-modal-index">${index + 1}</div>
+                    <div class="rank-modal-name">${escapeHtml(item.name || 'Unknown')}</div>
+                    <div class="rank-modal-count">${item.count}</div>
+                    <div><a href="${detailUrl}" class="rank-modal-link" onclick="event.stopPropagation();">${t('view')}</a></div>
+                </li>
+            `;
+        }).join('');
+    }
+
+    function syncTexts() {
+        const nodes = document.querySelectorAll('[data-i18n]');
+        const map = {
+            rankTitle: t('title'),
+            rankSubtitle: t('subtitle'),
+            rankMore: t('more'),
+            rankModalTitle: t('modalTitle')
+        };
+        nodes.forEach(node => {
+            const key = node.getAttribute('data-i18n');
+            if (map[key]) node.textContent = map[key];
+        });
+    }
+
+    function bindModal() {
+        const openBtn = document.getElementById('openRankModalBtn');
+        const modal = document.getElementById('rankModalOverlay');
+        const closeBtn = document.getElementById('rankModalCloseBtn');
+        if (!openBtn || !modal || !closeBtn) return;
+
+        openBtn.addEventListener('click', function() {
+            modal.classList.add('active');
+        });
+
+        closeBtn.addEventListener('click', function() {
+            modal.classList.remove('active');
+        });
+
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) modal.classList.remove('active');
+        });
+    }
+
+    async function refreshRankings() {
+        try {
+            const url = new URL(ANALYTICS_URL);
+            url.searchParams.set('site', String(SITE_ID));
+            url.searchParams.set('range', '30d');
+            url.searchParams.set('limit', '25');
+            url.searchParams.set('dim', 'event');
+            url.searchParams.set('cmp', '1');
+
+            const res = await fetch(url.toString(), { cache: 'no-store' });
+            if (!res.ok) {
+                throw new Error('fetch failed');
+            }
+
+            const json = await res.json();
+            const rows = extractRows(json);
+            const rawList = rows
+                .filter(item => typeof item?.name === 'string' && item.name.toLowerCase().startsWith('play-game_'))
+                .map(item => {
+                    const count = Number(item.value ?? item.count ?? item.play_count ?? 0) || 0;
+                    const name = String(item.name).replace(/^play-game[_\s-]*/i, '').trim();
+                    return { name, count };
+                })
+                .filter(item => item.name)
+                .sort((a, b) => Number(b.count) - Number(a.count));
+
+            if (!rawList.length) {
+                renderEmpty();
+                return;
+            }
+
+            const catalog = await fetchCatalog();
+            const lookup = buildLookup(catalog);
+
+            const mapped = rawList
+                .map(entry => {
+                    const normalized = normalizeName(entry.name);
+                    const matched = lookup.get(normalized) || lookup.get(entry.name) || lookup.get(String(entry.name));
+                    const game = matched || null;
+                    return {
+                        id: game ? game.id : null,
+                        name: game ? (game.name_zh || game.name_en || game.name || entry.name) : entry.name,
+                        icon: game ? (game.icon || '🎮') : '🎮',
+                        count: entry.count,
+                        url: game ? getGameDetailUrl(game.id) : null
+                    };
+                })
+                .filter(item => item.name)
+                .slice(0, 25);
+
+            renderTop3(mapped);
+            renderModal(mapped);
+        } catch (e) {
+            console.warn('rank fetch failed', e);
+            renderEmpty();
+        }
+    }
+
+    function initRanking() {
+        bindModal();
+        syncTexts();
+        refreshRankings();
+        setInterval(refreshRankings, 5 * 60 * 1000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initRanking();
+    });
+
+    window.addEventListener('langChanged', function() {
+        syncTexts();
+        const modal = document.getElementById('rankModalOverlay');
+        if (modal && modal.classList.contains('active')) {
+            // keep modal open and update labels only
+        }
+    });
+})();
 
 // ==================== 页面初始化 ====================
 document.addEventListener('DOMContentLoaded', () => {
