@@ -320,8 +320,11 @@ window.addEventListener("message", function(event) {
         }
     };
 
-    const ANALYTICS_URL = 'https://analytics.leleleling.site/api/breakdown';
-    const SITE_ID = 1;
+    // 使用完全对齐的接口路径
+    const ANALYTICS_API = 'https://analytics.leleleling.site/api/breakdown?site=1&cmp=1&limit=1000&dim=path,referrer,event,country,device&range=30d';
+    
+    // 全局缓存游戏列表，方便匹配 id 和中英文名
+    let catalogCache = []; 
 
     function getCurrentLang() {
         return document.documentElement.getAttribute('data-lang') || 'zh';
@@ -339,43 +342,6 @@ window.addEventListener("message", function(event) {
             .replace(/[_-]+/g, ' ')
             .trim()
             .toLowerCase();
-    }
-
-    function extractRows(data) {
-        if (!data) return [];
-        if (Array.isArray(data)) return data;
-        if (Array.isArray(data.rows)) return data.rows;
-        if (Array.isArray(data.data)) return data.data;
-        if (data.breakdowns && Array.isArray(data.breakdowns.event)) return data.breakdowns.event;
-        if (data.breakdown && Array.isArray(data.breakdown)) return data.breakdown;
-        if (data.result && Array.isArray(data.result)) return data.result;
-        if (data.items && Array.isArray(data.items)) return data.items;
-        return [];
-    }
-
-    function buildLookup(list) {
-        const map = new Map();
-        if (!Array.isArray(list)) return map;
-        list.forEach(game => {
-            const candidates = [
-                game.name_zh,
-                game.name_en,
-                game.name,
-                game.title,
-                game.category_zh,
-                game.category_en
-            ].filter(Boolean);
-
-            candidates.forEach(name => {
-                const key = normalizeName(name);
-                if (key) map.set(key, game);
-            });
-
-            if (game.id !== undefined && game.id !== null) {
-                map.set(String(game.id), game);
-            }
-        });
-        return map;
     }
 
     async function fetchCatalog() {
@@ -410,16 +376,19 @@ window.addEventListener("message", function(event) {
         }
 
         const top3 = items.slice(0, 3);
+        const medals = ['🥇', '🥈', '🥉'];
+        
         container.innerHTML = top3.map((item, index) => {
-            const medal = ['🥇', '🥈', '🥉'][index] || '🏅';
+            const medal = medals[index] || '🏅';
             const rankLevel = index + 1;
             const detailUrl = item.url || '#';
             const name = item.name || 'Unknown';
+            
             return `
                 <button class="rank-card rank-${rankLevel}" type="button" style="text-align:left;" onclick="window.location.href='${detailUrl}'">
                     <div class="rank-card-header">
                         <div class="rank-medal" aria-label="rank medal">${medal}</div>
-                        <div class="rank-tag">${rankLevel === 1 ? 'No.1' : rankLevel === 2 ? 'No.2' : 'No.3'}</div>
+                        <div class="rank-tag">No.${rankLevel}</div>
                     </div>
                     <div class="rank-main">
                         <div class="rank-icon">${item.icon || '🎮'}</div>
@@ -486,53 +455,58 @@ window.addEventListener("message", function(event) {
 
     async function refreshRankings() {
         try {
-            const url = new URL(ANALYTICS_URL);
-            url.searchParams.set('site', String(SITE_ID));
-            url.searchParams.set('range', '30d');
-            url.searchParams.set('limit', '25');
-            url.searchParams.set('dim', 'event');
-            url.searchParams.set('cmp', '1');
-
-            const res = await fetch(url.toString(), { cache: 'no-store' });
+            const res = await fetch(ANALYTICS_API, { cache: 'no-store' });
             if (!res.ok) {
                 throw new Error('fetch failed');
             }
 
             const json = await res.json();
-            const rows = extractRows(json);
-            const rawList = rows
+            const events = json.breakdowns?.event || [];
+            
+            // 数据清洗
+            const rawList = events
                 .filter(item => typeof item?.name === 'string' && item.name.toLowerCase().startsWith('play-game_'))
-                .map(item => {
-                    const count = Number(item.value ?? item.count ?? item.play_count ?? 0) || 0;
-                    const name = String(item.name).replace(/^play-game[_\s-]*/i, '').trim();
-                    return { name, count };
-                })
+                .map(item => ({
+                    name: String(item.name).replace(/^play-game[_\s-]*/i, '').trim(),
+                    count: Number(item.value || 0)
+                }))
                 .filter(item => item.name)
-                .sort((a, b) => Number(b.count) - Number(a.count));
+                .sort((a, b) => b.count - a.count);
 
             if (!rawList.length) {
                 renderEmpty();
                 return;
             }
 
-            const catalog = await fetchCatalog();
-            const lookup = buildLookup(catalog);
+            // 获取游戏库
+            if (!catalogCache.length) {
+                catalogCache = await fetchCatalog();
+            }
 
-            const mapped = rawList
-                .map(entry => {
-                    const normalized = normalizeName(entry.name);
-                    const matched = lookup.get(normalized) || lookup.get(entry.name) || lookup.get(String(entry.name));
-                    const game = matched || null;
-                    return {
-                        id: game ? game.id : null,
-                        name: game ? (game.name_zh || game.name_en || game.name || entry.name) : entry.name,
-                        icon: game ? (game.icon || '🎮') : '🎮',
-                        count: entry.count,
-                        url: game ? getGameDetailUrl(game.id) : null
-                    };
-                })
-                .filter(item => item.name)
-                .slice(0, 25);
+            // 建立映射字典（结合中英文名和 ID）
+            const lookup = new Map();
+            catalogCache.forEach(game => {
+                const names = [game.name_zh, game.name_en, game.name, game.title].filter(Boolean);
+                names.forEach(n => lookup.set(normalizeName(n), game));
+                if (game.id) lookup.set(String(game.id), game);
+            });
+
+            // 匹配 ID 和图标
+            const isEn = getCurrentLang() === 'en';
+            const mapped = rawList.map(entry => {
+                const normalized = normalizeName(entry.name);
+                const matchedGame = lookup.get(normalized) || lookup.get(entry.name);
+                
+                return {
+                    id: matchedGame ? matchedGame.id : null,
+                    name: matchedGame 
+                          ? (isEn ? (matchedGame.name_en || matchedGame.name_zh || matchedGame.name) : (matchedGame.name_zh || matchedGame.name_en || matchedGame.name))
+                          : entry.name,
+                    icon: matchedGame ? (matchedGame.icon || '🎮') : '🎮',
+                    count: entry.count,
+                    url: matchedGame ? getGameDetailUrl(matchedGame.id) : null
+                };
+            }).filter(item => item.name && item.url); // 过滤掉匹配不到详情的游戏（防止点进去404）
 
             renderTop3(mapped);
             renderModal(mapped);
@@ -546,7 +520,7 @@ window.addEventListener("message", function(event) {
         bindModal();
         syncTexts();
         refreshRankings();
-        setInterval(refreshRankings, 5 * 60 * 1000);
+        setInterval(refreshRankings, 5 * 60 * 1000); // 5分钟刷新一次
     }
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -555,10 +529,8 @@ window.addEventListener("message", function(event) {
 
     window.addEventListener('langChanged', function() {
         syncTexts();
-        const modal = document.getElementById('rankModalOverlay');
-        if (modal && modal.classList.contains('active')) {
-            // keep modal open and update labels only
-        }
+        // 语言切换时重新渲染数据，这样名字和中英文图标就能对上了
+        refreshRankings(); 
     });
 })();
 
