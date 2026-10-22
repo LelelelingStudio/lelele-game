@@ -61,7 +61,6 @@
 
     // ==================== 滑动提示浮窗逻辑 ====================
     function initSlideHint() {
-        // 游戏页不需要滑动提示
         if (isGamePage) return;
 
         const pagePath = window.location.pathname;
@@ -102,11 +101,25 @@
     // ==================== 活动核心逻辑 ====================
     async function initActivityTheme() {
         try {
+            // 1. 先拉取排除名单
+            let skipEffects = false;
+            try {
+                const specRes = await fetch(`${MAIN_SITE_URL}/special_common.json?t=${Date.now()}`);
+                if (specRes.ok) {
+                    const specData = await specRes.json();
+                    const host = window.location.hostname;
+                    const path = window.location.pathname;
+                    if (specData.skip_effects_domains && specData.skip_effects_domains.includes(host)) skipEffects = true;
+                    if (specData.skip_effects_paths && specData.skip_effects_paths.some(p => path.includes(p))) skipEffects = true;
+                }
+            } catch (err) {}
+
+            // 2. 拉取活动配置
             const res = await fetch(`${MAIN_SITE_URL}/activity_whole.json?t=${Date.now()}`);
             if (!res.ok) return;
             const config = await res.json();
 
-            // 1. 时间判断逻辑
+            // 3. 时间判断
             const now = new Date();
             let isActive = config.forceEnable || false;
 
@@ -120,23 +133,17 @@
                 const currentYear = now.getFullYear();
                 const startStr = `${currentYear}-${config.yearlyPeriod.start}`;
                 let endStr = `${currentYear}-${config.yearlyPeriod.end}`;
-                
                 const start = new Date(startStr);
                 let end = new Date(endStr);
-                
-                if (end < start) {
-                    end = new Date(`${currentYear + 1}-${config.yearlyPeriod.end}`);
-                }
-                
+                if (end < start) end = new Date(`${currentYear + 1}-${config.yearlyPeriod.end}`);
                 if (now >= start && now <= end) isActive = true;
             }
 
             if (!isActive) return;
 
-            // 2. 应用活动资源
+            // 4. 应用资源
             document.documentElement.classList.add('activity-mode');
 
-            // Favicon：全站统一替换
             let hasFavicon = false;
             document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]').forEach(favicon => {
                 favicon.href = config.assets.favicon;
@@ -149,7 +156,6 @@
                 document.head.appendChild(link);
             }
 
-            // 替换 Logo：全站统一替换
             setTimeout(() => {
                 document.querySelectorAll('img').forEach(img => {
                     if (img.src.includes('lelelegame') && !img.src.includes('-winter')) {
@@ -158,7 +164,13 @@
                 });
             }, 100);
 
-            // --- 以下逻辑针对主站页面（非游戏页）执行背景与雪花 ---
+            // 5. 如果是深色全屏游戏（skipEffects），不加载背景、雪花、贴纸
+            if (skipEffects) {
+                return; 
+            }
+
+            // --- 正常页面及正常游戏 ---
+            // 主站加载背景
             if (!isGamePage) {
                 const style = document.createElement('style');
                 const bgUrl = config.assets.background;
@@ -173,13 +185,9 @@
                     }
                 `;
                 document.head.appendChild(style);
-
-                if (config.enableSnowfall) {
-                    initSnowfall();
-                }
             }
 
-            // 插入 Banner (仅首页有对应容器，游戏页无容器会自动跳过)
+            // Banner (仅在首页)
             if (document.getElementById('gamesGrid') && document.querySelector('.controls')) {
                 if (!document.querySelector('.activity-banner-container')) {
                     const bannerDiv = document.createElement('div');
@@ -190,18 +198,21 @@
                 }
             }
 
-            // 插入贴纸（全站，包括游戏页）
+            // 贴纸
             if (!document.querySelector('.activity-sticker')) {
                 const snowman = document.createElement('img');
                 snowman.src = config.assets.snowman;
                 snowman.className = 'activity-sticker snowman';
-                
                 const tree = document.createElement('img');
                 tree.src = config.assets.tree;
                 tree.className = 'activity-sticker tree';
-
                 document.body.appendChild(snowman);
                 document.body.appendChild(tree);
+            }
+
+            // 雪花
+            if (config.enableSnowfall) {
+                initSnowfall();
             }
 
         } catch (e) {
@@ -209,7 +220,6 @@
         }
     }
 
-    // 飘雪特效核心代码
     function initSnowfall() {
         if (document.getElementById('snowfall-canvas')) return;
 
@@ -220,18 +230,14 @@
         const ctx = canvas.getContext('2d');
         let width = canvas.width = window.innerWidth;
         let height = canvas.height = window.innerHeight;
-        
         const snowflakes = [];
         const maxSnowflakes = window.innerWidth < 768 ? 40 : 100; 
         
         for (let i = 0; i < maxSnowflakes; i++) {
             snowflakes.push({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                r: Math.random() * 3 + 1,
-                d: Math.random() * maxSnowflakes,
-                speedY: Math.random() * 1 + 0.5,
-                speedX: Math.random() * 1 - 0.5
+                x: Math.random() * width, y: Math.random() * height,
+                r: Math.random() * 3 + 1, d: Math.random() * maxSnowflakes,
+                speedY: Math.random() * 1 + 0.5, speedX: Math.random() * 1 - 0.5
             });
         }
         
@@ -255,20 +261,13 @@
                 const f = snowflakes[i];
                 f.y += Math.cos(angle + f.d) + f.speedY;
                 f.x += Math.sin(angle) * 1.5 + f.speedX;
-                
-                if (f.y > height) {
-                    f.y = -5;
-                    f.x = Math.random() * width;
-                }
+                if (f.y > height) { f.y = -5; f.x = Math.random() * width; }
                 if (f.x > width) f.x = 0;
                 if (f.x < 0) f.x = width;
             }
         }
         
-        function loop() {
-            draw();
-            requestAnimationFrame(loop);
-        }
+        function loop() { draw(); requestAnimationFrame(loop); }
         loop();
         
         window.addEventListener('resize', () => {
@@ -279,7 +278,6 @@
 
     // ==================== Footer 注入逻辑 ====================
     function injectFooter() {
-        // 游戏页也要有底部栏
         const existingFooter = document.querySelector('.common-footer');
         if (existingFooter) existingFooter.remove();
         
@@ -305,7 +303,6 @@
 
     // ==================== 悬浮工具注入 ====================
     function injectFloatingTools() {
-        // 游戏页隐藏悬浮工具
         if (isGamePage) return;
         if (document.querySelector('.common-float-tools')) return;
         
@@ -319,7 +316,6 @@
 
         const btnTop = document.getElementById('commonBtnTop');
         const btnFeedback = document.getElementById('commonBtnFeedback');
-
         btnFeedback.classList.add('show');
 
         window.addEventListener('scroll', () => {
@@ -331,18 +327,13 @@
         btnFeedback.onclick = () => {
             const lang = getLang();
             const tallyId = lang === 'en' ? TALLY_FEEDBACK_ID_EN : TALLY_FEEDBACK_ID_ZH;
-
             if (typeof Tally !== 'undefined') {
                 Tally.openPopup(tallyId);
             } else {
                 const script = document.createElement('script');
                 script.src = 'https://tally.so/widgets/embed.js';
-                script.onload = () => {
-                    if (typeof Tally !== 'undefined') Tally.openPopup(tallyId);
-                };
-                script.onerror = () => {
-                    alert(lang === 'en' ? 'Failed to load feedback form.' : '反馈表单加载失败，请检查网络。');
-                };
+                script.onload = () => { if (typeof Tally !== 'undefined') Tally.openPopup(tallyId); };
+                script.onerror = () => { alert(lang === 'en' ? 'Failed to load feedback form.' : '反馈表单加载失败，请检查网络。'); };
                 document.body.appendChild(script);
             }
         };
@@ -353,57 +344,33 @@
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        
         setTimeout(() => {
             if (!deferredPrompt) return;
             if (localStorage.getItem('lelele_pwa_dismissed') === 'true') return;
-
             const isEn = getLang() === 'en';
-            
             const pwaBanner = document.createElement('div');
             pwaBanner.className = 'common-pwa-banner';
-            pwaBanner.style.cssText = `
-                position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-                background: var(--card-bg); backdrop-filter: blur(10px);
-                border: 1px solid var(--card-border); border-radius: 16px;
-                padding: 16px 24px; display: flex; align-items: center; gap: 16px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 9999;
-                animation: slideUp 0.4s ease; max-width: 90%; width: 400px;
-            `;
+            pwaBanner.style.cssText = `position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px 24px; display: flex; align-items: center; gap: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 9999; animation: slideUp 0.4s ease; max-width: 90%; width: 400px;`;
             pwaBanner.innerHTML = `
                 <div style="font-size: 1.8rem;">📱</div>
                 <div style="flex: 1; text-align: left;">
-                    <div style="font-weight: 700; color: var(--text-main); font-size: 1rem; margin-bottom: 4px;">
-                        ${isEn ? 'Install lelele Game' : '安装了了了游'}
-                    </div>
-                    <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">
-                        ${isEn ? 'Add to home screen for a better experience.' : '添加到主屏幕，享受更沉浸的体验。'}
-                    </div>
+                    <div style="font-weight: 700; color: var(--text-main); font-size: 1rem; margin-bottom: 4px;">${isEn ? 'Install lelele Game' : '安装了了了游'}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">${isEn ? 'Add to home screen for a better experience.' : '添加到主屏幕，享受更沉浸的体验。'}</div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <button id="pwaInstallBtn" style="background: var(--primary); color: #fff; border: none; padding: 6px 12px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 0.85rem;">
-                        ${isEn ? 'Install' : '立即安装'}
-                    </button>
-                    <button id="pwaCloseBtn" style="background: transparent; color: var(--text-muted); border: none; padding: 4px; cursor: pointer; font-size: 0.8rem;">
-                        ${isEn ? 'Dismiss' : '下次再说'}
-                    </button>
+                    <button id="pwaInstallBtn" style="background: var(--primary); color: #fff; border: none; padding: 6px 12px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 0.85rem;">${isEn ? 'Install' : '立即安装'}</button>
+                    <button id="pwaCloseBtn" style="background: transparent; color: var(--text-muted); border: none; padding: 4px; cursor: pointer; font-size: 0.8rem;">${isEn ? 'Dismiss' : '下次再说'}</button>
                 </div>
             `;
             document.body.appendChild(pwaBanner);
-
             document.getElementById('pwaInstallBtn').addEventListener('click', () => {
                 pwaBanner.remove();
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
-                }
+                if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { deferredPrompt = null; }); }
             });
-
             document.getElementById('pwaCloseBtn').addEventListener('click', () => {
                 pwaBanner.remove();
                 localStorage.setItem('lelele_pwa_dismissed', 'true');
             });
-
         }, 60000);
     });
 
@@ -415,7 +382,6 @@
             const res = await fetch(`${MAIN_SITE_URL}/announcements.json`);
             if (!res.ok) return;
             let allData = await res.json();
-            
             const now = new Date().setHours(0, 0, 0, 0);
             
             allValidAnnouncements = allData.filter(item => {
@@ -426,7 +392,6 @@
             }).sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
 
             const top3Data = allValidAnnouncements.slice(0, 3);
-
             const readList = getStorage('lelele_read_announcements', []);
             const closedObj = getStorage('lelele_closed_announcements', {});
             const top3Ids = top3Data.map(a => a.id);
@@ -441,7 +406,6 @@
             if (closedChanged) setStorage('lelele_closed_announcements', closedObj);
 
             renderIndexAnnouncements(top3Data, closedObj);
-
             const hasUnread = top3Data.some(item => !newReadList.includes(item.id));
             if (hasUnread) showUnreadModal(top3Ids);
 
@@ -449,7 +413,6 @@
                 const currentClosed = getStorage('lelele_closed_announcements', {});
                 let changed = false;
                 const nowTime = Date.now();
-                
                 for (let id in currentClosed) {
                     if (nowTime - currentClosed[id] > 24 * 60 * 60 * 1000) { delete currentClosed[id]; changed = true; }
                 }
@@ -458,10 +421,7 @@
                     renderIndexAnnouncements(allValidAnnouncements.slice(0, 3), currentClosed);
                 }
             }, 5 * 60 * 1000);
-
-        } catch (e) {
-            console.warn('公告加载失败:', e);
-        }
+        } catch (e) {}
     }
 
     function renderIndexAnnouncements(top3Data, closedObj) {
@@ -486,10 +446,8 @@
                 const contentZh = item.content_zh || item.content || '';
                 const contentEn = item.content_en || item.content || contentZh;
                 const title = lang === 'en' ? titleEn : titleZh;
-                
                 const rawContent = lang === 'en' ? contentEn : contentZh;
                 const formattedContent = rawContent ? rawContent.replace(/\n/g, '<br>') : '';
-
                 return `
                     <div class="announce-card" data-id="${item.id}">
                         <button class="announce-close" onclick="window.closeGlobalAnnounce('${item.id}', this)">×</button>
@@ -502,12 +460,7 @@
                 `;
             }).join('');
         } else {
-            listEl.innerHTML = `
-                <div class="empty-announce-box">
-                    <span class="zh-inline">暂时没有新公告，或者公告已经被您全部关上啦。</span>
-                    <span class="en-inline">No new announcements, or you have closed all of them.</span>
-                </div>
-            `;
+            listEl.innerHTML = `<div class="empty-announce-box"><span class="zh-inline">暂时没有新公告，或者公告已经被您全部关上啦。</span><span class="en-inline">No new announcements, or you have closed all of them.</span></div>`;
         }
         
         let viewAllBtn = document.getElementById('commonViewAllBtn');
@@ -536,11 +489,9 @@
 
     function showUnreadModal(unreadIds) {
         if (document.getElementById('commonUnreadModal')) return;
-
         const overlay = document.createElement('div');
         overlay.className = 'common-modal-overlay active';
         overlay.id = 'commonUnreadModal';
-        
         const isEn = getLang() === 'en';
         overlay.innerHTML = `
             <div class="common-modal common-unread-modal">
@@ -554,18 +505,13 @@
 
         let autoCloseTimer;
         if (isGamePage) {
-            autoCloseTimer = setTimeout(() => {
-                if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-            }, 15000);
+            autoCloseTimer = setTimeout(() => { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 15000);
         }
 
         document.getElementById('btnGoAnnounce').onclick = () => {
             const readList = getStorage('lelele_read_announcements', []);
-            unreadIds.forEach(id => {
-                if (!readList.includes(id)) readList.push(id);
-            });
+            unreadIds.forEach(id => { if (!readList.includes(id)) readList.push(id); });
             setStorage('lelele_read_announcements', readList);
-            
             if (!window.location.pathname.endsWith('index.html') && window.location.hostname === 'game.leleleling.site' && window.location.pathname !== '/') {
                 window.open(MAIN_SITE_URL + '/index.html' + (isEn ? '?lang=en' : ''), '_blank');
             } else if (window.location.hostname !== 'game.leleleling.site') {
@@ -573,7 +519,6 @@
             } else {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
-            
             overlay.parentNode.removeChild(overlay);
             clearTimeout(autoCloseTimer);
         };
@@ -584,11 +529,9 @@
             document.getElementById('commonAllAnnounceModal').classList.add('active');
             return;
         }
-
         const overlay = document.createElement('div');
         overlay.className = 'common-modal-overlay active';
         overlay.id = 'commonAllAnnounceModal';
-        
         const isEn = getLang() === 'en';
         overlay.innerHTML = `
             <div class="common-modal" style="max-width: 800px;">
@@ -601,32 +544,22 @@
             </div>
         `;
         document.body.appendChild(overlay);
-
         const sidebar = document.getElementById('commonAnnounceSidebar');
         const detail = document.getElementById('commonAnnounceDetail');
 
         sidebar.innerHTML = allData.map((item, index) => {
             const title = isEn ? (item.title_en || item.title) : (item.title_zh || item.title);
-            return `
-                <div class="common-announce-menu-item ${index === 0 ? 'active' : ''}" data-index="${index}">
-                    <div class="common-announce-menu-title">${escapeHtml(title)}</div>
-                    <div class="common-announce-menu-date">${item.publishDate}</div>
-                </div>
-            `;
+            return `<div class="common-announce-menu-item ${index === 0 ? 'active' : ''}" data-index="${index}"><div class="common-announce-menu-title">${escapeHtml(title)}</div><div class="common-announce-menu-date">${item.publishDate}</div></div>`;
         }).join('');
 
         const renderDetail = (index) => {
             const item = allData[index];
             const title = isEn ? (item.title_en || item.title) : (item.title_zh || item.title);
-            
             const rawContent = isEn ? (item.content_en || item.content) : (item.content_zh || item.content);
             const formattedContent = rawContent ? rawContent.replace(/\n/g, '<br>') : '';
-            
             detail.innerHTML = `<h3>${escapeHtml(title)}</h3><div class="common-announce-detail-content">${formattedContent}</div>`;
         };
-        
         renderDetail(0);
-
         sidebar.addEventListener('click', (e) => {
             const menuItem = e.target.closest('.common-announce-menu-item');
             if (!menuItem) return;
@@ -638,27 +571,23 @@
 
     // ==================== 初始化调用 ====================
     document.addEventListener('DOMContentLoaded', () => {
+        if (isGamePage) {
+            document.body.classList.add('is-game-page');
+        }
         initTheme();
-        initActivityTheme(); // 启动通用活动主题
-        initSlideHint(); // 启动滑动提示浮窗
+        initActivityTheme();
+        initSlideHint();
         injectFooter();
         injectFloatingTools();
         initAnnouncements();
-        
         const currentLang = getLang();
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.langBtn === currentLang);
-        });
+        document.querySelectorAll('.lang-btn').forEach(btn => { btn.classList.toggle('active', btn.dataset.langBtn === currentLang); });
     });
 
     // ==================== 注册 PWA Service Worker ====================
     if ('serviceWorker' in navigator && window.location.hostname === 'game.leleleling.site') {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js').then((reg) => {
-                console.log('✅ PWA Service Worker 注册成功', reg.scope);
-            }).catch((err) => {
-                console.log('❌ PWA Service Worker 注册失败:', err);
-            });
+            navigator.serviceWorker.register('/sw.js').catch((err) => {});
         });
     }
 
