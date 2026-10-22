@@ -1,5 +1,5 @@
 {
-  "forceEnable": true, 
+  "forceEnable": false, 
   "specialPeriod": {
     "start": "2026-10-21",
     "end": "2027-01-31"
