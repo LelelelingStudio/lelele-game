@@ -41,6 +41,7 @@
             renderIndexAnnouncements(allValidAnnouncements.slice(0, 3), closedObj);
         }
 
+        // 广播语言切换事件，通知局部页面更新内容
         window.dispatchEvent(new Event('langChanged'));
     };
 
@@ -57,6 +58,51 @@
             const isDark = document.documentElement.classList.toggle('dark-mode');
             localStorage.setItem('lelele_theme', isDark ? 'dark' : 'light');
         };
+    }
+
+    // ==================== 滑动提示浮窗逻辑 ====================
+    function initSlideHint() {
+        // 按页面路径独立记录，防止互相干扰
+        const pagePath = window.location.pathname;
+        const storageKey = `lelele_slide_hint_${pagePath}`;
+        const lastShowTime = getStorage(storageKey, 0);
+        const now = Date.now();
+        const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+
+        // 1. 如果未满30天，或者当前页面根本不可滑动，则不显示
+        if (now - lastShowTime < THIRTY_DAYS) return;
+        if (document.documentElement.scrollHeight <= window.innerHeight + 200) return;
+
+        // 2. 创建提示 DOM
+        const hint = document.createElement('div');
+        hint.className = 'common-slide-hint';
+        hint.innerHTML = `
+            <span class="zh-inline">👇 向下滑动可以查看更多</span>
+            <span class="en-inline">👇 Scroll down to see more</span>
+            <button id="slideHintBtn">
+                <span class="zh-inline">知道了</span>
+                <span class="en-inline">Got it</span>
+            </button>
+        `;
+        document.body.appendChild(hint);
+
+        // 触发显现动画
+        setTimeout(() => hint.classList.add('show'), 100);
+
+        let closeTimer = setTimeout(closeHint, 15000);
+
+        function closeHint() {
+            clearTimeout(closeTimer);
+            hint.classList.remove('show');
+            
+            // 记录当前时间，30天内不再显示
+            setStorage(storageKey, now);
+            
+            // 等待滑出动画结束后移除 DOM
+            setTimeout(() => hint.remove(), 400);
+        }
+
+        document.getElementById('slideHintBtn').onclick = closeHint;
     }
 
     // ==================== 活动核心逻辑 ====================
@@ -77,7 +123,6 @@
             }
 
             if (!isActive && config.yearlyPeriod) {
-                // 解析年度通用时间 (如 11-01)
                 const currentYear = now.getFullYear();
                 const startStr = `${currentYear}-${config.yearlyPeriod.start}`;
                 let endStr = `${currentYear}-${config.yearlyPeriod.end}`;
@@ -85,7 +130,6 @@
                 const start = new Date(startStr);
                 let end = new Date(endStr);
                 
-                // 如果结束日期比开始日期小（跨年），比如 12-31 到 01-31
                 if (end < start) {
                     end = new Date(`${currentYear + 1}-${config.yearlyPeriod.end}`);
                 }
@@ -598,6 +642,7 @@
     document.addEventListener('DOMContentLoaded', () => {
         initTheme();
         initActivityTheme(); // 启动通用活动主题
+        initSlideHint(); // 启动滑动提示浮窗
         injectFooter();
         injectFloatingTools();
         initAnnouncements();
