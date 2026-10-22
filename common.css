@@ -28,6 +28,62 @@ html.dark-mode body {
     color: var(--text-main) !important;
 }
 
+/* ==================== 活动主题通用样式 ==================== */
+/* 活动 Banner */
+.activity-banner-container {
+    width: 100%;
+    max-width: 1100px;
+    margin: 16px auto 0;
+    padding: 0 20px;
+    display: flex;
+    justify-content: center;
+    animation: fadeIn 0.6s ease-out;
+}
+.activity-banner-container img {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    transition: transform 0.3s;
+}
+.activity-banner-container img:hover {
+    transform: translateY(-4px);
+}
+
+/* 左右下角贴纸 */
+.activity-sticker {
+    position: fixed;
+    bottom: 20px;
+    z-index: 9995;
+    pointer-events: none; /* 防止遮挡用户点击 */
+    transition: transform 0.3s ease;
+    width: 130px;
+    height: auto;
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));
+}
+.activity-sticker.snowman { left: 20px; }
+.activity-sticker.tree { right: 20px; bottom: 90px; /* 抬高避开右下角的悬浮按钮 */ }
+
+/* 雪花特效 Canvas */
+#snowfall-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9990;
+}
+
+/* 移动端调整 */
+@media (max-width: 600px) {
+    .activity-banner-container img { max-height: 110px; border-radius: 16px; }
+    .activity-sticker { width: 90px; }
+    .activity-sticker.tree { bottom: 80px; }
+}
+
 /* ===== 悬浮工具组件 ===== */
 .common-float-tools {
     position: fixed;
@@ -36,7 +92,7 @@ html.dark-mode body {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    z-index: 9990;
+    z-index: 9999;
 }
 
 .common-float-btn {
@@ -72,7 +128,7 @@ html.dark-mode body {
 /* ===== 全局弹窗基础 ===== */
 .common-modal-overlay {
     position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5);
-    z-index: 9999; display: none; justify-content: center; align-items: center;
+    z-index: 10000; display: none; justify-content: center; align-items: center;
     padding: 16px; backdrop-filter: blur(4px); overscroll-behavior: contain;
 }
 .common-modal-overlay.active { display: flex; }
@@ -133,7 +189,7 @@ html.dark-mode body {
     opacity: 0.9;
 }
 
-/* 【新增】空状态提示框样式 */
+/* 空状态提示框样式 */
 .empty-announce-box {
     text-align: center;
     padding: 20px;
