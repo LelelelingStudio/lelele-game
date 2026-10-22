@@ -297,10 +297,49 @@ body {
 .startup-btn.primary { background: #90c060; color: #234111; }
 .startup-btn.warning { background: #ffd76c; color: #473200; }
 .startup-btn.secondary { background: #d8d8d8; }
+.dev-help-btn {
+  display: inline-block; margin: 10px auto 6px; padding: 8px 12px;
+  font-family: 'Press Start 2P', monospace; font-size: 7px;
+  background: #e6e6e6; border: 2px solid var(--mc-panel-dark);
+  border-top-color: var(--mc-panel-light); border-left-color: var(--mc-panel-light);
+  color: var(--mc-text); cursor: pointer;
+}
 .startup-footer {
   margin-top: 14px; font-size: 6px; line-height: 1.7; color: #555; text-align: center;
 }
 .startup-footer a { color: #333; }
+
+/* ── Feature Modal ── */
+.feature-modal {
+  position: fixed; inset: 0; background: rgba(12, 18, 24, 0.72);
+  display: flex; align-items: center; justify-content: center; z-index: 310;
+  padding: 20px;
+}
+.feature-modal.hidden { display: none; }
+.feature-panel {
+  width: min(620px, 92vw); background: var(--mc-panel); border: 4px solid var(--mc-panel-dark);
+  border-top-color: var(--mc-panel-light); border-left-color: var(--mc-panel-light);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.35); padding: 18px 18px 16px; color: var(--mc-text);
+}
+.feature-title {
+  text-align: center; font-size: 16px; color: var(--mc-green);
+  margin-bottom: 12px; text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+}
+.feature-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.feature-list li {
+  font-size: 8px; line-height: 1.8; padding: 8px 10px;
+  background: rgba(0,0,0,0.06); border: 2px solid var(--mc-panel-dark);
+  text-align: left;
+}
+.feature-list li::before {
+  content: '•'; margin-right: 8px; color: var(--mc-green);
+}
+.feature-actions {
+  display: flex; justify-content: center; margin-top: 14px;
+}
 
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--mc-panel-dark); }
@@ -337,7 +376,25 @@ body {
       <button id="importSaveBtnModal" class="startup-btn secondary" type="button">导入旧存档</button>
     </div>
     <div class="startup-footer">
-      本弹窗及存档的相关功能由了了了岭工作室·了了了游提供服务，如果您是该游戏的开发者，不想要此功能可以通过邮件<a href="mailto:leleleling@2980.com">leleleling@2980.com</a>或者网站主页右下角悬浮的💬按钮进行用户反馈
+      <button id="featureInfoBtn" class="dev-help-btn" type="button">查看新增功能</button>
+      <div>本弹窗及存档的相关功能由了了了岭工作室·了了了游提供服务，如果您是该游戏的开发者，不想要此功能可以通过邮件<a href="mailto:leleleling@2980.com">leleleling@2980.com</a>或者网站主页右下角悬浮的💬按钮进行用户反馈</div>
+    </div>
+  </div>
+</div>
+
+<div id="featureModal" class="feature-modal hidden">
+  <div class="feature-panel">
+    <div class="feature-title">新增功能说明</div>
+    <ul class="feature-list">
+      <li>仅允许导入合法的游戏存档结构，阻止损坏或非本游戏的存档内容进入游戏。</li>
+      <li>增加自动备份最后一次存档，确保每次关闭或覆盖前都能保留尝试过的进度。</li>
+      <li>将本地存档名改为更独特的版本号 + 时间戳格式，便于区分多个存档与备份。</li>
+      <li>加入导出/导入成功的明确提示样式，用户更容易确认操作是否生效。</li>
+      <li>新增启动弹窗选择入口，支持继续、开始新档、导入旧档三种分支流程。</li>
+      <li>增加开发者反馈入口，方便想关闭/修改存档功能的开发者直接联系并反馈。</li>
+    </ul>
+    <div class="feature-actions">
+      <button id="closeFeatureModalBtn" class="startup-btn primary" type="button">关闭</button>
     </div>
   </div>
 </div>
@@ -425,6 +482,14 @@ const BLOCKS = {
   emerald: { name:'绿宝石矿',color:'#17dd62', money:80,     unlockAt:5_000_000,icon:'💚' },
   bedrock: { name:'基岩',    color:'#2a2a2a', money:200,    unlockAt:50_000_000,icon:'🔲' },
 };
+
+const SAVE_SCHEMA_VERSION = 1;
+const STORAGE_KEYS = {
+  active: 'mcminer_save_v1',
+  backup: 'mcminer_backup_last_v1',
+  legacy: 'mc_clicker_save'
+};
+
 // ═══════════════════════════════
 //  UPGRADES
 // ═══════════════════════════════
@@ -473,9 +538,8 @@ const ACHIEVEMENTS = [
 ];
 
 // ═══════════════════════════════
-//  STORAGE
+//  STATE
 // ═══════════════════════════════
-const SAVE_KEY = 'mc_clicker_save';
 const DEFAULT_STATE = () => ({
   money: 0,
   upgrades: {},
@@ -489,17 +553,25 @@ const DEFAULT_STATE = () => ({
 let state = DEFAULT_STATE();
 let currentTab = 'upgrades';
 
-function hasAnySave() {
-  try {
-    return !!localStorage.getItem(SAVE_KEY);
-  } catch (e) {
-    return false;
-  }
+function makeSaveFileName(prefix='mcminer-save') {
+  const d = new Date();
+  const pad = num => String(num).padStart(2, '0');
+  const stamp = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+  return `${prefix}-v${SAVE_SCHEMA_VERSION}-${stamp}`;
+}
+
+function validateSavePayload(payload) {
+  if (!payload || typeof payload !== 'object') return false;
+  const source = payload.state && typeof payload.state === 'object' ? payload.state : payload;
+  if (!source || typeof source !== 'object') return false;
+  const required = ['money', 'upgrades', 'unlockedBlocks', 'achievements', 'totalClicks', 'totalEarned'];
+  return required.every(key => key in source);
 }
 
 function normalizeLoadedState(raw) {
   const def = DEFAULT_STATE();
-  const source = raw && raw.state && typeof raw.state === 'object' ? raw.state : raw;
+  const payload = raw && raw.state && typeof raw.state === 'object' ? raw : { state: raw };
+  const source = payload.state && typeof payload.state === 'object' ? payload.state : raw;
   if (!source || typeof source !== 'object') return { ...def };
 
   const merged = { ...def, ...source };
@@ -517,20 +589,39 @@ function normalizeLoadedState(raw) {
   return merged;
 }
 
+function hasAnySave() {
+  try {
+    return [STORAGE_KEYS.active, STORAGE_KEYS.backup, STORAGE_KEYS.legacy].some(key => !!localStorage.getItem(key));
+  } catch (e) {
+    return false;
+  }
+}
+
 function buildSavePayload() {
   return {
-    version: 1,
+    version: SAVE_SCHEMA_VERSION,
     savedAt: Date.now(),
+    saveName: makeSaveFileName(),
     state: JSON.parse(JSON.stringify(state))
   };
 }
 
 function loadGame() {
   try {
-    const raw = localStorage.getItem(SAVE_KEY);
-    if (!raw) return;
-    const parsed = JSON.parse(raw);
-    state = normalizeLoadedState(parsed);
+    const candidates = [STORAGE_KEYS.active, STORAGE_KEYS.legacy, STORAGE_KEYS.backup];
+    for (const key of candidates) {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const parsed = JSON.parse(raw);
+      if (validateSavePayload(parsed)) {
+        state = normalizeLoadedState(parsed);
+        return;
+      }
+      if (validateSavePayload({ state: parsed })) {
+        state = normalizeLoadedState(parsed);
+        return;
+      }
+    }
   } catch (e) {
     console.warn('Load failed', e);
   }
@@ -538,19 +629,22 @@ function loadGame() {
 
 function saveGame() {
   try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(buildSavePayload()));
+    const payload = buildSavePayload();
+    localStorage.setItem(STORAGE_KEYS.active, JSON.stringify(payload));
+    localStorage.setItem(STORAGE_KEYS.backup, JSON.stringify(payload));
+    localStorage.setItem(STORAGE_KEYS.legacy, JSON.stringify(payload));
   } catch (e) {}
 }
 
 function exportSaveData(data, label = 'mcminer-save') {
-  const payload = data && data.state ? data : { version: 1, savedAt: Date.now(), state: normalizeLoadedState(data) };
+  const payload = data && data.state ? data : { version: SAVE_SCHEMA_VERSION, savedAt: Date.now(), saveName: makeSaveFileName(label), state: normalizeLoadedState(data) };
   const json = JSON.stringify(payload, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const fileName = `${label || 'mcminer-save'}-v${SAVE_SCHEMA_VERSION}-${new Date().toISOString().replace(/[:.]/g, '-')}.mcminer`;
   a.href = url;
-  a.download = `${label}-${stamp}.mcminer`;
+  a.download = fileName;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -576,10 +670,15 @@ function importSaveFromText(rawText) {
 
   try {
     const parsed = JSON.parse(rawText);
+    const valid = validateSavePayload(parsed) || validateSavePayload({ state: parsed });
+    if (!valid) {
+      showToast('❌ 导入失败：不是有效的 .mcminer / JSON 存档', 'var(--mc-red)');
+      return;
+    }
     state = normalizeLoadedState(parsed);
     saveGame();
     renderAll();
-    showToast('✅ 存档已导入', 'var(--mc-green)');
+    showToast('✅ 导入成功：存档已载入', 'var(--mc-green)');
     sfxUnlock();
   } catch (e) {
     showToast('❌ 导入失败：不是有效的 .mcminer / JSON 存档', 'var(--mc-red)');
@@ -636,7 +735,7 @@ function handleContinueLastSave() {
 
 function handleStartNewSave() {
   confirmSaveBeforeWipe('开始新存档会覆盖当前本地存档。', () => {
-    localStorage.removeItem(SAVE_KEY);
+    [STORAGE_KEYS.active, STORAGE_KEYS.backup, STORAGE_KEYS.legacy].forEach(key => localStorage.removeItem(key));
     state = DEFAULT_STATE();
     saveGame();
     closeStartupModal();
@@ -771,6 +870,16 @@ function showToast(msg, color=null, isAchievement=false) {
   if (color) el.style.color = color;
   document.body.appendChild(el);
   el.addEventListener('animationend', () => el.remove());
+}
+
+function openFeatureModal() {
+  const modal = document.getElementById('featureModal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeFeatureModal() {
+  const modal = document.getElementById('featureModal');
+  if (modal) modal.classList.add('hidden');
 }
 
 // ═══════════════════════════════
@@ -922,10 +1031,12 @@ document.getElementById('importSaveBtnModal').addEventListener('click', () => {
   closeStartupModal();
   promptImportSave();
 });
+document.getElementById('featureInfoBtn').addEventListener('click', openFeatureModal);
+document.getElementById('closeFeatureModalBtn').addEventListener('click', closeFeatureModal);
 
 document.getElementById('exportSaveBtn').addEventListener('click', () => {
   exportSaveData(state, 'mcminer-export');
-  showToast('💾 已导出 .mcminer 存档', 'var(--mc-green)');
+  showToast('💾 导出成功：已生成 .mcminer 文件', 'var(--mc-green)');
 });
 
 document.getElementById('importSaveBtn').addEventListener('click', promptImportSave);
@@ -968,7 +1079,7 @@ cheatInput.addEventListener('keydown', (e) => {
 document.getElementById('resetBtn').addEventListener('click', () => {
   if (!confirm('确定要重置所有进度吗？此操作不可撤销！')) return;
   confirmSaveBeforeWipe('重置游戏会清空当前本地存档。', () => {
-    localStorage.removeItem(SAVE_KEY);
+    [STORAGE_KEYS.active, STORAGE_KEYS.backup, STORAGE_KEYS.legacy].forEach(key => localStorage.removeItem(key));
     state = DEFAULT_STATE();
     renderAll();
     showToast('🗑️ 游戏已重置', 'var(--mc-red)');
