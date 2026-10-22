@@ -7,6 +7,10 @@
     const isGamePage = window.location.pathname.includes(GAME_PATH_KEY) || window.forceGamePage === true;
     const MAIN_SITE_URL = 'https://game.leleleling.site'; // 主站绝对地址
 
+    // Tally 表单 ID 配置
+    const TALLY_FEEDBACK_ID_ZH = 'EqkbqB';
+    const TALLY_FEEDBACK_ID_EN = 'Eqkb54';
+
     // ==================== 工具函数 ====================
     const getStorage = (key, defaultVal) => {
         try { return JSON.parse(localStorage.getItem(key)) || defaultVal; } 
@@ -34,7 +38,6 @@
 
         injectFooter();
         
-        // 【修改】无条件重新渲染公告栏（无论是否有公告，都要刷新状态）
         if (typeof allValidAnnouncements !== 'undefined') {
             const closedObj = getStorage('lelele_closed_announcements', {});
             renderIndexAnnouncements(allValidAnnouncements.slice(0, 3), closedObj);
@@ -98,21 +101,33 @@
         const btnTop = document.getElementById('commonBtnTop');
         const btnFeedback = document.getElementById('commonBtnFeedback');
 
+        // 【修复】让反馈按钮默认一直显示在右下角
+        btnFeedback.classList.add('show');
+
         window.addEventListener('scroll', () => {
             if (window.scrollY > 300) btnTop.classList.add('show');
             else btnTop.classList.remove('show');
         });
         btnTop.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
+        // 【修改】接入中英双语的 Tally 弹窗
         btnFeedback.onclick = () => {
+            const lang = getLang();
+            const tallyId = lang === 'en' ? TALLY_FEEDBACK_ID_EN : TALLY_FEEDBACK_ID_ZH;
+
             if (typeof Tally !== 'undefined') {
-                try {
-                    Tally.openPopup('你的反馈表单ID'); 
-                } catch (e) {
-                    alert(getLang() === 'en' ? 'Feedback form is being prepared.' : '反馈表单准备中，即将开放。');
-                }
+                Tally.openPopup(tallyId);
             } else {
-                alert(getLang() === 'en' ? 'Feedback form loading...' : '反馈表单加载中，请稍后再试...');
+                // 如果当前页面未加载 Tally SDK，则动态加载后打开
+                const script = document.createElement('script');
+                script.src = 'https://tally.so/widgets/embed.js';
+                script.onload = () => {
+                    if (typeof Tally !== 'undefined') Tally.openPopup(tallyId);
+                };
+                script.onerror = () => {
+                    alert(lang === 'en' ? 'Failed to load feedback form.' : '反馈表单加载失败，请检查网络。');
+                };
+                document.body.appendChild(script);
             }
         };
     }
@@ -238,7 +253,6 @@
         if (!listEl) return;
         
         const container = document.getElementById('announcementsContainer');
-        // 【修改】永远显示容器
         if (container) container.style.display = 'block';
 
         const renderList = top3Data.filter(item => {
@@ -250,7 +264,6 @@
         const lang = getLang();
 
         if (renderList.length > 0) {
-            // 有公告，正常渲染
             listEl.innerHTML = renderList.map(item => {
                 const titleZh = item.title_zh || item.title || '';
                 const titleEn = item.title_en || item.title || titleZh;
@@ -273,7 +286,6 @@
                 `;
             }).join('');
         } else {
-            // 【新增】无公告时，渲染扁扁的空状态框（支持中英切换，无需刷新）
             listEl.innerHTML = `
                 <div class="empty-announce-box">
                     <span class="zh-inline">暂时没有新公告，或者公告已经被您全部关上啦。</span>
@@ -282,7 +294,6 @@
             `;
         }
         
-        // 【修改】无论是否有内容，只要后台存在有效公告，就保留“查看全部”按钮
         let viewAllBtn = document.getElementById('commonViewAllBtn');
         if (allValidAnnouncements.length > 0) {
             if (!viewAllBtn) {
@@ -295,7 +306,6 @@
             viewAllBtn.innerHTML = lang === 'en' ? 'View All Announcements ➔' : '查看全部公告 ➔';
             viewAllBtn.style.display = 'inline-flex'; 
         } else {
-            // 如果后台真的连一条有效公告都没有，那就隐藏这个按钮
             if (viewAllBtn) viewAllBtn.style.display = 'none'; 
         }
     }
