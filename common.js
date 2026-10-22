@@ -34,7 +34,8 @@
 
         injectFooter();
         
-        if (typeof allValidAnnouncements !== 'undefined' && allValidAnnouncements.length > 0) {
+        // 【修改】无条件重新渲染公告栏（无论是否有公告，都要刷新状态）
+        if (typeof allValidAnnouncements !== 'undefined') {
             const closedObj = getStorage('lelele_closed_announcements', {});
             renderIndexAnnouncements(allValidAnnouncements.slice(0, 3), closedObj);
         }
@@ -237,16 +238,19 @@
         if (!listEl) return;
         
         const container = document.getElementById('announcementsContainer');
+        // 【修改】永远显示容器
+        if (container) container.style.display = 'block';
+
         const renderList = top3Data.filter(item => {
             const closeTime = closedObj[item.id];
             if (closeTime && (Date.now() - closeTime < 24 * 60 * 60 * 1000)) return false;
             return true;
         });
 
+        const lang = getLang();
+
         if (renderList.length > 0) {
-            if (container) container.style.display = 'block';
-            const lang = getLang();
-            
+            // 有公告，正常渲染
             listEl.innerHTML = renderList.map(item => {
                 const titleZh = item.title_zh || item.title || '';
                 const titleEn = item.title_en || item.title || titleZh;
@@ -254,7 +258,6 @@
                 const contentEn = item.content_en || item.content || contentZh;
                 const title = lang === 'en' ? titleEn : titleZh;
                 
-                // 【核心修复】取消转义，并处理换行符
                 const rawContent = lang === 'en' ? contentEn : contentZh;
                 const formattedContent = rawContent ? rawContent.replace(/\n/g, '<br>') : '';
 
@@ -269,20 +272,31 @@
                     </div>
                 `;
             }).join('');
-            
-            if (allValidAnnouncements.length > 0) {
-                let viewAllBtn = document.getElementById('commonViewAllBtn');
-                if (!viewAllBtn) {
-                    viewAllBtn = document.createElement('button');
-                    viewAllBtn.id = 'commonViewAllBtn';
-                    viewAllBtn.className = 'common-btn-view-all';
-                    viewAllBtn.onclick = () => openAllAnnounceModal(allValidAnnouncements);
-                    listEl.parentNode.appendChild(viewAllBtn);
-                }
-                viewAllBtn.innerHTML = lang === 'en' ? 'View All Announcements ➔' : '查看全部公告 ➔';
-            }
         } else {
-            if (container) container.style.display = 'none';
+            // 【新增】无公告时，渲染扁扁的空状态框（支持中英切换，无需刷新）
+            listEl.innerHTML = `
+                <div class="empty-announce-box">
+                    <span class="zh-inline">暂时没有新公告，或者公告已经被您全部关上啦。</span>
+                    <span class="en-inline">No new announcements, or you have closed all of them.</span>
+                </div>
+            `;
+        }
+        
+        // 【修改】无论是否有内容，只要后台存在有效公告，就保留“查看全部”按钮
+        let viewAllBtn = document.getElementById('commonViewAllBtn');
+        if (allValidAnnouncements.length > 0) {
+            if (!viewAllBtn) {
+                viewAllBtn = document.createElement('button');
+                viewAllBtn.id = 'commonViewAllBtn';
+                viewAllBtn.className = 'common-btn-view-all';
+                viewAllBtn.onclick = () => openAllAnnounceModal(allValidAnnouncements);
+                listEl.parentNode.appendChild(viewAllBtn);
+            }
+            viewAllBtn.innerHTML = lang === 'en' ? 'View All Announcements ➔' : '查看全部公告 ➔';
+            viewAllBtn.style.display = 'inline-flex'; 
+        } else {
+            // 如果后台真的连一条有效公告都没有，那就隐藏这个按钮
+            if (viewAllBtn) viewAllBtn.style.display = 'none'; 
         }
     }
 
@@ -379,7 +393,6 @@
             const item = allData[index];
             const title = isEn ? (item.title_en || item.title) : (item.title_zh || item.title);
             
-            // 【核心修复】此处同样取消转义处理
             const rawContent = isEn ? (item.content_en || item.content) : (item.content_zh || item.content);
             const formattedContent = rawContent ? rawContent.replace(/\n/g, '<br>') : '';
             
