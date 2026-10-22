@@ -338,6 +338,374 @@
             .search-wrapper input { width: 100%; }
             .btn-fav-list { width: 100%; text-align: center; justify-content: center; }
         }
+
+        /* ===== 全站游戏排名 ===== */
+        .game-rank-section {
+            width: 100%;
+            max-width: 1100px;
+            margin: 24px auto 0;
+            padding: 0 20px;
+        }
+        .game-rank-panel {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.92));
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 28px;
+            padding: 22px 20px 18px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+            position: relative;
+            overflow: hidden;
+        }
+        .game-rank-panel::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), transparent 35%);
+            pointer-events: none;
+        }
+        .rank-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
+        }
+        .rank-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .rank-title-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.18), rgba(59, 130, 246, 0.2));
+            box-shadow: inset 0 0 18px rgba(251, 191, 36, 0.2);
+            font-size: 20px;
+        }
+        .rank-title {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #f8fafc;
+        }
+        .rank-subtitle {
+            font-size: 0.8rem;
+            color: rgba(226, 232, 240, 0.8);
+        }
+        .rank-more-btn {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 9px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9rem;
+            box-shadow: 0 10px 24px rgba(79, 70, 229, 0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .rank-more-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 26px rgba(79, 70, 229, 0.45);
+        }
+        .rank-top3 {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            position: relative;
+            z-index: 1;
+        }
+        .rank-card {
+            position: relative;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 22px;
+            padding: 16px 14px 14px;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            min-height: 200px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+            animation: floatUp 0.5s ease;
+        }
+        .rank-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(96, 165, 250, 0.48);
+            box-shadow: 0 16px 30px rgba(59, 130, 246, 0.18);
+        }
+        .rank-card::before {
+            content: "";
+            position: absolute;
+            inset: auto 0 0 0;
+            height: 60%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+            pointer-events: none;
+        }
+        .rank-card.rank-1 {
+            transform: scale(1.04);
+            border-color: rgba(251, 191, 36, 0.6);
+            box-shadow: 0 18px 36px rgba(251, 191, 36, 0.18);
+        }
+        .rank-card.rank-2 {
+            transform: scale(1.02);
+            border-color: rgba(148, 163, 184, 0.5);
+        }
+        .rank-card.rank-3 {
+            transform: scale(0.99);
+            border-color: rgba(205, 140, 82, 0.5);
+        }
+        .rank-card.rank-1 .rank-emoji,
+        .rank-card.rank-2 .rank-emoji,
+        .rank-card.rank-3 .rank-emoji {
+            animation: rankPulse 1.8s ease-in-out infinite;
+        }
+        @keyframes rankPulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(255,255,255,0.5)); }
+            50% { transform: scale(1.08); filter: drop-shadow(0 0 18px rgba(245, 158, 11, 0.8)); }
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(10px); opacity: 0.4; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        .rank-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        .rank-medal {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 22px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.09);
+        }
+        .rank-card.rank-1 .rank-medal {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(251, 191, 36, 0.08));
+            border-color: rgba(251, 191, 36, 0.6);
+        }
+        .rank-card.rank-2 .rank-medal {
+            background: linear-gradient(135deg, rgba(148, 163, 184, 0.25), rgba(148, 163, 184, 0.08));
+            border-color: rgba(148, 163, 184, 0.6);
+        }
+        .rank-card.rank-3 .rank-medal {
+            background: linear-gradient(135deg, rgba(205, 140, 82, 0.25), rgba(205, 140, 82, 0.08));
+            border-color: rgba(205, 140, 82, 0.6);
+        }
+        .rank-tag {
+            background: rgba(148, 163, 184, 0.12);
+            color: #dfe7f4;
+            font-size: 0.72rem;
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            border-radius: 999px;
+            padding: 4px 8px;
+            font-weight: 700;
+        }
+        .rank-main {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+        .rank-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(96, 165, 250, 0.25), rgba(168, 85, 247, 0.18));
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            display: grid;
+            place-items: center;
+            font-size: 28px;
+            flex-shrink: 0;
+            box-shadow: 0 0 30px rgba(96, 165, 250, 0.12);
+        }
+        .rank-name {
+            margin: 0;
+            font-size: 1.02rem;
+            font-weight: 800;
+            color: #f8fafc;
+            line-height: 1.35;
+            word-break: break-word;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            overflow: hidden;
+        }
+        .rank-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            position: relative;
+            z-index: 1;
+            margin-top: 14px;
+        }
+        .rank-count {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #fbbf24;
+        }
+        .rank-count small {
+            color: rgba(226,232,240,0.8);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        .rank-link {
+            font-size: 0.84rem;
+            color: #93c5fd;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .rank-link:hover {
+            text-decoration: underline;
+        }
+        .rank-empty {
+            padding: 18px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px dashed rgba(148, 163, 184, 0.2);
+            border-radius: 16px;
+            color: rgba(255,255,255,0.75);
+            text-align: center;
+        }
+        .rank-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.68);
+            backdrop-filter: blur(6px);
+            z-index: 300;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .rank-modal-overlay.active {
+            display: flex;
+        }
+        .rank-modal {
+            width: min(720px, 92vw);
+            max-height: 90vh;
+            overflow: hidden;
+            background: rgba(15, 23, 42, 0.96);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            border-radius: 22px;
+            box-shadow: 0 22px 54px rgba(15, 23, 42, 0.5);
+        }
+        .rank-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 18px 12px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+        }
+        .rank-modal-title {
+            margin: 0;
+            color: #f8fafc;
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+        .rank-modal-close {
+            border: none;
+            background: rgba(255,255,255,0.06);
+            color: #e2e8f0;
+            border-radius: 50%;
+            width: 34px;
+            height: 34px;
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .rank-modal-body {
+            max-height: 72vh;
+            overflow-y: auto;
+            padding: 10px 12px 16px;
+        }
+        .rank-modal-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .rank-modal-row {
+            display: grid;
+            grid-template-columns: 44px 1fr auto auto;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(148, 163, 184, 0.08);
+        }
+        .rank-modal-row:hover {
+            background: rgba(255,255,255,0.04);
+        }
+        .rank-modal-index {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(135deg, #4f46e5, #60a5fa);
+        }
+        .rank-modal-row:nth-child(1) .rank-modal-index {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        }
+        .rank-modal-row:nth-child(2) .rank-modal-index {
+            background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+        }
+        .rank-modal-row:nth-child(3) .rank-modal-index {
+            background: linear-gradient(135deg, #d97706, #c084fc);
+        }
+        .rank-modal-name {
+            font-weight: 700;
+            color: #f8fafc;
+            word-break: break-word;
+        }
+        .rank-modal-count {
+            color: #fbbf24;
+            font-weight: 800;
+            font-size: 0.92rem;
+        }
+        .rank-modal-link {
+            color: #93c5fd;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+        .rank-modal-link:hover {
+            text-decoration: underline;
+        }
+        @media (max-width: 700px) {
+            .rank-top3 {
+                grid-template-columns: 1fr;
+            }
+            .rank-modal-row {
+                grid-template-columns: 42px 1fr auto;
+            }
+            .rank-modal-row .rank-modal-link {
+                grid-column: 1 / -1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -407,6 +775,36 @@
             <span class="en-inline">📢 Announcements</span>
         </div>
         <div class="announcements-list" id="announcementsList"></div>
+    </div>
+
+    <section class="game-rank-section" aria-label="Game rankings">
+        <div class="game-rank-panel">
+            <div class="rank-header">
+                <div class="rank-title-wrap">
+                    <div class="rank-title-icon">🏆</div>
+                    <div>
+                        <h2 class="rank-title" data-i18n="rankTitle">游戏排名</h2>
+                        <div class="rank-subtitle" data-i18n="rankSubtitle">全站热度榜</div>
+                    </div>
+                </div>
+                <button class="rank-more-btn" id="openRankModalBtn" type="button" data-i18n="rankMore">
+                    查看更多
+                </button>
+            </div>
+            <div id="top3RankContainer" class="rank-top3"></div>
+        </div>
+    </section>
+
+    <div class="rank-modal-overlay" id="rankModalOverlay" role="dialog" aria-modal="true" aria-labelledby="rankModalTitle">
+        <div class="rank-modal">
+            <div class="rank-modal-header">
+                <div class="rank-modal-title" id="rankModalTitle" data-i18n="rankModalTitle">前 25 名排行</div>
+                <button class="rank-modal-close" id="rankModalCloseBtn" type="button" aria-label="Close">×</button>
+            </div>
+            <div class="rank-modal-body">
+                <ul class="rank-modal-list" id="rankModalList"></ul>
+            </div>
+        </div>
     </div>
 
     <!-- 游戏列表 -->
