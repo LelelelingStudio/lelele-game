@@ -9,6 +9,94 @@
     const TALLY_FEEDBACK_ID_ZH = 'EqkbqB';
     const TALLY_FEEDBACK_ID_EN = 'Eqkb54';
 
+    // ==================== 智能游戏存档探针（新增） ====================
+    (function initAutoSaveManager() {
+        if (!isGamePage) return;
+
+        // 根据路径生成不同游戏的隔离命名空间
+        const pathPrefix = window.location.pathname.replace(/\/[^/]*$/, '/');
+        const NS = `lelele_save_${pathPrefix}`;
+        const AUTO_SAVE_KEY = `lelele_autosave_${pathPrefix}`;
+
+        const originalSetItem = Storage.prototype.setItem;
+        const originalGetItem = Storage.prototype.getItem;
+        const originalRemoveItem = Storage.prototype.removeItem;
+
+        let hasNativeSave = false; // 标记：游戏自身是否调用了 setItem
+
+        // 1. 劫持并隔离游戏的原生存档
+        Storage.prototype.setItem = function(key, value) {
+            if (!key.startsWith('lelele_')) {
+                hasNativeSave = true; // 发现游戏自己在存盘！
+                return originalSetItem.call(this, NS + key, value);
+            }
+            return originalSetItem.apply(this, arguments);
+        };
+        Storage.prototype.getItem = function(key) {
+            if (!key.startsWith('lelele_')) return originalGetItem.call(this, NS + key);
+            return originalGetItem.apply(this, arguments);
+        };
+        Storage.prototype.removeItem = function(key) {
+            if (!key.startsWith('lelele_')) return originalRemoveItem.call(this, NS + key);
+            return originalRemoveItem.apply(this, arguments);
+        };
+
+        // 2. 页面加载时，尝试恢复平台兜底存的数据
+        try {
+            const backup = originalGetItem.call(localStorage, AUTO_SAVE_KEY);
+            if (backup) {
+                const parsed = JSON.parse(backup);
+                if (parsed.state) window.state = parsed.state;
+                if (parsed.gameState) window.gameState = parsed.gameState;
+                if (parsed.data) window.data = parsed.data;
+            }
+        } catch(e) {}
+
+        // 3. 兜底保存逻辑
+        const safeStringify = (obj) => JSON.stringify(obj, (k, v) => {
+            if (typeof v === 'function' || (typeof v === 'object' && v !== null && v.nodeType === 1)) return undefined;
+            return v;
+        });
+
+        const doAutoSave = () => {
+            if (hasNativeSave) return; // 游戏自己有存档，平台不干预
+            try {
+                const stateToSave = {};
+                let hasState = false;
+
+                if (window.state && typeof window.state === 'object') {
+                    stateToSave.state = JSON.parse(safeStringify(window.state));
+                    hasState = true;
+                }
+                if (window.gameState && typeof window.gameState === 'object') {
+                    stateToSave.gameState = JSON.parse(safeStringify(window.gameState));
+                    hasState = true;
+                }
+                if (window.data && typeof window.data === 'object' && !Array.isArray(window.data)) {
+                    stateToSave.data = JSON.parse(safeStringify(window.data));
+                    hasState = true;
+                }
+
+                if (hasState) {
+                    originalSetItem.call(localStorage, AUTO_SAVE_KEY, JSON.stringify(stateToSave));
+                }
+            } catch (e) {}
+        };
+
+        // 每 5 秒检测一次
+        const autoSaveTimer = setInterval(() => {
+            if (hasNativeSave) {
+                clearInterval(autoSaveTimer); // 发现游戏原生存档，关掉定时器节约性能
+                return;
+            }
+            doAutoSave();
+        }, 5000);
+
+        // 退出页面时最后一次保存
+        window.addEventListener('beforeunload', doAutoSave);
+    })();
+
+
     // ==================== 工具函数 ====================
     const getStorage = (key, defaultVal) => {
         try { return JSON.parse(localStorage.getItem(key)) || defaultVal; } 
