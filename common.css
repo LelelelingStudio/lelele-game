@@ -29,7 +29,6 @@ html.dark-mode body {
 }
 
 /* ==================== 活动主题通用样式 ==================== */
-/* 活动 Banner */
 .activity-banner-container {
     width: 100%;
     max-width: 1100px;
@@ -52,21 +51,19 @@ html.dark-mode body {
     transform: translateY(-4px);
 }
 
-/* 左右下角贴纸 */
 .activity-sticker {
     position: fixed;
     bottom: 20px;
     z-index: 9995;
-    pointer-events: none; /* 防止遮挡用户点击 */
+    pointer-events: none;
     transition: transform 0.3s ease;
     width: 130px;
     height: auto;
     filter: drop-shadow(0 10px 15px rgba(0,0,0,0.15));
 }
 .activity-sticker.snowman { left: 20px; }
-.activity-sticker.tree { right: 20px; bottom: 90px; /* 抬高避开右下角的悬浮按钮 */ }
+.activity-sticker.tree { right: 20px; bottom: 90px; }
 
-/* 雪花特效 Canvas */
 #snowfall-canvas {
     position: fixed;
     top: 0;
@@ -77,11 +74,49 @@ html.dark-mode body {
     z-index: 9990;
 }
 
-/* 移动端调整 */
 @media (max-width: 600px) {
     .activity-banner-container img { max-height: 110px; border-radius: 16px; }
     .activity-sticker { width: 90px; }
     .activity-sticker.tree { bottom: 80px; }
+}
+
+/* ==================== 滑动提示浮窗 ==================== */
+.common-slide-hint {
+    position: fixed;
+    top: -100px; /* 初始隐藏在顶部 */
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--card-border);
+    padding: 10px 20px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    z-index: 9999;
+    transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.common-slide-hint.show {
+    top: 80px; /* 滑下来，避开导航栏 */
+}
+.common-slide-hint button {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: inherit;
+    transition: background 0.2s;
+}
+.common-slide-hint button:hover {
+    background: var(--primary-hover);
 }
 
 /* ===== 悬浮工具组件 ===== */
@@ -92,9 +127,8 @@ html.dark-mode body {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    z-index: 9999;
+    z-index: 9990;
 }
-
 .common-float-btn {
     width: 46px;
     height: 46px;
@@ -189,7 +223,6 @@ html.dark-mode body {
     opacity: 0.9;
 }
 
-/* 空状态提示框样式 */
 .empty-announce-box {
     text-align: center;
     padding: 20px;
