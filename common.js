@@ -3,11 +3,9 @@
 
     // ==================== 全局配置 ====================
     const GAME_PATH_KEY = '/game/';
-    // 兼容外网游戏：如果在独立域名，强制认作游戏页
     const isGamePage = window.location.pathname.includes(GAME_PATH_KEY) || window.forceGamePage === true;
-    const MAIN_SITE_URL = 'https://game.leleleling.site'; // 主站绝对地址
+    const MAIN_SITE_URL = 'https://game.leleleling.site';
 
-    // Tally 表单 ID 配置
     const TALLY_FEEDBACK_ID_ZH = 'EqkbqB';
     const TALLY_FEEDBACK_ID_EN = 'Eqkb54';
 
@@ -25,7 +23,7 @@
     };
     const getLang = () => document.documentElement.getAttribute('data-lang') || 'zh';
 
-    // ==================== 【核心】全局多语言切换 ====================
+    // ==================== 全局多语言切换 ====================
     window.setLang = function(lang) {
         document.documentElement.setAttribute('data-lang', lang);
         document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
@@ -59,6 +57,185 @@
             const isDark = document.documentElement.classList.toggle('dark-mode');
             localStorage.setItem('lelele_theme', isDark ? 'dark' : 'light');
         };
+    }
+
+    // ==================== 活动核心逻辑 ====================
+    async function initActivityTheme() {
+        try {
+            const res = await fetch(`${MAIN_SITE_URL}/activity_whole.json?t=${Date.now()}`);
+            if (!res.ok) return;
+            const config = await res.json();
+
+            // 1. 时间判断逻辑
+            const now = new Date();
+            let isActive = config.forceEnable || false;
+
+            if (!isActive && config.specialPeriod) {
+                const start = new Date(config.specialPeriod.start);
+                const end = new Date(config.specialPeriod.end);
+                if (now >= start && now <= end) isActive = true;
+            }
+
+            if (!isActive && config.yearlyPeriod) {
+                // 解析年度通用时间 (如 11-01)
+                const currentYear = now.getFullYear();
+                const startStr = `${currentYear}-${config.yearlyPeriod.start}`;
+                let endStr = `${currentYear}-${config.yearlyPeriod.end}`;
+                
+                const start = new Date(startStr);
+                let end = new Date(endStr);
+                
+                // 如果结束日期比开始日期小（跨年），比如 12-31 到 01-31
+                if (end < start) {
+                    end = new Date(`${currentYear + 1}-${config.yearlyPeriod.end}`);
+                }
+                
+                if (now >= start && now <= end) isActive = true;
+            }
+
+            if (!isActive) return;
+
+            // 2. 应用活动资源
+            document.documentElement.classList.add('activity-mode');
+
+            // 动态注入背景和深色模式适配
+            const style = document.createElement('style');
+            const bgUrl = config.assets.background;
+            style.innerHTML = `
+                html.activity-mode body {
+                    background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.1)), url('${bgUrl}') no-repeat center center fixed !important;
+                    background-size: cover !important;
+                }
+                html.dark-mode.activity-mode body {
+                    background: linear-gradient(rgba(15,23,42,0.85), rgba(15,23,42,0.85)), url('${bgUrl}') no-repeat center center fixed !important;
+                    background-size: cover !important;
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Favicon
+            let hasFavicon = false;
+            document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]').forEach(favicon => {
+                favicon.href = config.assets.favicon;
+                hasFavicon = true;
+            });
+            if (!hasFavicon) {
+                const link = document.createElement('link');
+                link.rel = 'icon';
+                link.href = config.assets.favicon;
+                document.head.appendChild(link);
+            }
+
+            // 替换 Logo
+            setTimeout(() => {
+                document.querySelectorAll('img').forEach(img => {
+                    if (img.src.includes('lelelegame') && !img.src.includes('-winter')) {
+                        img.src = config.assets.logo;
+                    }
+                });
+            }, 100);
+
+            // 插入 Banner (仅在首页)
+            if (document.getElementById('gamesGrid') && document.querySelector('.controls')) {
+                if (!document.querySelector('.activity-banner-container')) {
+                    const bannerDiv = document.createElement('div');
+                    bannerDiv.className = 'activity-banner-container';
+                    bannerDiv.innerHTML = `<img src="${config.assets.banner}" alt="Activity Banner">`;
+                    const controls = document.querySelector('.controls');
+                    controls.parentNode.insertBefore(bannerDiv, controls.nextSibling);
+                }
+            }
+
+            // 插入贴纸
+            if (!document.querySelector('.activity-sticker')) {
+                const snowman = document.createElement('img');
+                snowman.src = config.assets.snowman;
+                snowman.className = 'activity-sticker snowman';
+                
+                const tree = document.createElement('img');
+                tree.src = config.assets.tree;
+                tree.className = 'activity-sticker tree';
+
+                document.body.appendChild(snowman);
+                document.body.appendChild(tree);
+            }
+
+            // 飘雪特效
+            if (config.enableSnowfall) {
+                initSnowfall();
+            }
+
+        } catch (e) {
+            console.warn('活动配置加载失败:', e);
+        }
+    }
+
+    // 飘雪特效核心代码
+    function initSnowfall() {
+        if (document.getElementById('snowfall-canvas')) return;
+
+        const canvas = document.createElement('canvas');
+        canvas.id = 'snowfall-canvas';
+        document.body.appendChild(canvas);
+        
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+        
+        const snowflakes = [];
+        const maxSnowflakes = window.innerWidth < 768 ? 40 : 100; 
+        
+        for (let i = 0; i < maxSnowflakes; i++) {
+            snowflakes.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                r: Math.random() * 3 + 1,
+                d: Math.random() * maxSnowflakes,
+                speedY: Math.random() * 1 + 0.5,
+                speedX: Math.random() * 1 - 0.5
+            });
+        }
+        
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.beginPath();
+            for (let i = 0; i < maxSnowflakes; i++) {
+                const f = snowflakes[i];
+                ctx.moveTo(f.x, f.y);
+                ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2, true);
+            }
+            ctx.fill();
+            update();
+        }
+        
+        let angle = 0;
+        function update() {
+            angle += 0.01;
+            for (let i = 0; i < maxSnowflakes; i++) {
+                const f = snowflakes[i];
+                f.y += Math.cos(angle + f.d) + f.speedY;
+                f.x += Math.sin(angle) * 1.5 + f.speedX;
+                
+                if (f.y > height) {
+                    f.y = -5;
+                    f.x = Math.random() * width;
+                }
+                if (f.x > width) f.x = 0;
+                if (f.x < 0) f.x = width;
+            }
+        }
+        
+        function loop() {
+            draw();
+            requestAnimationFrame(loop);
+        }
+        loop();
+        
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
     }
 
     // ==================== Footer 注入逻辑 ====================
@@ -101,7 +278,6 @@
         const btnTop = document.getElementById('commonBtnTop');
         const btnFeedback = document.getElementById('commonBtnFeedback');
 
-        // 【修复】让反馈按钮默认一直显示在右下角
         btnFeedback.classList.add('show');
 
         window.addEventListener('scroll', () => {
@@ -110,7 +286,6 @@
         });
         btnTop.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        // 【修改】接入中英双语的 Tally 弹窗
         btnFeedback.onclick = () => {
             const lang = getLang();
             const tallyId = lang === 'en' ? TALLY_FEEDBACK_ID_EN : TALLY_FEEDBACK_ID_ZH;
@@ -118,7 +293,6 @@
             if (typeof Tally !== 'undefined') {
                 Tally.openPopup(tallyId);
             } else {
-                // 如果当前页面未加载 Tally SDK，则动态加载后打开
                 const script = document.createElement('script');
                 script.src = 'https://tally.so/widgets/embed.js';
                 script.onload = () => {
@@ -423,6 +597,7 @@
     // ==================== 初始化调用 ====================
     document.addEventListener('DOMContentLoaded', () => {
         initTheme();
+        initActivityTheme(); // 启动通用活动主题
         injectFooter();
         injectFloatingTools();
         initAnnouncements();
