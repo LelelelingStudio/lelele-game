@@ -127,6 +127,25 @@
         }
         .auth-links a:hover { opacity: 0.8; text-decoration: underline; }
 
+        /* 规则链接区域 */
+        .rules-links {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            border-top: 1px dashed var(--card-border);
+            padding-top: 20px;
+        }
+        .rules-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .rules-links a:hover {
+            text-decoration: underline;
+        }
+
         .msg-box {
             margin-top: 16px; padding: 12px 16px; border-radius: 12px;
             font-size: 0.85rem; font-weight: 600; display: none; text-align: center;
@@ -166,8 +185,8 @@
         </div>
 
         <div id="formGroupOtp" class="form-group" style="display: none;">
-            <label><span class="zh-inline">验证码</span><span class="en-inline">Verification Code</span></label>
-            <input type="text" id="inputOtp" class="otp-input" maxlength="6" placeholder="000000" autocomplete="one-time-code">
+            <label><span class="zh-inline">验证码 (8位)</span><span class="en-inline">Verification Code (8 digits)</span></label>
+            <input type="text" id="inputOtp" class="otp-input" maxlength="8" placeholder="00000000" autocomplete="one-time-code">
         </div>
 
         <button class="btn-main" id="submitBtn" onclick="handleSubmit()">
@@ -184,6 +203,11 @@
             <a id="linkForgot" onclick="toggleForgotMode()">
                 <span class="zh-inline">忘记密码？</span><span class="en-inline">Forgot password?</span>
             </a>
+        </div>
+
+        <div class="rules-links">
+            <span class="zh-inline">注册/登录即代表您同意 <a href="author_rules.html" target="_blank">《游戏守则》</a> 与 <a href="developer_docs.html" target="_blank">《开发者文档》</a></span>
+            <span class="en-inline">By signing up/in, you agree to the <a href="author_rules.html" target="_blank">Game Rules</a> and <a href="developer_docs.html" target="_blank">Developer Docs</a>.</span>
         </div>
     </div>
 
@@ -237,7 +261,6 @@
                 pwdGroup.style.display = 'block';
                 otpGroup.style.display = 'none';
             } else {
-                // 切换到登录
                 currentMode = 'login';
                 titleEl.innerHTML = '<span class="zh-inline">欢迎回来</span><span class="en-inline">Welcome Back</span>';
                 subEl.innerHTML = '<span class="zh-inline">登录您的开发者账号以管理游戏</span><span class="en-inline">Sign in to manage your games</span>';
@@ -253,8 +276,7 @@
         function toggleForgotMode() {
             hideMsg();
             if (currentMode === 'reset') {
-                // 取消找回，回登录
-                toggleMode(); // 强制切回登录
+                toggleMode();
             } else {
                 currentMode = 'reset';
                 titleEl.innerHTML = '<span class="zh-inline">重置密码</span><span class="en-inline">Reset Password</span>';
@@ -287,14 +309,12 @@
                     if (error) throw error;
                     
                     showMsg('登录成功，正在跳转... / Success, redirecting...', 'success');
-                    setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
 
                 } else if (currentMode === 'register') {
                     if (!email || !password) throw new Error('请输入邮箱和密码 / Enter email and password');
-                    // 检查密码长度
                     if (password.length < 6) throw new Error('密码至少需要 6 位 / Password must be at least 6 characters');
                     
-                    // 触发 Supabase 的注册，由于配置了 OTP，这里会发送验证码邮件
                     const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
                     if (error) throw error;
                     
@@ -315,7 +335,7 @@
                     showMsg('验证码已发送，请查收邮件 / Code sent, check your email', 'success');
 
                 } else if (currentMode === 'otp') {
-                    if (!otpCode || otpCode.length < 6) throw new Error('请输入 6 位验证码 / Enter 6-digit code');
+                    if (!otpCode || otpCode.length < 6) throw new Error('请输入完整验证码 / Enter full code');
                     
                     const { data, error } = await window.supabaseClient.auth.verifyOtp({
                         email: targetEmail,
@@ -325,7 +345,7 @@
                     if (error) throw error;
                     
                     showMsg('注册成功，正在跳转... / Success, redirecting...', 'success');
-                    setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+                    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
 
                 } else if (currentMode === 'reset') {
                     if (!email) throw new Error('请输入邮箱 / Enter email');
@@ -345,7 +365,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             updateLangBtn();
-            // 监听语言变化
             window.addEventListener('langChanged', () => {
                 updateLangBtn();
             });
