@@ -162,7 +162,7 @@
         }
         #trendChart { width: 100%; height: 100%; }
 
-        /* 个人中心表单 */
+        /* 个人中心与密码表单 */
         .form-card {
             background: var(--card-bg); border-radius: 24px; padding: 32px;
             border: 1px solid var(--card-border); max-width: 600px;
@@ -197,7 +197,10 @@
         }
         .modal-box h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 12px; color: var(--text-main); }
         .modal-box p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; }
-        .modal-box input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--card-border); text-align: center; font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; text-transform: uppercase;}
+        .modal-box input { 
+            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--card-border); 
+            text-align: center; font-size: 1rem; font-weight: 700; margin-bottom: 16px; 
+        }
         
         @media (max-width: 900px) {
             .dashboard-layout { flex-direction: column; }
@@ -235,6 +238,10 @@
                 <button class="nav-item" onclick="switchTab('profile')" id="navProfile">
                     👤 <span class="zh-inline">个人资料设置</span><span class="en-inline">Profile Settings</span>
                 </button>
+                <!-- 新增：修改密码入口 -->
+                <button class="nav-item" onclick="switchTab('security')" id="navSecurity">
+                    🔐 <span class="zh-inline">修改密码</span><span class="en-inline">Change Password</span>
+                </button>
                 <button class="nav-item danger" onclick="logout()">
                     🚪 <span class="zh-inline">退出登录</span><span class="en-inline">Log Out</span>
                 </button>
@@ -268,10 +275,8 @@
                     </div>
                 </div>
 
-                <!-- 游戏选择列表（多个游戏时显示） -->
                 <div class="game-select-grid" id="gameSelectGrid" style="display:none;"></div>
 
-                <!-- 数据详情展示 -->
                 <div id="analyticsDataView" style="display:none;">
                     <button class="btn btn-outline" onclick="backToGameList()" style="margin-bottom: 16px; padding: 8px 16px; font-size: 0.9rem;">
                         ← <span class="zh-inline">返回游戏列表</span><span class="en-inline">Back to Game List</span>
@@ -288,7 +293,6 @@
                                 <div class="trend-text" id="playTrendText">原地踏步</div>
                             </div>
                         </div>
-
                         <div class="metric-card">
                             <div class="metric-info">
                                 <h3><span class="zh-inline">全站排名</span><span class="en-inline">Site Rank</span></h3>
@@ -302,7 +306,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="metric-card">
                             <div class="metric-info">
                                 <h3 id="avgTitle"><span class="zh-inline">日均游玩</span><span class="en-inline">Daily Average</span></h3>
@@ -347,6 +350,26 @@
                 </div>
             </div>
 
+            <!-- 模块 3：修改密码（新增） -->
+            <div class="content-panel" id="panel-security">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="zh-inline">修改密码</span><span class="en-inline">Change Password</span></div>
+                </div>
+                <div class="form-card">
+                    <div class="form-group">
+                        <label><span class="zh-inline">新密码 (至少 6 位)</span><span class="en-inline">New Password (Min 6 chars)</span></label>
+                        <input type="password" id="newPassword" autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                        <label><span class="zh-inline">确认新密码</span><span class="en-inline">Confirm New Password</span></label>
+                        <input type="password" id="confirmPassword" autocomplete="new-password">
+                    </div>
+                    <button class="btn btn-primary" onclick="changePassword('normal')">
+                        <span class="zh-inline">确认修改</span><span class="en-inline">Update Password</span>
+                    </button>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -377,6 +400,23 @@
         <button class="btn btn-danger" onclick="openModal('modalStep1')"><span class="zh-inline">注销账号</span><span class="en-inline">Delete Account</span></button>
     </div>
 
+    <!-- 强制重置密码弹窗（通过邮件链接跳转后显示） -->
+    <div class="modal-overlay" id="forceResetModal">
+        <div class="modal-box" style="text-align: left;">
+            <h3 style="text-align: center;"><span class="zh-inline">重置您的密码</span><span class="en-inline">Reset Your Password</span></h3>
+            <p style="text-align: center;"><span class="zh-inline">请为您的账号设置一个新密码。</span><span class="en-inline">Please set a new password for your account.</span></p>
+            <div class="form-group" style="margin-bottom: 16px;">
+                <input type="password" id="forceNewPassword" placeholder="新密码 / New Password" autocomplete="new-password">
+            </div>
+            <div class="form-group" style="margin-bottom: 24px;">
+                <input type="password" id="forceConfirmPassword" placeholder="确认密码 / Confirm Password" autocomplete="new-password">
+            </div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="changePassword('force')">
+                <span class="zh-inline">保存新密码</span><span class="en-inline">Save New Password</span>
+            </button>
+        </div>
+    </div>
+
     <script src="supabase-client.js"></script>
     <script>
         let currentUser = null;
@@ -398,7 +438,11 @@
                 noData: '该时间段暂无游玩记录',
                 noDataSub: '换个时间范围看看，或等有玩家来玩',
                 loadFail: '数据加载失败，请稍后重试',
-                rankNone: '未上榜'
+                rankNone: '未上榜',
+                pwdTooShort: '密码至少需要 6 位 / Password must be at least 6 characters',
+                pwdMismatch: '两次输入的密码不一致 / Passwords do not match',
+                pwdSuccess: '密码修改成功！ / Password updated successfully!',
+                pwdFail: '修改失败: / Failed: '
             },
             en: {
                 slowUp: 'Slowly growing...', fastUp: 'Rising fast!', rocketUp: 'Trending!',
@@ -410,7 +454,11 @@
                 noData: 'No plays in this time range',
                 noDataSub: 'Try another range, or wait for players',
                 loadFail: 'Failed to load data. Please retry.',
-                rankNone: 'Unranked'
+                rankNone: 'Unranked',
+                pwdTooShort: 'Password must be at least 6 characters',
+                pwdMismatch: 'Passwords do not match',
+                pwdSuccess: 'Password updated successfully!',
+                pwdFail: 'Failed: '
             }
         };
         const getLang = () => document.documentElement.getAttribute('data-lang') || 'zh';
@@ -428,6 +476,9 @@
             } else if (tab === 'profile') {
                 document.getElementById('panel-profile').classList.add('active');
                 document.getElementById('navProfile').classList.add('active');
+            } else if (tab === 'security') {
+                document.getElementById('panel-security').classList.add('active');
+                document.getElementById('navSecurity').classList.add('active');
             }
         };
 
@@ -476,7 +527,6 @@
         function renderProfileUI() {
             const name = userProfile.display_name || userProfile.username;
             document.getElementById('sidebarName').textContent = name;
-            // 显示名称禁止修改
             document.getElementById('inputDisplayName').value = name;
             document.getElementById('inputBio').value = userProfile.bio || '';
             
@@ -529,7 +579,7 @@
             }
         }
 
-        // 填充下拉框（包含所有游戏）
+        // 填充下拉框
         function fillGameSelector() {
             const sel = document.getElementById('gameSelector');
             const isEn = getLang() === 'en';
@@ -539,7 +589,6 @@
             }).join('');
         }
 
-        // 从列表选择游戏
         window.selectGame = function(id) {
             activeGameId = String(id);
             fillGameSelector();
@@ -549,51 +598,40 @@
             loadChartData();
         };
 
-        // 返回游戏列表
         window.backToGameList = function() {
-            // 即使只有一个游戏，也允许返回列表（列表里就一个卡片）
             document.getElementById('gameSelectGrid').style.display = 'grid';
             document.getElementById('dashboardControls').style.display = 'none';
             document.getElementById('analyticsDataView').style.display = 'none';
         };
 
-        // 下拉框切换事件
         window.onGameChange = function() {
             activeGameId = document.getElementById('gameSelector').value;
             loadChartData();
         };
 
-        // 分析接口基址
         const ANALYTICS_BASE = 'https://analytics.leleleling.site';
         const SITE_ID = 1;
 
-        // 游戏对应的埋点事件名：play-game_<中文名>
-        // 注意：埋点用的是 name_zh，英文模式下也不能换成 name_en，否则查不到数据
         function eventNameOf(game) {
             return 'play-game_' + (game.name_zh || game.name_en || game.id);
         }
 
-        // 排名缓存：range -> Map(eventName -> rank)，避免每次切游戏都重拉
         const rankCache = {};
 
-        // 拉取全站游戏排行（按 event 维度），返回 { ranks: Map, total: number }
         async function fetchRanks(range) {
             if (rankCache[range]) return rankCache[range];
-
             const url = `${ANALYTICS_BASE}/api/breakdown?site=${SITE_ID}&cmp=1&limit=50&dim=event&range=${encodeURIComponent(range)}`;
             const res = await fetch(url);
             if (!res.ok) throw new Error('breakdown HTTP ' + res.status);
             const json = await res.json();
 
             const events = json.breakdowns?.event || [];
-            // 只统计 play-game_xxx 形式的事件；裸的 play-game 没有游戏名，排除
             const games = events
                 .filter(e => typeof e.name === 'string' && e.name.indexOf('play-game_') === 0)
                 .sort((a, b) => b.value - a.value);
 
             const ranks = new Map();
             games.forEach((e, i) => {
-                // 同分并列：找出第一个同值的名次
                 const tied = games.findIndex(x => x.value === e.value);
                 ranks.set(e.name, tied + 1);
             });
@@ -603,9 +641,6 @@
             return result;
         }
 
-        // 拉取单个游戏的时间序列，返回 { labels, cur, prev, granularity }
-        // 注意：后端在 event 值匹配不到任何记录时会回退成全站汇总且不报错，
-        // 所以调用方必须先确认该事件确实存在（见 loadChartData 里的校验）。
         async function fetchSeries(game, range) {
             const params = new URLSearchParams({
                 range: range,
@@ -625,35 +660,17 @@
             };
         }
 
-        // 判断某游戏在当前时间范围内是否真的有埋点数据
-        async function hasEventData(game, range) {
-            try {
-                const info = await fetchRanks(range);
-                return info.ranks.has(eventNameOf(game));
-            } catch (e) {
-                // 拿不到事件列表就不敢断言，返回 null 表示「无从判断」
-                return null;
-            }
-        }
-
-        // 数据拉取与渲染
         async function loadChartData() {
             if (!activeGameId) return;
-
             const game = myGames.find(g => String(g.id) === String(activeGameId));
             if (!game) return;
-
             const range = document.getElementById('timeSelector').value;
 
-            // 先给个加载态，别让用户看着旧数字发呆
             const playCountEl = document.getElementById('playCount');
             const prevText = playCountEl.textContent;
             playCountEl.textContent = '…';
 
             try {
-                // 先确认这个游戏在当前时间范围里真的出现过。
-                // 后端对匹配不到的 event 会静默回退成全站汇总，不校验就会把
-                // 全站流量算到单个游戏头上（游戏改名后尤其容易发生）。
                 const rankInfoPromise = fetchRanks(range).catch(e => {
                     console.warn('排行数据拉取失败', e);
                     return null;
@@ -662,10 +679,8 @@
 
                 let series;
                 if (rankInfo && !rankInfo.ranks.has(eventNameOf(game))) {
-                    // 事件确实不存在 → 这段时间就是 0，不要拿全站数字来充数
                     series = null;
                 } else {
-                    // 事件存在，或排行接口不可用（此时只能信任 timeseries 的返回）
                     series = await fetchSeries(game, range);
                 }
 
@@ -679,22 +694,13 @@
                     return;
                 }
 
-                // ===== 1. 总量 & 趋势对比 =====
-                // 用序列求和得到当前周期游玩量（与表格口径一致），
-                // prev 是「上一周期」同长度的数据，用来算真实的涨跌
                 const curTotal = series.cur.reduce((a, b) => a + b, 0);
                 const prevTotal = series.prev.reduce((a, b) => a + b, 0);
 
                 document.getElementById('playCount').textContent = curTotal.toLocaleString();
                 renderTrend('play', curTotal, prevTotal, prevTotal > 0);
-
-                // ===== 2. 排名 =====
                 renderRank(game, rankInfo);
-
-                // ===== 3. 均值 & 峰值 =====
                 renderAverage(series);
-
-                // ===== 4. 折线图 =====
                 lastSeries = series;
                 renderChart(series);
 
@@ -705,7 +711,6 @@
             }
         }
 
-        // 渲染排名卡片
         function renderRank(game, rankInfo) {
             const rankValEl = document.getElementById('rankVal');
             const rankEmojiEl = document.getElementById('rankEmoji');
@@ -735,10 +740,8 @@
                 + `<span class="en-inline">${rank ? suffix : none}</span>`;
         }
 
-        // 渲染日均与峰值
         function renderAverage(series) {
             const values = series.cur;
-            // 只在有数据的桶上求平均：上线前的 0 不该拉低平均值
             const active = values.filter(v => v > 0);
             const denom = active.length > 0 ? active.length : (values.length || 1);
             const sum = values.reduce((a, b) => a + b, 0);
@@ -747,7 +750,6 @@
             document.getElementById('avgVal').textContent =
                 avg >= 10 ? Math.round(avg).toLocaleString() : (Math.round(avg * 10) / 10);
 
-            // 粒度不同，标签也跟着变：周聚合说「周均」比说「日均」诚实
             const unitZh = series.granularity === 'hour' ? '最高单小时'
                          : series.granularity === 'week' ? '最高单周'
                          : series.granularity === 'month' ? '最高单月'
@@ -757,7 +759,6 @@
                          : series.granularity === 'month' ? 'Peak monthly'
                          : 'Peak daily';
 
-            // 均值的口径标题同步切换，避免 90d/12mo 下写着「日均」却是周/月均
             const avgZh = series.granularity === 'hour' ? '小时均游玩'
                         : series.granularity === 'week' ? '周均游玩'
                         : series.granularity === 'month' ? '月均游玩'
@@ -778,7 +779,6 @@
             const emojiEl = document.getElementById(`${type}TrendEmoji`);
             const textEl = document.getElementById(`${type}TrendText`);
 
-            // 上一周期完全没有数据时，涨跌百分比没有意义，如实说明
             if (!hasPrev) {
                 emojiEl.textContent = cur > 0 ? '🌱' : '🛌';
                 textEl.textContent = cur > 0 ? t('slowUp') : t('flat');
@@ -786,7 +786,6 @@
             }
 
             const percent = prev === 0 ? (cur > 0 ? 100 : 0) : ((cur - prev) / prev) * 100;
-
             let emoji = '🛌', textKey = 'flat';
 
             if (percent > 0) {
@@ -799,7 +798,6 @@
                 else { emoji = '🪂'; textKey = 'crashDown'; }
             }
 
-            // 显示具体百分比，让人知道趋势是怎么来的
             const sign = percent > 0 ? '+' : '';
             const pctStr = `${sign}${percent.toFixed(0)}%`;
 
@@ -836,7 +834,6 @@
             const textColor = isDark ? '#94a3b8' : '#64748b';
             const lineColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(148,163,184,0.2)';
 
-            // 全部为 0（或没有数据）时画一条平线没意义，给个友好提示
             const hasAny = series && (series.cur.some(v => v > 0) || series.prev.some(v => v > 0));
             if (!hasAny) {
                 myChart.clear();
@@ -853,21 +850,19 @@
                 return;
             }
 
-            // 90d 是周聚合、12mo 是月聚合，标签要做相应格式化
             const labels = series.labels.map(label => {
                 if (series.granularity === 'hour') {
                     const m = label.match(/(\d{2}):(\d{2})/);
                     return m ? m[1] + ':00' : label;
                 }
                 if (series.granularity === 'month') return label.slice(0, 7);
-                return label.length > 10 ? label.slice(5) : label; // 去掉年份，留 MM-DD
+                return label.length > 10 ? label.slice(5) : label;
             });
 
             const showPrev = series.prev.some(v => v > 0);
 
             const option = {
                 backgroundColor: 'transparent',
-                // 图例可点击隐藏，默认只显示本周期
                 tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
                 legend: {
                     data: showPrev ? [t('playLabel'), t('prevLabel')] : [t('playLabel')],
@@ -907,7 +902,6 @@
                         itemStyle: { color: '#94a3b8' },
                         lineStyle: { width: 2, type: 'dashed' },
                         symbolSize: 4,
-                        // 上一周期默认做成对照线，不抢主线的视觉
                         areaStyle: undefined
                     }
                 ]
@@ -918,6 +912,38 @@
             myChart.clear();
             myChart.setOption(option);
         }
+
+        // 修改密码核心函数
+        window.changePassword = async function(type) {
+            const pwd = type === 'force' ? document.getElementById('forceNewPassword').value : document.getElementById('newPassword').value;
+            const confirm = type === 'force' ? document.getElementById('forceConfirmPassword').value : document.getElementById('confirmPassword').value;
+
+            if (!pwd || pwd.length < 6) {
+                return alert(t('pwdTooShort'));
+            }
+            if (pwd !== confirm) {
+                return alert(t('pwdMismatch'));
+            }
+
+            try {
+                const { error } = await supabaseClient.auth.updateUser({ password: pwd });
+                if (error) throw error;
+                
+                alert(t('pwdSuccess'));
+                
+                if (type === 'force') {
+                    // 清除 URL 中的 hash 和 search
+                    window.history.replaceState(null, '', window.location.pathname);
+                    document.getElementById('forceResetModal').classList.remove('active');
+                    init();
+                } else {
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                }
+            } catch (e) {
+                alert(t('pwdFail') + e.message);
+            }
+        };
 
         window.handleAvatarChange = function(e) {
             const file = e.target.files[0];
@@ -1019,7 +1045,6 @@
                 fillGameSelector();
             }
 
-            // 语言切换需要重绘图表（图例/坐标轴文案变了），但数据不用重新拉
             if (document.getElementById('analyticsDataView').style.display !== 'none' && lastSeries) {
                 renderChart(lastSeries);
                 renderAverage(lastSeries);
@@ -1029,7 +1054,20 @@
             }
         };
 
+        // ==================== 初始化入口 ====================
         document.addEventListener('DOMContentLoaded', () => {
+            // 监听 Supabase 事件，拦截 PASSWORD_RECOVERY
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                if (event === 'PASSWORD_RECOVERY') {
+                    document.getElementById('forceResetModal').classList.add('active');
+                }
+            });
+
+            // 兼容URL直接带参数的场景
+            if (window.location.search.includes('type=recovery') || window.location.hash.includes('type=recovery')) {
+                document.getElementById('forceResetModal').classList.add('active');
+            }
+
             init();
             window.addEventListener('resize', () => { if (myChart) myChart.resize(); });
         });
