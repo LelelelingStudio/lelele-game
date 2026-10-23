@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开发者后台 · 了了了游</title>
+    
+    <link rel="stylesheet" href="common.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+
+    <style>
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text { display: block; }
+        html[data-lang="zh"] .zh-inline { display: inline; }
+        html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="en"] .en-inline { display: inline; }
+        html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+        html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+        }
+
+        /* 顶栏 */
+        .top-bar {
+            width: 100%; background: var(--card-bg); backdrop-filter: blur(16px);
+            padding: 12px 28px; position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04); border-bottom: 1px solid var(--card-border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .site-title { font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; color: var(--text-main); }
+        .site-title img { height: 24px; }
+        .lang-switch {
+            display: flex; gap: 2px; background: rgba(148, 163, 184, 0.12);
+            border-radius: 30px; padding: 3px;
+        }
+        .lang-btn {
+            padding: 6px 16px; border: none; border-radius: 24px; background: transparent;
+            font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+        }
+        .lang-btn.active { background: #4f46e5; color: #fff !important; box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25); }
+
+        /* 主容器 */
+        .dashboard-layout {
+            display: flex; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; gap: 24px; padding: 24px;
+        }
+
+        /* 左侧边栏 */
+        .sidebar {
+            width: 260px; flex-shrink: 0; display: flex; flex-direction: column; gap: 16px;
+        }
+        .user-profile-card {
+            background: var(--card-bg); border-radius: 24px; padding: 24px;
+            border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            text-align: center;
+        }
+        .user-avatar {
+            width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; color: white; overflow: hidden; border: 3px solid #fff;
+            box-shadow: 0 8px 20px rgba(79,70,229,0.3);
+        }
+        .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .user-name { font-size: 1.2rem; font-weight: 800; margin-bottom: 4px; word-break: break-all; }
+        .user-role { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+
+        .nav-menu {
+            background: var(--card-bg); border-radius: 24px; padding: 12px;
+            border: 1px solid var(--card-border); display: flex; flex-direction: column; gap: 4px;
+        }
+        .nav-item {
+            padding: 12px 16px; border-radius: 12px; font-size: 0.95rem; font-weight: 600;
+            color: var(--text-muted); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px;
+            border: none; background: transparent; width: 100%; text-align: left;
+        }
+        .nav-item:hover { background: rgba(148, 163, 184, 0.1); color: var(--text-main); }
+        .nav-item.active { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); }
+        .nav-item.danger { color: var(--danger); margin-top: 12px; border-top: 1px solid var(--card-border); padding-top: 16px; border-radius: 0 0 12px 12px; }
+        .nav-item.danger:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+        /* 右侧内容区 */
+        .main-content {
+            flex: 1; min-width: 0;
+        }
+        .content-panel { display: none; animation: fadeIn 0.3s ease; }
+        .content-panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .panel-header {
+            display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;
+        }
+        .panel-title { font-size: 1.6rem; font-weight: 800; }
+        .select-wrapper select {
+            padding: 10px 16px; border-radius: 12px; border: 1px solid var(--card-border);
+            background: var(--card-bg); color: var(--text-main); font-size: 0.95rem; font-weight: 600;
+            outline: none; cursor: pointer; font-family: inherit;
+        }
+
+        /* 游戏列表选择卡片 */
+        .game-select-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;
+        }
+        .game-select-card {
+            background: var(--card-bg); border-radius: 20px; padding: 20px; border: 1px solid var(--card-border);
+            cursor: pointer; transition: all 0.2s; text-align: center;
+        }
+        .game-select-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-color: var(--primary); }
+        .game-select-icon { font-size: 3rem; margin-bottom: 12px; }
+        .game-select-name { font-weight: 700; font-size: 1rem; }
+
+        /* 看板数据区 */
+        .metrics-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;
+        }
+        .metric-card {
+            background: var(--card-bg); border-radius: 24px; padding: 24px;
+            border: 1px solid var(--card-border); box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden;
+        }
+        .metric-info h3 { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; }
+        .metric-val { font-size: 2.5rem; font-weight: 800; color: var(--text-main); line-height: 1; }
+        
+        /* Emoji 趋势盒 */
+        .trend-box {
+            background: rgba(148, 163, 184, 0.05); border: 1px solid var(--card-border);
+            border-radius: 16px; padding: 12px 16px; text-align: center; min-width: 100px;
+        }
+        .trend-emoji { font-size: 2rem; margin-bottom: 4px; animation: floatEmoji 2s ease-in-out infinite; }
+        .trend-text { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; line-height: 1.2; }
+        @keyframes floatEmoji { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+        .chart-container {
+            background: var(--card-bg); border-radius: 24px; padding: 24px;
+            border: 1px solid var(--card-border); height: 400px;
+        }
+        #trendChart { width: 100%; height: 100%; }
+
+        /* 个人中心表单 */
+        .form-card {
+            background: var(--card-bg); border-radius: 24px; padding: 32px;
+            border: 1px solid var(--card-border); max-width: 600px;
+        }
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; }
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--card-border);
+            background: rgba(255,255,255,0.5); color: var(--text-main); font-size: 1rem; font-family: inherit;
+        }
+        html.dark-mode .form-group input, html.dark-mode .form-group textarea { background: rgba(0,0,0,0.2); }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .btn { padding: 12px 24px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 0.95rem;}
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #dc2626; }
+
+        /* 弹窗系统 */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+            z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: var(--card-bg); padding: 32px; border-radius: 24px; max-width: 400px; width: 100%;
+            text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 1px solid var(--card-border);
+        }
+        .modal-box h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 12px; color: var(--text-main); }
+        .modal-box p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; }
+        .modal-box input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--card-border); text-align: center; font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; text-transform: uppercase;}
+        
+        @media (max-width: 900px) {
+            .dashboard-layout { flex-direction: column; }
+            .sidebar { width: 100%; }
+            .metrics-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部导航 -->
+    <div class="top-bar">
+        <a href="index.html" class="site-title">
+            <img src="lelelegame.svg" alt="Logo" onerror="this.style.display='none'">
+            <span class="zh-inline">了了了游</span><span class="en-inline">lelele Game</span>
+        </a>
+        <div class="lang-switch">
+            <button class="lang-btn active" data-lang-btn="zh" onclick="switchLang('zh')">中文</button>
+            <button class="lang-btn" data-lang-btn="en" onclick="switchLang('en')">English</button>
+        </div>
+    </div>
+
+    <!-- 主布局 -->
+    <div class="dashboard-layout">
+        <!-- 左侧边栏 -->
+        <div class="sidebar">
+            <div class="user-profile-card">
+                <div class="user-avatar" id="sidebarAvatar">👤</div>
+                <div class="user-name" id="sidebarName">Loading...</div>
+                <div class="user-role" id="sidebarRole">Developer</div>
+            </div>
+            <div class="nav-menu">
+                <button class="nav-item active" onclick="switchTab('dashboard')" id="navDashboard">
+                    📊 <span class="zh-inline">我的游戏数据</span><span class="en-inline">Game Analytics</span>
+                </button>
+                <button class="nav-item" onclick="switchTab('profile')" id="navProfile">
+                    👤 <span class="zh-inline">个人资料设置</span><span class="en-inline">Profile Settings</span>
+                </button>
+                <button class="nav-item danger" onclick="logout()">
+                    🚪 <span class="zh-inline">退出登录</span><span class="en-inline">Log Out</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 右侧内容区 -->
+        <div class="main-content">
+            
+            <!-- 模块 1：数据看板 -->
+            <div class="content-panel active" id="panel-dashboard">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span class="zh-inline">数据看板</span><span class="en-inline">Analytics Overview</span>
+                    </div>
+                    <div style="display:flex; gap:12px;" id="dashboardControls" style="display:none;">
+                        <div class="select-wrapper">
+                            <select id="gameSelector" onchange="onGameChange()">
+                                <!-- 动态填充游戏列表 -->
+                            </select>
+                        </div>
+                        <div class="select-wrapper">
+                            <select id="timeSelector" onchange="loadChartData()">
+                                <option value="1d">今天 / Today</option>
+                                <option value="7d">近 7 天 / 7 Days</option>
+                                <option value="30d" selected>近 30 天 / 30 Days</option>
+                                <option value="90d">近 90 天 / 90 Days</option>
+                                <option value="1y">近 1 年 / 1 Year</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 游戏选择列表（多个游戏时显示） -->
+                <div class="game-select-grid" id="gameSelectGrid" style="display:none;"></div>
+
+                <!-- 数据详情展示 -->
+                <div id="analyticsDataView" style="display:none;">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-info">
+                                <h3><span class="zh-inline">总游玩次数</span><span class="en-inline">Total Plays</span></h3>
+                                <div class="metric-val" id="playCount">-</div>
+                            </div>
+                            <div class="trend-box">
+                                <div class="trend-emoji" id="playTrendEmoji">🛌</div>
+                                <div class="trend-text" id="playTrendText">原地踏步</div>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-info">
+                                <h3><span class="zh-inline">总收藏次数</span><span class="en-inline">Total Favorites</span></h3>
+                                <div class="metric-val" id="favCount">-</div>
+                            </div>
+                            <div class="trend-box">
+                                <div class="trend-emoji" id="favTrendEmoji">🛌</div>
+                                <div class="trend-text" id="favTrendText">原地踏步</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <div id="trendChart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模块 2：个人资料 -->
+            <div class="content-panel" id="panel-profile">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="zh-inline">个人资料</span><span class="en-inline">Profile Settings</span></div>
+                </div>
+                <div class="form-card">
+                    <div class="form-group">
+                        <label><span class="zh-inline">头像 (小于 50KB)</span><span class="en-inline">Avatar (Max 50KB)</span></label>
+                        <input type="file" id="avatarInput" accept="image/*" onchange="handleAvatarChange(event)">
+                    </div>
+                    <div class="form-group">
+                        <label><span class="zh-inline">显示名称</span><span class="en-inline">Display Name</span></label>
+                        <input type="text" id="inputDisplayName">
+                    </div>
+                    <div class="form-group">
+                        <label><span class="zh-inline">个人简介</span><span class="en-inline">Bio</span></label>
+                        <textarea id="inputBio" placeholder="介绍一下你自己... / Introduce yourself..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveProfile()">
+                        <span class="zh-inline">保存更改</span><span class="en-inline">Save Changes</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 注销弹窗 1 -->
+    <div class="modal-overlay" id="modalStep1">
+        <div class="modal-box">
+            <h3><span class="zh-inline">确认注销？</span><span class="en-inline">Confirm Deletion?</span></h3>
+            <p><span class="zh-inline">此操作将永久删除您的账号和所有资料，无法撤销。</span>
+               <span class="en-inline">This will permanently delete your account and all data. It cannot be undone.</span></p>
+            <button class="btn btn-danger" onclick="nextDeleteStep()"><span class="zh-inline">继续注销</span><span class="en-inline">Continue</span></button>
+            <button class="btn" style="background:transparent;color:var(--text-main);margin-top:10px;" onclick="closeModal('modalStep1')"><span class="zh-inline">取消</span><span class="en-inline">Cancel</span></button>
+        </div>
+    </div>
+
+    <!-- 注销弹窗 2 -->
+    <div class="modal-overlay" id="modalStep2">
+        <div class="modal-box">
+            <h3><span class="zh-inline">二次确认</span><span class="en-inline">Double Confirm</span></h3>
+            <p><span class="zh-inline">请输入 <b>DELETE</b> 以确认注销。</span><span class="en-inline">Type <b>DELETE</b> to confirm.</span></p>
+            <input type="text" id="deleteConfirmInput" autocomplete="off">
+            <button class="btn btn-danger" onclick="executeDelete()"><span class="zh-inline">永久注销</span><span class="en-inline">Delete Permanently</span></button>
+            <button class="btn" style="background:transparent;color:var(--text-main);margin-top:10px;" onclick="closeModal('modalStep2')"><span class="zh-inline">取消</span><span class="en-inline">Cancel</span></button>
+        </div>
+    </div>
+
+    <!-- 放在面板底部的注销按钮 -->
+    <div style="display:none;" id="deleteSection">
+        <button class="btn btn-danger" onclick="openModal('modalStep1')"><span class="zh-inline">注销账号</span><span class="en-inline">Delete Account</span></button>
+    </div>
+
+    <script src="supabase-client.js"></script>
+    <script>
+        let currentUser = null;
+        let userProfile = null;
+        let myGames = [];
+        let activeGameId = null;
+        let myChart = null;
+
+        // 国际化字典
+        const I18N = {
+            zh: {
+                slowUp: '缓慢增长中...', fastUp: '快速上升中！', rocketUp: '火爆全站！',
+                flat: '原地踏步', slowDown: '轻微回落', fastDown: '有所下滑', crashDown: '正在着陆',
+                playLabel: '游玩量', favLabel: '收藏量'
+            },
+            en: {
+                slowUp: 'Slowly growing...', fastUp: 'Rising fast!', rocketUp: 'Trending!',
+                flat: 'Staying flat', slowDown: 'Slight dip', fastDown: 'Sliding down', crashDown: 'Landing...',
+                playLabel: 'Plays', favLabel: 'Favorites'
+            }
+        };
+        const getLang = () => document.documentElement.getAttribute('data-lang') || 'zh';
+
+        // 鉴权与初始化
+        async function init() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = session.user;
+
+            // 拉取个人资料
+            const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
+            if (profile) {
+                userProfile = profile;
+                renderProfileUI();
+            }
+
+            // 拉取游戏列表
+            const res = await fetch('lelegame_data.json');
+            const allGames = await res.json();
+            const authorName = userProfile ? (userProfile.display_name || userProfile.username) : currentUser.email.split('@')[0];
+            
+            // 匹配游戏
+            myGames = allGames.filter(g => g.author && g.author.trim().toLowerCase() === authorName.trim().toLowerCase());
+
+            initDashboard();
+        }
+
+        function renderProfileUI() {
+            const name = userProfile.display_name || userProfile.username;
+            document.getElementById('sidebarName').textContent = name;
+            document.getElementById('inputDisplayName').value = name;
+            document.getElementById('inputBio').value = userProfile.bio || '';
+            
+            const avatarEl = document.getElementById('sidebarAvatar');
+            if (userProfile.avatar_url) {
+                avatarEl.innerHTML = `<img src="${userProfile.avatar_url}" alt="Avatar">`;
+            } else {
+                avatarEl.innerHTML = '👤';
+            }
+        }
+
+        // 看板初始化
+        function initDashboard() {
+            // 插入注销按钮到表单最下方
+            document.getElementById('panel-profile').querySelector('.form-card').appendChild(document.getElementById('deleteSection'));
+            document.getElementById('deleteSection').style.display = 'block';
+
+            if (myGames.length === 0) {
+                document.getElementById('dashboardControls').style.display = 'none';
+                document.getElementById('analyticsDataView').style.display = 'none';
+                document.getElementById('gameSelectGrid').innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">
+                    <span class="zh-inline">暂无绑定您的游戏，请确认 lelegame_data.json 中的 author 字段是否与您的名字一致。</span>
+                    <span class="en-inline">No games found. Please ensure the author field in lelegame_data.json matches your name.</span>
+                </div>`;
+                document.getElementById('gameSelectGrid').style.display = 'grid';
+                return;
+            }
+
+            if (myGames.length === 1) {
+                activeGameId = myGames[0].id;
+                document.getElementById('dashboardControls').style.display = 'flex';
+                document.getElementById('analyticsDataView').style.display = 'block';
+                loadChartData();
+            } else {
+                // 多游戏：显示选择卡片
+                document.getElementById('dashboardControls').style.display = 'none';
+                document.getElementById('analyticsDataView').style.display = 'none';
+                document.getElementById('gameSelectGrid').style.display = 'grid';
+                
+                const grid = document.getElementById('gameSelectGrid');
+                const isEn = getLang() === 'en';
+                grid.innerHTML = myGames.map(g => {
+                    const name = isEn ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en);
+                    return `
+                        <div class="game-select-card" onclick="selectGame(${g.id})">
+                            <div class="game-select-icon">${g.icon || '🎮'}</div>
+                            <div class="game-select-name">${name}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        window.selectGame = function(id) {
+            activeGameId = id;
+            const game = myGames.find(g => g.id === id);
+            const isEn = getLang() === 'en';
+            const name = isEn ? (game.name_en || game.name_zh) : (game.name_zh || game.name_en);
+            
+            // 构造下拉框
+            const sel = document.getElementById('gameSelector');
+            sel.innerHTML = `<option value="${game.id}">${name}</option>`;
+            
+            document.getElementById('gameSelectGrid').style.display = 'none';
+            document.getElementById('dashboardControls').style.display = 'flex';
+            document.getElementById('analyticsDataView').style.display = 'block';
+            loadChartData();
+        };
+
+        // 数据拉取与计算
+        async function loadChartData() {
+            if (!activeGameId) return;
+            const game = myGames.find(g => g.id === activeGameId);
+            const gameName = game.name_zh || game.name;
+            const range = document.getElementById('timeSelector').value;
+
+            // API URL
+            const baseApi = 'https://analytics.leleleling.site/api/timeseries?site=1';
+            const playUrl = `${baseApi}&range=${range}&event=play-game_${encodeURIComponent(gameName)}`;
+            const favUrl = `${baseApi}&range=${range}&event=fav-game_${encodeURIComponent(gameName)}`;
+
+            try {
+                const [playRes, favRes] = await Promise.all([fetch(playUrl), fetch(favUrl)]);
+                const playData = await playRes.json();
+                const favData = await favRes.json();
+
+                // 数据解析与环比计算
+                let playCur = 0, playPrev = 0;
+                let favCur = 0, favPrev = 0;
+                let dates = [];
+
+                if (playData && playData.length > 0) {
+                    playData.forEach(d => { playCur += d.cur; playPrev += d.prev; });
+                    dates = playData.map(d => d.label || d.date);
+                }
+                if (favData && favData.length > 0) {
+                    favData.forEach(d => { favCur += d.cur; favPrev += d.prev; });
+                    if (!dates.length) dates = favData.map(d => d.label || d.date);
+                }
+
+                // 渲染数字
+                document.getElementById('playCount').textContent = playCur;
+                document.getElementById('favCount').textContent = favCur;
+
+                // 渲染趋势
+                renderTrend('play', playCur, playPrev);
+                renderTrend('fav', favCur, favPrev);
+
+                // 渲染图表
+                renderChart(dates, playData, favData);
+
+            } catch (e) {
+                console.error('数据加载失败', e);
+            }
+        }
+
+        // 计算并渲染趋势 Emoji
+        function renderTrend(type, cur, prev) {
+            let percent = 0;
+            if (prev === 0) {
+                if (cur > 0) percent = 100; // 从0到有，算暴增
+            } else {
+                percent = ((cur - prev) / prev) * 100;
+            }
+
+            let emoji = '🛌', textKey = 'flat';
+            
+            if (percent > 0) {
+                if (percent <= 20) { emoji = '🌱'; textKey = 'slowUp'; }
+                else if (percent <= 60) { emoji = '🎢'; textKey = 'fastUp'; }
+                else { emoji = '🚀'; textKey = 'rocketUp'; }
+            } else if (percent < 0) {
+                if (percent >= -20) { emoji = '🍂'; textKey = 'slowDown'; }
+                else if (percent >= -60) { emoji = '🛹'; textKey = 'fastDown'; }
+                else { emoji = '🪂'; textKey = 'crashDown'; }
+            }
+
+            const lang = getLang();
+            document.getElementById(`${type}TrendEmoji`).textContent = emoji;
+            document.getElementById(`${type}TrendText`).textContent = I18N[lang][textKey];
+        }
+
+        // ECharts 渲染
+        function renderChart(dates, playData, favData) {
+            if (!myChart) {
+                myChart = echarts.init(document.getElementById('trendChart'));
+            }
+            const lang = getLang();
+            const isDark = document.documentElement.classList.contains('dark-mode');
+            const textColor = isDark ? '#94a3b8' : '#64748b';
+            const lineColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(148,163,184,0.2)';
+
+            const playValues = playData ? playData.map(d => d.cur) : [];
+            const favValues = favData ? favData.map(d => d.cur) : [];
+
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: { trigger: 'axis' },
+                legend: {
+                    data: [I18N[lang].playLabel, I18N[lang].favLabel],
+                    textStyle: { color: textColor }
+                },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: dates,
+                    axisLabel: { color: textColor },
+                    axisLine: { lineStyle: { color: lineColor } }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: { color: textColor },
+                    splitLine: { lineStyle: { color: lineColor } }
+                },
+                series: [
+                    {
+                        name: I18N[lang].playLabel,
+                        type: 'line',
+                        smooth: true,
+                        data: playValues,
+                        itemStyle: { color: '#4f46e5' },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(79, 70, 229, 0.4)' },
+                                { offset: 1, color: 'rgba(79, 70, 229, 0)' }
+                            ])
+                        }
+                    },
+                    {
+                        name: I18N[lang].favLabel,
+                        type: 'line',
+                        smooth: true,
+                        data: favValues,
+                        itemStyle: { color: '#ec4899' },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(236, 72, 153, 0.4)' },
+                                { offset: 1, color: 'rgba(236, 72, 153, 0)' }
+                            ])
+                        }
+                    }
+                ]
+            };
+            myChart.setOption(option);
+        }
+
+        // 头像压缩与上传
+        window.handleAvatarChange = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_SIZE = 256;
+                    let width = img.width, height = img.height;
+
+                    if (width > height && width > MAX_SIZE) {
+                        height *= MAX_SIZE / width; width = MAX_SIZE;
+                    } else if (height > MAX_SIZE) {
+                        width *= MAX_SIZE / height; height = MAX_SIZE;
+                    }
+
+                    canvas.width = width; canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // 压缩至 0.8 质量 (通常远小于 50KB)
+                    canvas.toBlob(async (blob) => {
+                        if (blob.size > 51200) {
+                            alert('图片过大，请选择小一点的图片 / Image too large');
+                            return;
+                        }
+                        // 上传
+                        const ext = file.name.split('.').pop();
+                        const filePath = `${currentUser.id}/avatar_${Date.now()}.${ext}`;
+                        
+                        const { error: uploadError } = await supabaseClient.storage.from('avatars').upload(filePath, blob);
+                        if (uploadError) {
+                            alert('上传失败: ' + uploadError.message);
+                            return;
+                        }
+
+                        const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(filePath);
+                        document.getElementById('sidebarAvatar').innerHTML = `<img src="${urlData.publicUrl}">`;
+                        
+                        // 暂存 URL，等点击保存再入库
+                        userProfile.tempAvatarUrl = urlData.publicUrl;
+                    }, 'image/jpeg', 0.8);
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        // 保存资料
+        window.saveProfile = async function() {
+            const newName = document.getElementById('inputDisplayName').value.trim();
+            const newBio = document.getElementById('inputBio').value.trim();
+            const newAvatar = userProfile.tempAvatarUrl || userProfile.avatar_url;
+
+            if (!newName) return alert('名字不能为空 / Name cannot be empty');
+
+            const updates = {
+                display_name: newName,
+                bio: newBio,
+                avatar_url: newAvatar
+            };
+
+            const { error } = await supabaseClient.from('profiles').update(updates).eq('id', currentUser.id);
+            if (error) return alert('保存失败: ' + error.message);
+
+            alert('保存成功！ / Saved!');
+            userProfile.display_name = newName;
+            userProfile.bio = newBio;
+            userProfile.avatar_url = newAvatar;
+            renderProfileUI();
+        };
+
+        // 注销逻辑
+        window.openModal = function(id) { document.getElementById(id).classList.add('active'); };
+        window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); };
+        window.nextDeleteStep = function() {
+            closeModal('modalStep1');
+            openModal('modalStep2');
+            document.getElementById('deleteConfirmInput').value = '';
+        };
+        window.executeDelete = async function() {
+            const val = document.getElementById('deleteConfirmInput').value;
+            if (val !== 'DELETE') return alert('请输入 DELETE / Type DELETE');
+
+            // 调用 RPC 删除
+            const { error } = await supabaseClient.rpc('delete_user');
+            if (error) return alert('注销失败: ' + error.message);
+
+            await supabaseClient.auth.signOut();
+            alert('账号已注销 / Account deleted');
+            window.location.href = 'index.html';
+        };
+
+        // 退出登录
+        window.logout = async function() {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'index.html';
+        };
+
+        // 切换语言
+        window.switchLang = function(lang) {
+            if (typeof setLang === 'function') setLang(lang);
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.langBtn === lang);
+            });
+            // 刷新图表或动态文字
+            if (myGames.length > 0 && document.getElementById('analyticsDataView').style.display !== 'none') {
+                loadChartData();
+            }
+        };
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+            window.addEventListener('resize', () => { if (myChart) myChart.resize(); });
+        });
+    </script>
+</body>
+</html>
