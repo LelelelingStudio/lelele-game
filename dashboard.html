@@ -521,7 +521,7 @@
             loadChartData();
         };
 
-        // 数据拉取与计算
+        // 数据拉取与计算（兼容多种返回格式）
         async function loadChartData() {
             if (!activeGameId) return;
             const game = myGames.find(g => g.id === activeGameId);
@@ -533,19 +533,39 @@
 
             try {
                 const playRes = await fetch(playUrl);
-                const playData = await playRes.json();
+                const rawData = await playRes.json();
+
+                // 数据规范化：兼容可能的结构
+                let playDataArray = [];
+                if (Array.isArray(rawData)) {
+                    playDataArray = rawData;
+                } else if (rawData && Array.isArray(rawData.pageviews)) {
+                    playDataArray = rawData.pageviews;
+                } else if (rawData && Array.isArray(rawData.data)) {
+                    playDataArray = rawData.data;
+                } else if (rawData && Array.isArray(rawData.results)) {
+                    playDataArray = rawData.results;
+                } else if (rawData && rawData.cur && Array.isArray(rawData.cur)) {
+                    playDataArray = rawData.cur;
+                }
 
                 let playCur = 0, playPrev = 0;
                 let dates = [];
 
-                if (playData && playData.length > 0) {
-                    playData.forEach(d => { playCur += d.cur; playPrev += d.prev; });
-                    dates = playData.map(d => d.label || d.date);
+                if (playDataArray.length > 0) {
+                    playDataArray.forEach(d => {
+                        // 兼容 cur/prev 或 y/x 字段
+                        const curVal = d.cur !== undefined ? d.cur : (d.y !== undefined ? d.y : 0);
+                        const prevVal = d.prev !== undefined ? d.prev : 0;
+                        playCur += curVal;
+                        playPrev += prevVal;
+                    });
+                    dates = playDataArray.map(d => d.label || d.x || d.date);
                 }
 
                 document.getElementById('playCount').textContent = playCur;
                 renderTrend('play', playCur, playPrev);
-                renderChart(dates, playData);
+                renderChart(dates, playDataArray);
 
             } catch (e) {
                 console.error('数据加载失败', e);
@@ -577,7 +597,7 @@
             document.getElementById(`${type}TrendText`).textContent = I18N[lang][textKey];
         }
 
-        function renderChart(dates, playData) {
+        function renderChart(dates, playDataArray) {
             if (!myChart) {
                 myChart = echarts.init(document.getElementById('trendChart'));
             }
@@ -586,7 +606,7 @@
             const textColor = isDark ? '#94a3b8' : '#64748b';
             const lineColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(148,163,184,0.2)';
 
-            const playValues = playData ? playData.map(d => d.cur) : [];
+            const playValues = playDataArray.map(d => d.cur !== undefined ? d.cur : (d.y !== undefined ? d.y : 0));
 
             const option = {
                 backgroundColor: 'transparent',
@@ -664,7 +684,6 @@
         };
 
         window.saveProfile = async function() {
-            // 名称无法修改，直接取当前的
             const newName = document.getElementById('inputDisplayName').value.trim();
             const newBio = document.getElementById('inputBio').value.trim();
             const newAvatar = userProfile.tempAvatarUrl || userProfile.avatar_url;
@@ -713,12 +732,10 @@
                 btn.classList.toggle('active', btn.dataset.langBtn === lang);
             });
             
-            // 切换语言时，如果在下拉框模式，需要重新填充下拉框的 Option 文本
             if (myGames.length > 0) {
                 fillGameSelector();
             }
 
-            // 刷新图表或动态文字
             if (document.getElementById('analyticsDataView').style.display !== 'none') {
                 loadChartData();
             }
