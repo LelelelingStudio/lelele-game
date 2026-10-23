@@ -36,7 +36,6 @@ window.removeFavorite = function(id, event) {
     saveFavorites(favs);
     renderFavoritesList();
     
-    // 埋点：从收藏夹取消
     const game = gameData.find(g => String(g.id) === String(id));
     if (game && window.leleleTrack) {
         const isEn = document.documentElement.getAttribute('data-lang') === 'en';
@@ -57,24 +56,14 @@ function renderFavoritesList() {
     const langSuffix = isEn ? '&lang=en' : '';
     
     if (favs.length === 0) {
-        container.innerHTML = `
-            <div class="status-message">
-                <span class="zh-inline">你还没有收藏任何游戏哦，快去逛逛吧！</span>
-                <span class="en-inline">You have no favorites yet.</span>
-            </div>
-        `;
+        container.innerHTML = `<div class="status-message"><span class="zh-inline">你还没有收藏任何游戏哦，快去逛逛吧！</span><span class="en-inline">You have no favorites yet.</span></div>`;
         return;
     }
 
     const favGames = gameData.filter(g => favs.includes(String(g.id)));
 
     if (favGames.length === 0) {
-        container.innerHTML = `
-            <div class="status-message">
-                <span class="zh-inline">收藏的游戏似乎已下架。</span>
-                <span class="en-inline">Favorited games seem to be removed.</span>
-            </div>
-        `;
+        container.innerHTML = `<div class="status-message"><span class="zh-inline">收藏的游戏似乎已下架。</span><span class="en-inline">Favorited games seem to be removed.</span></div>`;
         return;
     }
 
@@ -98,8 +87,8 @@ function renderFavoritesList() {
 
 // ==================== 游戏数据与渲染 ====================
 let gameData = [];
-let currentType = 'all'; // 默认全部
-let currentCategory = 'all'; // 默认全部分类
+let currentType = 'all';
+let currentCategory = 'all';
 let searchKeyword = '';
 let searchTimer = null;
 
@@ -133,7 +122,6 @@ async function loadGames() {
     renderGames();
 }
 
-// 动态生成分类按钮
 function renderCategories() {
     const isEn = document.documentElement.getAttribute('data-lang') === 'en';
     const catSet = new Set();
@@ -163,7 +151,6 @@ function renderCategories() {
     categoryNav.innerHTML = html;
 }
 
-// 统一渲染逻辑
 window.renderGames = function() {
     const grid = document.getElementById('gamesGrid');
     const status = document.getElementById('statusMessage');
@@ -173,10 +160,8 @@ window.renderGames = function() {
     const isEn = document.documentElement.getAttribute('data-lang') === 'en';
     let filtered = [];
 
-    // 如果有搜索词，调用超级搜索引擎
     if (searchKeyword.trim() !== '') {
         const searchResults = window.leleleSearch(searchKeyword, gameData, isEn);
-        // 搜索引擎返回的结果自带排序和 matchHtml
         filtered = searchResults; 
         
         if (filtered.length === 0) {
@@ -185,7 +170,6 @@ window.renderGames = function() {
             return;
         }
     } else {
-        // 正常双层过滤
         filtered = gameData.filter(g => {
             const matchType = (currentType === 'all') || (g.type === currentType);
             const cat = isEn ? g.category_en : g.category_zh;
@@ -202,7 +186,6 @@ window.renderGames = function() {
 
     status.style.display = 'none';
     filtered.forEach(item => {
-        // 由于搜索引擎返回的数据可能结构被展开，我们保证能拿到原始 game 对象
         const g = item.game || item;
         const finalHtmlName = item.matchHtml || escapeHtml(isEn ? (g.name_en || g.name_zh || g.name) : (g.name_zh || g.name_en || g.name));
         
@@ -223,7 +206,6 @@ window.renderGames = function() {
 
 const renderGames = window.renderGames;
 
-// 监听搜索输入
 const searchInput = document.getElementById('searchInput');
 const searchClearBtn = document.getElementById('searchClearBtn');
 
@@ -249,7 +231,6 @@ searchClearBtn.addEventListener('click', () => {
     renderGames();
 });
 
-// 监听顶层导航点击
 document.getElementById('typeNav').addEventListener('click', (e) => {
     const btn = e.target.closest('.type-btn');
     if (!btn) return;
@@ -259,7 +240,6 @@ document.getElementById('typeNav').addEventListener('click', (e) => {
     renderGames();
 });
 
-// 监听分类导航点击
 document.getElementById('categoryNav').addEventListener('click', (e) => {
     const btn = e.target.closest('.category-btn');
     if (!btn) return;
@@ -269,7 +249,6 @@ document.getElementById('categoryNav').addEventListener('click', (e) => {
     renderGames();
 });
 
-// 监听语言切换，重绘分类按钮，并刷新列表
 window.addEventListener('langChanged', () => {
     renderCategories();
     renderGames();
@@ -301,7 +280,7 @@ function showPreview(game) {
     
     document.getElementById('btnPlay').onclick = () => {
         if (window.leleleTrack) {
-            window.leleleTrack('play-game_' + game.name_zh || game.name); 
+            window.leleleTrack('play-game_' + (game.name_zh || game.name)); 
         }
         if (game.url) window.open(game.url, '_blank', 'noopener,noreferrer');
     };
@@ -342,7 +321,6 @@ window.toggleFavFromPreview = function() {
     saveFavorites(favs);
     updateFavUI(gameId);
     
-    // 埋点发送
     if (window.leleleTrack) {
         const isEn = document.documentElement.getAttribute('data-lang') === 'en';
         const gameName = isEn ? (currentPreviewGame.name_en || currentPreviewGame.name_zh) : (currentPreviewGame.name_zh || currentPreviewGame.name_en);
@@ -352,7 +330,17 @@ window.toggleFavFromPreview = function() {
 
 // ==================== 投稿流程逻辑 ====================
 function initSubmitFlow() {
-    document.getElementById('openSubmitGuide').onclick = () => {
+    document.getElementById('openSubmitGuide').onclick = async () => {
+        // 检查登录状态
+        if (window.supabaseClient) {
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (!session) {
+                alert('发布游戏需要先注册成为开发者哦～\nPublishing games requires an account. Redirecting to login...');
+                window.location.href = 'login.html';
+                return;
+            }
+        }
+
         document.getElementById('chkGuide').checked = false;
         document.getElementById('chkGuideEn').checked = false;
         document.getElementById('btnToStep2').disabled = true;
@@ -392,7 +380,6 @@ function initSubmitFlow() {
     };
 }
 
-// ==================== Tally 提交监听 ====================
 window.addEventListener("message", function(event) {
     if (event.data && event.data.type === "tally-form-submitted") {
         document.querySelectorAll('.modal-overlay.active').forEach(el => el.classList.remove('active'));
