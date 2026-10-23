@@ -18,6 +18,104 @@
         }
     };
 
+    // ==================== 游戏直链访问探针（新增） ====================
+    function initDirectLinkTracker() {
+        if (!isGamePage) return;
+        
+        // 排除从详情页正常跳转过来的情况
+        const referrer = document.referrer;
+        if (referrer && (referrer.includes('game.html') || referrer.includes(MAIN_SITE_URL))) return;
+
+        // 防止刷新重复计数
+        const sessionKey = `lelele_visited_${window.location.pathname}`;
+        if (sessionStorage.getItem(sessionKey)) return;
+
+        // 异步去匹配游戏名并统计
+        fetch(`${MAIN_SITE_URL}/lelegame_data.json`)
+            .then(res => res.json())
+            .then(games => {
+                const currentPath = window.location.pathname;
+                // 模糊匹配路径
+                const matchedGame = games.find(g => g.url && currentPath.includes(g.url.replace(/^\//, '')));
+                
+                if (matchedGame) {
+                    const gameName = matchedGame.name_zh || matchedGame.name;
+                    window.leleleTrack('play-game_' + gameName);
+                    sessionStorage.setItem(sessionKey, '1');
+                }
+            })
+            .catch(e => console.warn('Direct link tracking failed', e));
+    }
+
+    // ==================== 主站鉴权与 UI 注入（新增） ====================
+    async function initMainSiteAuth() {
+        if (isGamePage) return;
+        if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
+
+        try {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            
+            // 1. 注入右上角头像和开发者面板按钮
+            const rightActions = document.querySelector('.right-actions');
+            if (rightActions) {
+                // 插入开发者面板按钮
+                const devPanelBtn = document.createElement('a');
+                devPanelBtn.href = 'dashboard.html';
+                devPanelBtn.className = 'action-btn';
+                devPanelBtn.style.background = 'rgba(79, 70, 229, 0.1)';
+                devPanelBtn.style.color = 'var(--primary)';
+                devPanelBtn.innerHTML = '<span class="zh-inline">💻 开发者面板</span><span class="en-inline">💻 Dashboard</span>';
+                rightActions.insertBefore(devPanelBtn, rightActions.firstChild);
+
+                // 如果登录了，插入头像
+                if (session) {
+                    const { data: profile } = await supabaseClient.from('profiles').select('avatar_url, display_name').eq('id', session.user.id).single();
+                    
+                    const userBtn = document.createElement('a');
+                    userBtn.href = 'dashboard.html';
+                    userBtn.className = 'action-btn';
+                    userBtn.style.padding = '4px';
+                    userBtn.style.borderRadius = '50%';
+                    userBtn.style.overflow = 'hidden';
+                    userBtn.style.width = '40px';
+                    userBtn.style.height = '40px';
+                    userBtn.style.display = 'flex';
+                    userBtn.style.alignItems = 'center';
+                    userBtn.style.justifyContent = 'center';
+                    
+                    if (profile && profile.avatar_url) {
+                        userBtn.innerHTML = `<img src="${profile.avatar_url}" style="width:100%; height:100%; object-fit:cover;">`;
+                    } else {
+                        userBtn.innerHTML = '👤';
+                        userBtn.style.fontSize = '1.2rem';
+                        userBtn.style.background = 'var(--card-border)';
+                    }
+                    rightActions.insertBefore(userBtn, rightActions.firstChild);
+                }
+            }
+
+            // 2. 拦截投稿按钮
+            const submitBtn = document.getElementById('openSubmitGuide');
+            if (submitBtn) {
+                // 移除原有的 onclick 绑定，改用自定义拦截
+                const originalOnclick = submitBtn.onclick;
+                submitBtn.onclick = (e) => {
+                    if (!session) {
+                        e.preventDefault();
+                        const isEn = getLang() === 'en';
+                        alert(isEn ? 'Publishing games requires an account. Redirecting to login...' : '发布游戏需要先注册/登录开发者账号，正在跳转登录...');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    if (originalOnclick) originalOnclick.call(submitBtn, e);
+                };
+            }
+        } catch (e) {
+            console.warn('Auth check failed', e);
+        }
+    }
+
+
     // ==================== 智能游戏存档探针 ====================
     (function initAutoSaveManager() {
         if (!isGamePage) return;
@@ -252,9 +350,7 @@
                 });
             }, 100);
 
-            if (skipEffects) {
-                return; 
-            }
+            if (skipEffects) return; 
 
             if (!isGamePage) {
                 const style = document.createElement('style');
@@ -293,18 +389,13 @@
                 document.body.appendChild(tree);
             }
 
-            if (config.enableSnowfall) {
-                initSnowfall();
-            }
+            if (config.enableSnowfall) initSnowfall();
 
-        } catch (e) {
-            console.warn('活动配置加载失败:', e);
-        }
+        } catch (e) {}
     }
 
     function initSnowfall() {
         if (document.getElementById('snowfall-canvas')) return;
-
         const canvas = document.createElement('canvas');
         canvas.id = 'snowfall-canvas';
         document.body.appendChild(canvas);
@@ -376,11 +467,8 @@
         `;
         
         const oldFooter = document.querySelector('footer:not(.common-footer)');
-        if (oldFooter) {
-            oldFooter.replaceWith(footer);
-        } else {
-            document.body.appendChild(footer);
-        }
+        if (oldFooter) oldFooter.replaceWith(footer);
+        else document.body.appendChild(footer);
     }
 
     // ==================== 悬浮工具注入 ====================
@@ -672,6 +760,11 @@
         injectFooter();
         injectFloatingTools();
         initAnnouncements();
+        
+        // 启动新增功能
+        initDirectLinkTracker();
+        initMainSiteAuth();
+
         const currentLang = getLang();
         document.querySelectorAll('.lang-btn').forEach(btn => { btn.classList.toggle('active', btn.dataset.langBtn === currentLang); });
     });
