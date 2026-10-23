@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>站点导航 · 了了了游</title>
+    
+    <link rel="stylesheet" href="common.css">
+    <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
+
+    <style>
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text { display: block; }
+        html[data-lang="zh"] .zh-inline { display: inline; }
+        html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="en"] .en-inline { display: inline; }
+        html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+        html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 顶部导航 */
+        .top-bar {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
+            padding: 12px 28px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .site-title {
+            font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;
+            text-decoration: none; color: var(--text-main);
+        }
+        .site-title img { height: 28px; }
+        
+        .right-actions { display: flex; gap: 12px; align-items: center; }
+        .lang-switch {
+            display: flex; gap: 2px; background: rgba(148, 163, 184, 0.12);
+            border-radius: 30px; padding: 3px;
+        }
+        .lang-btn {
+            padding: 6px 16px; border: none; border-radius: 24px; background: transparent;
+            font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer;
+            transition: all 0.2s; font-family: inherit;
+        }
+        .lang-btn.active { background: #4f46e5; color: #fff; box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25); }
+        
+        .btn-back {
+            text-decoration: none; color: var(--primary); font-weight: 600; font-size: 0.9rem;
+            padding: 8px 16px; border-radius: 30px; background: rgba(79, 70, 229, 0.08);
+            transition: all 0.2s;
+        }
+        .btn-back:hover { background: rgba(79, 70, 229, 0.15); }
+
+        /* 主体内容 */
+        .main-container {
+            width: 100%; max-width: 1000px; margin: 40px auto 60px; padding: 0 20px; flex: 1;
+        }
+
+        .page-header {
+            text-align: center; margin-bottom: 40px;
+        }
+        .page-header h1 {
+            font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 12px;
+            background: linear-gradient(135deg, #1e293b 0%, #4f46e5 100%);
+            background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .page-header p {
+            color: var(--text-muted); font-size: 1.1rem;
+        }
+
+        /* 链接卡片网格 */
+        .docs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .docs-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 24px;
+            text-decoration: none;
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .docs-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--primary); transform: scaleY(0); transform-origin: bottom;
+            transition: transform 0.3s ease;
+        }
+
+        .docs-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(79, 70, 229, 0.1);
+            border-color: rgba(79, 70, 229, 0.3);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .docs-card:hover::before { transform: scaleY(1); }
+
+        .card-icon {
+            width: 48px; height: 48px; border-radius: 14px;
+            background: rgba(79, 70, 229, 0.08); color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; flex-shrink: 0;
+        }
+
+        .card-info { flex: 1; }
+        .card-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+        .card-desc { font-size: 0.85rem; color: var(--text-muted); }
+        
+        .link-icon {
+            font-size: 1.2rem; color: #cbd5e1; transition: color 0.2s;
+        }
+        .docs-card:hover .link-icon { color: var(--primary); }
+
+        html.dark-mode .docs-card {
+            background: rgba(30, 41, 59, 0.6);
+        }
+        html.dark-mode .docs-card:hover {
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        /* 分类标题 */
+        .section-title {
+            font-size: 1.3rem; font-weight: 800; margin: 40px 0 20px 5px;
+            display: flex; align-items: center; gap: 10px;
+            padding-left: 12px; border-left: 5px solid var(--primary);
+        }
+        .section-title:first-of-type { margin-top: 0; }
+
+        @media (max-width: 600px) {
+            .docs-grid { grid-template-columns: 1fr; }
+            .page-header h1 { font-size: 2rem; }
+            .top-bar { padding: 12px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <a href="index.html" class="site-title">
+            <img src="lelelegame.svg" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span class="logo-fallback" style="display:none;">🎮</span>
+            <span class="zh-inline">了了了游</span><span class="en-inline">lelele Game</span>
+        </a>
+        
+        <div class="right-actions">
+            <div class="lang-switch">
+                <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+                <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
+            </div>
+            <a href="index.html" class="btn-back">
+                ← <span class="zh-inline">返回主页</span><span class="en-inline">Back to Home</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="page-header">
+            <h1><span class="zh-inline">全站导航地图</span><span class="en-inline">Site Map & Directory</span></h1>
+            <p><span class="zh-inline">收录了了了游所有的核心页面与功能入口</span><span class="en-inline">All core pages and entrances of lelele Game</span></p>
+        </div>
+
+        <!-- 核心页面 -->
+        <div class="section-title">
+            <span class="zh-inline">🌟 核心页面</span><span class="en-inline">🌟 Core Pages</span>
+        </div>
+        <div class="docs-grid">
+            <a href="index.html" target="_blank" class="docs-card">
+                <div class="card-icon">🏠</div>
+                <div class="card-info">
+                    <div class="card-name"><span class="zh-inline">首页</span><span class="en-inline">Homepage</span></div>
+                    <div class="card-desc">index.html</div>
+                </div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="about.html" target="_blank" class="docs-card">
+                <div class="card-icon">ℹ️</div>
+                <div class="card-info">
+                    <div class="card-name"><span class="zh-inline">关于我们</span><span class="en-inline">About Us</span></div>
+                    <div class="card-desc">about.html</div>
+                </div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="https://leleleling.site/support.html" target="_blank" class="docs-card">
+                <div class="card-icon">❤️</div>
+                <div class="card-info">
+                    <div class="card-name"><span class="zh-inline">支持我们</span><span class="en-inline">Support Us</span></div>
+                    <div class="card-desc">support.html</div>
+                </div>
+                <div class="link-icon">↗</div>
+            </a>
+        </div>
+
+        <!-- 开发者系统 -->
+        <div class="section-title">
+            <span class="zh-inline">🧑‍💻 开发者系统</span><span class="en-inline">🧑‍💻 Developer System</span>
+        </div>
+        <div class="docs-grid">
+            <a href="login.html" target="_blank" class="docs-card">
+                <div class="card-icon">🔐</div>
+                <div class="card-info">
+                    <div class="card-name"><span class="zh-inline">开发者登录/注册</span><span class="en-inline">Developer Login</span></div>
+                    <div class="card-desc">login.html</div>
+                </div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="dashboard.html" target="_blank" class="docs-card">
+                <div class="card-icon">📊</div>
+                <div class="card-info">
+                    <div class="card-name"><span class="zh-inline">开发者面板</span><span class="en-inline">Dashboard</span></div>
+                    <div class="card-desc">dashboard.html</div>
+                </div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="https://game.leleleling.site/developer_docs.html" target="_blank" class="docs-card">
+                <div class="card-icon">📚</div>
+                <div class="card-info">
+                    <div class="card-name"><span class="zh-inline">开发者文档</span><span class="en-inline">Developer Docs</span></div>
+                    <div class="card-desc">developer_docs.html</div>
+                </div>
+                <div class="link-icon">↗</div>
+            </a>
+        </div>
+
+        <!-- 游戏与详情 -->
+        <div class="section-title">
+            <span class="zh-inline">🎮 游戏与详情</span><span class="en-inline">🎮 Games & Details</span>
+        </div>
+        <div class="docs-grid">
+            <a href="game.html?id=1" target="_blank" class="docs-card">
+                <div class="card-icon">🕹️</div>
+                <div class="card-info">
+                    <div class="card-name"><span class="zh-inline">游戏详情页 (示例)</span><span class="en-inline">Game Detail (Example)</span></div>
+                    <div class="card-desc">game.html?id=1</div>
+                </div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="author.html?id=1" target="_blank" class="docs-card">
+                <div class="card-icon">👤</div>
+                <div class="card-info">
+                    <div class="card-name"><span class="zh-inline">作者主页 (示例)</span><span class="en-inline">Author Page (Example)</span></div>
+                    <div class="card-desc">author.html?id=1</div>
+                </div>
+                <div class="link-icon">↗</div>
+            </a>
+        </div>
+
+        <!-- 条款与协议 -->
+        <div class="section-title">
+            <span class="zh-inline">📜 条款与协议</span><span class="en-inline">📜 Terms & Policies</span>
+        </div>
+        <div class="docs-grid">
+            <a href="https://game.leleleling.site/game_rules.html" target="_blank" class="docs-card">
+                <div class="card-icon">⚖️</div>
+                <div class="card-info">
+                    <div class="card-name"><span class="zh-inline">游戏守则</span><span class="en-inline">Game Rules</span></div>
+                    <div class="card-desc">game_rules.html</div>
+                </div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="https://game.leleleling.site/privacy.html" target="_blank" class="docs-card">
+                <div class="card-icon">🛡️</div>
+                <div class="card-info">
+                    <div class="card-name"><span class="zh-inline">隐私政策</span><span class="en-inline">Privacy Policy</span></div>
+                    <div class="card-desc">privacy.html</div>
+                </div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="https://game.leleleling.site/copyright.html" target="_blank" class="docs-card">
+                <div class="card-icon">©️</div>
+                <div class="card-info">
+                    <div class="card-name"><span class="zh-inline">版权投诉</span><span class="en-inline">Copyright Report</span></div>
+                    <div class="card-desc">copyright.html</div>
+                </div>
+                <div class="link-icon">↗</div>
+            </a>
+        </div>
+
+    </div>
+
+    <script src="common.js" defer></script>
+    <script>
+        // 接管全局语言切换，更新页面状态
+        function setLang(lang) {
+            document.documentElement.setAttribute('data-lang', lang);
+            document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            document.querySelectorAll('.lang-btn').forEach(function (btn) {
+                btn.classList.toggle('active', btn.dataset.langBtn === lang);
+            });
+            try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
+            setLang(currentLang);
+        });
+    </script>
+</body>
+</html>
