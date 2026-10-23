@@ -1,11 +1,20 @@
 [
   {
+    "id": "20261022-winter-theme-launch",
+    "title_zh": "🎄 冰雪降临！了了了游冬季限定主题正式开启",
+    "title_en": "🎄 Winter is Coming! lelele Game Winter Theme is Live",
+    "content_zh": "伴随着初雪，我们的冬季限定主题现已全站上线！活动由10月22日一直到12月31日！\n\n在接下来的日子里，你将体验到：\n❄️ 全站飘落的浪漫雪花特效\n🏔️ 全新冰雪蓝渐变背景与雪景 Banner\n👒 戴上了圣诞帽的特别版 Logo\n⛄ 左右下角的盲盒风雪人与圣诞树彩蛋\n\n希望大家在这个冬天，也能在「了了了游」找到温暖与快乐。祝大家冬日愉快！",
+    "content_en": "Along with the first snow, our Winter Theme is now live across the entire site!The activity starts from 22 OCT and last to 31 Dec\n\nIn the coming days, you will experience:\n❄️ Romantic falling snow effects site-wide\n🏔️ A brand new ice-blue gradient background and snow scenery banner\n👒 A special edition Logo wearing a Santa hat\n⛄ Blind-box style snowman and Christmas tree easter eggs in the corners\n\nWe hope you find warmth and joy at 'lelele Game' this winter. Happy Winter!",
+    "publishDate": "2026-10-22",
+    "expireDate": "2027-01-31"
+  },
+  {
     "id": "20261023-developer-system",
     "title_zh": "🚀 开发者系统正式上线！3.0.0 版本大更新",
     "title_en": "🚀 Developer System is Live! 3.0.0 Major Update",
     "content_zh": "欢迎使用全新的开发者生态！我们现在支持开发者独立注册、后台数据看板（含环比趋势），以及专属的公开作者主页。想查看您的游戏数据？快去首页点击右上角登录吧！",
     "content_en": "Welcome to the new developer ecosystem! We now support independent developer registration, backend dashboards (with trend analysis), and exclusive public author pages. Want to check your game stats? Log in via the top right corner of the homepage!",
-    "publishDate": "2026-10-23",
+    "publishDate": "2026-10-22",
     "expireDate": "2026-12-31"
   },
   {
@@ -14,17 +23,8 @@
     "title_en": "🔍 Smart Search & New Layout Update!",
     "content_zh": "想找游戏但忘了名字？全新上线的拼音搜索、首字母匹配与高亮功能帮你轻松搞定！同时，我们将搜索框移到了顶部导航栏，全站热度榜也搬到了首页更显眼的位置，快去体验吧！",
     "content_en": "Forgot the game name? The brand-new pinyin search, initials matching, and highlighting are here to help! We also moved the search bar to the top navigation and placed the Global Ranking higher on the homepage. Try it out!",
-    "publishDate": "2026-10-23",
+    "publishDate": "2026-10-22",
     "expireDate": "2026-12-31"
-  },
-  {
-    "id": "20261022-winter-theme-launch",
-    "title_zh": "🎄 冰雪降临！了了了游冬季限定主题正式开启",
-    "title_en": "🎄 Winter is Coming! lelele Game Winter Theme is Live",
-    "content_zh": "伴随着初雪，我们的冬季限定主题现已全站上线！活动由10月22日一直到12月31日！\n\n在接下来的日子里，你将体验到：\n❄️ 全站飘落的浪漫雪花特效\n🏔️ 全新冰雪蓝渐变背景与雪景 Banner\n👒 戴上了圣诞帽的特别版 Logo\n⛄ 左右下角的盲盒风雪人与圣诞树彩蛋\n\n希望大家在这个冬天，也能在「了了了游」找到温暖与快乐。祝大家冬日愉快！",
-    "content_en": "Along with the first snow, our Winter Theme is now live across the entire site!The activity starts from 22 OCT and last to 31 Dec\n\nIn the coming days, you will experience:\n❄️ Romantic falling snow effects site-wide\n🏔️ A brand new ice-blue gradient background and snow scenery banner\n👒 A special edition Logo wearing a Santa hat\n⛄ Blind-box style snowman and Christmas tree easter eggs in the corners\n\nWe hope you find warmth and joy at 'lelele Game' this winter. Happy Winter!",
-    "publishDate": "2026-10-23",
-    "expireDate": "2027-01-31"
   },
   {
     "id": "20261022-starseed-launch",
