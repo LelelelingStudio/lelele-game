@@ -422,7 +422,7 @@
             if (authorId) {
                 myGames = allGames.filter(g => String(g.author) === String(authorId));
             } else {
-                myGames = []; // 如果没有绑定 ID，说明还没有游戏
+                myGames = []; 
             }
 
             initDashboard();
@@ -460,14 +460,12 @@
             }
 
             if (myGames.length === 1) {
-                // 只有一个游戏时，直接展示看板，但依然需要填充下拉框
                 activeGameId = myGames[0].id;
                 fillGameSelector();
                 document.getElementById('dashboardControls').style.display = 'flex';
                 document.getElementById('analyticsDataView').style.display = 'block';
                 loadChartData();
             } else {
-                // 多个游戏：显示选择卡片
                 document.getElementById('dashboardControls').style.display = 'none';
                 document.getElementById('analyticsDataView').style.display = 'none';
                 document.getElementById('gameSelectGrid').style.display = 'grid';
@@ -535,18 +533,18 @@
                 const playRes = await fetch(playUrl);
                 const rawData = await playRes.json();
 
-                // 数据规范化：兼容可能的结构
+                // 【核心修复】兼容 timeseries 接口返回的 points 结构
                 let playDataArray = [];
                 if (Array.isArray(rawData)) {
                     playDataArray = rawData;
+                } else if (rawData && Array.isArray(rawData.points)) {
+                    playDataArray = rawData.points; 
                 } else if (rawData && Array.isArray(rawData.pageviews)) {
                     playDataArray = rawData.pageviews;
                 } else if (rawData && Array.isArray(rawData.data)) {
                     playDataArray = rawData.data;
                 } else if (rawData && Array.isArray(rawData.results)) {
                     playDataArray = rawData.results;
-                } else if (rawData && rawData.cur && Array.isArray(rawData.cur)) {
-                    playDataArray = rawData.cur;
                 }
 
                 let playCur = 0, playPrev = 0;
