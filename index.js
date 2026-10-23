@@ -36,12 +36,7 @@ window.removeFavorite = function(id, event) {
     saveFavorites(favs);
     renderFavoritesList();
     
-    const game = gameData.find(g => String(g.id) === String(id));
-    if (game && window.leleleTrack) {
-        const isEn = document.documentElement.getAttribute('data-lang') === 'en';
-        const gameName = isEn ? (game.name_en || game.name_zh) : (game.name_zh || game.name_en);
-        window.leleleTrack('unfav-game_' + gameName);
-    }
+    // 取消收藏埋点已移除
 };
 
 document.getElementById('openFavBtn').addEventListener('click', () => {
@@ -335,24 +330,17 @@ window.toggleFavFromPreview = function() {
     
     const gameId = String(currentPreviewGame.id);
     let favs = getFavorites();
-    let action = '';
     
     if (favs.includes(gameId)) {
         favs = favs.filter(id => id !== gameId);
-        action = 'unfav';
     } else {
         favs.push(gameId);
-        action = 'fav';
     }
     
     saveFavorites(favs);
     updateFavUI(gameId);
     
-    if (window.leleleTrack) {
-        const isEn = document.documentElement.getAttribute('data-lang') === 'en';
-        const gameName = isEn ? (currentPreviewGame.name_en || currentPreviewGame.name_zh) : (currentPreviewGame.name_zh || currentPreviewGame.name_en);
-        window.leleleTrack(`${action}-game_${gameName}`);
-    }
+    // 收藏埋点已移除
 };
 
 // ==================== 投稿流程逻辑 ====================
