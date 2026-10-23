@@ -9,11 +9,19 @@
     const TALLY_FEEDBACK_ID_ZH = 'EqkbqB';
     const TALLY_FEEDBACK_ID_EN = 'Eqkb54';
 
-    // ==================== 智能游戏存档探针（新增） ====================
+    // ==================== 全局埋点接口 ====================
+    window.leleleTrack = function(eventName, eventData) {
+        if (typeof edgemetry !== 'undefined') {
+            try { edgemetry(eventName, eventData); } catch(e) {}
+        } else if (typeof umami !== 'undefined') {
+            try { umami.track(eventName, eventData); } catch(e) {}
+        }
+    };
+
+    // ==================== 智能游戏存档探针 ====================
     (function initAutoSaveManager() {
         if (!isGamePage) return;
 
-        // 根据路径生成不同游戏的隔离命名空间
         const pathPrefix = window.location.pathname.replace(/\/[^/]*$/, '/');
         const NS = `lelele_save_${pathPrefix}`;
         const AUTO_SAVE_KEY = `lelele_autosave_${pathPrefix}`;
@@ -22,12 +30,11 @@
         const originalGetItem = Storage.prototype.getItem;
         const originalRemoveItem = Storage.prototype.removeItem;
 
-        let hasNativeSave = false; // 标记：游戏自身是否调用了 setItem
+        let hasNativeSave = false; 
 
-        // 1. 劫持并隔离游戏的原生存档
         Storage.prototype.setItem = function(key, value) {
             if (!key.startsWith('lelele_')) {
-                hasNativeSave = true; // 发现游戏自己在存盘！
+                hasNativeSave = true;
                 return originalSetItem.call(this, NS + key, value);
             }
             return originalSetItem.apply(this, arguments);
@@ -41,7 +48,6 @@
             return originalRemoveItem.apply(this, arguments);
         };
 
-        // 2. 页面加载时，尝试恢复平台兜底存的数据
         try {
             const backup = originalGetItem.call(localStorage, AUTO_SAVE_KEY);
             if (backup) {
@@ -52,14 +58,13 @@
             }
         } catch(e) {}
 
-        // 3. 兜底保存逻辑
         const safeStringify = (obj) => JSON.stringify(obj, (k, v) => {
             if (typeof v === 'function' || (typeof v === 'object' && v !== null && v.nodeType === 1)) return undefined;
             return v;
         });
 
         const doAutoSave = () => {
-            if (hasNativeSave) return; // 游戏自己有存档，平台不干预
+            if (hasNativeSave) return;
             try {
                 const stateToSave = {};
                 let hasState = false;
@@ -83,16 +88,14 @@
             } catch (e) {}
         };
 
-        // 每 5 秒检测一次
         const autoSaveTimer = setInterval(() => {
             if (hasNativeSave) {
-                clearInterval(autoSaveTimer); // 发现游戏原生存档，关掉定时器节约性能
+                clearInterval(autoSaveTimer);
                 return;
             }
             doAutoSave();
         }, 5000);
 
-        // 退出页面时最后一次保存
         window.addEventListener('beforeunload', doAutoSave);
     })();
 
@@ -123,6 +126,7 @@
         try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
 
         injectFooter();
+        updateFloatingTooltips();
         
         if (typeof allValidAnnouncements !== 'undefined') {
             const closedObj = getStorage('lelele_closed_announcements', {});
@@ -189,7 +193,6 @@
     // ==================== 活动核心逻辑 ====================
     async function initActivityTheme() {
         try {
-            // 1. 先拉取排除名单
             let skipEffects = false;
             try {
                 const specRes = await fetch(`${MAIN_SITE_URL}/special_common.json?t=${Date.now()}`);
@@ -202,12 +205,10 @@
                 }
             } catch (err) {}
 
-            // 2. 拉取活动配置
             const res = await fetch(`${MAIN_SITE_URL}/activity_whole.json?t=${Date.now()}`);
             if (!res.ok) return;
             const config = await res.json();
 
-            // 3. 时间判断
             const now = new Date();
             let isActive = config.forceEnable || false;
 
@@ -229,7 +230,6 @@
 
             if (!isActive) return;
 
-            // 4. 应用资源
             document.documentElement.classList.add('activity-mode');
 
             let hasFavicon = false;
@@ -252,13 +252,10 @@
                 });
             }, 100);
 
-            // 5. 如果是深色全屏游戏（skipEffects），不加载背景、雪花、贴纸
             if (skipEffects) {
                 return; 
             }
 
-            // --- 正常页面及正常游戏 ---
-            // 主站加载背景
             if (!isGamePage) {
                 const style = document.createElement('style');
                 const bgUrl = config.assets.background;
@@ -275,7 +272,6 @@
                 document.head.appendChild(style);
             }
 
-            // Banner (仅在首页)
             if (document.getElementById('gamesGrid') && document.querySelector('.controls')) {
                 if (!document.querySelector('.activity-banner-container')) {
                     const bannerDiv = document.createElement('div');
@@ -286,7 +282,6 @@
                 }
             }
 
-            // 贴纸
             if (!document.querySelector('.activity-sticker')) {
                 const snowman = document.createElement('img');
                 snowman.src = config.assets.snowman;
@@ -298,7 +293,6 @@
                 document.body.appendChild(tree);
             }
 
-            // 雪花
             if (config.enableSnowfall) {
                 initSnowfall();
             }
@@ -397,8 +391,8 @@
         const container = document.createElement('div');
         container.className = 'common-float-tools';
         container.innerHTML = `
-            <button class="common-float-btn" id="commonBtnFeedback" title="意见反馈">💬</button>
-            <button class="common-float-btn" id="commonBtnTop" title="回到顶部">⬆️</button>
+            <button class="common-float-btn" id="commonBtnFeedback" data-tooltip="意见反馈">💬</button>
+            <button class="common-float-btn" id="commonBtnTop" data-tooltip="回到顶部">⬆️</button>
         `;
         document.body.appendChild(container);
 
@@ -425,6 +419,16 @@
                 document.body.appendChild(script);
             }
         };
+
+        updateFloatingTooltips();
+    }
+
+    function updateFloatingTooltips() {
+        const lang = getLang();
+        const fbBtn = document.getElementById('commonBtnFeedback');
+        const topBtn = document.getElementById('commonBtnTop');
+        if (fbBtn) fbBtn.setAttribute('data-tooltip', lang === 'en' ? 'Feedback' : '意见反馈');
+        if (topBtn) topBtn.setAttribute('data-tooltip', lang === 'en' ? 'Back to Top' : '回到顶部');
     }
 
     // ==================== PWA 安装提示 ====================
