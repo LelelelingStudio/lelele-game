@@ -27,7 +27,6 @@
     
     <link rel="stylesheet" href="common.css">
     
-    <!-- 引入 Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -127,7 +126,6 @@
         }
         .auth-links a:hover { opacity: 0.8; text-decoration: underline; }
 
-        /* 规则链接区域 */
         .rules-links {
             margin-top: 24px;
             text-align: center;
@@ -153,7 +151,6 @@
         .msg-error { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); display: block; }
         .msg-success { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); display: block; }
 
-        /* OTP 输入框样式 */
         .otp-input {
             letter-spacing: 12px; text-align: center; font-size: 24px; font-weight: 800; font-family: 'Courier New', monospace;
         }
@@ -213,13 +210,11 @@
 
     <script src="supabase-client.js"></script>
     <script>
-        // 模式控制：'login' | 'register' | 'otp' | 'reset'
         let currentMode = 'login';
         let targetEmail = '';
 
         const titleEl = document.getElementById('authTitle');
         const subEl = document.getElementById('authSub');
-        const emailGroup = document.getElementById('formGroupEmail');
         const pwdGroup = document.getElementById('formGroupPassword');
         const otpGroup = document.getElementById('formGroupOtp');
         const msgBox = document.getElementById('msgBox');
@@ -349,7 +344,11 @@
 
                 } else if (currentMode === 'reset') {
                     if (!email) throw new Error('请输入邮箱 / Enter email');
-                    const { data, error } = await window.supabaseClient.auth.resetPasswordForEmail(email);
+                    
+                    // 【核心修改】加入 redirectTo，强制跳转到 dashboard?type=recovery
+                    const { data, error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
+                        redirectTo: window.location.origin + '/dashboard.html?type=recovery'
+                    });
                     if (error) throw error;
                     
                     showMsg('重置邮件已发送，请查收 / Reset email sent, check your inbox', 'success');
