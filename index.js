@@ -87,6 +87,7 @@ function renderFavoritesList() {
 
 // ==================== 游戏数据与渲染 ====================
 let gameData = [];
+let authorsData = [];
 let currentType = 'all';
 let currentCategory = 'all';
 let searchKeyword = '';
@@ -105,12 +106,38 @@ async function loadGames() {
     status.style.display = 'none';
 
     try {
-        const res = await fetch('lelegame_data.json');
-        if (res.ok) {
-            gameData = await res.json();
+        // 并发请求游戏主数据和作者映射表
+        const [resGames, resAuthors] = await Promise.all([
+            fetch('lelegame_data.json'),
+            fetch('https://authors.surge.sh/authors.json?t=' + Date.now()).catch(() => ({ ok: false }))
+        ]);
+
+        if (resGames.ok) {
+            gameData = await resGames.json();
         } else {
-            throw new Error('HTTP ' + res.status);
+            throw new Error('HTTP ' + resGames.status);
         }
+
+        if (resAuthors.ok) {
+            authorsData = await resAuthors.json();
+        }
+
+        // 将作者 ID 转换为真实名字，便于后续搜索和展示
+        gameData = gameData.map(g => {
+            if (typeof g.author === 'number' || /^\d+$/.test(g.author)) {
+                const authorObj = authorsData.find(a => String(a.id) === String(g.author));
+                if (authorObj) {
+                    return { 
+                        ...g, 
+                        authorId: g.author, 
+                        author: authorObj.name_zh || authorObj.name_en || 'Unknown',
+                        author_en: authorObj.name_en || authorObj.name_zh || 'Unknown'
+                    };
+                }
+            }
+            return g;
+        });
+
     } catch (e) {
         grid.innerHTML = '';
         status.style.display = 'block';
@@ -331,7 +358,6 @@ window.toggleFavFromPreview = function() {
 // ==================== 投稿流程逻辑 ====================
 function initSubmitFlow() {
     document.getElementById('openSubmitGuide').onclick = async () => {
-        // 检查登录状态
         if (window.supabaseClient) {
             const { data: { session } } = await window.supabaseClient.auth.getSession();
             if (!session) {
