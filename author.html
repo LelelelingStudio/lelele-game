@@ -27,10 +27,8 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <title>作者主页 · 了了了游</title>
 
-    <!-- 引入全局样式 -->
     <link rel="stylesheet" href="common.css">
     <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
-    <!-- 引入 Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -290,64 +288,80 @@
             document.getElementById('backBtn').href = 'index.html' + suffix;
         }
 
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
         // 初始化逻辑
         async function initAuthorPage() {
             const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get('id');
-            const nameParam = urlParams.get('name');
+            const authorId = urlParams.get('id'); // 这里的 ID 现在是数字 1, 2, 3
 
-            if (!id && !nameParam) {
+            if (!authorId) {
                 showEmpty();
                 return;
             }
 
-            let authorName = nameParam || '';
+            let uuid = null;
+            let defaultNameZh = '';
+            let defaultNameEn = '';
             let isRegistered = false;
             let profile = null;
 
-            // 1. 尝试从 Supabase 拿资料
-            if (id && typeof supabaseClient !== 'undefined' && supabaseClient) {
+            // 1. 从 authors.surge.sh 查找对应的 UUID
+            try {
+                const res = await fetch('https://authors.surge.sh/authors.json?t=' + Date.now());
+                if (res.ok) {
+                    const authors = await res.json();
+                    const matched = authors.find(a => String(a.id) === String(authorId));
+                    if (matched) {
+                        uuid = matched.uuid;
+                        defaultNameZh = matched.name_zh || '';
+                        defaultNameEn = matched.name_en || '';
+                    }
+                }
+            } catch (e) {
+                console.warn('作者映射表拉取失败', e);
+            }
+
+            // 2. 用 UUID 去 Supabase 拿最新资料
+            if (uuid && typeof supabaseClient !== 'undefined' && supabaseClient) {
                 try {
                     const { data, error } = await supabaseClient
                         .from('profiles')
                         .select('*')
-                        .eq('id', id)
+                        .eq('id', uuid)
                         .single();
                     if (data) {
                         profile = data;
-                        authorName = data.display_name || data.username;
                         isRegistered = true;
                     }
                 } catch (e) {
-                    console.warn('查无此作者', e);
+                    console.warn('查无此作者 Supabase 资料', e);
                 }
             }
 
-            // 2. 如果没有 profile 或者没有传 id，说明未注册
-            if (!profile && !authorName) {
-                showEmpty();
-                return;
-            }
-
+            // 3. 整合作者信息
             currentAuthorData = {
-                name: authorName,
+                name_zh: profile ? (profile.display_name || profile.username) : defaultNameZh,
+                name_en: profile ? (profile.display_name || profile.username) : defaultNameEn,
                 avatar_url: profile ? profile.avatar_url : null,
                 bio: profile ? profile.bio : null,
                 role: profile ? profile.role : 'External / Unregistered',
                 isRegistered: isRegistered
             };
 
-            // 3. 获取所有游戏数据，过滤出该作者的游戏
+            // 4. 获取所有游戏数据，过滤出该作者（数字 ID）的游戏
             try {
                 const res = await fetch('lelegame_data.json');
                 if (res.ok) {
                     allGamesData = await res.json();
                     
-                    // 匹配作者名（不区分大小写，去空格）
-                    const targetName = authorName.trim().toLowerCase();
+                    // 现在 JSON 里的 author 是数字 1，我们匹配这个数字
                     currentGamesList = allGamesData.filter(g => {
-                        if (!g.author) return false;
-                        return g.author.trim().toLowerCase() === targetName;
+                        if (g.author === undefined || g.author === null) return false;
+                        return String(g.author) === String(authorId);
                     });
                 }
             } catch (e) {
@@ -367,7 +381,9 @@
             document.getElementById('gamesSection').style.display = 'block';
             document.getElementById('emptyState').style.display = 'none';
 
-            document.getElementById('authorName').textContent = currentAuthorData.name;
+            const displayName = en ? (currentAuthorData.name_en || currentAuthorData.name_zh) : (currentAuthorData.name_zh || currentAuthorData.name_en);
+            document.getElementById('authorName').textContent = displayName || (en ? 'Unknown Author' : '未知作者');
+            
             document.getElementById('authorRole').textContent = currentAuthorData.isRegistered 
                 ? (currentAuthorData.role === 'developer' ? (en ? 'Developer' : '开发者') : currentAuthorData.role)
                 : (en ? 'Unregistered Creator' : '未注册的创作者');
@@ -418,11 +434,6 @@
             document.getElementById('authorCard').style.display = 'none';
             document.getElementById('gamesSection').style.display = 'none';
             document.getElementById('emptyState').style.display = 'block';
-        }
-
-        function escapeHtml(str) {
-            if (str === null || str === undefined) return '';
-            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
