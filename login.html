@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开发者登录 · 了了了游</title>
+    
+    <link rel="stylesheet" href="common.css">
+    
+    <!-- 引入 Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text { display: block; }
+        html[data-lang="zh"] .zh-inline { display: inline; }
+        html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="en"] .en-inline { display: inline; }
+        html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+        html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--card-border);
+            position: relative;
+        }
+
+        .back-home {
+            position: absolute; top: 20px; left: 20px;
+            text-decoration: none; color: var(--text-muted);
+            font-size: 14px; font-weight: 600; transition: color 0.2s;
+        }
+        .back-home:hover { color: var(--primary); }
+
+        .lang-switch {
+            position: absolute; top: 20px; right: 20px;
+            display: flex; gap: 2px; background: rgba(148, 163, 184, 0.12);
+            border-radius: 30px; padding: 3px;
+        }
+        .lang-btn {
+            padding: 4px 10px; border: none; border-radius: 24px; background: transparent;
+            font-size: 0.75rem; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s;
+        }
+        .lang-btn.active { background: #4f46e5; color: #fff; }
+
+        .auth-header {
+            text-align: center; margin-bottom: 30px; margin-top: 10px;
+        }
+        .auth-header h1 {
+            font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px;
+        }
+        .auth-header p {
+            font-size: 0.9rem; color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 8px;
+        }
+        .form-group input {
+            width: 100%; padding: 14px 16px; border-radius: 12px;
+            border: 1px solid var(--card-border); background: rgba(255, 255, 255, 0.6);
+            font-size: 1rem; color: var(--text-main); outline: none; transition: all 0.2s;
+            font-family: inherit;
+        }
+        .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15); background: #fff; }
+        html.dark-mode .form-group input { background: rgba(0, 0, 0, 0.2); }
+        html.dark-mode .form-group input:focus { background: rgba(0, 0, 0, 0.4); }
+
+        .btn-main {
+            width: 100%; padding: 14px; border-radius: 12px; border: none;
+            background: var(--primary); color: white; font-size: 1rem; font-weight: 700;
+            cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+            font-family: inherit;
+        }
+        .btn-main:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-main:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .auth-links {
+            margin-top: 20px; display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.85rem; font-weight: 600;
+        }
+        .auth-links a {
+            color: var(--primary); text-decoration: none; cursor: pointer; transition: opacity 0.2s;
+        }
+        .auth-links a:hover { opacity: 0.8; text-decoration: underline; }
+
+        .msg-box {
+            margin-top: 16px; padding: 12px 16px; border-radius: 12px;
+            font-size: 0.85rem; font-weight: 600; display: none; text-align: center;
+        }
+        .msg-error { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); display: block; }
+        .msg-success { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); display: block; }
+
+        /* OTP 输入框样式 */
+        .otp-input {
+            letter-spacing: 12px; text-align: center; font-size: 24px; font-weight: 800; font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <a href="index.html" class="back-home">← <span class="zh-inline">返回</span><span class="en-inline">Back</span></a>
+        
+        <div class="lang-switch">
+            <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh'); updateLangBtn();">中文</button>
+            <button class="lang-btn" data-lang-btn="en" onclick="setLang('en'); updateLangBtn();">English</button>
+        </div>
+
+        <div class="auth-header">
+            <h1 id="authTitle"><span class="zh-inline">欢迎回来</span><span class="en-inline">Welcome Back</span></h1>
+            <p id="authSub"><span class="zh-inline">登录您的开发者账号以管理游戏</span><span class="en-inline">Sign in to manage your games</span></p>
+        </div>
+
+        <div id="formGroupEmail" class="form-group">
+            <label><span class="zh-inline">邮箱地址</span><span class="en-inline">Email Address</span></label>
+            <input type="email" id="inputEmail" placeholder="you@example.com" autocomplete="email">
+        </div>
+
+        <div id="formGroupPassword" class="form-group">
+            <label><span class="zh-inline">密码</span><span class="en-inline">Password</span></label>
+            <input type="password" id="inputPassword" placeholder="••••••••" autocomplete="current-password">
+        </div>
+
+        <div id="formGroupOtp" class="form-group" style="display: none;">
+            <label><span class="zh-inline">验证码</span><span class="en-inline">Verification Code</span></label>
+            <input type="text" id="inputOtp" class="otp-input" maxlength="6" placeholder="000000" autocomplete="one-time-code">
+        </div>
+
+        <button class="btn-main" id="submitBtn" onclick="handleSubmit()">
+            <span class="zh-inline" id="btnTextZh">登 录</span>
+            <span class="en-inline" id="btnTextEn">Sign In</span>
+        </button>
+
+        <div class="msg-box" id="msgBox"></div>
+
+        <div class="auth-links" id="authLinks">
+            <a id="linkToggleMode" onclick="toggleMode()">
+                <span class="zh-inline">没有账号？去注册</span><span class="en-inline">No account? Sign up</span>
+            </a>
+            <a id="linkForgot" onclick="toggleForgotMode()">
+                <span class="zh-inline">忘记密码？</span><span class="en-inline">Forgot password?</span>
+            </a>
+        </div>
+    </div>
+
+    <script src="supabase-client.js"></script>
+    <script>
+        // 模式控制：'login' | 'register' | 'otp' | 'reset'
+        let currentMode = 'login';
+        let targetEmail = '';
+
+        const titleEl = document.getElementById('authTitle');
+        const subEl = document.getElementById('authSub');
+        const emailGroup = document.getElementById('formGroupEmail');
+        const pwdGroup = document.getElementById('formGroupPassword');
+        const otpGroup = document.getElementById('formGroupOtp');
+        const msgBox = document.getElementById('msgBox');
+        const submitBtn = document.getElementById('submitBtn');
+        const linkToggle = document.getElementById('linkToggleMode');
+        const linkForgot = document.getElementById('linkForgot');
+        const inputEmail = document.getElementById('inputEmail');
+        const inputPassword = document.getElementById('inputPassword');
+        const inputOtp = document.getElementById('inputOtp');
+
+        function updateLangBtn() {
+            const lang = document.documentElement.getAttribute('data-lang');
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.langBtn === lang);
+            });
+        }
+
+        function showMsg(text, type) {
+            msgBox.textContent = text;
+            msgBox.className = `msg-box msg-${type}`;
+            msgBox.style.display = 'block';
+        }
+
+        function hideMsg() {
+            msgBox.style.display = 'none';
+            msgBox.className = 'msg-box';
+        }
+
+        function toggleMode() {
+            hideMsg();
+            if (currentMode === 'login') {
+                currentMode = 'register';
+                titleEl.innerHTML = '<span class="zh-inline">创建开发者账号</span><span class="en-inline">Create Account</span>';
+                subEl.innerHTML = '<span class="zh-inline">加入我们，发布你的游戏</span><span class="en-inline">Join us and publish your games</span>';
+                document.getElementById('btnTextZh').textContent = '注册并获取验证码';
+                document.getElementById('btnTextEn').textContent = 'Register & Get Code';
+                linkToggle.innerHTML = '<span class="zh-inline">已有账号？去登录</span><span class="en-inline">Already have an account? Sign in</span>';
+                linkForgot.style.display = 'none';
+                pwdGroup.style.display = 'block';
+                otpGroup.style.display = 'none';
+            } else {
+                // 切换到登录
+                currentMode = 'login';
+                titleEl.innerHTML = '<span class="zh-inline">欢迎回来</span><span class="en-inline">Welcome Back</span>';
+                subEl.innerHTML = '<span class="zh-inline">登录您的开发者账号以管理游戏</span><span class="en-inline">Sign in to manage your games</span>';
+                document.getElementById('btnTextZh').textContent = '登 录';
+                document.getElementById('btnTextEn').textContent = 'Sign In';
+                linkToggle.innerHTML = '<span class="zh-inline">没有账号？去注册</span><span class="en-inline">No account? Sign up</span>';
+                linkForgot.style.display = 'block';
+                pwdGroup.style.display = 'block';
+                otpGroup.style.display = 'none';
+            }
+        }
+
+        function toggleForgotMode() {
+            hideMsg();
+            if (currentMode === 'reset') {
+                // 取消找回，回登录
+                toggleMode(); // 强制切回登录
+            } else {
+                currentMode = 'reset';
+                titleEl.innerHTML = '<span class="zh-inline">重置密码</span><span class="en-inline">Reset Password</span>';
+                subEl.innerHTML = '<span class="zh-inline">输入邮箱，我们将发送重置链接</span><span class="en-inline">Enter your email to receive a reset link</span>';
+                document.getElementById('btnTextZh').textContent = '发送重置邮件';
+                document.getElementById('btnTextEn').textContent = 'Send Reset Link';
+                linkToggle.innerHTML = '<span class="zh-inline">返回登录</span><span class="en-inline">Back to login</span>';
+                linkForgot.style.display = 'none';
+                pwdGroup.style.display = 'none';
+                otpGroup.style.display = 'none';
+            }
+        }
+
+        async function handleSubmit() {
+            if (!window.supabaseClient) {
+                showMsg('Supabase 加载失败', 'error');
+                return;
+            }
+            hideMsg();
+            submitBtn.disabled = true;
+            
+            const email = inputEmail.value.trim();
+            const password = inputPassword.value;
+            const otpCode = inputOtp.value.trim();
+
+            try {
+                if (currentMode === 'login') {
+                    if (!email || !password) throw new Error('请输入邮箱和密码 / Enter email and password');
+                    const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    
+                    showMsg('登录成功，正在跳转... / Success, redirecting...', 'success');
+                    setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+
+                } else if (currentMode === 'register') {
+                    if (!email || !password) throw new Error('请输入邮箱和密码 / Enter email and password');
+                    // 检查密码长度
+                    if (password.length < 6) throw new Error('密码至少需要 6 位 / Password must be at least 6 characters');
+                    
+                    // 触发 Supabase 的注册，由于配置了 OTP，这里会发送验证码邮件
+                    const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
+                    if (error) throw error;
+                    
+                    targetEmail = email;
+                    currentMode = 'otp';
+                    
+                    titleEl.innerHTML = '<span class="zh-inline">输入验证码</span><span class="en-inline">Enter Verification Code</span>';
+                    subEl.innerHTML = `<span class="zh-inline">验证码已发送至 ${email}</span><span class="en-inline">Code sent to ${email}</span>`;
+                    document.getElementById('btnTextZh').textContent = '确认注册';
+                    document.getElementById('btnTextEn').textContent = 'Verify & Register';
+                    linkToggle.innerHTML = '<span class="zh-inline">重新填写邮箱</span><span class="en-inline">Change email</span>';
+                    linkForgot.style.display = 'none';
+                    pwdGroup.style.display = 'none';
+                    otpGroup.style.display = 'block';
+                    inputOtp.value = '';
+                    inputOtp.focus();
+                    
+                    showMsg('验证码已发送，请查收邮件 / Code sent, check your email', 'success');
+
+                } else if (currentMode === 'otp') {
+                    if (!otpCode || otpCode.length < 6) throw new Error('请输入 6 位验证码 / Enter 6-digit code');
+                    
+                    const { data, error } = await window.supabaseClient.auth.verifyOtp({
+                        email: targetEmail,
+                        token: otpCode,
+                        type: 'signup'
+                    });
+                    if (error) throw error;
+                    
+                    showMsg('注册成功，正在跳转... / Success, redirecting...', 'success');
+                    setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+
+                } else if (currentMode === 'reset') {
+                    if (!email) throw new Error('请输入邮箱 / Enter email');
+                    const { data, error } = await window.supabaseClient.auth.resetPasswordForEmail(email);
+                    if (error) throw error;
+                    
+                    showMsg('重置邮件已发送，请查收 / Reset email sent, check your inbox', 'success');
+                    toggleMode();
+                }
+
+            } catch (err) {
+                showMsg(err.message || '发生错误，请重试 / Error, please try again', 'error');
+            } finally {
+                submitBtn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateLangBtn();
+            // 监听语言变化
+            window.addEventListener('langChanged', () => {
+                updateLangBtn();
+            });
+        });
+    </script>
+</body>
+</html>
