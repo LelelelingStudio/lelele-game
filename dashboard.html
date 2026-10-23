@@ -376,6 +376,21 @@
         };
         const getLang = () => document.documentElement.getAttribute('data-lang') || 'zh';
 
+        // 标签页切换逻辑（修复遗漏）
+        window.switchTab = function(tab) {
+            document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            if (tab === 'dashboard') {
+                document.getElementById('panel-dashboard').classList.add('active');
+                document.getElementById('navDashboard').classList.add('active');
+                if (myChart) myChart.resize();
+            } else if (tab === 'profile') {
+                document.getElementById('panel-profile').classList.add('active');
+                document.getElementById('navProfile').classList.add('active');
+            }
+        };
+
         // 鉴权与初始化
         async function init() {
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -419,7 +434,6 @@
 
         // 看板初始化
         function initDashboard() {
-            // 插入注销按钮到表单最下方
             document.getElementById('panel-profile').querySelector('.form-card').appendChild(document.getElementById('deleteSection'));
             document.getElementById('deleteSection').style.display = 'block';
 
@@ -440,7 +454,6 @@
                 document.getElementById('analyticsDataView').style.display = 'block';
                 loadChartData();
             } else {
-                // 多游戏：显示选择卡片
                 document.getElementById('dashboardControls').style.display = 'none';
                 document.getElementById('analyticsDataView').style.display = 'none';
                 document.getElementById('gameSelectGrid').style.display = 'grid';
@@ -465,7 +478,6 @@
             const isEn = getLang() === 'en';
             const name = isEn ? (game.name_en || game.name_zh) : (game.name_zh || game.name_en);
             
-            // 构造下拉框
             const sel = document.getElementById('gameSelector');
             sel.innerHTML = `<option value="${game.id}">${name}</option>`;
             
@@ -482,7 +494,6 @@
             const gameName = game.name_zh || game.name;
             const range = document.getElementById('timeSelector').value;
 
-            // API URL
             const baseApi = 'https://analytics.leleleling.site/api/timeseries?site=1';
             const playUrl = `${baseApi}&range=${range}&event=play-game_${encodeURIComponent(gameName)}`;
             const favUrl = `${baseApi}&range=${range}&event=fav-game_${encodeURIComponent(gameName)}`;
@@ -492,7 +503,6 @@
                 const playData = await playRes.json();
                 const favData = await favRes.json();
 
-                // 数据解析与环比计算
                 let playCur = 0, playPrev = 0;
                 let favCur = 0, favPrev = 0;
                 let dates = [];
@@ -506,27 +516,22 @@
                     if (!dates.length) dates = favData.map(d => d.label || d.date);
                 }
 
-                // 渲染数字
                 document.getElementById('playCount').textContent = playCur;
                 document.getElementById('favCount').textContent = favCur;
 
-                // 渲染趋势
                 renderTrend('play', playCur, playPrev);
                 renderTrend('fav', favCur, favPrev);
 
-                // 渲染图表
                 renderChart(dates, playData, favData);
-
             } catch (e) {
                 console.error('数据加载失败', e);
             }
         }
 
-        // 计算并渲染趋势 Emoji
         function renderTrend(type, cur, prev) {
             let percent = 0;
             if (prev === 0) {
-                if (cur > 0) percent = 100; // 从0到有，算暴增
+                if (cur > 0) percent = 100;
             } else {
                 percent = ((cur - prev) / prev) * 100;
             }
@@ -548,7 +553,6 @@
             document.getElementById(`${type}TrendText`).textContent = I18N[lang][textKey];
         }
 
-        // ECharts 渲染
         function renderChart(dates, playData, favData) {
             if (!myChart) {
                 myChart = echarts.init(document.getElementById('trendChart'));
@@ -570,50 +574,32 @@
                 },
                 grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
                 xAxis: {
-                    type: 'category',
-                    boundaryGap: false,
-                    data: dates,
-                    axisLabel: { color: textColor },
-                    axisLine: { lineStyle: { color: lineColor } }
+                    type: 'category', boundaryGap: false, data: dates,
+                    axisLabel: { color: textColor }, axisLine: { lineStyle: { color: lineColor } }
                 },
                 yAxis: {
-                    type: 'value',
-                    axisLabel: { color: textColor },
-                    splitLine: { lineStyle: { color: lineColor } }
+                    type: 'value', axisLabel: { color: textColor }, splitLine: { lineStyle: { color: lineColor } }
                 },
                 series: [
                     {
-                        name: I18N[lang].playLabel,
-                        type: 'line',
-                        smooth: true,
-                        data: playValues,
+                        name: I18N[lang].playLabel, type: 'line', smooth: true, data: playValues,
                         itemStyle: { color: '#4f46e5' },
-                        areaStyle: {
-                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                { offset: 0, color: 'rgba(79, 70, 229, 0.4)' },
-                                { offset: 1, color: 'rgba(79, 70, 229, 0)' }
-                            ])
-                        }
+                        areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: 'rgba(79, 70, 229, 0.4)' }, { offset: 1, color: 'rgba(79, 70, 229, 0)' }
+                        ])}
                     },
                     {
-                        name: I18N[lang].favLabel,
-                        type: 'line',
-                        smooth: true,
-                        data: favValues,
+                        name: I18N[lang].favLabel, type: 'line', smooth: true, data: favValues,
                         itemStyle: { color: '#ec4899' },
-                        areaStyle: {
-                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                { offset: 0, color: 'rgba(236, 72, 153, 0.4)' },
-                                { offset: 1, color: 'rgba(236, 72, 153, 0)' }
-                            ])
-                        }
+                        areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: 'rgba(236, 72, 153, 0.4)' }, { offset: 1, color: 'rgba(236, 72, 153, 0)' }
+                        ])}
                     }
                 ]
             };
             myChart.setOption(option);
         }
 
-        // 头像压缩与上传
         window.handleAvatarChange = function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -636,13 +622,11 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // 压缩至 0.8 质量 (通常远小于 50KB)
                     canvas.toBlob(async (blob) => {
                         if (blob.size > 51200) {
                             alert('图片过大，请选择小一点的图片 / Image too large');
                             return;
                         }
-                        // 上传
                         const ext = file.name.split('.').pop();
                         const filePath = `${currentUser.id}/avatar_${Date.now()}.${ext}`;
                         
@@ -655,7 +639,6 @@
                         const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(filePath);
                         document.getElementById('sidebarAvatar').innerHTML = `<img src="${urlData.publicUrl}">`;
                         
-                        // 暂存 URL，等点击保存再入库
                         userProfile.tempAvatarUrl = urlData.publicUrl;
                     }, 'image/jpeg', 0.8);
                 };
@@ -664,7 +647,6 @@
             reader.readAsDataURL(file);
         };
 
-        // 保存资料
         window.saveProfile = async function() {
             const newName = document.getElementById('inputDisplayName').value.trim();
             const newBio = document.getElementById('inputBio').value.trim();
@@ -688,7 +670,6 @@
             renderProfileUI();
         };
 
-        // 注销逻辑
         window.openModal = function(id) { document.getElementById(id).classList.add('active'); };
         window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); };
         window.nextDeleteStep = function() {
@@ -700,7 +681,6 @@
             const val = document.getElementById('deleteConfirmInput').value;
             if (val !== 'DELETE') return alert('请输入 DELETE / Type DELETE');
 
-            // 调用 RPC 删除
             const { error } = await supabaseClient.rpc('delete_user');
             if (error) return alert('注销失败: ' + error.message);
 
@@ -709,13 +689,11 @@
             window.location.href = 'index.html';
         };
 
-        // 退出登录
         window.logout = async function() {
             await supabaseClient.auth.signOut();
             window.location.href = 'index.html';
         };
 
-        // 切换语言
         window.switchLang = function(lang) {
             if (typeof setLang === 'function') setLang(lang);
             document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -727,7 +705,6 @@
             }
         };
 
-        // 页面初始化
         document.addEventListener('DOMContentLoaded', () => {
             init();
             window.addEventListener('resize', () => { if (myChart) myChart.resize(); });
