@@ -10,6 +10,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
+    "author": "了了了岭工作室",
     "url": "https://happyfarmer.surge.sh"
   },
   {
@@ -23,6 +24,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
+    "author": "了了了岭工作室",
     "url": "/game/old_happyfarmer/index.html"
   },
   {
@@ -36,6 +38,7 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "version": "v1.0.0",
+    "author": "了了了岭工作室",
     "url": "/game/3Dshooting/index.html"
   },
   {
@@ -49,6 +52,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
+    "author": "了了了岭工作室",
     "url": "/game/deleting_bombs/index.html"
   },
   {
@@ -62,6 +66,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
+    "author": "了了了岭工作室",
     "url": "/game/happycorn/index.html"
   },
   {
@@ -75,6 +80,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
+    "author": "了了了岭工作室",
     "url": "/game/leveleating/index.html"
   },
   {
@@ -88,6 +94,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
+    "author": "Andy Huang",
     "url": "/game/others/2026_7_7/point_the_button/index.html"
   },
   {
@@ -101,6 +108,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
+    "author": "了了了岭工作室",
     "url": "/game/popping_banana/index.html"
   },
   {
@@ -114,6 +122,7 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "version": "v1.0.0",
+    "author": "了了了岭工作室",
     "url": "/game/space_shooting/index.html"
   },
   {
@@ -127,6 +136,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
+    "author": "了了了岭工作室",
     "url": "/game/universal_evolution/index.html"
   },
   {
@@ -140,6 +150,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
+    "author": "了了了岭工作室",
     "url": "/game/eat_planet/index.html"
   },
   {
@@ -153,6 +164,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v.2.0.0",
+    "author": "Kevin Liao",
     "url": "https://levil-evil.surge.sh"
   },
   {
@@ -166,6 +178,7 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "version": "v1.0.0",
+    "author": "Jonathan",
     "url": "https://jonathanxu-games.netlify.app/games/wilds-survival.html"
   },
   {
@@ -179,9 +192,10 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "version": "v1.0.0",
+    "author": "Jonathan",
     "url": "https://jonathanxu-games.netlify.app/games/army-war-3d.html"
   },
-    {
+  {
     "id": 15,
     "name_zh": "星种",
     "name_en": "Starseed",
@@ -192,9 +206,10 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
+    "author": "了了了岭工作室",
     "url": "https://starseed-3fgwyvi5.manus.game/"
   },
-    {
+  {
     "id": 16,
     "name_zh": "MC点击游戏",
     "name_en": "MC Clicker Game",
@@ -205,6 +220,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
+    "author": "Wheat",
     "url": "/game/MCpointygame/index.html"
   },
   {
@@ -218,6 +234,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
+    "author": "Emogling games",
     "url": "https://swordmasters.io"
   }
 ]
