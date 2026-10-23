@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>作者主页 · 了了了游</title>
+
+    <!-- 引入全局样式 -->
+    <link rel="stylesheet" href="common.css">
+    <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
+    <!-- 引入 Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text { display: block; }
+        html[data-lang="zh"] .zh-inline { display: inline; }
+        html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="en"] .en-inline { display: inline; }
+        html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+        html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .top-bar {
+            width: 100%;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 12px 28px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 8px 16px;
+            background: rgba(79, 70, 229, 0.08);
+            border-radius: 30px;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: rgba(79, 70, 229, 0.15); }
+        
+        .site-title {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        .site-title img { height: 24px; }
+
+        .lang-switch {
+            display: inline-flex; 
+            background: rgba(148, 163, 184, 0.15);
+            border-radius: 30px; padding: 3px; border: none;
+        }
+        .lang-btn {
+            padding: 6px 16px; border: none; border-radius: 24px; background: transparent;
+            font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer;
+            transition: all 0.2s; font-family: inherit; outline: none;
+        }
+        .lang-btn.active { background: #4f46e5; color: #fff !important; box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25); }
+
+        .main-container {
+            width: 100%; max-width: 900px; margin: 40px auto 60px; padding: 0 20px; flex: 1;
+        }
+
+        /* 作者信息卡片 */
+        .author-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 40px;
+            animation: fadeIn 0.5s ease;
+        }
+        /* 装饰性渐变光晕 */
+        .author-card::before {
+            content: ''; position: absolute; top: -50%; left: -20%; width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, transparent 70%);
+            border-radius: 50%; pointer-events: none;
+        }
+
+        .author-avatar {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 4rem; color: white; flex-shrink: 0;
+            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3), inset 0 2px 4px rgba(255,255,255,0.4);
+            border: 4px solid var(--card-bg);
+            position: relative; z-index: 1;
+            overflow: hidden;
+        }
+        .author-avatar img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+
+        .author-info {
+            flex: 1; position: relative; z-index: 1;
+        }
+        .author-name {
+            font-size: 2.2rem; font-weight: 800; color: var(--text-main);
+            margin-bottom: 8px; line-height: 1.2; word-break: break-word;
+        }
+        .author-role {
+            display: inline-block; padding: 4px 12px; border-radius: 20px;
+            background: rgba(79, 70, 229, 0.1); color: var(--primary);
+            font-size: 0.85rem; font-weight: 700; margin-bottom: 16px;
+        }
+        .author-bio {
+            font-size: 1rem; color: var(--text-muted); line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .author-unregistered {
+            font-size: 0.9rem; color: #f59e0b; font-weight: 600; font-style: italic;
+            background: rgba(245, 158, 11, 0.1); padding: 8px 16px; border-radius: 12px;
+            display: inline-block; margin-top: 10px;
+        }
+
+        /* 游戏列表区域 */
+        .games-section-title {
+            font-size: 1.4rem; font-weight: 800; color: var(--text-main);
+            margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+            padding-left: 12px; border-left: 5px solid var(--primary);
+        }
+        
+        .games-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 24px; 
+        }
+        .game-card {
+            background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(8px);
+            border-radius: 24px; padding: 32px 16px; text-align: center;
+            color: #1e293b; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(148, 163, 184, 0.1); transition: all 0.25s ease;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; overflow: hidden; cursor: pointer; min-height: 160px; font-family: inherit;
+            text-decoration: none;
+        }
+        html.dark-mode .game-card { background: rgba(30, 41, 59, 0.6); border-color: rgba(255,255,255,0.1); color: var(--text-main); }
+        .game-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease;
+        }
+        .game-card:hover::before { transform: scaleX(1); }
+        .game-card:hover { transform: translateY(-6px); box-shadow: 0 20px 32px rgba(0, 0, 0, 0.1); }
+        .game-icon { font-size: 64px; margin-bottom: 16px; transition: transform 0.3s; line-height: 1; }
+        .game-card:hover .game-icon { transform: scale(1.15); }
+        .game-name {
+            font-size: 15px; font-weight: 600; line-height: 1.3; word-break: break-word;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--text-main);
+        }
+
+        .empty-state {
+            text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 1.1rem;
+            background: rgba(148, 163, 184, 0.05); border-radius: 24px; border: 1px dashed var(--card-border);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 600px) {
+            .author-card { flex-direction: column; text-align: center; padding: 30px 20px; gap: 20px; }
+            .author-avatar { width: 100px; height: 100px; font-size: 3rem; }
+            .author-name { font-size: 1.8rem; }
+            .games-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <a href="index.html" class="back-btn" id="backBtn">
+            ← <span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span>
+        </a>
+        
+        <div class="site-title" onclick="window.location.href='index.html'">
+            <img src="lelelegame.svg" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span class="logo-fallback" style="display:none;">🎮</span>
+            <span class="zh-inline">了了了游</span><span class="en-inline">lelele Game</span>
+        </div>
+
+        <div class="lang-switch" role="group">
+            <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+            <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        
+        <!-- 作者信息展示区 -->
+        <div class="author-card" id="authorCard" style="display: none;">
+            <div class="author-avatar" id="authorAvatar">
+                <!-- 头像或默认图 -->
+            </div>
+            <div class="author-info">
+                <div class="author-role" id="authorRole">Developer</div>
+                <h1 class="author-name" id="authorName"></h1>
+                <div class="author-bio" id="authorBio"></div>
+                <div class="author-unregistered" id="authorUnregistered" style="display: none;">
+                    <span class="zh-inline">该作者还未在这里填写自己的资料。</span>
+                    <span class="en-inline">This author hasn't set up their profile yet.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏作品区 -->
+        <div id="gamesSection" style="display: none;">
+            <div class="games-section-title">
+                <span class="zh-inline">🎮 TA 的游戏</span><span class="en-inline">🎮 Games by this Author</span>
+            </div>
+            <div class="games-grid" id="gamesGrid"></div>
+        </div>
+
+        <!-- 空状态（找不到作者或游戏） -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            😢 <span class="zh-inline">找不到该作者的信息或作品。</span>
+            <span class="en-inline">Author or games not found.</span>
+        </div>
+
+    </div>
+
+    <script src="common.js" defer></script>
+    <script src="supabase-client.js" defer></script>
+
+    <script>
+        let currentAuthorData = null;
+        let currentGamesList = [];
+        let allGamesData = [];
+
+        function isEn() {
+            return document.documentElement.getAttribute('data-lang') === 'en';
+        }
+
+        function updateLinks() {
+            const suffix = isEn() ? '?lang=en' : '';
+            document.getElementById('backBtn').href = 'index.html' + suffix;
+        }
+
+        // 初始化逻辑
+        async function initAuthorPage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+            const nameParam = urlParams.get('name');
+
+            if (!id && !nameParam) {
+                showEmpty();
+                return;
+            }
+
+            let authorName = nameParam || '';
+            let isRegistered = false;
+            let profile = null;
+
+            // 1. 尝试从 Supabase 拿资料
+            if (id && typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', id)
+                        .single();
+                    if (data) {
+                        profile = data;
+                        authorName = data.display_name || data.username;
+                        isRegistered = true;
+                    }
+                } catch (e) {
+                    console.warn('查无此作者', e);
+                }
+            }
+
+            // 2. 如果没有 profile 或者没有传 id，说明未注册
+            if (!profile && !authorName) {
+                showEmpty();
+                return;
+            }
+
+            currentAuthorData = {
+                name: authorName,
+                avatar_url: profile ? profile.avatar_url : null,
+                bio: profile ? profile.bio : null,
+                role: profile ? profile.role : 'External / Unregistered',
+                isRegistered: isRegistered
+            };
+
+            // 3. 获取所有游戏数据，过滤出该作者的游戏
+            try {
+                const res = await fetch('lelegame_data.json');
+                if (res.ok) {
+                    allGamesData = await res.json();
+                    
+                    // 匹配作者名（不区分大小写，去空格）
+                    const targetName = authorName.trim().toLowerCase();
+                    currentGamesList = allGamesData.filter(g => {
+                        if (!g.author) return false;
+                        return g.author.trim().toLowerCase() === targetName;
+                    });
+                }
+            } catch (e) {
+                console.warn('游戏数据拉取失败', e);
+            }
+
+            renderAuthorPage();
+        }
+
+        // 渲染页面核心逻辑
+        function renderAuthorPage() {
+            if (!currentAuthorData) return;
+            const en = isEn();
+
+            // 1. 渲染头部信息
+            document.getElementById('authorCard').style.display = 'flex';
+            document.getElementById('gamesSection').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+
+            document.getElementById('authorName').textContent = currentAuthorData.name;
+            document.getElementById('authorRole').textContent = currentAuthorData.isRegistered 
+                ? (currentAuthorData.role === 'developer' ? (en ? 'Developer' : '开发者') : currentAuthorData.role)
+                : (en ? 'Unregistered Creator' : '未注册的创作者');
+
+            const bioEl = document.getElementById('authorBio');
+            if (currentAuthorData.bio) {
+                bioEl.textContent = currentAuthorData.bio;
+                bioEl.style.display = 'block';
+            } else {
+                bioEl.style.display = 'none';
+            }
+
+            // 头像
+            const avatarEl = document.getElementById('authorAvatar');
+            if (currentAuthorData.avatar_url) {
+                avatarEl.innerHTML = `<img src="${escapeHtml(currentAuthorData.avatar_url)}" alt="Avatar">`;
+            } else {
+                avatarEl.innerHTML = '👤';
+            }
+
+            // 未注册提示
+            document.getElementById('authorUnregistered').style.display = currentAuthorData.isRegistered ? 'none' : 'inline-block';
+
+            // 2. 渲染游戏列表
+            const grid = document.getElementById('gamesGrid');
+            if (currentGamesList.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1; padding: 40px;">
+                        <span class="zh-inline">TA 还没有发布任何游戏。</span>
+                        <span class="en-inline">No games published yet.</span>
+                    </div>
+                `;
+            } else {
+                grid.innerHTML = currentGamesList.map(game => {
+                    const gameName = en ? (game.name_en || game.name_zh || game.name) : (game.name_zh || game.name_en || game.name);
+                    const langSuffix = en ? '&lang=en' : '';
+                    return `
+                        <a class="game-card" href="game.html?id=${game.id}${langSuffix}">
+                            <div class="game-icon">${game.icon || '🎮'}</div>
+                            <div class="game-name">${escapeHtml(gameName)}</div>
+                        </a>
+                    `;
+                }).join('');
+            }
+        }
+
+        function showEmpty() {
+            document.getElementById('authorCard').style.display = 'none';
+            document.getElementById('gamesSection').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+        }
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateLinks();
+            const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.langBtn === currentLang);
+            });
+
+            initAuthorPage();
+
+            window.addEventListener('langChanged', () => {
+                updateLinks();
+                renderAuthorPage();
+            });
+        });
+    </script>
+</body>
+</html>
