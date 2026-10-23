@@ -339,6 +339,9 @@ function initSubmitFlow() {
                 window.location.href = 'login.html';
                 return;
             }
+        } else {
+            alert('无法连接到服务器，请稍后重试。\nCannot connect to server, please try again later.');
+            return;
         }
 
         document.getElementById('chkGuide').checked = false;
