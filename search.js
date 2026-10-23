@@ -60,7 +60,6 @@ window.leleleSearch = function(query, games, lang) {
             if (currentScore > maxScore) {
                 maxScore = currentScore;
                 if (currentScore >= 50 && target.type === 'name') {
-                    // 直接用全局函数调用，避免 this 丢失
                     matchedHtml = highlightText(str, q, qPinyin);
                 }
             }
@@ -75,7 +74,7 @@ window.leleleSearch = function(query, games, lang) {
     return results;
 };
 
-// 高亮处理函数独立出来
+// 高亮处理函数
 function highlightText(text, query, qPinyin) {
     if (!text) return '';
     let res = text;
