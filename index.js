@@ -35,6 +35,14 @@ window.removeFavorite = function(id, event) {
     favs = favs.filter(f => f !== String(id));
     saveFavorites(favs);
     renderFavoritesList();
+    
+    // 埋点：从收藏夹取消
+    const game = gameData.find(g => String(g.id) === String(id));
+    if (game && window.leleleTrack) {
+        const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+        const gameName = isEn ? (game.name_en || game.name_zh) : (game.name_zh || game.name_en);
+        window.leleleTrack('unfav-game_' + gameName);
+    }
 };
 
 document.getElementById('openFavBtn').addEventListener('click', () => {
@@ -90,7 +98,8 @@ function renderFavoritesList() {
 
 // ==================== 游戏数据与渲染 ====================
 let gameData = [];
-let currentType = 'local';
+let currentType = 'all'; // 默认全部
+let currentCategory = 'all'; // 默认全部分类
 let searchKeyword = '';
 let searchTimer = null;
 
@@ -120,10 +129,41 @@ async function loadGames() {
         return;
     }
     
+    renderCategories();
     renderGames();
 }
 
-// 暴露给全局使用 (用于 common.js 切换语言时刷新)
+// 动态生成分类按钮
+function renderCategories() {
+    const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+    const catSet = new Set();
+    
+    gameData.forEach(g => {
+        const cat = isEn ? g.category_en : g.category_zh;
+        if (cat) catSet.add(cat);
+    });
+
+    const categoryNav = document.getElementById('categoryNav');
+    const wrapper = document.getElementById('categoryNavWrapper');
+    
+    if (catSet.size === 0) {
+        wrapper.style.display = 'none';
+        return;
+    }
+    wrapper.style.display = 'block';
+
+    let html = `<button class="category-btn ${currentCategory === 'all' ? 'active' : ''}" data-cat="all">
+        <span class="zh-inline">全部分类</span><span class="en-inline">All Categories</span>
+    </button>`;
+    
+    Array.from(catSet).forEach(cat => {
+        html += `<button class="category-btn ${currentCategory === cat ? 'active' : ''}" data-cat="${escapeHtml(cat)}">${escapeHtml(cat)}</button>`;
+    });
+    
+    categoryNav.innerHTML = html;
+}
+
+// 统一渲染逻辑
 window.renderGames = function() {
     const grid = document.getElementById('gamesGrid');
     const status = document.getElementById('statusMessage');
@@ -131,52 +171,107 @@ window.renderGames = function() {
     grid.innerHTML = '';
 
     const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+    let filtered = [];
 
-    const filtered = gameData.filter(g => {
-        const matchType = g.type === currentType;
-        const targetName = isEn ? (g.name_en || g.name_zh || g.name || '') : (g.name_zh || g.name_en || g.name || '');
-        const matchSearch = !searchKeyword || targetName.toLowerCase().includes(searchKeyword.toLowerCase());
-        return matchType && matchSearch;
-    });
-
-    if (filtered.length === 0) {
-        status.style.display = 'block';
-        status.innerHTML = `<span class="zh-inline">暂无游戏，敬请期待 ✨</span><span class="en-inline">No games yet ✨</span>`;
+    // 如果有搜索词，调用超级搜索引擎
+    if (searchKeyword.trim() !== '') {
+        const searchResults = window.leleleSearch(searchKeyword, gameData, isEn);
+        // 搜索引擎返回的结果自带排序和 matchHtml
+        filtered = searchResults; 
+        
+        if (filtered.length === 0) {
+            status.style.display = 'block';
+            status.innerHTML = `<span class="zh-inline">没有找到匹配的游戏</span><span class="en-inline">No matching games found</span>`;
+            return;
+        }
     } else {
-        status.style.display = 'none';
-        filtered.forEach(g => {
-            const gameName = isEn ? (g.name_en || g.name_zh || g.name) : (g.name_zh || g.name_en || g.name);
-            
-            const card = document.createElement('div');
-            card.className = 'game-card';
-            card.setAttribute('tabindex', '0');
-            card.innerHTML = `
-                <div class="game-icon">${g.icon || '🎮'}</div>
-                <div class="game-name">${escapeHtml(gameName)}</div>
-            `;
-            card.onclick = () => showPreview(g);
-            card.onkeydown = (e) => {
-                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showPreview(g); }
-            };
-            grid.appendChild(card);
+        // 正常双层过滤
+        filtered = gameData.filter(g => {
+            const matchType = (currentType === 'all') || (g.type === currentType);
+            const cat = isEn ? g.category_en : g.category_zh;
+            const matchCat = (currentCategory === 'all') || (cat === currentCategory);
+            return matchType && matchCat;
         });
+
+        if (filtered.length === 0) {
+            status.style.display = 'block';
+            status.innerHTML = `<span class="zh-inline">该分类下暂无游戏，敬请期待 ✨</span><span class="en-inline">No games in this category yet ✨</span>`;
+            return;
+        }
     }
+
+    status.style.display = 'none';
+    filtered.forEach(item => {
+        // 由于搜索引擎返回的数据可能结构被展开，我们保证能拿到原始 game 对象
+        const g = item.game || item;
+        const finalHtmlName = item.matchHtml || escapeHtml(isEn ? (g.name_en || g.name_zh || g.name) : (g.name_zh || g.name_en || g.name));
+        
+        const card = document.createElement('div');
+        card.className = 'game-card';
+        card.setAttribute('tabindex', '0');
+        card.innerHTML = `
+            <div class="game-icon">${g.icon || '🎮'}</div>
+            <div class="game-name">${finalHtmlName}</div>
+        `;
+        card.onclick = () => showPreview(g);
+        card.onkeydown = (e) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showPreview(g); }
+        };
+        grid.appendChild(card);
+    });
 }
 
-// 内部调用的短名
 const renderGames = window.renderGames;
 
-document.getElementById('searchInput').addEventListener('input', (e) => {
+// 监听搜索输入
+const searchInput = document.getElementById('searchInput');
+const searchClearBtn = document.getElementById('searchClearBtn');
+
+searchInput.addEventListener('input', (e) => {
+    const val = e.target.value;
+    if (val.trim().length > 0) {
+        searchClearBtn.classList.add('show');
+    } else {
+        searchClearBtn.classList.remove('show');
+    }
+
     clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => { searchKeyword = e.target.value; renderGames(); }, 200);
+    searchTimer = setTimeout(() => { 
+        searchKeyword = val; 
+        renderGames(); 
+    }, 200);
 });
 
+searchClearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    searchKeyword = '';
+    searchClearBtn.classList.remove('show');
+    renderGames();
+});
+
+// 监听顶层导航点击
 document.getElementById('typeNav').addEventListener('click', (e) => {
     const btn = e.target.closest('.type-btn');
     if (!btn) return;
     document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentType = btn.dataset.type;
+    renderGames();
+});
+
+// 监听分类导航点击
+document.getElementById('categoryNav').addEventListener('click', (e) => {
+    const btn = e.target.closest('.category-btn');
+    if (!btn) return;
+    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCategory = btn.dataset.cat;
+    renderGames();
+});
+
+// 监听语言切换，重绘分类按钮，并刷新列表
+window.addEventListener('langChanged', () => {
+    renderCategories();
     renderGames();
 });
 
@@ -205,9 +300,8 @@ function showPreview(game) {
     };
     
     document.getElementById('btnPlay').onclick = () => {
-        if (typeof edgemetry !== 'undefined') {
-            const gameName = game.name_zh || game.name;
-            edgemetry('play-game_' + gameName); 
+        if (window.leleleTrack) {
+            window.leleleTrack('play-game_' + game.name_zh || game.name); 
         }
         if (game.url) window.open(game.url, '_blank', 'noopener,noreferrer');
     };
@@ -235,15 +329,25 @@ window.toggleFavFromPreview = function() {
     
     const gameId = String(currentPreviewGame.id);
     let favs = getFavorites();
+    let action = '';
     
     if (favs.includes(gameId)) {
         favs = favs.filter(id => id !== gameId);
+        action = 'unfav';
     } else {
         favs.push(gameId);
+        action = 'fav';
     }
     
     saveFavorites(favs);
     updateFavUI(gameId);
+    
+    // 埋点发送
+    if (window.leleleTrack) {
+        const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+        const gameName = isEn ? (currentPreviewGame.name_en || currentPreviewGame.name_zh) : (currentPreviewGame.name_zh || currentPreviewGame.name_en);
+        window.leleleTrack(`${action}-game_${gameName}`);
+    }
 };
 
 // ==================== 投稿流程逻辑 ====================
@@ -300,48 +404,17 @@ window.addEventListener("message", function(event) {
 // ==================== 排行榜逻辑 ====================
 (function() {
     const rankLang = {
-        zh: {
-            title: '游戏排名',
-            subtitle: '全站热度榜',
-            more: '查看更多',
-            modalTitle: '前 25 名排行',
-            noData: '暂无数据',
-            played: '次',
-            view: '查看详情'
-        },
-        en: {
-            title: 'Top Games',
-            subtitle: 'Global popularity ranking',
-            more: 'View More',
-            modalTitle: 'Top 25 Ranking',
-            noData: 'No data available',
-            played: 'plays',
-            view: 'Details'
-        }
+        zh: { title: '游戏排名', subtitle: '全站热度榜', more: '查看更多', modalTitle: '前 25 名排行', noData: '暂无数据', played: '次', view: '查看详情' },
+        en: { title: 'Top Games', subtitle: 'Global popularity ranking', more: 'View More', modalTitle: 'Top 25 Ranking', noData: 'No data available', played: 'plays', view: 'Details' }
     };
-
-    // 使用完全对齐的接口路径
     const ANALYTICS_API = 'https://analytics.leleleling.site/api/breakdown?site=1&cmp=1&limit=1000&dim=path,referrer,event,country,device&range=30d';
-    
-    // 全局缓存游戏列表，方便匹配 id 和中英文名
     let catalogCache = []; 
 
-    function getCurrentLang() {
-        return document.documentElement.getAttribute('data-lang') || 'zh';
-    }
-
-    function t(key) {
-        const lang = getCurrentLang();
-        return (rankLang[lang] && rankLang[lang][key]) || rankLang.zh[key];
-    }
-
+    function getCurrentLang() { return document.documentElement.getAttribute('data-lang') || 'zh'; }
+    function t(key) { const lang = getCurrentLang(); return (rankLang[lang] && rankLang[lang][key]) || rankLang.zh[key]; }
     function normalizeName(value) {
         if (!value) return '';
-        return String(value)
-            .replace(/^play-game[_\s-]*/i, '')
-            .replace(/[_-]+/g, ' ')
-            .trim()
-            .toLowerCase();
+        return String(value).replace(/^play-game[_\s-]*/i, '').replace(/[_-]+/g, ' ').trim().toLowerCase();
     }
 
     async function fetchCatalog() {
@@ -350,9 +423,7 @@ window.addEventListener("message", function(event) {
             if (!res.ok) return [];
             const json = await res.json();
             return Array.isArray(json) ? json : [];
-        } catch (e) {
-            return [];
-        }
+        } catch (e) { return []; }
     }
 
     function getGameDetailUrl(id) {
@@ -362,18 +433,13 @@ window.addEventListener("message", function(event) {
 
     function renderEmpty() {
         const top3 = document.getElementById('top3RankContainer');
-        if (top3) {
-            top3.innerHTML = `<div class="rank-empty">${t('noData')}</div>`;
-        }
+        if (top3) top3.innerHTML = `<div class="rank-empty">${t('noData')}</div>`;
     }
 
     function renderTop3(items) {
         const container = document.getElementById('top3RankContainer');
         if (!container) return;
-        if (!items || !items.length) {
-            renderEmpty();
-            return;
-        }
+        if (!items || !items.length) { renderEmpty(); return; }
 
         const top3 = items.slice(0, 3);
         const medals = ['🥇', '🥈', '🥉'];
@@ -383,21 +449,11 @@ window.addEventListener("message", function(event) {
             const rankLevel = index + 1;
             const detailUrl = item.url || '#';
             const name = item.name || 'Unknown';
-            
             return `
                 <button class="rank-card rank-${rankLevel}" type="button" style="text-align:left;" onclick="window.location.href='${detailUrl}'">
-                    <div class="rank-card-header">
-                        <div class="rank-medal" aria-label="rank medal">${medal}</div>
-                        <div class="rank-tag">No.${rankLevel}</div>
-                    </div>
-                    <div class="rank-main">
-                        <div class="rank-icon">${item.icon || '🎮'}</div>
-                        <div class="rank-name">${escapeHtml(name)}</div>
-                    </div>
-                    <div class="rank-meta">
-                        <div class="rank-count">${item.count} <small>${t('played')}</small></div>
-                        <a href="${detailUrl}" class="rank-link" onclick="event.stopPropagation();">${t('view')}</a>
-                    </div>
+                    <div class="rank-card-header"><div class="rank-medal">${medal}</div><div class="rank-tag">No.${rankLevel}</div></div>
+                    <div class="rank-main"><div class="rank-icon">${item.icon || '🎮'}</div><div class="rank-name">${escapeHtml(name)}</div></div>
+                    <div class="rank-meta"><div class="rank-count">${item.count} <small>${t('played')}</small></div><a href="${detailUrl}" class="rank-link" onclick="event.stopPropagation();">${t('view')}</a></div>
                 </button>
             `;
         }).join('');
@@ -422,16 +478,8 @@ window.addEventListener("message", function(event) {
 
     function syncTexts() {
         const nodes = document.querySelectorAll('[data-i18n]');
-        const map = {
-            rankTitle: t('title'),
-            rankSubtitle: t('subtitle'),
-            rankMore: t('more'),
-            rankModalTitle: t('modalTitle')
-        };
-        nodes.forEach(node => {
-            const key = node.getAttribute('data-i18n');
-            if (map[key]) node.textContent = map[key];
-        });
+        const map = { rankTitle: t('title'), rankSubtitle: t('subtitle'), rankMore: t('more'), rankModalTitle: t('modalTitle') };
+        nodes.forEach(node => { const key = node.getAttribute('data-i18n'); if (map[key]) node.textContent = map[key]; });
     }
 
     function bindModal() {
@@ -440,50 +488,28 @@ window.addEventListener("message", function(event) {
         const closeBtn = document.getElementById('rankModalCloseBtn');
         if (!openBtn || !modal || !closeBtn) return;
 
-        openBtn.addEventListener('click', function() {
-            modal.classList.add('active');
-        });
-
-        closeBtn.addEventListener('click', function() {
-            modal.classList.remove('active');
-        });
-
-        modal.addEventListener('click', function(event) {
-            if (event.target === modal) modal.classList.remove('active');
-        });
+        openBtn.addEventListener('click', () => modal.classList.add('active'));
+        closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+        modal.addEventListener('click', (event) => { if (event.target === modal) modal.classList.remove('active'); });
     }
 
     async function refreshRankings() {
         try {
             const res = await fetch(ANALYTICS_API, { cache: 'no-store' });
-            if (!res.ok) {
-                throw new Error('fetch failed');
-            }
-
+            if (!res.ok) throw new Error('fetch failed');
             const json = await res.json();
             const events = json.breakdowns?.event || [];
             
-            // 数据清洗
             const rawList = events
                 .filter(item => typeof item?.name === 'string' && item.name.toLowerCase().startsWith('play-game_'))
-                .map(item => ({
-                    name: String(item.name).replace(/^play-game[_\s-]*/i, '').trim(),
-                    count: Number(item.value || 0)
-                }))
+                .map(item => ({ name: String(item.name).replace(/^play-game[_\s-]*/i, '').trim(), count: Number(item.value || 0) }))
                 .filter(item => item.name)
                 .sort((a, b) => b.count - a.count);
 
-            if (!rawList.length) {
-                renderEmpty();
-                return;
-            }
+            if (!rawList.length) { renderEmpty(); return; }
 
-            // 获取游戏库
-            if (!catalogCache.length) {
-                catalogCache = await fetchCatalog();
-            }
+            if (!catalogCache.length) catalogCache = await fetchCatalog();
 
-            // 建立映射字典（结合中英文名和 ID）
             const lookup = new Map();
             catalogCache.forEach(game => {
                 const names = [game.name_zh, game.name_en, game.name, game.title].filter(Boolean);
@@ -491,22 +517,18 @@ window.addEventListener("message", function(event) {
                 if (game.id) lookup.set(String(game.id), game);
             });
 
-            // 匹配 ID 和图标
             const isEn = getCurrentLang() === 'en';
             const mapped = rawList.map(entry => {
                 const normalized = normalizeName(entry.name);
                 const matchedGame = lookup.get(normalized) || lookup.get(entry.name);
-                
                 return {
                     id: matchedGame ? matchedGame.id : null,
-                    name: matchedGame 
-                          ? (isEn ? (matchedGame.name_en || matchedGame.name_zh || matchedGame.name) : (matchedGame.name_zh || matchedGame.name_en || matchedGame.name))
-                          : entry.name,
+                    name: matchedGame ? (isEn ? (matchedGame.name_en || matchedGame.name_zh || matchedGame.name) : (matchedGame.name_zh || matchedGame.name_en || matchedGame.name)) : entry.name,
                     icon: matchedGame ? (matchedGame.icon || '🎮') : '🎮',
                     count: entry.count,
                     url: matchedGame ? getGameDetailUrl(matchedGame.id) : null
                 };
-            }).filter(item => item.name && item.url); // 过滤掉匹配不到详情的游戏（防止点进去404）
+            }).filter(item => item.name && item.url);
 
             renderTop3(mapped);
             renderModal(mapped);
@@ -517,21 +539,12 @@ window.addEventListener("message", function(event) {
     }
 
     function initRanking() {
-        bindModal();
-        syncTexts();
-        refreshRankings();
-        setInterval(refreshRankings, 5 * 60 * 1000); // 5分钟刷新一次
+        bindModal(); syncTexts(); refreshRankings();
+        setInterval(refreshRankings, 5 * 60 * 1000);
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        initRanking();
-    });
-
-    window.addEventListener('langChanged', function() {
-        syncTexts();
-        // 语言切换时重新渲染数据，这样名字和中英文图标就能对上了
-        refreshRankings(); 
-    });
+    document.addEventListener('DOMContentLoaded', initRanking);
+    window.addEventListener('langChanged', () => { syncTexts(); refreshRankings(); });
 })();
 
 // ==================== 页面初始化 ====================
@@ -541,20 +554,15 @@ document.addEventListener('DOMContentLoaded', () => {
         window.history.replaceState({}, document.title, window.location.pathname);
     }
     
-    // 注意：语言和公告已经交由 common.js 处理
     loadGames();
     initSubmitFlow();
 
-    // 更新“关于”按钮的语言参数
     const aboutBtn = document.getElementById('linkAbout');
     if (aboutBtn) {
         aboutBtn.addEventListener('click', function(e) {
             const currentLang = document.documentElement.getAttribute('data-lang');
-            if (currentLang === 'en') {
-                this.href = 'about.html?lang=en';
-            } else {
-                this.href = 'about.html';
-            }
+            if (currentLang === 'en') this.href = 'about.html?lang=en';
+            else this.href = 'about.html';
         });
     }
 });
