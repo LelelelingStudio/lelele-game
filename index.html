@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-lang="zh">
 <head>
-    <!-- 防止页面闪烁的内联脚本 (必须保留在 head) -->
+    <!-- 防止页面闪烁的内联脚本 -->
     <script>
         (function() {
             try {
@@ -35,6 +35,9 @@
     <link rel="stylesheet" href="common.css">
 
     <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
+    <!-- 引入拼音库 -->
+    <script src="https://pinyin.leleleling.surge.sh/pinyin.js"></script>
+
     <style>
         /* ===== 多语言控制 ===== */
         .zh-text, .en-text { display: none; }
@@ -71,7 +74,7 @@
             z-index: 100;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
         .top-bar-row {
             display: flex;
@@ -146,36 +149,65 @@
         }
         .btn-about:hover { background: rgba(148, 163, 184, 0.1); color: #1e293b; }
 
-        .type-nav {
+        /* ===== 双层导航 ===== */
+        .nav-scroll-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .nav-scroll-wrapper::-webkit-scrollbar { display: none; }
+        
+        .type-nav, .category-nav {
             display: flex; gap: 4px; background: rgba(148, 163, 184, 0.12);
             border-radius: 40px; padding: 4px; flex-shrink: 0; margin: 2px 0;
+            width: fit-content;
         }
-        .type-btn {
-            padding: 7px 22px; border: none; border-radius: 30px; background: transparent;
+        .type-btn, .category-btn {
+            padding: 7px 20px; border: none; border-radius: 30px; background: transparent;
             font-size: 14px; font-weight: 600; color: #64748b; cursor: pointer;
             transition: all 0.25s ease; white-space: nowrap; user-select: none; font-family: inherit;
         }
         .type-btn.active { background: #4f46e5; color: #fff; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.30); }
         .type-btn:hover:not(.active) { color: #1e293b; background: rgba(255, 255, 255, 0.5); }
+        
+        .category-btn { font-size: 13px; padding: 5px 16px; }
+        .category-btn.active { background: #1e293b; color: #fff; box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2); }
+        .category-btn:hover:not(.active) { color: #1e293b; background: rgba(255, 255, 255, 0.8); }
 
         /* ===== 搜索与操作区 ===== */
         .controls {
             width: 100%; max-width: 1100px; margin: 16px auto 0; padding: 0 20px;
             display: flex; align-items: center; justify-content: space-between;
-            flex-wrap: wrap; gap: 12px; position: sticky; top: 80px; z-index: 90;
+            flex-wrap: wrap; gap: 12px; position: sticky; top: 110px; z-index: 90;
         }
         .search-wrapper {
             display: flex; align-items: center; background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(8px); border-radius: 30px; padding: 8px 18px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); border: 1px solid rgba(148, 163, 184, 0.15);
             transition: border-color 0.2s, box-shadow 0.2s;
+            position: relative;
         }
         .search-wrapper:focus-within { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12); }
         .search-wrapper input {
             border: none; outline: none; background: transparent;
-            font-size: 14px; padding: 4px 8px; width: 180px; color: #1e293b; font-family: inherit;
+            font-size: 14px; padding: 4px 8px; width: 220px; color: #1e293b; font-family: inherit;
         }
         .search-icon { font-size: 16px; margin-right: 4px; color: #4f46e5; }
+        .search-clear {
+            display: none; cursor: pointer; color: #94a3b8; font-size: 16px;
+            padding: 4px; transition: color 0.2s;
+        }
+        .search-clear:hover { color: #ef4444; }
+        .search-clear.show { display: block; }
+
+        /* 搜索高亮 */
+        mark.search-highlight {
+            background: rgba(245, 158, 11, 0.3);
+            color: #b45309;
+            font-weight: 700;
+            border-radius: 4px;
+            padding: 0 2px;
+        }
 
         .btn-fav-list {
             background: rgba(255, 255, 255, 0.8); color: #1e293b; border: 1px solid rgba(148,163,184,0.2);
@@ -184,281 +216,99 @@
         }
         .btn-fav-list:hover { background: #fff; color: #4f46e5; border-color: #4f46e5; }
 
-        /* ===== 公告板块容器 ===== */
-        .announcements-container {
-            width: 100%; max-width: 1100px; margin: 16px auto 0; padding: 0 20px;
-            display: none;
-        }
+        /* 后续样式（公告、排行、游戏列表、弹窗等）与之前完全一致 */
+        .announcements-container { width: 100%; max-width: 1100px; margin: 16px auto 0; padding: 0 20px; display: none; }
         .announcements-title { font-size: 1.1rem; font-weight: 800; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .announcements-list { display: flex; flex-direction: column; gap: 12px; }
 
-        /* ===== 游戏排行（玻璃科幻面板） ===== */
         .rank-showcase {
-            width: calc(100% - 40px);
-            max-width: 1100px; 
-            margin: 24px auto 10px;
-            padding: 32px 28px 28px; /* 调整内边距，让卡片飞出顶部 */
-            background: rgba(255, 255, 255, 0.45);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border-radius: 28px;
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 
-                0 24px 48px -12px rgba(15, 23, 42, 0.08), /* 软悬浮大阴影 */
-                0 4px 16px rgba(79, 70, 229, 0.06),       /* 科技色底部微光 */
-                inset 0 1px 2px rgba(255, 255, 255, 0.9), /* 3D 高光 */
-                inset 0 -1px 2px rgba(0, 0, 0, 0.02);     /* 底部凹陷感 */
-            position: relative;
-            overflow: visible; /* 让第一名的卡片飞出去时不被裁剪 */
-            z-index: 10;
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            width: calc(100% - 40px); max-width: 1100px; margin: 24px auto 10px;
+            padding: 32px 28px 28px; background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border-radius: 28px; border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.08), 0 4px 16px rgba(79, 70, 229, 0.06), inset 0 1px 2px rgba(255, 255, 255, 0.9), inset 0 -1px 2px rgba(0, 0, 0, 0.02);
+            position: relative; overflow: visible; z-index: 10; transition: transform 0.4s ease, box-shadow 0.4s ease;
         }
-        /* 细微的 1px 科技发光边框 */
         .rank-showcase::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 28px;
-            padding: 1px;
+            content: ''; position: absolute; inset: 0; border-radius: 28px; padding: 1px;
             background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(79,70,229,0.15), rgba(255,255,255,0.5));
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
-            z-index: -1;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; z-index: -1;
         }
-        html.dark-mode .rank-showcase {
-            background: rgba(30, 41, 59, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 
-                0 24px 48px -12px rgba(0, 0, 0, 0.5),
-                0 4px 16px rgba(79, 70, 229, 0.15),
-                inset 0 1px 2px rgba(255, 255, 255, 0.15);
-        }
-
-        .rank-header {
-            display: flex; align-items: center; justify-content: space-between;
-            gap: 12px; margin-bottom: 24px;
-        }
-        .rank-header h3 {
-            margin: 0; font-size: 1.3rem; font-weight: 800; color: #1e293b;
-            letter-spacing: 0.5px;
-        }
-        .rank-header .rank-subtitle {
-            display: block; font-size: 0.82rem; color: #64748b; margin-top: 4px;
-        }
-        .rank-more-btn {
-            appearance: none; border: none; background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            color: white; border-radius: 999px; padding: 0.7rem 1.4rem; cursor: pointer;
-            font-size: 0.88rem; font-weight: 700; box-shadow: 0 8px 18px rgba(79, 70, 229, 0.22);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .rank-more-btn:hover {
-            transform: translateY(-2px); box-shadow: 0 12px 20px rgba(79, 70, 229, 0.35);
-        }
-        
-        /* 前三名卡片布局 */
-        .rank-grid {
-            display: flex; align-items: flex-end; justify-content: center; gap: 20px; flex-wrap: wrap;
-        }
-        .rank-card {
-            position: relative; display: flex; flex-direction: column; justify-content: space-between;
-            padding: 22px 20px; border-radius: 22px; cursor: pointer;
-            color: #1e293b; 
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease;
-            text-align: left; overflow: hidden;
-        }
-        /* 前三名卡片不同尺寸和专属光晕 */
-        .rank-card.rank-1 { 
-            background: linear-gradient(135deg, rgba(255, 235, 170, 0.9), rgba(255,255,255,0.95)); 
-            min-width: 280px; min-height: 210px; transform: translateY(-16px); /* 向上悬浮 */
-            box-shadow: 0 20px 40px -10px rgba(245, 158, 11, 0.25), inset 0 2px 4px rgba(255,255,255,0.9);
-            z-index: 3;
-        }
-        .rank-card.rank-2 { 
-            background: linear-gradient(135deg, rgba(226, 232, 240, 0.9), rgba(255,255,255,0.95)); 
-            min-width: 240px; min-height: 175px;
-            box-shadow: 0 15px 30px -10px rgba(148, 163, 184, 0.35), inset 0 2px 4px rgba(255,255,255,0.9);
-            z-index: 2;
-        }
-        .rank-card.rank-3 { 
-            background: linear-gradient(135deg, rgba(254, 215, 170, 0.85), rgba(255,255,255,0.95)); 
-            min-width: 220px; min-height: 155px;
-            box-shadow: 0 15px 30px -10px rgba(217, 119, 6, 0.2), inset 0 2px 4px rgba(255,255,255,0.9);
-            z-index: 1;
-        }
-        
-        .rank-card:hover {
-            transform: translateY(-8px) scale(1.02); 
-            box-shadow: 0 24px 48px -10px rgba(15, 23, 42, 0.15);
-        }
+        html.dark-mode .rank-showcase { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(79, 70, 229, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.15); }
+        .rank-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
+        .rank-header h3 { margin: 0; font-size: 1.3rem; font-weight: 800; color: #1e293b; letter-spacing: 0.5px; }
+        .rank-header .rank-subtitle { display: block; font-size: 0.82rem; color: #64748b; margin-top: 4px; }
+        .rank-more-btn { appearance: none; border: none; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; border-radius: 999px; padding: 0.7rem 1.4rem; cursor: pointer; font-size: 0.88rem; font-weight: 700; box-shadow: 0 8px 18px rgba(79, 70, 229, 0.22); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .rank-more-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 20px rgba(79, 70, 229, 0.35); }
+        .rank-grid { display: flex; align-items: flex-end; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        .rank-card { position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 22px 20px; border-radius: 22px; cursor: pointer; color: #1e293b; border: 1px solid rgba(255, 255, 255, 0.6); transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease; text-align: left; overflow: hidden; }
+        .rank-card.rank-1 { background: linear-gradient(135deg, rgba(255, 235, 170, 0.9), rgba(255,255,255,0.95)); min-width: 280px; min-height: 210px; transform: translateY(-16px); box-shadow: 0 20px 40px -10px rgba(245, 158, 11, 0.25), inset 0 2px 4px rgba(255,255,255,0.9); z-index: 3; }
+        .rank-card.rank-2 { background: linear-gradient(135deg, rgba(226, 232, 240, 0.9), rgba(255,255,255,0.95)); min-width: 240px; min-height: 175px; box-shadow: 0 15px 30px -10px rgba(148, 163, 184, 0.35), inset 0 2px 4px rgba(255,255,255,0.9); z-index: 2; }
+        .rank-card.rank-3 { background: linear-gradient(135deg, rgba(254, 215, 170, 0.85), rgba(255,255,255,0.95)); min-width: 220px; min-height: 155px; box-shadow: 0 15px 30px -10px rgba(217, 119, 6, 0.2), inset 0 2px 4px rgba(255,255,255,0.9); z-index: 1; }
+        .rank-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 24px 48px -10px rgba(15, 23, 42, 0.15); }
         .rank-card.rank-1:hover { transform: translateY(-24px) scale(1.02); }
-        
         .rank-card-header { display: flex; align-items: center; justify-content: space-between; }
         .rank-medal { font-size: 2rem; line-height: 1; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
         .rank-card.rank-1 .rank-medal { font-size: 2.6rem; }
-        
-        .rank-tag {
-            background: rgba(79, 70, 229, 0.12); color: #4f46e5; border-radius: 999px;
-            padding: 0.35rem 0.8rem; font-weight: 800; font-size: 0.75rem;
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.5);
-        }
-        
+        .rank-tag { background: rgba(79, 70, 229, 0.12); color: #4f46e5; border-radius: 999px; padding: 0.35rem 0.8rem; font-weight: 800; font-size: 0.75rem; box-shadow: inset 0 1px 2px rgba(255,255,255,0.5); }
         .rank-main { display: flex; align-items: center; gap: 16px; margin-top: 14px; }
-        .rank-icon {
-            width: 58px; height: 58px; display: flex; align-items: center; justify-content: center;
-            border-radius: 18px; font-size: 2rem; background: rgba(255,255,255,0.8);
-            box-shadow: 0 8px 16px -4px rgba(0,0,0,0.1), inset 0 1px 1px rgba(255,255,255,1); 
-            flex-shrink: 0;
-        }
-        .rank-card.rank-1 .rank-icon { 
-            width: 72px; height: 72px; font-size: 2.6rem; 
-            box-shadow: 0 12px 20px -6px rgba(245, 158, 11, 0.3), inset 0 1px 1px rgba(255,255,255,1);
-        }
-
-        /* 名字浮动动画 */
-        @keyframes floatText {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-        .rank-name {
-            font-weight: 800; line-height: 1.35; word-break: break-word; color: #0f172a;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-            animation: floatText 3s ease-in-out infinite; /* 添加浮动特效 */
-            text-shadow: 0 2px 4px rgba(255,255,255,0.6);
-        }
-        /* 第一名字最大，第二名次之，第三名适中 */
+        .rank-icon { width: 58px; height: 58px; display: flex; align-items: center; justify-content: center; border-radius: 18px; font-size: 2rem; background: rgba(255,255,255,0.8); box-shadow: 0 8px 16px -4px rgba(0,0,0,0.1), inset 0 1px 1px rgba(255,255,255,1); flex-shrink: 0; }
+        .rank-card.rank-1 .rank-icon { width: 72px; height: 72px; font-size: 2.6rem; box-shadow: 0 12px 20px -6px rgba(245, 158, 11, 0.3), inset 0 1px 1px rgba(255,255,255,1); }
+        @keyframes floatText { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        .rank-name { font-weight: 800; line-height: 1.35; word-break: break-word; color: #0f172a; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; animation: floatText 3s ease-in-out infinite; text-shadow: 0 2px 4px rgba(255,255,255,0.6); }
         .rank-card.rank-1 .rank-name { font-size: 1.5rem; animation-duration: 2.5s; }
         .rank-card.rank-2 .rank-name { font-size: 1.2rem; animation-duration: 3s; animation-delay: 0.5s; }
         .rank-card.rank-3 .rank-name { font-size: 1.05rem; animation-duration: 3.5s; animation-delay: 1s; }
-
         .rank-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; }
         .rank-count { font-size: 0.95rem; color: #475569; font-weight: 700; }
         .rank-card.rank-1 .rank-count { font-size: 1.1rem; color: #b45309; }
         .rank-count small { font-size: 0.75rem; color: #64748b; font-weight: 600; }
-        
-        .rank-link { 
-            color: #4f46e5; text-decoration: none; font-weight: 800; font-size: 0.85rem;
-            padding: 4px 10px; background: rgba(79, 70, 229, 0.1); border-radius: 12px;
-            transition: all 0.2s;
-        }
+        .rank-link { color: #4f46e5; text-decoration: none; font-weight: 800; font-size: 0.85rem; padding: 4px 10px; background: rgba(79, 70, 229, 0.1); border-radius: 12px; transition: all 0.2s; }
         .rank-link:hover { background: rgba(79, 70, 229, 0.2); }
-
-        .rank-empty {
-            width: 100%; min-height: 120px; display: flex; align-items: center; justify-content: center;
-            border: 1px dashed rgba(148,163,184,0.45); border-radius: 18px; color: #64748b;
-            background: rgba(255,255,255,0.45); font-size: 0.95rem;
-        }
-        .rank-modal-list {
-            list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px;
-        }
-        .rank-modal-row {
-            display: grid; grid-template-columns: 52px 1.5fr 86px 84px; align-items: center; gap: 12px;
-            padding: 12px 16px; border-radius: 14px; border: 1px solid rgba(148,163,184,0.14);
-            background: rgba(248,250,252,0.9);
-        }
-        .rank-modal-index {
-            width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, #eef2ff, #e2e8f0); color: #4f46e5; font-weight: 800;
-        }
+        .rank-empty { width: 100%; min-height: 120px; display: flex; align-items: center; justify-content: center; border: 1px dashed rgba(148,163,184,0.45); border-radius: 18px; color: #64748b; background: rgba(255,255,255,0.45); font-size: 0.95rem; }
+        .rank-modal-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+        .rank-modal-row { display: grid; grid-template-columns: 52px 1.5fr 86px 84px; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; border: 1px solid rgba(148,163,184,0.14); background: rgba(248,250,252,0.9); }
+        .rank-modal-index { width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #eef2ff, #e2e8f0); color: #4f46e5; font-weight: 800; }
         .rank-modal-name { font-weight: 700; color: #1e293b; word-break: break-word; }
         .rank-modal-count { color: #475569; font-weight: 700; text-align: right; }
-        .rank-modal-link {
-            color: #4f46e5; text-decoration: none; font-weight: 700; font-size: 0.8rem; display: inline-flex;
-            align-items: center; justify-content: center; width: 100%;
-        }
+        .rank-modal-link { color: #4f46e5; text-decoration: none; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; justify-content: center; width: 100%; }
 
-        /* ===== 游戏列表 ===== */
         .games-container { width: 100%; max-width: 1100px; margin: 20px auto; padding: 0 20px; flex: 1; }
         .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 36px; }
-        .game-card {
-            background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(8px);
-            border-radius: 24px; padding: 32px 16px; text-align: center;
-            color: #1e293b; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-            border: 1px solid rgba(148, 163, 184, 0.1); transition: all 0.25s ease;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            position: relative; overflow: hidden; cursor: pointer; min-height: 160px; font-family: inherit;
-        }
-        .game-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease;
-        }
+        .game-card { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(8px); border-radius: 24px; padding: 32px 16px; text-align: center; color: #1e293b; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); border: 1px solid rgba(148, 163, 184, 0.1); transition: all 0.25s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; cursor: pointer; min-height: 160px; font-family: inherit; }
+        .game-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #4f46e5, #7c3aed); transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease; }
         .game-card:hover::before { transform: scaleX(1); }
         .game-card:hover { transform: translateY(-6px); box-shadow: 0 20px 32px rgba(0, 0, 0, 0.1); }
         .game-card:focus-visible { outline: 2px solid #4f46e5; outline-offset: 2px; }
         .game-icon { font-size: 64px; margin-bottom: 16px; transition: transform 0.3s; line-height: 1; }
         .game-card:hover .game-icon { transform: scale(1.15); }
-        .game-name {
-            font-size: 15px; font-weight: 600; line-height: 1.3; word-break: break-word;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #1e293b;
-        }
+        .game-name { font-size: 15px; font-weight: 600; line-height: 1.3; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #1e293b; }
 
-        /* 骨架屏 */
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        .skeleton-card {
-            background: rgba(255, 255, 255, 0.6); border-radius: 24px; min-height: 160px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 16px; border: 1px solid rgba(148, 163, 184, 0.1);
-        }
-        .skeleton-icon {
-            width: 64px; height: 64px; border-radius: 50%;
-            background: linear-gradient(90deg, #e8ecf5 25%, #f4f7fc 50%, #e8ecf5 75%);
-            background-size: 200% 100%; animation: shimmer 1.4s infinite;
-        }
-        .skeleton-line {
-            width: 70%; height: 14px; border-radius: 8px;
-            background: linear-gradient(90deg, #e8ecf5 25%, #f4f7fc 50%, #e8ecf5 75%);
-            background-size: 200% 100%; animation: shimmer 1.4s infinite;
-        }
+        .skeleton-card { background: rgba(255, 255, 255, 0.6); border-radius: 24px; min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; border: 1px solid rgba(148, 163, 184, 0.1); }
+        .skeleton-icon { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(90deg, #e8ecf5 25%, #f4f7fc 50%, #e8ecf5 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+        .skeleton-line { width: 70%; height: 14px; border-radius: 8px; background: linear-gradient(90deg, #e8ecf5 25%, #f4f7fc 50%, #e8ecf5 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
 
         .status-message { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 14px; }
 
-        /* ===== 弹窗通用 ===== */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5);
-            z-index: 200; display: none; justify-content: center; align-items: center;
-            padding: 16px; backdrop-filter: blur(4px); overscroll-behavior: contain;
-        }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 200; display: none; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(4px); overscroll-behavior: contain; }
         .modal-overlay.active { display: flex; }
-        .modal {
-            background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(20px);
-            border-radius: 1.5rem; width: 100%; max-width: 600px; max-height: 92vh;
-            overflow-y: auto; box-shadow: 0 25px 30px -10px rgba(0, 0, 0, 0.15);
-            border: 1px solid rgba(148, 163, 184, 0.2); padding: 1.8rem 2rem;
-            position: relative;
-        }
+        .modal { background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(20px); border-radius: 1.5rem; width: 100%; max-width: 600px; max-height: 92vh; overflow-y: auto; box-shadow: 0 25px 30px -10px rgba(0, 0, 0, 0.15); border: 1px solid rgba(148, 163, 184, 0.2); padding: 1.8rem 2rem; position: relative; }
         .modal.modal-wide { max-width: 800px; }
-        .modal-close {
-            position: absolute; top: 1rem; right: 1rem; background: rgba(148, 163, 184, 0.1);
-            border: none; border-radius: 50%; width: 32px; height: 32px;
-            font-size: 1.2rem; cursor: pointer; color: #64748b; display: flex;
-            align-items: center; justify-content: center; transition: all 0.2s;
-        }
+        .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(148, 163, 184, 0.1); border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 1.2rem; cursor: pointer; color: #64748b; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .modal-close:hover { color: #1e293b; background: rgba(148, 163, 184, 0.2); }
         .modal-header { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; padding-right: 2rem; display: flex; align-items: center; gap: 0.6rem; }
 
-        /* 快捷预览弹窗特有 */
         .preview-icon { font-size: 5rem; text-align: center; margin-bottom: 0.5rem; }
         .preview-name { font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 0.5rem; word-break: break-word; }
         .preview-tags { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
-        .preview-tag {
-            font-size: 0.8rem; font-weight: 600; padding: 0.25rem 0.9rem; border-radius: 20px;
-            background: rgba(79, 70, 229, 0.08); color: #4f46e5;
-        }
+        .preview-tag { font-size: 0.8rem; font-weight: 600; padding: 0.25rem 0.9rem; border-radius: 20px; background: rgba(79, 70, 229, 0.08); color: #4f46e5; }
         .preview-tag.age { background: rgba(16, 185, 129, 0.1); color: #059669; }
         .btn-group { display: flex; flex-direction: column; gap: 12px; }
         .btn-group-row { display: flex; gap: 12px; flex-wrap: wrap; }
         .btn-group-row .btn { flex: 1; min-width: 120px; }
 
-        /* ===== 按钮 ===== */
-        .btn {
-            background: #4f46e5; color: white; border: none; border-radius: 2rem;
-            padding: 0.7rem 1.8rem; font-size: 1rem; font-weight: 600; cursor: pointer;
-            transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center;
-            gap: 0.4rem; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); font-family: inherit;
-        }
+        .btn { background: #4f46e5; color: white; border: none; border-radius: 2rem; padding: 0.7rem 1.8rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); font-family: inherit; }
         .btn:hover { background: #4338ca; transform: translateY(-1px); box-shadow: 0 8px 18px rgba(79, 70, 229, 0.4); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
         .btn-block { width: 100%; }
@@ -469,29 +319,17 @@
         .btn.fav-active { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; box-shadow: none; }
         .btn.fav-active:hover { background: #fde68a; }
 
-        /* ===== 收藏夹列表样式 ===== */
         .fav-list { display: flex; flex-direction: column; gap: 12px; margin-top: 1rem; }
-        .fav-item {
-            display: flex; align-items: center; gap: 16px; padding: 12px 16px;
-            background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0;
-            cursor: pointer; transition: all 0.2s;
-        }
+        .fav-item { display: flex; align-items: center; gap: 16px; padding: 12px 16px; background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s; }
         .fav-item:hover { border-color: #4f46e5; background: #fff; box-shadow: 0 4px 12px rgba(79,70,229,0.08); }
         .fav-item-icon { font-size: 2rem; }
         .fav-item-info { flex: 1; }
         .fav-item-name { font-weight: 700; color: #1e293b; }
         .fav-item-cat { font-size: 0.8rem; color: #64748b; }
-        .fav-item-remove {
-            background: none; border: none; font-size: 1.5rem; color: #cbd5e1;
-            cursor: pointer; padding: 4px 8px; border-radius: 8px; line-height: 1;
-        }
+        .fav-item-remove { background: none; border: none; font-size: 1.5rem; color: #cbd5e1; cursor: pointer; padding: 4px 8px; border-radius: 8px; line-height: 1; }
         .fav-item-remove:hover { color: #ef4444; background: rgba(239,68,68,0.1); }
 
-        .agree-row {
-            display: flex; align-items: flex-start; gap: 0.6rem; background: rgba(79, 70, 229, 0.04);
-            padding: 1rem; border-radius: 0.75rem; margin: 1rem 0; font-size: 0.9rem;
-            border-left: 4px solid #4f46e5; color: #475569; cursor: pointer;
-        }
+        .agree-row { display: flex; align-items: flex-start; gap: 0.6rem; background: rgba(79, 70, 229, 0.04); padding: 1rem; border-radius: 0.75rem; margin: 1rem 0; font-size: 0.9rem; border-left: 4px solid #4f46e5; color: #475569; cursor: pointer; }
         .agree-row input { margin-top: 0.2rem; cursor: pointer; }
 
         .tally-wrapper { width: 100%; height: 100%; min-height: 60vh; margin-top: 1rem; }
@@ -561,14 +399,26 @@
                 </a>
             </div>
         </div>
-        <div class="top-bar-row" style="justify-content: flex-start; gap: 0;">
+        
+        <!-- 第一层：类型筛选 -->
+        <div class="nav-scroll-wrapper">
             <div class="type-nav" id="typeNav">
-                <button class="type-btn active" data-type="local">
+                <button class="type-btn active" data-type="all">
+                    <span class="zh-inline">🌟 全部</span><span class="en-inline">🌟 All</span>
+                </button>
+                <button class="type-btn" data-type="local">
                     <span class="zh-inline">🎮 本站游戏</span><span class="en-inline">🎮 Local</span>
                 </button>
                 <button class="type-btn" data-type="external">
                     <span class="zh-inline">🌐 外网游戏</span><span class="en-inline">🌐 External</span>
                 </button>
+            </div>
+        </div>
+
+        <!-- 第二层：分类筛选 (JS动态生成) -->
+        <div class="nav-scroll-wrapper" id="categoryNavWrapper" style="display:none;">
+            <div class="category-nav" id="categoryNav">
+                <!-- 动态填充 -->
             </div>
         </div>
     </div>
@@ -580,7 +430,8 @@
         </button>
         <div class="search-wrapper">
             <span class="search-icon">🔍</span>
-            <input type="text" id="searchInput" placeholder="搜索游戏 (Search)..." autocomplete="off" aria-label="Search games">
+            <input type="text" id="searchInput" placeholder="搜索游戏名 / 分类 / 作者 / 拼音..." autocomplete="off" aria-label="Search games">
+            <span class="search-clear" id="searchClearBtn">×</span>
         </div>
     </div>
 
@@ -593,7 +444,7 @@
         <div class="announcements-list" id="announcementsList"></div>
     </div>
 
-    <!-- 游戏排行榜 (科技玻璃舱) -->
+    <!-- 游戏排行榜 -->
     <div class="rank-showcase" id="rankShowcase">
         <div class="rank-header">
             <div>
@@ -724,8 +575,9 @@
         </div>
     </div>
 
-    <!-- 引入全局脚本与 index.js -->
+    <!-- 引入脚本 -->
     <script src="common.js" defer></script>
+    <script src="search.js" defer></script>
     <script src="index.js" defer></script>
 
     <script async src="https://tally.so/widgets/embed.js"></script>
