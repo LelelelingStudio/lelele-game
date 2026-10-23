@@ -33,6 +33,9 @@
     <!-- 统计代码 -->
     <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
 
+    <!-- 引入 Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         .zh-text, .en-text { display: none; }
         html[data-lang="zh"] .zh-text { display: block; }
@@ -212,7 +215,11 @@
             display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: var(--text-muted);
             margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--card-border);
         }
-        .author-bar strong { color: var(--text-main); }
+        .author-link {
+            color: var(--primary); text-decoration: none; font-weight: 700;
+            transition: opacity 0.2s;
+        }
+        .author-link:hover { opacity: 0.8; text-decoration: underline; }
 
         .section-title {
             font-size: 1.2rem; font-weight: 700; color: var(--text-main);
@@ -379,6 +386,7 @@
     </div>
 
     <script src="common.js" defer></script>
+    <script src="supabase-client.js" defer></script>
 
     <script>
         function escapeHtml(str) {
@@ -434,10 +442,22 @@
             if (!currentGameId) return;
             let favs = getFavorites();
             const idStr = String(currentGameId);
-            if (favs.includes(idStr)) favs = favs.filter(f => f !== idStr);
-            else favs.push(idStr);
+            const isFavAction = !favs.includes(idStr);
+            
+            if (isFavAction) {
+                favs.push(idStr);
+            } else {
+                favs = favs.filter(f => f !== idStr);
+            }
+            
             try { localStorage.setItem('lelele_favs', JSON.stringify(favs)); } catch (e) {}
             updateFavBtn();
+
+            // 埋点发送
+            if (window.leleleTrack && currentGameData) {
+                const gameName = currentGameData.name_zh || currentGameData.name;
+                window.leleleTrack(`${isFavAction ? 'fav' : 'unfav'}-game_${gameName}`);
+            }
         };
 
         window.playGame = function() {
@@ -453,6 +473,32 @@
 
             window.open(currentGameData.url, '_blank', 'noopener,noreferrer');
         };
+
+        // 异步查询作者 ID 并渲染链接
+        async function updateAuthorBar(authorName) {
+            const authorBar = document.getElementById('authorBar');
+            const en = isEn();
+            const authorLabel = en ? 'Developer' : '开发者';
+            let authorId = null;
+
+            try {
+                if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                    const { data, error } = await supabaseClient
+                        .from('profiles')
+                        .select('id')
+                        .eq('display_name', authorName)
+                        .single();
+                    if (data) authorId = data.id;
+                }
+            } catch (e) {
+                // 没查到作者不影响页面
+            }
+
+            const url = authorId ? `author.html?id=${authorId}` : `author.html?name=${encodeURIComponent(authorName)}`;
+            const langSuffix = en ? '&lang=en' : '';
+
+            authorBar.innerHTML = `${authorLabel}: <a href="${url}${langSuffix}" class="author-link">${escapeHtml(authorName)}</a>`;
+        }
 
         function renderGamePage(game) {
             const en = isEn();
@@ -487,8 +533,9 @@
 
             const authorBar = document.getElementById('authorBar');
             if (game.author) {
-                const authorLabel = en ? 'Developer' : '开发者';
-                authorBar.innerHTML = `${authorLabel}: <strong>${escapeHtml(game.author)}</strong>`;
+                // 先给个占位，异步去查
+                authorBar.innerHTML = `${en ? 'Developer' : '开发者'}: <strong>${escapeHtml(game.author)}</strong>`;
+                updateAuthorBar(game.author);
             } else {
                 authorBar.style.display = 'none';
             }
@@ -563,8 +610,15 @@
                             url: baseGame.url, 
                             version: baseGame.version || (isEn() ? 'Unknown' : '未知版本'),
                             description_zh: '暂无详细简介，作者可能正在努力编写中。你可以直接点击上方按钮开始游戏体验。',
-                            description_en: 'No detailed description yet. Click Play to try.'
+                            description_en: 'No detailed description yet. Click Play to try.',
+                            author: baseGame.author || '' // 注意：原 lelegame_data.json 里可能没写 author，如果有就取出来
                         };
+                        
+                        // 如果主数据里有作者字段，可以在这里补上
+                        if (!currentGameData.author && baseGame.author) {
+                            currentGameData.author = baseGame.author;
+                        }
+
                         renderGamePage(currentGameData);
                         document.getElementById('loadingState').style.display = 'none';
                         document.getElementById('gameCard').style.display = 'block';
@@ -588,18 +642,14 @@
 
         // ==================== 页面初始化 ====================
         document.addEventListener('DOMContentLoaded', () => {
-            // 初始化时同步一次语言链接和按钮状态
             updateLinks();
             const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.langBtn === currentLang);
             });
             
-            // 开始加载数据
             init();
 
-            // 【修复】彻底移除对 window.setLang 的覆盖，改用监听全局事件
-            // 当 common.js 触发 langChanged 时，此页面重新渲染内容
             window.addEventListener('langChanged', () => {
                 updateLinks();
                 if (typeof currentGameData !== 'undefined' && currentGameData) {
