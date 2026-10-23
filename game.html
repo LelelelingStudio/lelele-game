@@ -27,13 +27,8 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <title>加载中... · 了了了游</title>
 
-    <!-- 引入全局样式 -->
     <link rel="stylesheet" href="common.css">
-
-    <!-- 统计代码 -->
     <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
-
-    <!-- 引入 Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -100,7 +95,6 @@
         .site-title img { height: 24px; }
         .logo-fallback { font-size: 1.2rem; line-height: 1; }
 
-        /* 语言切换 - 强制覆盖原生样式 */
         .lang-switch {
             display: inline-flex; 
             background: rgba(148, 163, 184, 0.15);
@@ -231,7 +225,6 @@
             background: rgba(148,163,184,0.05); padding: 24px; border-radius: 16px; border: 1px solid var(--card-border);
         }
 
-        /* 截图展示区 */
         .screenshots-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -267,7 +260,6 @@
         .loading-state, .error-state { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 1.1rem; display: none; }
         .error-state .btn { margin-top: 20px; }
 
-        /* 全屏图片预览遮罩 */
         .lightbox {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
@@ -453,7 +445,6 @@
             try { localStorage.setItem('lelele_favs', JSON.stringify(favs)); } catch (e) {}
             updateFavBtn();
 
-            // 埋点发送
             if (window.leleleTrack && currentGameData) {
                 const gameName = currentGameData.name_zh || currentGameData.name;
                 window.leleleTrack(`${isFavAction ? 'fav' : 'unfav'}-game_${gameName}`);
@@ -474,30 +465,35 @@
             window.open(currentGameData.url, '_blank', 'noopener,noreferrer');
         };
 
-        // 异步查询作者 ID 并渲染链接
-        async function updateAuthorBar(authorName) {
+        // 异步查询作者信息并渲染链接（改为从 authors.surge.sh 拉取）
+        async function updateAuthorBar(authorData) {
             const authorBar = document.getElementById('authorBar');
             const en = isEn();
             const authorLabel = en ? 'Developer' : '开发者';
-            let authorId = null;
+            let finalName = authorData;
+            let finalId = authorData;
 
-            try {
-                if (typeof supabaseClient !== 'undefined' && supabaseClient) {
-                    const { data, error } = await supabaseClient
-                        .from('profiles')
-                        .select('id')
-                        .eq('display_name', authorName)
-                        .single();
-                    if (data) authorId = data.id;
+            // 如果是数字 ID，去拉取 authors.json 查名字
+            if (typeof authorData === 'number' || /^\d+$/.test(authorData)) {
+                try {
+                    const res = await fetch('https://authors.surge.sh/authors.json?t=' + Date.now());
+                    if (res.ok) {
+                        const authors = await res.json();
+                        const matched = authors.find(a => String(a.id) === String(authorData));
+                        if (matched) {
+                            finalName = en ? (matched.name_en || matched.name_zh) : (matched.name_zh || matched.name_en);
+                        }
+                    }
+                } catch (e) {
+                    console.warn('无法获取作者名字', e);
                 }
-            } catch (e) {
-                // 没查到作者不影响页面
             }
 
-            const url = authorId ? `author.html?id=${authorId}` : `author.html?name=${encodeURIComponent(authorName)}`;
+            // 跳转到 author.html 时带上数字 ID
+            const url = `author.html?id=${finalId}`;
             const langSuffix = en ? '&lang=en' : '';
 
-            authorBar.innerHTML = `${authorLabel}: <a href="${url}${langSuffix}" class="author-link">${escapeHtml(authorName)}</a>`;
+            authorBar.innerHTML = `${authorLabel}: <a href="${url}${langSuffix}" class="author-link">${escapeHtml(finalName)}</a>`;
         }
 
         function renderGamePage(game) {
@@ -533,7 +529,6 @@
 
             const authorBar = document.getElementById('authorBar');
             if (game.author) {
-                // 先给个占位，异步去查
                 authorBar.innerHTML = `${en ? 'Developer' : '开发者'}: <strong>${escapeHtml(game.author)}</strong>`;
                 updateAuthorBar(game.author);
             } else {
@@ -611,13 +606,8 @@
                             version: baseGame.version || (isEn() ? 'Unknown' : '未知版本'),
                             description_zh: '暂无详细简介，作者可能正在努力编写中。你可以直接点击上方按钮开始游戏体验。',
                             description_en: 'No detailed description yet. Click Play to try.',
-                            author: baseGame.author || '' // 注意：原 lelegame_data.json 里可能没写 author，如果有就取出来
+                            author: baseGame.author || '' 
                         };
-                        
-                        // 如果主数据里有作者字段，可以在这里补上
-                        if (!currentGameData.author && baseGame.author) {
-                            currentGameData.author = baseGame.author;
-                        }
 
                         renderGamePage(currentGameData);
                         document.getElementById('loadingState').style.display = 'none';
@@ -640,7 +630,6 @@
             document.getElementById('errorMsg').textContent = msg;
         }
 
-        // ==================== 页面初始化 ====================
         document.addEventListener('DOMContentLoaded', () => {
             updateLinks();
             const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
