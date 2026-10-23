@@ -27,8 +27,13 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <title>加载中... · 了了了游</title>
 
+    <!-- 引入全局样式 -->
     <link rel="stylesheet" href="common.css">
+
+    <!-- 统计代码 -->
     <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
+
+    <!-- 引入 Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -434,21 +439,16 @@
             if (!currentGameId) return;
             let favs = getFavorites();
             const idStr = String(currentGameId);
-            const isFavAction = !favs.includes(idStr);
             
-            if (isFavAction) {
-                favs.push(idStr);
-            } else {
+            if (favs.includes(idStr)) {
                 favs = favs.filter(f => f !== idStr);
+            } else {
+                favs.push(idStr);
             }
             
             try { localStorage.setItem('lelele_favs', JSON.stringify(favs)); } catch (e) {}
             updateFavBtn();
-
-            if (window.leleleTrack && currentGameData) {
-                const gameName = currentGameData.name_zh || currentGameData.name;
-                window.leleleTrack(`${isFavAction ? 'fav' : 'unfav'}-game_${gameName}`);
-            }
+            // 收藏埋点已移除
         };
 
         window.playGame = function() {
@@ -465,7 +465,7 @@
             window.open(currentGameData.url, '_blank', 'noopener,noreferrer');
         };
 
-        // 异步查询作者信息并渲染链接（改为从 authors.surge.sh 拉取）
+        // 异步查询作者信息并渲染链接
         async function updateAuthorBar(authorData) {
             const authorBar = document.getElementById('authorBar');
             const en = isEn();
@@ -489,7 +489,6 @@
                 }
             }
 
-            // 跳转到 author.html 时带上数字 ID
             const url = `author.html?id=${finalId}`;
             const langSuffix = en ? '&lang=en' : '';
 
