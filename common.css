@@ -147,6 +147,7 @@ html.dark-mode body {
     opacity: 0;
     pointer-events: none;
     transform: translateY(20px);
+    position: relative; /* 确保伪元素绝对定位生效 */
 }
 .common-float-btn.show {
     opacity: 1;
@@ -157,6 +158,48 @@ html.dark-mode body {
     background: var(--primary);
     color: #fff;
     transform: scale(1.1);
+}
+
+/* 悬浮气泡提示 */
+.common-float-btn[data-tooltip]::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    right: 120%; /* 放在左侧 */
+    top: 50%;
+    transform: translateY(-50%) translateX(10px);
+    background: rgba(15, 23, 42, 0.9);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10000;
+}
+.common-float-btn[data-tooltip]:hover::before {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+}
+/* 气泡小三角 */
+.common-float-btn[data-tooltip]::after {
+    content: '';
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%) translateX(10px);
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent transparent rgba(15, 23, 42, 0.9);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease;
+}
+.common-float-btn[data-tooltip]:hover::after {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
 }
 
 /* ===== 全局弹窗基础 ===== */
