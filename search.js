@@ -18,7 +18,6 @@ window.leleleSearch = function(query, games, lang) {
         let maxScore = 0;
         let matchedHtml = null;
 
-        // 需要匹配的字段组合
         const targets = [
             { str: game.name_zh || '', type: 'name' },
             { str: game.name_en || '', type: 'name' },
@@ -32,12 +31,10 @@ window.leleleSearch = function(query, games, lang) {
             const lowStr = str.toLowerCase();
             let currentScore = 0;
 
-            // 1. 中文/英文直接匹配
             if (lowStr === q) currentScore = 100;
             else if (lowStr.startsWith(q)) currentScore = 85;
             else if (lowStr.includes(q)) currentScore = 70;
 
-            // 2. 拼音匹配 (仅在中文未完美匹配时触发)
             if (currentScore < 100 && typeof pinyinPro !== 'undefined') {
                 const tPinyin = pinyinPro.pinyin(str, { toneType: 'none', type: 'array' }).join('');
                 const tFirst = pinyinPro.pinyin(str, { pattern: 'first', toneType: 'none', type: 'array' }).join('');
@@ -48,7 +45,6 @@ window.leleleSearch = function(query, games, lang) {
                 else if (tFirst.includes(qFirst)) currentScore = Math.max(currentScore, 50);
             }
 
-            // 3. 散列顺序匹配 (如搜“爱农”匹配“爱种地的农民”)
             if (currentScore === 0) {
                 let matchCount = 0;
                 let qIdx = 0;
@@ -61,12 +57,11 @@ window.leleleSearch = function(query, games, lang) {
                 if (matchCount > 0) currentScore = 10 + matchCount * 5;
             }
 
-            // 更新最高分和高亮 HTML
             if (currentScore > maxScore) {
                 maxScore = currentScore;
-                // 如果分数够高，生成高亮
                 if (currentScore >= 50 && target.type === 'name') {
-                    matchedHtml = this.highlight(str, q, qPinyin);
+                    // 直接用全局函数调用，避免 this 丢失
+                    matchedHtml = highlightText(str, q, qPinyin);
                 }
             }
         }
@@ -76,25 +71,21 @@ window.leleleSearch = function(query, games, lang) {
         }
     });
 
-    // 排序：分数降序 -> ID升序
     results.sort((a, b) => b.score - a.score || a.id - b.id);
     return results;
 };
 
-// 高亮处理函数
-window.leleleSearch.highlight = function(text, query, qPinyin) {
+// 高亮处理函数独立出来
+function highlightText(text, query, qPinyin) {
     if (!text) return '';
     let res = text;
     
-    // 1. 中文高亮
     if (/[\u4e00-\u9fa5]/.test(query)) {
         const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
         res = res.replace(regex, '<mark class="search-highlight">$1</mark>');
     } 
-    // 2. 拼音高亮 (当匹配到拼音时，高亮对应的汉字)
     else if (qPinyin && typeof pinyinPro !== 'undefined') {
-        // 这里做一个简化：如果搜的是拼音，把整个匹配的词高亮，方便用户看到
         res = `<mark class="search-highlight">${text}</mark>`;
     }
     return res;
-};
+}
