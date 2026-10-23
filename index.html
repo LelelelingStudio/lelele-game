@@ -64,7 +64,7 @@
         /* ===== 顶部导航栏 ===== */
         .top-bar {
             width: 100%;
-            background: rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
@@ -74,7 +74,7 @@
             z-index: 100;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
         .top-bar-row {
             display: flex;
@@ -149,48 +149,43 @@
         }
         .btn-about:hover { background: rgba(148, 163, 184, 0.1); color: #1e293b; }
 
-        /* ===== 双层导航 ===== */
-        .nav-scroll-wrapper {
+        /* ===== 第二行导航与搜索 ===== */
+        .nav-search-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
             width: 100%;
-            overflow-x: auto;
-            scrollbar-width: none;
         }
-        .nav-scroll-wrapper::-webkit-scrollbar { display: none; }
         
-        .type-nav, .category-nav {
+        .type-nav {
             display: flex; gap: 4px; background: rgba(148, 163, 184, 0.12);
-            border-radius: 40px; padding: 4px; flex-shrink: 0; margin: 2px 0;
-            width: fit-content;
+            border-radius: 40px; padding: 4px; flex-shrink: 0;
         }
-        .type-btn, .category-btn {
-            padding: 7px 20px; border: none; border-radius: 30px; background: transparent;
+        .type-btn {
+            padding: 7px 22px; border: none; border-radius: 30px; background: transparent;
             font-size: 14px; font-weight: 600; color: #64748b; cursor: pointer;
             transition: all 0.25s ease; white-space: nowrap; user-select: none; font-family: inherit;
         }
         .type-btn.active { background: #4f46e5; color: #fff; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.30); }
         .type-btn:hover:not(.active) { color: #1e293b; background: rgba(255, 255, 255, 0.5); }
-        
-        .category-btn { font-size: 13px; padding: 5px 16px; }
-        .category-btn.active { background: #1e293b; color: #fff; box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2); }
-        .category-btn:hover:not(.active) { color: #1e293b; background: rgba(255, 255, 255, 0.8); }
 
-        /* ===== 搜索与操作区 ===== */
-        .controls {
-            width: 100%; max-width: 1100px; margin: 16px auto 0; padding: 0 20px;
-            display: flex; align-items: center; justify-content: space-between;
-            flex-wrap: wrap; gap: 12px; position: sticky; top: 110px; z-index: 90;
+        /* 搜索与收藏 */
+        .controls-inline {
+            display: flex; align-items: center; gap: 12px; flex-wrap: wrap; flex: 1; justify-content: flex-end;
         }
         .search-wrapper {
             display: flex; align-items: center; background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(8px); border-radius: 30px; padding: 8px 18px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); border: 1px solid rgba(148, 163, 184, 0.15);
             transition: border-color 0.2s, box-shadow 0.2s;
-            position: relative;
+            position: relative; width: 100%; max-width: 320px;
         }
         .search-wrapper:focus-within { border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12); }
         .search-wrapper input {
             border: none; outline: none; background: transparent;
-            font-size: 14px; padding: 4px 8px; width: 220px; color: #1e293b; font-family: inherit;
+            font-size: 14px; padding: 4px 8px; width: 100%; color: #1e293b; font-family: inherit;
         }
         .search-icon { font-size: 16px; margin-right: 4px; color: #4f46e5; }
         .search-clear {
@@ -200,30 +195,43 @@
         .search-clear:hover { color: #ef4444; }
         .search-clear.show { display: block; }
 
-        /* 搜索高亮 */
-        mark.search-highlight {
-            background: rgba(245, 158, 11, 0.3);
-            color: #b45309;
-            font-weight: 700;
-            border-radius: 4px;
-            padding: 0 2px;
-        }
-
         .btn-fav-list {
             background: rgba(255, 255, 255, 0.8); color: #1e293b; border: 1px solid rgba(148,163,184,0.2);
             border-radius: 30px; padding: 8px 20px; font-weight: 600; font-size: 14px; cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03); transition: all 0.2s; white-space: nowrap;
         }
         .btn-fav-list:hover { background: #fff; color: #4f46e5; border-color: #4f46e5; }
 
-        /* 后续样式（公告、排行、游戏列表、弹窗等）与之前完全一致 */
-        .announcements-container { width: 100%; max-width: 1100px; margin: 16px auto 0; padding: 0 20px; display: none; }
+        /* 分类筛选 (动态生成) */
+        .category-nav-wrapper {
+            width: 100%; overflow-x: auto; scrollbar-width: none; display: none;
+        }
+        .category-nav-wrapper::-webkit-scrollbar { display: none; }
+        .category-nav {
+            display: flex; gap: 4px; background: rgba(148, 163, 184, 0.08);
+            border-radius: 40px; padding: 4px; flex-shrink: 0; width: fit-content;
+        }
+        .category-btn {
+            font-size: 13px; padding: 5px 16px; border: none; border-radius: 30px; background: transparent;
+            font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.25s ease; white-space: nowrap; font-family: inherit;
+        }
+        .category-btn.active { background: #1e293b; color: #fff; box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2); }
+        .category-btn:hover:not(.active) { color: #1e293b; background: rgba(255, 255, 255, 0.8); }
+
+        /* ===== 主内容区 ===== */
+        .main-content {
+            width: 100%; max-width: 1100px; margin: 20px auto 0; padding: 0 20px; flex: 1;
+            display: flex; flex-direction: column; gap: 20px;
+        }
+
+        /* 公告板块 */
+        .announcements-container { width: 100%; display: none; }
         .announcements-title { font-size: 1.1rem; font-weight: 800; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .announcements-list { display: flex; flex-direction: column; gap: 12px; }
 
+        /* 游戏排行榜 (移到公告上方) */
         .rank-showcase {
-            width: calc(100% - 40px); max-width: 1100px; margin: 24px auto 10px;
-            padding: 32px 28px 28px; background: rgba(255, 255, 255, 0.45);
+            width: 100%; margin: 0; padding: 32px 28px 28px; background: rgba(255, 255, 255, 0.45);
             backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
             border-radius: 28px; border: 1px solid rgba(255, 255, 255, 0.8);
             box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.08), 0 4px 16px rgba(79, 70, 229, 0.06), inset 0 1px 2px rgba(255, 255, 255, 0.9), inset 0 -1px 2px rgba(0, 0, 0, 0.02);
@@ -273,7 +281,8 @@
         .rank-modal-count { color: #475569; font-weight: 700; text-align: right; }
         .rank-modal-link { color: #4f46e5; text-decoration: none; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; justify-content: center; width: 100%; }
 
-        .games-container { width: 100%; max-width: 1100px; margin: 20px auto; padding: 0 20px; flex: 1; }
+        /* 游戏列表 */
+        .games-container { width: 100%; flex: 1; margin-bottom: 40px; }
         .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 36px; }
         .game-card { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(8px); border-radius: 24px; padding: 32px 16px; text-align: center; color: #1e293b; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); border: 1px solid rgba(148, 163, 184, 0.1); transition: all 0.25s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; cursor: pointer; min-height: 160px; font-family: inherit; }
         .game-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #4f46e5, #7c3aed); transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease; }
@@ -284,6 +293,13 @@
         .game-card:hover .game-icon { transform: scale(1.15); }
         .game-name { font-size: 15px; font-weight: 600; line-height: 1.3; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #1e293b; }
 
+        /* 搜索高亮 */
+        mark.search-highlight {
+            background: rgba(245, 158, 11, 0.3); color: #b45309;
+            font-weight: 700; border-radius: 4px; padding: 0 2px;
+        }
+
+        /* 骨架屏 */
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         .skeleton-card { background: rgba(255, 255, 255, 0.6); border-radius: 24px; min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; border: 1px solid rgba(148, 163, 184, 0.1); }
         .skeleton-icon { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(90deg, #e8ecf5 25%, #f4f7fc 50%, #e8ecf5 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
@@ -291,6 +307,7 @@
 
         .status-message { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 14px; }
 
+        /* 弹窗和按钮（保持不变） */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 200; display: none; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(4px); overscroll-behavior: contain; }
         .modal-overlay.active { display: flex; }
         .modal { background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(20px); border-radius: 1.5rem; width: 100%; max-width: 600px; max-height: 92vh; overflow-y: auto; box-shadow: 0 25px 30px -10px rgba(0, 0, 0, 0.15); border: 1px solid rgba(148, 163, 184, 0.2); padding: 1.8rem 2rem; position: relative; }
@@ -335,11 +352,16 @@
         .tally-wrapper { width: 100%; height: 100%; min-height: 60vh; margin-top: 1rem; }
         .tally-wrapper iframe { width: 100%; border: none; min-height: 600px; }
 
+        @media (max-width: 900px) {
+            .nav-search-row { flex-direction: column; align-items: stretch; gap: 10px; }
+            .controls-inline { justify-content: space-between; }
+            .search-wrapper { max-width: 100%; flex: 1; }
+        }
         @media (max-width: 768px) {
             .rank-grid { flex-direction: column; align-items: center; gap: 16px; }
             .rank-card.rank-1, .rank-card.rank-2, .rank-card.rank-3 { width: 100%; min-width: unset; transform: none; }
             .rank-card.rank-1:hover { transform: translateY(-6px) scale(1.02); }
-            .rank-showcase { padding: 24px 16px; width: calc(100% - 24px); margin: 12px auto; }
+            .rank-showcase { padding: 24px 16px; }
         }
         @media (max-width: 600px) {
             .top-bar { padding: 10px 16px; }
@@ -354,10 +376,7 @@
             .game-name { font-size: 13px; }
             .modal { padding: 1.2rem; max-width: 100%; border-radius: 1.2rem; }
             .modal-header { font-size: 1.2rem; }
-            .controls { flex-direction: column-reverse; align-items: stretch; }
-            .search-wrapper { width: 100%; }
-            .search-wrapper input { width: 100%; }
-            .btn-fav-list { width: 100%; text-align: center; justify-content: center; }
+            .btn-fav-list { padding: 8px 12px; font-size: 13px; }
             .rank-modal-row { grid-template-columns: 42px 1fr 72px 72px; }
         }
     </style>
@@ -366,6 +385,7 @@
 
     <!-- 顶部导航 -->
     <div class="top-bar">
+        <!-- 第一行：Logo、标题、右侧操作区 -->
         <div class="top-bar-row">
             <div class="title-group">
                 <img src="lelelegame.svg" alt="了了了游" class="site-logo" onclick="location.reload()">
@@ -378,16 +398,15 @@
                     </button>
                 </div>
             </div>
-            <div class="right-actions">
+            <div class="right-actions" id="topRightActions">
+                <!-- JS 动态注入头像和开发者面板 -->
                 <div class="lang-switch" role="group">
                     <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
                     <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
                 </div>
-
                 <a class="action-btn btn-about" href="about.html" id="linkAbout">
                     <span class="zh-inline">ℹ️ 关于</span><span class="en-inline">ℹ️ About</span>
                 </a>
-
                 <a class="action-btn btn-support" href="https://leleleling.site/support.html" target="_blank" rel="noopener noreferrer">
                     <span class="zh-inline">❤️ 支持我们</span><span class="en-inline">❤️ Support Us</span>
                 </a>
@@ -399,9 +418,9 @@
                 </a>
             </div>
         </div>
-        
-        <!-- 第一层：类型筛选 -->
-        <div class="nav-scroll-wrapper">
+
+        <!-- 第二行：类型导航 + 搜索/收藏 -->
+        <div class="nav-search-row">
             <div class="type-nav" id="typeNav">
                 <button class="type-btn active" data-type="all">
                     <span class="zh-inline">🌟 全部</span><span class="en-inline">🌟 All</span>
@@ -413,65 +432,68 @@
                     <span class="zh-inline">🌐 外网游戏</span><span class="en-inline">🌐 External</span>
                 </button>
             </div>
+            
+            <div class="controls-inline">
+                <button class="btn-fav-list" id="openFavBtn">
+                    <span class="zh-inline">⭐ 收藏</span><span class="en-inline">⭐ Favs</span>
+                </button>
+                <div class="search-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="搜索游戏名 / 分类 / 作者 / 拼音..." autocomplete="off" aria-label="Search games">
+                    <span class="search-clear" id="searchClearBtn">×</span>
+                </div>
+            </div>
         </div>
 
-        <!-- 第二层：分类筛选 (JS动态生成) -->
-        <div class="nav-scroll-wrapper" id="categoryNavWrapper" style="display:none;">
+        <!-- 第三行：分类筛选 (JS动态生成) -->
+        <div class="category-nav-wrapper" id="categoryNavWrapper">
             <div class="category-nav" id="categoryNav">
                 <!-- 动态填充 -->
             </div>
         </div>
     </div>
 
-    <!-- 搜索栏与收藏夹入口 -->
-    <div class="controls">
-        <button class="btn-fav-list" id="openFavBtn">
-            <span class="zh-inline">⭐ 我的收藏</span><span class="en-inline">⭐ My Favorites</span>
-        </button>
-        <div class="search-wrapper">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="searchInput" placeholder="搜索游戏名 / 分类 / 作者 / 拼音..." autocomplete="off" aria-label="Search games">
-            <span class="search-clear" id="searchClearBtn">×</span>
-        </div>
-    </div>
-
-    <!-- 公告板块 (由 common.js 接管渲染，仅保留基本容器) -->
-    <div class="announcements-container" id="announcementsContainer">
-        <div class="announcements-title">
-            <span class="zh-inline">📢 最新公告</span>
-            <span class="en-inline">📢 Announcements</span>
-        </div>
-        <div class="announcements-list" id="announcementsList"></div>
-    </div>
-
-    <!-- 游戏排行榜 -->
-    <div class="rank-showcase" id="rankShowcase">
-        <div class="rank-header">
-            <div>
-                <h3 data-i18n="rankTitle"><span class="zh-inline">🏆 游戏排名</span><span class="en-inline">🏆 Top Games</span></h3>
-                <span class="rank-subtitle" data-i18n="rankSubtitle"><span class="zh-inline">全站热度榜</span><span class="en-inline">Global popularity ranking</span></span>
+    <!-- 主内容区 -->
+    <div class="main-content">
+        
+        <!-- 游戏排行榜 (移到了最上面) -->
+        <div class="rank-showcase" id="rankShowcase">
+            <div class="rank-header">
+                <div>
+                    <h3 data-i18n="rankTitle"><span class="zh-inline">🏆 游戏排名</span><span class="en-inline">🏆 Top Games</span></h3>
+                    <span class="rank-subtitle" data-i18n="rankSubtitle"><span class="zh-inline">全站热度榜</span><span class="en-inline">Global popularity ranking</span></span>
+                </div>
+                <button type="button" class="rank-more-btn" id="openRankModalBtn">
+                    <span class="zh-inline">查看更多</span><span class="en-inline">View more</span>
+                </button>
             </div>
-            <button type="button" class="rank-more-btn" id="openRankModalBtn">
-                <span class="zh-inline">查看更多</span><span class="en-inline">View more</span>
-            </button>
+            <div class="rank-grid" id="top3RankContainer"></div>
         </div>
-        <div class="rank-grid" id="top3RankContainer"></div>
+
+        <!-- 公告板块 -->
+        <div class="announcements-container" id="announcementsContainer">
+            <div class="announcements-title">
+                <span class="zh-inline">📢 最新公告</span>
+                <span class="en-inline">📢 Announcements</span>
+            </div>
+            <div class="announcements-list" id="announcementsList"></div>
+        </div>
+
+        <!-- 游戏列表 -->
+        <div class="games-container">
+            <div class="games-grid" id="gamesGrid"></div>
+            <div class="status-message" id="statusMessage" style="display:none;"></div>
+        </div>
+
     </div>
 
-    <!-- 游戏列表 -->
-    <div class="games-container">
-        <div class="games-grid" id="gamesGrid"></div>
-        <div class="status-message" id="statusMessage" style="display:none;"></div>
-    </div>
-
-    <!-- 游戏快捷预览弹窗 -->
+    <!-- 弹窗结构保持不变（游戏预览、排行榜、收藏夹、投稿1/2/3） -->
     <div class="modal-overlay" id="gamePreview">
         <div class="modal">
             <button class="modal-close" onclick="closeModal('gamePreview')">×</button>
             <div class="preview-icon" id="prevIcon"></div>
             <div class="preview-name" id="prevName"></div>
             <div class="preview-tags" id="prevTags"></div>
-
             <div class="btn-group">
                 <div class="btn-group-row">
                     <button class="btn secondary" id="btnFav" onclick="toggleFavFromPreview()">⭐ 收藏</button>
@@ -482,7 +504,6 @@
         </div>
     </div>
 
-    <!-- 排行榜弹窗 -->
     <div class="modal-overlay" id="rankModalOverlay">
         <div class="modal modal-wide">
             <button class="modal-close" id="rankModalCloseBtn" type="button">×</button>
@@ -491,7 +512,6 @@
         </div>
     </div>
 
-    <!-- 收藏夹弹窗 -->
     <div class="modal-overlay" id="favoritesModal">
         <div class="modal modal-wide">
             <button class="modal-close" onclick="closeModal('favoritesModal')">×</button>
@@ -499,13 +519,10 @@
                 <span class="zh-inline">⭐ 我的收藏</span>
                 <span class="en-inline">⭐ My Favorites</span>
             </div>
-            <div id="favListContainer">
-                <!-- JS 动态渲染 -->
-            </div>
+            <div id="favListContainer"></div>
         </div>
     </div>
 
-    <!-- 投稿弹窗 1：须知 -->
     <div class="modal-overlay" id="stepGuide">
         <div class="modal modal-wide">
             <button class="modal-close" onclick="closeModal('stepGuide')">×</button>
@@ -515,7 +532,7 @@
                 <ul style="margin: 1rem 0 1rem 1.5rem; color:#475569; line-height: 1.8;">
                     <li>本平台仅支持纯前端代码（HTML/CSS/JS/JSON）。</li>
                     <li>不接收带后端服务、数据库或需要复杂构建的项目。</li>
-                    <li>游戏需符合 <a href="game_rules.html" target="_blank" style="color:#4f46e5;">《了了了游游戏守则》</a>。</li>
+                    <li>游戏需符合 <a href="author_rules.html" target="_blank" style="color:#4f46e5;">《了了了游游戏守则》</a>。</li>
                     <li>审核周期为 5 个工作日，结果将以邮件通知。</li>
                 </ul>
                 <label class="agree-row">
@@ -528,7 +545,7 @@
                 <ul style="margin: 1rem 0 1rem 1.5rem; color:#475569; line-height: 1.8;">
                     <li>Pure front-end only (HTML/CSS/JS/JSON).</li>
                     <li>No backend, database, or complex build steps.</li>
-                    <li>Must comply with the <a href="game_rules.html?lang=en" target="_blank" style="color:#4f46e5;">lelele Game Rules</a>.</li>
+                    <li>Must comply with the <a href="author_rules.html?lang=en" target="_blank" style="color:#4f46e5;">lelele Game Rules</a>.</li>
                     <li>Review takes 5 business days; results by email.</li>
                 </ul>
                 <label class="agree-row">
@@ -542,7 +559,6 @@
         </div>
     </div>
 
-    <!-- 投稿弹窗 2：授权 -->
     <div class="modal-overlay" id="stepAuth">
         <div class="modal modal-wide">
             <button class="modal-close" onclick="closeModal('stepAuth')">×</button>
@@ -551,14 +567,14 @@
                 <p style="font-size:0.9rem; color:#475569; margin-bottom:1rem;">平台获得非独占、可撤回的展示许可；您保留著作权、署名权及随时撤回权。</p>
                 <label class="agree-row">
                     <input type="checkbox" id="chkAuth">
-                    <span>我同意上述授权条款（详见 <a href="game_rules.html#submit" target="_blank" style="color:#4f46e5;">守则第四章</a>）。</span>
+                    <span>我同意上述授权条款（详见 <a href="author_rules.html#submit" target="_blank" style="color:#4f46e5;">守则第四章</a>）。</span>
                 </label>
             </div>
             <div class="en-text">
                 <p style="font-size:0.9rem; color:#475569; margin-bottom:1rem;">The Platform gets a non-exclusive, revocable display license. You retain copyright and withdrawal rights.</p>
                 <label class="agree-row">
                     <input type="checkbox" id="chkAuthEn">
-                    <span>I agree (See <a href="game_rules.html?lang=en#submit" target="_blank" style="color:#4f46e5;">Chapter 4</a>).</span>
+                    <span>I agree (See <a href="author_rules.html?lang=en#submit" target="_blank" style="color:#4f46e5;">Chapter 4</a>).</span>
                 </label>
             </div>
             <button class="btn btn-block" id="btnToTally" disabled style="margin-top:1rem;">
@@ -567,7 +583,6 @@
         </div>
     </div>
 
-    <!-- 投稿弹窗 3：Tally (直接显示) -->
     <div class="modal-overlay" id="stepTally">
         <div class="modal modal-wide" style="padding: 1rem;">
             <button class="modal-close" onclick="closeModal('stepTally')" style="z-index:10;">×</button>
@@ -575,11 +590,9 @@
         </div>
     </div>
 
-    <!-- 引入脚本 -->
     <script src="common.js" defer></script>
     <script src="search.js" defer></script>
     <script src="index.js" defer></script>
-
     <script async src="https://tally.so/widgets/embed.js"></script>
 </body>
 </html>
