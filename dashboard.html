@@ -136,12 +136,13 @@
 
         /* 看板数据区 */
         .metrics-grid {
-            display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 24px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 24px;
         }
         .metric-card {
             background: var(--card-bg); border-radius: 24px; padding: 24px;
             border: 1px solid var(--card-border); box-shadow: 0 4px 12px rgba(0,0,0,0.02);
             display: flex; align-items: center; justify-content: space-between; position: relative; overflow: hidden;
+            gap: 12px;
         }
         .metric-info h3 { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; }
         .metric-val { font-size: 2.5rem; font-weight: 800; color: var(--text-main); line-height: 1; }
@@ -257,11 +258,11 @@
                         </div>
                         <div class="select-wrapper">
                             <select id="timeSelector" onchange="loadChartData()">
-                                <option value="1d">今天 / Today</option>
+                                <option value="today">今天 / Today</option>
                                 <option value="7d">近 7 天 / 7 Days</option>
                                 <option value="30d" selected>近 30 天 / 30 Days</option>
                                 <option value="90d">近 90 天 / 90 Days</option>
-                                <option value="1y">近 1 年 / 1 Year</option>
+                                <option value="12mo">近 1 年 / 1 Year</option>
                             </select>
                         </div>
                     </div>
@@ -285,6 +286,34 @@
                             <div class="trend-box">
                                 <div class="trend-emoji" id="playTrendEmoji">🛌</div>
                                 <div class="trend-text" id="playTrendText">原地踏步</div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-info">
+                                <h3><span class="zh-inline">全站排名</span><span class="en-inline">Site Rank</span></h3>
+                                <div class="metric-val" id="rankVal">-</div>
+                            </div>
+                            <div class="trend-box">
+                                <div class="trend-emoji" id="rankEmoji">🏅</div>
+                                <div class="trend-text" id="rankText">
+                                    <span class="zh-inline">全站 0 款游戏</span>
+                                    <span class="en-inline">of 0 games</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-info">
+                                <h3 id="avgTitle"><span class="zh-inline">日均游玩</span><span class="en-inline">Daily Average</span></h3>
+                                <div class="metric-val" id="avgVal">-</div>
+                            </div>
+                            <div class="trend-box">
+                                <div class="trend-emoji">📈</div>
+                                <div class="trend-text" id="avgText">
+                                    <span class="zh-inline">最高单日 —</span>
+                                    <span class="en-inline">Peak —</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -355,21 +384,37 @@
         let myGames = [];
         let activeGameId = null;
         let myChart = null;
+        let lastSeries = null;
 
         // 国际化字典
         const I18N = {
             zh: {
                 slowUp: '缓慢增长中...', fastUp: '快速上升中！', rocketUp: '火爆全站！',
                 flat: '原地踏步', slowDown: '轻微回落', fastDown: '有所下滑', crashDown: '正在着陆',
-                playLabel: '游玩量'
+                noPrev: '暂无对比数据',
+                playLabel: '游玩量', prevLabel: '上一周期',
+                ofGames: (n) => `全站 ${n} 款游戏`,
+                peak: (v) => `最高单日 ${v}`,
+                noData: '该时间段暂无游玩记录',
+                noDataSub: '换个时间范围看看，或等有玩家来玩',
+                loadFail: '数据加载失败，请稍后重试',
+                rankNone: '未上榜'
             },
             en: {
                 slowUp: 'Slowly growing...', fastUp: 'Rising fast!', rocketUp: 'Trending!',
                 flat: 'Staying flat', slowDown: 'Slight dip', fastDown: 'Sliding down', crashDown: 'Landing...',
-                playLabel: 'Plays'
+                noPrev: 'No comparison data',
+                playLabel: 'Plays', prevLabel: 'Previous period',
+                ofGames: (n) => `of ${n} games`,
+                peak: (v) => `Peak ${v}`,
+                noData: 'No plays in this time range',
+                noDataSub: 'Try another range, or wait for players',
+                loadFail: 'Failed to load data. Please retry.',
+                rankNone: 'Unranked'
             }
         };
         const getLang = () => document.documentElement.getAttribute('data-lang') || 'zh';
+        const t = (key) => I18N[getLang()][key];
 
         // 标签页切换逻辑
         window.switchTab = function(tab) {
@@ -460,7 +505,7 @@
             }
 
             if (myGames.length === 1) {
-                activeGameId = myGames[0].id;
+                activeGameId = String(myGames[0].id);
                 fillGameSelector();
                 document.getElementById('dashboardControls').style.display = 'flex';
                 document.getElementById('analyticsDataView').style.display = 'block';
@@ -490,13 +535,13 @@
             const isEn = getLang() === 'en';
             sel.innerHTML = myGames.map(g => {
                 const name = isEn ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en);
-                return `<option value="${g.id}" ${g.id === activeGameId ? 'selected' : ''}>${name}</option>`;
+                return `<option value="${g.id}" ${String(g.id) === String(activeGameId) ? 'selected' : ''}>${name}</option>`;
             }).join('');
         }
 
         // 从列表选择游戏
         window.selectGame = function(id) {
-            activeGameId = id;
+            activeGameId = String(id);
             fillGameSelector();
             document.getElementById('gameSelectGrid').style.display = 'none';
             document.getElementById('dashboardControls').style.display = 'flex';
@@ -514,53 +559,236 @@
 
         // 下拉框切换事件
         window.onGameChange = function() {
-            activeGameId = parseInt(document.getElementById('gameSelector').value);
+            activeGameId = document.getElementById('gameSelector').value;
             loadChartData();
         };
 
-        // 数据拉取与计算（改用 Breakdown 接口）
-        async function loadChartData() {
-            if (!activeGameId) return;
-            const game = myGames.find(g => g.id === activeGameId);
-            const gameName = game.name_zh || game.name;
-            const range = document.getElementById('timeSelector').value;
+        // 分析接口基址
+        const ANALYTICS_BASE = 'https://analytics.leleleling.site';
+        const SITE_ID = 1;
 
-            // 用 breakdown 接口查总数据（准确），因为 timeseries 接口后端不支持 event 过滤
-            const breakdownUrl = `https://analytics.leleleling.site/api/breakdown?site=1&cmp=1&limit=1000&dim=event&range=${range}`;
+        // 游戏对应的埋点事件名：play-game_<中文名>
+        // 注意：埋点用的是 name_zh，英文模式下也不能换成 name_en，否则查不到数据
+        function eventNameOf(game) {
+            return 'play-game_' + (game.name_zh || game.name_en || game.id);
+        }
 
+        // 排名缓存：range -> Map(eventName -> rank)，避免每次切游戏都重拉
+        const rankCache = {};
+
+        // 拉取全站游戏排行（按 event 维度），返回 { ranks: Map, total: number }
+        async function fetchRanks(range) {
+            if (rankCache[range]) return rankCache[range];
+
+            const url = `${ANALYTICS_BASE}/api/breakdown?site=${SITE_ID}&cmp=1&limit=50&dim=event&range=${encodeURIComponent(range)}`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('breakdown HTTP ' + res.status);
+            const json = await res.json();
+
+            const events = json.breakdowns?.event || [];
+            // 只统计 play-game_xxx 形式的事件；裸的 play-game 没有游戏名，排除
+            const games = events
+                .filter(e => typeof e.name === 'string' && e.name.indexOf('play-game_') === 0)
+                .sort((a, b) => b.value - a.value);
+
+            const ranks = new Map();
+            games.forEach((e, i) => {
+                // 同分并列：找出第一个同值的名次
+                const tied = games.findIndex(x => x.value === e.value);
+                ranks.set(e.name, tied + 1);
+            });
+
+            const result = { ranks, total: games.length };
+            rankCache[range] = result;
+            return result;
+        }
+
+        // 拉取单个游戏的时间序列，返回 { labels, cur, prev, granularity }
+        // 注意：后端在 event 值匹配不到任何记录时会回退成全站汇总且不报错，
+        // 所以调用方必须先确认该事件确实存在（见 loadChartData 里的校验）。
+        async function fetchSeries(game, range) {
+            const params = new URLSearchParams({
+                range: range,
+                event: eventNameOf(game),
+                cmp: '1'
+            });
+            const res = await fetch(`${ANALYTICS_BASE}/api/timeseries?${params.toString()}`);
+            if (!res.ok) throw new Error('timeseries HTTP ' + res.status);
+            const json = await res.json();
+
+            const points = json.points || [];
+            return {
+                labels: points.map(p => p.label),
+                cur: points.map(p => p.cur ?? 0),
+                prev: points.map(p => (p.prev === null || p.prev === undefined) ? 0 : p.prev),
+                granularity: json.granularity || 'day'
+            };
+        }
+
+        // 判断某游戏在当前时间范围内是否真的有埋点数据
+        async function hasEventData(game, range) {
             try {
-                const res = await fetch(breakdownUrl);
-                const json = await res.json();
-                const events = json.breakdowns?.event || [];
-                
-                const targetEvent = `play-game_${gameName}`;
-                const eventData = events.find(e => e.name === targetEvent);
-                
-                const playCur = eventData ? eventData.value : 0;
-                
-                document.getElementById('playCount').textContent = playCur;
-
-                // 因为没有历史数据对比（timeseries 接口后端不支持），我们显示原地踏步
-                renderTrend('play', playCur, 0); 
-
-                // 直接渲染一个空图表或者提示，不再调用错误的全站 timeseries
-                renderChart([], []);
-
+                const info = await fetchRanks(range);
+                return info.ranks.has(eventNameOf(game));
             } catch (e) {
-                console.error('数据加载失败', e);
+                // 拿不到事件列表就不敢断言，返回 null 表示「无从判断」
+                return null;
             }
         }
 
-        function renderTrend(type, cur, prev) {
-            let percent = 0;
-            if (prev === 0) {
-                if (cur > 0) percent = 100;
-            } else {
-                percent = ((cur - prev) / prev) * 100;
+        // 数据拉取与渲染
+        async function loadChartData() {
+            if (!activeGameId) return;
+
+            const game = myGames.find(g => String(g.id) === String(activeGameId));
+            if (!game) return;
+
+            const range = document.getElementById('timeSelector').value;
+
+            // 先给个加载态，别让用户看着旧数字发呆
+            const playCountEl = document.getElementById('playCount');
+            const prevText = playCountEl.textContent;
+            playCountEl.textContent = '…';
+
+            try {
+                // 先确认这个游戏在当前时间范围里真的出现过。
+                // 后端对匹配不到的 event 会静默回退成全站汇总，不校验就会把
+                // 全站流量算到单个游戏头上（游戏改名后尤其容易发生）。
+                const rankInfoPromise = fetchRanks(range).catch(e => {
+                    console.warn('排行数据拉取失败', e);
+                    return null;
+                });
+                const rankInfo = await rankInfoPromise;
+
+                let series;
+                if (rankInfo && !rankInfo.ranks.has(eventNameOf(game))) {
+                    // 事件确实不存在 → 这段时间就是 0，不要拿全站数字来充数
+                    series = null;
+                } else {
+                    // 事件存在，或排行接口不可用（此时只能信任 timeseries 的返回）
+                    series = await fetchSeries(game, range);
+                }
+
+                if (!series) {
+                    document.getElementById('playCount').textContent = '0';
+                    renderTrend('play', 0, 0, false);
+                    renderRank(game, rankInfo);
+                    renderAverage({ cur: [], granularity: 'day' });
+                    lastSeries = null;
+                    renderChart(null);
+                    return;
+                }
+
+                // ===== 1. 总量 & 趋势对比 =====
+                // 用序列求和得到当前周期游玩量（与表格口径一致），
+                // prev 是「上一周期」同长度的数据，用来算真实的涨跌
+                const curTotal = series.cur.reduce((a, b) => a + b, 0);
+                const prevTotal = series.prev.reduce((a, b) => a + b, 0);
+
+                document.getElementById('playCount').textContent = curTotal.toLocaleString();
+                renderTrend('play', curTotal, prevTotal, prevTotal > 0);
+
+                // ===== 2. 排名 =====
+                renderRank(game, rankInfo);
+
+                // ===== 3. 均值 & 峰值 =====
+                renderAverage(series);
+
+                // ===== 4. 折线图 =====
+                lastSeries = series;
+                renderChart(series);
+
+            } catch (e) {
+                console.error('数据加载失败', e);
+                document.getElementById('playCount').textContent = prevText || '-';
+                renderChartError();
+            }
+        }
+
+        // 渲染排名卡片
+        function renderRank(game, rankInfo) {
+            const rankValEl = document.getElementById('rankVal');
+            const rankEmojiEl = document.getElementById('rankEmoji');
+            const rankTextEl = document.getElementById('rankText');
+
+            if (!rankInfo) {
+                rankValEl.textContent = '—';
+                rankEmojiEl.textContent = '⚠️';
+                rankTextEl.innerHTML = `<span class="zh-inline">排行暂不可用</span><span class="en-inline">Rank unavailable</span>`;
+                return;
             }
 
+            const rank = rankInfo.ranks.get(eventNameOf(game));
+            const total = rankInfo.total;
+
+            if (rank) {
+                rankValEl.textContent = '#' + rank;
+                rankEmojiEl.textContent = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '🏅';
+            } else {
+                rankValEl.textContent = '—';
+                rankEmojiEl.textContent = '💤';
+            }
+
+            const suffix = t('ofGames')(total);
+            const none = t('rankNone');
+            rankTextEl.innerHTML = `<span class="zh-inline">${rank ? suffix : none}</span>`
+                + `<span class="en-inline">${rank ? suffix : none}</span>`;
+        }
+
+        // 渲染日均与峰值
+        function renderAverage(series) {
+            const values = series.cur;
+            // 只在有数据的桶上求平均：上线前的 0 不该拉低平均值
+            const active = values.filter(v => v > 0);
+            const denom = active.length > 0 ? active.length : (values.length || 1);
+            const sum = values.reduce((a, b) => a + b, 0);
+            const avg = sum / denom;
+            const peak = values.length ? Math.max.apply(null, values) : 0;
+            document.getElementById('avgVal').textContent =
+                avg >= 10 ? Math.round(avg).toLocaleString() : (Math.round(avg * 10) / 10);
+
+            // 粒度不同，标签也跟着变：周聚合说「周均」比说「日均」诚实
+            const unitZh = series.granularity === 'hour' ? '最高单小时'
+                         : series.granularity === 'week' ? '最高单周'
+                         : series.granularity === 'month' ? '最高单月'
+                         : '最高单日';
+            const unitEn = series.granularity === 'hour' ? 'Peak hourly'
+                         : series.granularity === 'week' ? 'Peak weekly'
+                         : series.granularity === 'month' ? 'Peak monthly'
+                         : 'Peak daily';
+
+            // 均值的口径标题同步切换，避免 90d/12mo 下写着「日均」却是周/月均
+            const avgZh = series.granularity === 'hour' ? '小时均游玩'
+                        : series.granularity === 'week' ? '周均游玩'
+                        : series.granularity === 'month' ? '月均游玩'
+                        : '日均游玩';
+            const avgEn = series.granularity === 'hour' ? 'Hourly Average'
+                        : series.granularity === 'week' ? 'Weekly Average'
+                        : series.granularity === 'month' ? 'Monthly Average'
+                        : 'Daily Average';
+            document.getElementById('avgTitle').innerHTML =
+                `<span class="zh-inline">${avgZh}</span><span class="en-inline">${avgEn}</span>`;
+
+            document.getElementById('avgText').innerHTML =
+                `<span class="zh-inline">${unitZh} ${peak.toLocaleString()}</span>`
+                + `<span class="en-inline">${unitEn} ${peak.toLocaleString()}</span>`;
+        }
+
+        function renderTrend(type, cur, prev, hasPrev) {
+            const emojiEl = document.getElementById(`${type}TrendEmoji`);
+            const textEl = document.getElementById(`${type}TrendText`);
+
+            // 上一周期完全没有数据时，涨跌百分比没有意义，如实说明
+            if (!hasPrev) {
+                emojiEl.textContent = cur > 0 ? '🌱' : '🛌';
+                textEl.textContent = cur > 0 ? t('slowUp') : t('flat');
+                return;
+            }
+
+            const percent = prev === 0 ? (cur > 0 ? 100 : 0) : ((cur - prev) / prev) * 100;
+
             let emoji = '🛌', textKey = 'flat';
-            
+
             if (percent > 0) {
                 if (percent <= 20) { emoji = '🌱'; textKey = 'slowUp'; }
                 else if (percent <= 60) { emoji = '🎢'; textKey = 'fastUp'; }
@@ -571,65 +799,123 @@
                 else { emoji = '🪂'; textKey = 'crashDown'; }
             }
 
-            const lang = getLang();
-            document.getElementById(`${type}TrendEmoji`).textContent = emoji;
-            document.getElementById(`${type}TrendText`).textContent = I18N[lang][textKey];
+            // 显示具体百分比，让人知道趋势是怎么来的
+            const sign = percent > 0 ? '+' : '';
+            const pctStr = `${sign}${percent.toFixed(0)}%`;
+
+            emojiEl.textContent = emoji;
+            textEl.textContent = `${t(textKey)} ${pctStr}`;
         }
 
-        function renderChart(dates, playDataArray) {
+        function renderChartError() {
             if (!myChart) {
                 myChart = echarts.init(document.getElementById('trendChart'));
             }
-            
-            // 如果是空数组（后端暂不支持单游戏趋势），显示提示
-            if (dates.length === 0) {
+            myChart.clear();
+            const isEn = getLang() === 'en';
+            myChart.setOption({
+                title: {
+                    text: isEn ? 'Failed to load' : '数据加载失败',
+                    subtext: isEn ? 'Please check network and retry' : '请检查网络后切换时间范围重试',
+                    left: 'center',
+                    top: 'center',
+                    textStyle: { color: '#ef4444', fontSize: 16, fontWeight: 'bold' },
+                    subtextStyle: { color: '#64748b', fontSize: 12 }
+                }
+            });
+        }
+
+        function renderChart(series) {
+            if (!myChart) {
+                myChart = echarts.init(document.getElementById('trendChart'));
+            }
+
+            const lang = getLang();
+            const isEn = lang === 'en';
+            const isDark = document.documentElement.classList.contains('dark-mode');
+            const textColor = isDark ? '#94a3b8' : '#64748b';
+            const lineColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(148,163,184,0.2)';
+
+            // 全部为 0（或没有数据）时画一条平线没意义，给个友好提示
+            const hasAny = series && (series.cur.some(v => v > 0) || series.prev.some(v => v > 0));
+            if (!hasAny) {
                 myChart.clear();
-                const isEn = getLang() === 'en';
                 myChart.setOption({
                     title: {
-                        text: isEn ? 'Trend data unavailable for this event' : '当前后端暂不支持单游戏趋势图',
-                        subtext: isEn ? 'Only total play counts are shown above' : '上方仅展示总游玩次数',
+                        text: isEn ? 'No plays yet' : '该时间段暂无游玩记录',
+                        subtext: isEn ? 'Try another range' : '换个时间范围看看',
                         left: 'center',
                         top: 'center',
-                        textStyle: { color: 'var(--text-muted)', fontSize: 16, fontWeight: 'bold' },
-                        subtextStyle: { color: 'var(--text-muted)', fontSize: 12 }
+                        textStyle: { color: textColor, fontSize: 16, fontWeight: 'bold' },
+                        subtextStyle: { color: textColor, fontSize: 12 }
                     }
                 });
                 return;
             }
 
-            const lang = getLang();
-            const isDark = document.documentElement.classList.contains('dark-mode');
-            const textColor = isDark ? '#94a3b8' : '#64748b';
-            const lineColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(148,163,184,0.2)';
+            // 90d 是周聚合、12mo 是月聚合，标签要做相应格式化
+            const labels = series.labels.map(label => {
+                if (series.granularity === 'hour') {
+                    const m = label.match(/(\d{2}):(\d{2})/);
+                    return m ? m[1] + ':00' : label;
+                }
+                if (series.granularity === 'month') return label.slice(0, 7);
+                return label.length > 10 ? label.slice(5) : label; // 去掉年份，留 MM-DD
+            });
 
-            const playValues = playDataArray.map(d => d.cur !== undefined ? d.cur : (d.y !== undefined ? d.y : 0));
+            const showPrev = series.prev.some(v => v > 0);
 
             const option = {
                 backgroundColor: 'transparent',
-                tooltip: { trigger: 'axis' },
+                // 图例可点击隐藏，默认只显示本周期
+                tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
                 legend: {
-                    data: [I18N[lang].playLabel],
-                    textStyle: { color: textColor }
+                    data: showPrev ? [t('playLabel'), t('prevLabel')] : [t('playLabel')],
+                    textStyle: { color: textColor },
+                    top: 0
                 },
-                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                grid: { left: '2%', right: '3%', bottom: '3%', top: 40, containLabel: true },
                 xAxis: {
-                    type: 'category', boundaryGap: false, data: dates,
-                    axisLabel: { color: textColor }, axisLine: { lineStyle: { color: lineColor } }
+                    type: 'category', boundaryGap: false, data: labels,
+                    axisLabel: { color: textColor, hideOverlap: true },
+                    axisLine: { lineStyle: { color: lineColor } }
                 },
                 yAxis: {
-                    type: 'value', axisLabel: { color: textColor }, splitLine: { lineStyle: { color: lineColor } }
+                    type: 'value',
+                    minInterval: 1,
+                    axisLabel: { color: textColor },
+                    splitLine: { lineStyle: { color: lineColor } }
                 },
                 series: [
                     {
-                        name: I18N[lang].playLabel, type: 'line', smooth: true, data: playValues,
+                        name: t('playLabel'), type: 'line', smooth: true,
+                        data: series.cur,
                         itemStyle: { color: '#4f46e5' },
-                        areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            { offset: 0, color: 'rgba(79, 70, 229, 0.4)' }, { offset: 1, color: 'rgba(79, 70, 229, 0)' }
-                        ])}
+                        lineStyle: { width: 3 },
+                        symbolSize: 6,
+                        emphasis: { focus: 'series' },
+                        areaStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(79, 70, 229, 0.35)' },
+                                { offset: 1, color: 'rgba(79, 70, 229, 0)' }
+                            ])
+                        }
+                    },
+                    {
+                        name: t('prevLabel'), type: 'line', smooth: true,
+                        data: series.prev,
+                        itemStyle: { color: '#94a3b8' },
+                        lineStyle: { width: 2, type: 'dashed' },
+                        symbolSize: 4,
+                        // 上一周期默认做成对照线，不抢主线的视觉
+                        areaStyle: undefined
                     }
                 ]
             };
+
+            if (!showPrev) option.series = [option.series[0]];
+
+            myChart.clear();
             myChart.setOption(option);
         }
 
@@ -733,8 +1019,13 @@
                 fillGameSelector();
             }
 
-            if (document.getElementById('analyticsDataView').style.display !== 'none') {
-                loadChartData();
+            // 语言切换需要重绘图表（图例/坐标轴文案变了），但数据不用重新拉
+            if (document.getElementById('analyticsDataView').style.display !== 'none' && lastSeries) {
+                renderChart(lastSeries);
+                renderAverage(lastSeries);
+                const game = myGames.find(g => String(g.id) === String(activeGameId));
+                const range = document.getElementById('timeSelector').value;
+                if (game) renderRank(game, rankCache[range] || null);
             }
         };
 
