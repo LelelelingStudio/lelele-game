@@ -506,11 +506,10 @@
 
         // 返回游戏列表
         window.backToGameList = function() {
-            if (myGames.length > 1) {
-                document.getElementById('gameSelectGrid').style.display = 'grid';
-                document.getElementById('dashboardControls').style.display = 'none';
-                document.getElementById('analyticsDataView').style.display = 'none';
-            }
+            // 即使只有一个游戏，也允许返回列表（列表里就一个卡片）
+            document.getElementById('gameSelectGrid').style.display = 'grid';
+            document.getElementById('dashboardControls').style.display = 'none';
+            document.getElementById('analyticsDataView').style.display = 'none';
         };
 
         // 下拉框切换事件
@@ -519,51 +518,33 @@
             loadChartData();
         };
 
-        // 数据拉取与计算（兼容多种返回格式）
+        // 数据拉取与计算（改用 Breakdown 接口）
         async function loadChartData() {
             if (!activeGameId) return;
             const game = myGames.find(g => g.id === activeGameId);
             const gameName = game.name_zh || game.name;
             const range = document.getElementById('timeSelector').value;
 
-            const baseApi = 'https://analytics.leleleling.site/api/timeseries?site=1';
-            const playUrl = `${baseApi}&range=${range}&event=play-game_${encodeURIComponent(gameName)}`;
+            // 用 breakdown 接口查总数据（准确），因为 timeseries 接口后端不支持 event 过滤
+            const breakdownUrl = `https://analytics.leleleling.site/api/breakdown?site=1&cmp=1&limit=1000&dim=event&range=${range}`;
 
             try {
-                const playRes = await fetch(playUrl);
-                const rawData = await playRes.json();
-
-                // 【核心修复】兼容 timeseries 接口返回的 points 结构
-                let playDataArray = [];
-                if (Array.isArray(rawData)) {
-                    playDataArray = rawData;
-                } else if (rawData && Array.isArray(rawData.points)) {
-                    playDataArray = rawData.points; 
-                } else if (rawData && Array.isArray(rawData.pageviews)) {
-                    playDataArray = rawData.pageviews;
-                } else if (rawData && Array.isArray(rawData.data)) {
-                    playDataArray = rawData.data;
-                } else if (rawData && Array.isArray(rawData.results)) {
-                    playDataArray = rawData.results;
-                }
-
-                let playCur = 0, playPrev = 0;
-                let dates = [];
-
-                if (playDataArray.length > 0) {
-                    playDataArray.forEach(d => {
-                        // 兼容 cur/prev 或 y/x 字段
-                        const curVal = d.cur !== undefined ? d.cur : (d.y !== undefined ? d.y : 0);
-                        const prevVal = d.prev !== undefined ? d.prev : 0;
-                        playCur += curVal;
-                        playPrev += prevVal;
-                    });
-                    dates = playDataArray.map(d => d.label || d.x || d.date);
-                }
-
+                const res = await fetch(breakdownUrl);
+                const json = await res.json();
+                const events = json.breakdowns?.event || [];
+                
+                const targetEvent = `play-game_${gameName}`;
+                const eventData = events.find(e => e.name === targetEvent);
+                
+                const playCur = eventData ? eventData.value : 0;
+                
                 document.getElementById('playCount').textContent = playCur;
-                renderTrend('play', playCur, playPrev);
-                renderChart(dates, playDataArray);
+
+                // 因为没有历史数据对比（timeseries 接口后端不支持），我们显示原地踏步
+                renderTrend('play', playCur, 0); 
+
+                // 直接渲染一个空图表或者提示，不再调用错误的全站 timeseries
+                renderChart([], []);
 
             } catch (e) {
                 console.error('数据加载失败', e);
@@ -599,6 +580,24 @@
             if (!myChart) {
                 myChart = echarts.init(document.getElementById('trendChart'));
             }
+            
+            // 如果是空数组（后端暂不支持单游戏趋势），显示提示
+            if (dates.length === 0) {
+                myChart.clear();
+                const isEn = getLang() === 'en';
+                myChart.setOption({
+                    title: {
+                        text: isEn ? 'Trend data unavailable for this event' : '当前后端暂不支持单游戏趋势图',
+                        subtext: isEn ? 'Only total play counts are shown above' : '上方仅展示总游玩次数',
+                        left: 'center',
+                        top: 'center',
+                        textStyle: { color: 'var(--text-muted)', fontSize: 16, fontWeight: 'bold' },
+                        subtextStyle: { color: 'var(--text-muted)', fontSize: 12 }
+                    }
+                });
+                return;
+            }
+
             const lang = getLang();
             const isDark = document.documentElement.classList.contains('dark-mode');
             const textColor = isDark ? '#94a3b8' : '#64748b';
