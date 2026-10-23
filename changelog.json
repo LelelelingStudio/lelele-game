@@ -1,5 +1,41 @@
 [
   {
+    "version": "3.0.1",
+    "date": "2026-10-23",
+    "content_zh": "1. 优化了开发者注册流程，放宽了邮箱验证码的输入长度限制，解决部分用户无法输入完整验证码的问题。\n2. 修复了搜索框在输入特定特殊字符时导致的控制台异常报错。\n3. 修复了全屏游戏页面被全站活动特效（如冬季雪花）遮挡的底层冲突问题，保障纯净游玩体验。\n4. 完善了开发者文档与游戏守则的双语跳转链接，优化了新用户的阅读体验。",
+    "content_en": "1. Optimized the developer registration process and relaxed the length limit for the email verification code input, resolving the issue where some users could not enter the full code. \n2. Fixed a console error caused by the search box when entering specific special characters. \n3. Fixed the underlying conflict where full-screen game pages were obstructed by site-wide event effects (like winter snowflakes), ensuring a pure gaming experience. \n4. Improved the bilingual jump links for developer docs and game rules, optimizing the reading experience for new users."
+  },
+  {
+    "version": "3.0.0",
+    "date": "2026-10-23",
+    "content_zh": "1. 【里程碑】开发者生态系统正式上线！全面接入 Supabase 数据库，支持安全的开发者账号注册、验证码登录与鉴权体系。\n2. 全新上线「开发者后台（Dashboard）」，支持一键查看单款游戏的游玩量、收藏量趋势折线图，并附带智能环比 Emoji 数据反馈。\n3. 新增「公开作者主页」，玩家点击游戏详情页的开发者名称，即可直达该作者的主页，一览其所有作品及个人简介。\n4. 支持开发者在后台上传自定义头像（前端智能压缩至 50KB 以内）及修改个人简介。\n5. 引入安全的“双重确认”账号注销机制，并在后台支持一键发送密码重置邮件。",
+    "content_en": "1. [Milestone] The developer ecosystem is officially online! Fully integrated with the Supabase database to support secure developer account registration, verification code login, and authentication. \n2. Launched the new 'Developer Dashboard', supporting one-click viewing of play counts, favorites trend line charts, and smart MoM Emoji feedback for individual games. \n3. Added 'Public Author Pages'; players can click the developer's name on the game detail page to go directly to their homepage and see all their works and bio. \n4. Supports developers in uploading custom avatars (with smart front-end compression to under 50KB) and editing their bio in the backend. \n5. Introduced a secure 'double confirmation' account deletion mechanism and supported one-click password reset emails from the backend."
+  },
+  {
+    "version": "2.4.0",
+    "date": "2026-10-23",
+    "content_zh": "1. 【搜索升级】全新接入智能拼音搜索引擎，支持全拼、首字母、模糊顺序匹配及搜索结果高亮显示。\n2. 【布局优化】将搜索框与收藏夹上移至顶部导航栏，同时将热度排行榜前移至公告栏上方，提升首屏信息获取效率。\n3. 优化了搜索无结果的空状态提示，并修复了在特定浏览器下搜索框失去焦点的问题。",
+    "content_en": "1. [Search Upgrade] Integrated a brand new smart pinyin search engine, supporting full pinyin, initials, fuzzy sequential matching, and search result highlighting. \n2. [Layout Optimization] Moved the search box and favorites to the top navigation bar, and shifted the popularity ranking above the announcements to improve first-screen information efficiency. \n3. Optimized the empty state prompt for no search results and fixed the issue where the search box lost focus in specific browsers."
+  },
+  {
+    "version": "2.3.0",
+    "date": "2026-10-23",
+    "content_zh": "1. 首页新增“双层筛选导航”，支持在【全部/本站/外网】与【游戏分类】之间进行精准交叉过滤。\n2. 新增全站悬浮按钮悬停交互，当鼠标停留在右下角图标时，会浮现具体的功能名称提示（如意见反馈、回到顶部）。\n3. 优化了顶部导航栏分类按钮在移动端的横向滑动交互体验。",
+    "content_en": "1. Added a 'Double-layer Filter Navigation' to the homepage, supporting precise cross-filtering between [All/Local/External] and [Game Categories]. \n2. Added a hover interaction for floating buttons site-wide; hovering over the bottom-right icons now reveals specific function name tooltips (e.g., Feedback, Back to Top). \n3. Optimized the horizontal swipe interaction experience for filter buttons on mobile devices."
+  },
+  {
+    "version": "2.2.1",
+    "date": "2026-10-23",
+    "content_zh": "1. 修复了游戏详情页在部分极端网络环境下样式加载错乱的缺陷。\n2. 优化了移动端触控事件分发，提升游玩时的操作灵敏度。\n3. 修复了深色模式下个别字体对比度不足影响阅读的问题。\n4. 修复了首页公告栏在特定交互下的渲染异常。",
+    "content_en": "1. Fixed a style loading defect on the game detail page in some extreme network environments. \n2. Optimized mobile touch event distribution to improve operational sensitivity during gameplay. \n3. Fixed the issue of insufficient font contrast in dark mode affecting readability. \n4. Fixed abnormal rendering of the homepage announcement bar under specific interactions."
+  },
+  {
+    "version": "2.2.0",
+    "date": "2026-10-22",
+    "content_zh": "1. 全新上线首页“全站游戏热度榜”！直观展示全站前 3 名游戏并佩戴金、银、铜牌徽章。\n2. 新增“查看更多”弹窗，玩家可一键浏览前 25 名完整榜单。\n3. 优化榜单交互，点击卡片可直接跳转至游戏详情页（支持中英双语）。\n4. 榜单数据支持加载时实时抓取与每 5 分钟自动刷新，确保热度数据准确。",
+    "content_en": "1. Launched the new 'Global Game Ranking' on the homepage! It intuitively displays the top 3 games sitewide with gold, silver, and bronze medals. \n2. Added a 'View More' modal, allowing players to browse the complete top 25 leaderboard with one click. \n3. Optimized leaderboard interactions; clicking a card now redirects directly to the game detail page (supports bilingual). \n4. The leaderboard data supports real-time fetching on load and auto-refresh every 5 minutes, ensuring accurate popularity data."
+  },
+  {
     "version": "2.1.1",
     "date": "2026-10-22",
     "content_zh": "1. 【游戏上新】休闲品类新游戏《MC 矿工点击器》正式上架！支持直接在线游玩。\n2. 【安全加固】针对《MC 矿工点击器》源码进行了深度审查，修复了底层崩溃隐患，并为其作弊码验证引入了 SHA-512 哈希加密算法。\n3. 【Bug修复】修复了首页公告栏在用户将公告全部关闭后，连空状态提示框和「查看全部」按钮一起消失的 UI 缺陷。",
