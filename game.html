@@ -27,13 +27,8 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <title>加载中... · 了了了游</title>
 
-    <!-- 引入全局样式 -->
     <link rel="stylesheet" href="common.css">
-
-    <!-- 统计代码 -->
     <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
-
-    <!-- 引入 Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -448,7 +443,6 @@
             
             try { localStorage.setItem('lelele_favs', JSON.stringify(favs)); } catch (e) {}
             updateFavBtn();
-            // 收藏埋点已移除
         };
 
         window.playGame = function() {
@@ -473,8 +467,9 @@
             let finalName = authorData;
             let finalId = authorData;
 
-            // 如果是数字 ID，去拉取 authors.json 查名字
+            // 如果是数字 ID，先给个占位符去拉取真实名字
             if (typeof authorData === 'number' || /^\d+$/.test(authorData)) {
+                authorBar.innerHTML = `${authorLabel}: <strong>...</strong>`;
                 try {
                     const res = await fetch('https://authors.surge.sh/authors.json?t=' + Date.now());
                     if (res.ok) {
@@ -482,16 +477,18 @@
                         const matched = authors.find(a => String(a.id) === String(authorData));
                         if (matched) {
                             finalName = en ? (matched.name_en || matched.name_zh) : (matched.name_zh || matched.name_en);
+                        } else {
+                            finalName = en ? 'Unknown' : '未知作者';
                         }
                     }
                 } catch (e) {
                     console.warn('无法获取作者名字', e);
+                    finalName = en ? 'Unknown' : '未知作者';
                 }
             }
 
             const url = `author.html?id=${finalId}`;
             const langSuffix = en ? '&lang=en' : '';
-
             authorBar.innerHTML = `${authorLabel}: <a href="${url}${langSuffix}" class="author-link">${escapeHtml(finalName)}</a>`;
         }
 
@@ -528,7 +525,8 @@
 
             const authorBar = document.getElementById('authorBar');
             if (game.author) {
-                authorBar.innerHTML = `${en ? 'Developer' : '开发者'}: <strong>${escapeHtml(game.author)}</strong>`;
+                // 先给个占位，异步去查
+                authorBar.innerHTML = `${en ? 'Developer' : '开发者'}: <strong>...</strong>`;
                 updateAuthorBar(game.author);
             } else {
                 authorBar.style.display = 'none';
