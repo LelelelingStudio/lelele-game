@@ -363,8 +363,8 @@
                         <input type="file" id="avatarInput" accept="image/*" onchange="handleAvatarChange(event)">
                     </div>
                     <div class="form-group">
-                        <label><span class="zh-inline">显示名称 (不可修改)</span><span class="en-inline">Display Name (Read-only)</span></label>
-                        <input type="text" id="inputDisplayName" disabled title="名称由平台分配，无法修改">
+                        <label><span class="zh-inline">显示名称</span><span class="en-inline">Display Name</span></label>
+                        <input type="text" id="inputDisplayName">
                     </div>
                     <div class="form-group">
                         <label><span class="zh-inline">个人简介</span><span class="en-inline">Bio</span></label>
@@ -1047,7 +1047,10 @@
             const newBio = document.getElementById('inputBio').value.trim();
             const newAvatar = userProfile.tempAvatarUrl || userProfile.avatar_url;
 
+            if (!newName) return alert('名字不能为空 / Name cannot be empty');
+
             const updates = {
+                display_name: newName,
                 bio: newBio,
                 avatar_url: newAvatar
             };
@@ -1056,6 +1059,7 @@
             if (error) return alert('保存失败: ' + error.message);
 
             alert('保存成功！ / Saved!');
+            userProfile.display_name = newName;
             userProfile.bio = newBio;
             userProfile.avatar_url = newAvatar;
             renderProfileUI();
@@ -1089,7 +1093,6 @@
             if (typeof setLang === 'function') {
                 setLang(lang);
             } else {
-                // dashboard 未引 common.js，兜底让 data-lang 真正生效
                 document.documentElement.setAttribute('data-lang', lang);
                 document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
                 try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
