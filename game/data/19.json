@@ -1,0 +1,34 @@
+{
+  "id": 19,
+  "name_zh": "江湖行",
+  "name_en": "Jianghu Journey",
+  "icon": "🥷",
+  "category_zh": "冒险",
+  "category_en": "Adventure",
+  "type": "external",
+  "ageRating_zh": "12+",
+  "ageRating_en": "12+",
+  "version": "v1.0.0",
+  "author": "5",
+  "url": "https://archive.lelelegame.surge.sh/",
+  "banner": "https://gamepic.surge.sh/Archivebannerandscreenshot.png",
+  "screenshots": [
+    "https://gamepic.surge.sh/Archivebannerandscreenshot.png"
+  ],
+  "description_zh": "一个冒险游戏\n探索吧\n请细细的读文字😊",
+  "description_en": "An adventure game.\nExplore!\nPlease read the text carefully. 😊",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-24",
+      "content": "游戏首发上线！"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-24",
+      "content": "Initial release!"
+    }
+  ]
+}
