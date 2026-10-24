@@ -309,7 +309,7 @@
             let isRegistered = false;
             let profile = null;
 
-            // 1. 从 authors.surge.sh 查找对应的 UUID
+            // 1. 从 authors.surge.sh 查找对应的 UUID 和原本设定的名字
             try {
                 const res = await fetch('https://authors.surge.sh/authors.json?t=' + Date.now());
                 if (res.ok) {
@@ -342,10 +342,28 @@
                 }
             }
 
-            // 3. 整合作者信息
+            // 3. 智能整合作者信息
+            let finalNameZh = defaultNameZh;
+            let finalNameEn = defaultNameEn;
+
+            if (profile) {
+                const emailPrefix = profile.username; // 触发器里 username 存的是邮箱前缀
+                const currentDisplay = profile.display_name || '';
+                
+                // 如果 display_name 存在，并且不等于邮箱前缀，说明用户自己改过名字，使用 Supabase 的名字
+                if (currentDisplay && currentDisplay !== emailPrefix) {
+                    finalNameZh = currentDisplay;
+                    finalNameEn = currentDisplay;
+                } else if (currentDisplay) {
+                    // 如果还是邮箱前缀，优先回退使用 authors.json 里的优美名字，除非 authors.json 也没有
+                    finalNameZh = defaultNameZh || currentDisplay;
+                    finalNameEn = defaultNameEn || currentDisplay;
+                }
+            }
+
             currentAuthorData = {
-                name_zh: profile ? (profile.display_name || profile.username) : defaultNameZh,
-                name_en: profile ? (profile.display_name || profile.username) : defaultNameEn,
+                name_zh: finalNameZh,
+                name_en: finalNameEn,
                 avatar_url: profile ? profile.avatar_url : null,
                 bio: profile ? profile.bio : null,
                 role: profile ? profile.role : 'External / Unregistered',
