@@ -164,27 +164,8 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v.2.0.0",
-    "author": "3",
-    "url": "https://levil-evil.surge.sh",
-    "screenshots": [
-      "https://levil-evil.surge.sh/levil.png"
-    ],
-    "description_zh": "跑酷并闯关，通过重重障碍。\n一句话，红温游戏。",
-    "description_en": "Parkour and clear levels, overcoming various obstacles.\nA one-liner, rage-inducing game.",
-    "updateLog_zh": [
-      {
-        "version": "v.2.0.0",
-        "date": "2026-10-20",
-        "content": "游戏首发上线！"
-      }
-    ],
-    "updateLog_en": [
-      {
-        "version": "v.2.0.0",
-        "date": "2026-10-20",
-        "content": "Initial release!"
-      }
-    ]
+    "author": 3,
+    "url": "https://levil-evil.surge.sh"
   },
   {
     "id": 13,
@@ -267,24 +248,21 @@
     "ageRating_zh": "6+",
     "ageRating_en": "6+",
     "version": "v2.4.1",
-    "author": "7",
-    "url": "https://farmrise-nkwhymwt.manus.game",
-    "screenshots": [],
-    "description_zh": "欢迎游玩，非常简易！目前还没有完全做完，欢迎提建议！\nWASD移动，鼠标调视角点击。底下物品栏切换物品，上方有提示下一步，也有箭头指示。B背包。可以存档！\n主要玩法：种地、钓鱼、烹饪、养动物。",
-    "description_en": "Welcome to play! It is very simple for now and not fully finished yet. Suggestions are welcome!\nUse WASD to move, move the mouse to adjust the view and click. Use the item bar at the bottom to switch items. Hints for the next step and arrow indicators are shown at the top. Press B for the backpack. Saving is supported!\nMain gameplay: farming, fishing, cooking, and raising animals.",
-    "updateLog_zh": [
-      {
-        "version": "v2.4.1",
-        "date": "2026-10-24",
-        "content": "游戏首发上线！"
-      }
-    ],
-    "updateLog_en": [
-      {
-        "version": "v2.4.1",
-        "date": "2026-10-24",
-        "content": "Initial release!"
-      }
-    ]
+    "author": 7,
+    "url": "https://farmrise-nkwhymwt.manus.game"
+  },
+  {
+    "id": 19,
+    "name_zh": "江湖行",
+    "name_en": "Jianghu Journey",
+    "icon": "🥷",
+    "category_zh": "冒险",
+    "category_en": "Adventure",
+    "type": "external",
+    "ageRating_zh": "12+",
+    "ageRating_en": "12+",
+    "version": "v1.0.0",
+    "author": 5,
+    "url": "https://archive.lelelegame.surge.sh/"
   }
 ]
