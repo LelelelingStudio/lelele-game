@@ -206,6 +206,32 @@
             .dashboard-layout { flex-direction: column; }
             .sidebar { width: 100%; }
         }
+
+        /* 顶部 Toast 提示 */
+        .auth-toast {
+            position: fixed; top: 80px; left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 14px 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.95rem;
+            z-index: 9999;
+            opacity: 0;
+            transition: all 0.3s ease;
+            max-width: 90%;
+            text-align: center;
+            pointer-events: none;
+        }
+        .auth-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -419,6 +445,21 @@
 
     <script src="supabase-client.js"></script>
     <script>
+        // ===== 顶部 Toast 提示 =====
+        function showToast(message) {
+            const existing = document.querySelector('.auth-toast');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.className = 'auth-toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
         let currentUser = null;
         let userProfile = null;
         let myGames = [];
@@ -486,7 +527,16 @@
         async function init() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) {
-                window.location.href = 'login.html';
+                // 把 URL 里的错误信息带到 login 页，避免用户莫名被踢回登录页
+                const params = new URLSearchParams(window.location.search);
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                const carry = new URLSearchParams();
+                const err = params.get('error') || hashParams.get('error');
+                const desc = params.get('error_description') || hashParams.get('error_description');
+                if (err) carry.set('error', err);
+                if (desc) carry.set('error_description', desc);
+                const qs = carry.toString();
+                window.location.replace('login.html' + (qs ? '?' + qs : ''));
                 return;
             }
             currentUser = session.user;
@@ -1036,7 +1086,14 @@
         };
 
         window.switchLang = function(lang) {
-            if (typeof setLang === 'function') setLang(lang);
+            if (typeof setLang === 'function') {
+                setLang(lang);
+            } else {
+                // dashboard 未引 common.js，兜底让 data-lang 真正生效
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+                try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
+            }
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.langBtn === lang);
             });
@@ -1067,6 +1124,18 @@
             if (window.location.search.includes('type=recovery') || window.location.hash.includes('type=recovery')) {
                 document.getElementById('forceResetModal').classList.add('active');
             }
+
+            // 从 login 页"已登录"状态跳过来时，弹一次提示（recovery 优先，不弹）
+            try {
+                if (!window.location.search.includes('type=recovery')
+                    && sessionStorage.getItem('lelele_already_logged_in')) {
+                    sessionStorage.removeItem('lelele_already_logged_in');
+                    const lang = document.documentElement.getAttribute('data-lang') || 'zh';
+                    showToast(lang === 'en'
+                        ? "You're already signed in — no need to sign in again."
+                        : '您已处于登录状态，无需重复登录。');
+                }
+            } catch (e) {}
 
             init();
             window.addEventListener('resize', () => { if (myChart) myChart.resize(); });
