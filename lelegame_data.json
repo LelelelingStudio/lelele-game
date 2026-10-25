@@ -240,14 +240,14 @@
   {
     "id": 18,
     "name_zh": "田野成长记",
-    "name_en": "Farm Rise",
-    "icon": "🎣",
+    "name_en": "Field Chronicle 3.0",
+    "icon": "🌾",
     "category_zh": "休闲",
     "category_en": "Casual",
     "type": "external",
     "ageRating_zh": "6+",
     "ageRating_en": "6+",
-    "version": "v2.4.1",
+    "version": "v3.1.0",
     "author": 7,
     "url": "https://farmrise-nkwhymwt.manus.game"
   },
