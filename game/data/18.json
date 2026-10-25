@@ -1,23 +1,28 @@
 {
   "id": 18,
   "name_zh": "田野成长记",
-  "name_en": "Farm Rise",
-  "icon": "🎣",
+  "name_en": "Field Chronicle 3.0",
+  "icon": "🌾",
   "category_zh": "休闲",
   "category_en": "Casual",
   "type": "external",
   "ageRating_zh": "6+",
   "ageRating_en": "6+",
-  "version": "v2.4.1",
+  "version": "v3.1.0",
   "author": "7",
   "url": "https://farmrise-nkwhymwt.manus.game",
   "banner": "https://gamepic.surge.sh/farmygrowingscreenshotandbanner.png",
   "screenshots": [
     "https://gamepic.surge.sh/farmygrowingscreenshotandbanner.png"
   ],
-  "description_zh": "欢迎游玩，非常简易！目前还没有完全做完，欢迎提建议！\nWASD移动，鼠标调视角点击。底下物品栏切换物品，上方有提示下一步，也有箭头指示。B背包。可以存档！\n主要玩法：种地、钓鱼、烹饪、养动物。",
-  "description_en": "Welcome to play! It is very simple for now and not fully finished yet. Suggestions are welcome!\nUse WASD to move, move the mouse to adjust the view and click. Use the item bar at the bottom to switch items. Hints for the next step and arrow indicators are shown at the top. Press B for the backpack. Saving is supported!\nMain gameplay: farming, fishing, cooking, and raising animals.",
+  "description_zh": "最新版本！！\n包含种地、钓鱼、饲养、烹饪等多重玩法！休闲简易，新增英语模式，可存档！！！",
+  "description_en": "The latest version!!\nFeatures multiple gameplay including farming, fishing, raising animals and cooking! Casual and easy to play, with newly added English mode and save function!",
   "updateLog_zh": [
+    {
+      "version": "v3.1.0",
+      "date": "2026-10-25",
+      "content": "新增英语模式与存档功能；这是最终版，后续不再更新。"
+    },
     {
       "version": "v2.4.1",
       "date": "2026-10-24",
@@ -25,6 +30,11 @@
     }
   ],
   "updateLog_en": [
+    {
+      "version": "v3.1.0",
+      "date": "2026-10-25",
+      "content": "Added English mode and save function. This is the final version; no further updates will be released."
+    },
     {
       "version": "v2.4.1",
       "date": "2026-10-24",
