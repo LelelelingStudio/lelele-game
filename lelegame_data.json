@@ -160,7 +160,7 @@
     "icon": "😈",
     "category_zh": "冒险",
     "category_en": "Adventure",
-    "type": "external",
+    "type": "local",
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v.2.0.0",
@@ -264,5 +264,33 @@
     "version": "v1.0.0",
     "author": 5,
     "url": "https://archive.lelelegame.surge.sh/"
+  },
+  {
+  "id": 20,
+  "name_zh": "雪原篝火",
+  "name_en": "Snowfield Embers",
+  "icon": "❄️",
+  "category_zh": "冒险",
+  "category_en": "Adventure",
+  "type": "local",
+  "ageRating_zh": "12+",
+  "ageRating_en": "12+",
+  "version": "v1.0.0",
+  "author": 5,
+  "url": "https://snowfield-embers.lelelegame.surge.sh/"
+  },
+  {
+  "id": 21,
+  "name_zh": "小小酒店",
+  "name_en": "Cozy Stay",
+  "icon": "🏨",
+  "category_zh": "休闲",
+  "category_en": "Casual",
+  "type": "external",
+  "ageRating_zh": "6+",
+  "ageRating_en": "6+",
+  "version": "v1.3.0",
+  "author": 7,
+  "url": "https://cozystay-8pt7va63.manus.game/"
   }
 ]

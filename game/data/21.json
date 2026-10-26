@@ -1,0 +1,34 @@
+{
+  "id": 21,
+  "name_zh": "小小酒店",
+  "name_en": "Cozy Stay",
+  "icon": "🏨",
+  "category_zh": "休闲",
+  "category_en": "Casual",
+  "type": "external",
+  "ageRating_zh": "6+",
+  "ageRating_en": "6+",
+  "version": "v1.3.0",
+  "author": "7",
+  "url": "https://cozystay-8pt7va63.manus.game/",
+  "banner": "https://gamepic.surge.sh/minihotel1bannerandscreenshot.png",
+  "screenshots": [
+    "https://gamepic.surge.sh/minihotel1bannerandscreenshot.png"
+  ],
+  "description_zh": "经营酒店吧！！！！\n可以通过 WASD 或是鼠标点击移动，和真实酒店经营方式类似！！\n最终版本。",
+  "description_en": "Run your own hotel!\nMove with WASD or click with the mouse. The management style is similar to running a real hotel!\nThis is the final version.",
+  "updateLog_zh": [
+    {
+      "version": "v1.3.0",
+      "date": "2026-10-26",
+      "content": "游戏首发上线！"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.3.0",
+      "date": "2026-10-26",
+      "content": "Initial release!"
+    }
+  ]
+}

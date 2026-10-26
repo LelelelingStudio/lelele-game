@@ -1,0 +1,38 @@
+{
+  "id": 20,
+  "name_zh": "雪原篝火",
+  "name_en": "Snowfield Embers",
+  "icon": "❄️",
+  "category_zh": "冒险",
+  "category_en": "Adventure",
+  "type": "local",
+  "ageRating_zh": "12+",
+  "ageRating_en": "12+",
+  "version": "v1.0.0",
+  "author": "5",
+  "url": "https://snowfield-embers.lelelegame.surge.sh/",
+  "banner": "https://snowfield-embers.lelelegame.surge.sh/shots/menu.png",
+  "screenshots": [
+    "https://snowfield-embers.lelelegame.surge.sh/shots/menu.png",
+    "https://snowfield-embers.lelelegame.surge.sh/shots/gameover.png",
+    "https://snowfield-embers.lelelegame.surge.sh/shots/victory.png",
+    "https://snowfield-embers.lelelegame.surge.sh/shots/storm.png",
+    "https://snowfield-embers.lelelegame.surge.sh/shots/wolf-leaving.png"
+  ],
+  "description_zh": "一个冬天主题的雪原求生游戏。你在暴风雪中醒来，唯一的温暖是雪原中央那堆篝火。\n\n体温会持续下降，暴风雪期间掉得更快。走近木柴会自动拾取（最多同时背 3 根），带回篝火会自动投火；火越旺，站在火边回温越快。\n\n暴风雪达到一定强度时冰狼会出现：它会游荡、嗅探，闻到气味才锁定追击，扑咬前有前摇可以侧闪。冰狼害怕明火，火越旺越安全；每只狼待满 35 秒会离场，10 秒后带着 1–3 只同伴从地图边缘杀回来，拖得越久狼群越大。冲刺可以帮你甩开冰狼。\n\n每夜约 75 秒，撑过 3 个夜晚迎来晨光。体温归零即冻僵，游戏结束；最高分会保存在本地。\n\n操作：WASD / 方向键移动，空格 / Shift 冲刺，P / Esc 暂停，M 静音；触屏按住屏幕朝指针方向移动，右下角按钮冲刺。",
+  "description_en": "A winter-themed snowfield survival game. You wake up in a blizzard, and the only warmth is the campfire at the center of the snowfield.\n\nYour body temperature keeps dropping, faster during blizzards. Walk near firewood to pick it up automatically (carry up to 3 at a time), and bring it back to the campfire to feed the fire; the brighter the fire, the faster you warm up near it.\n\nWhen the blizzard reaches a certain intensity, ice wolves appear: they wander, sniff, and only lock on and chase after smelling you. Their pounce has a wind-up, giving you a window to dodge sideways. Ice wolves fear open flame—the brighter the fire, the safer you are. Each wolf leaves after 35 seconds, then returns 10 seconds later with 1–3 companions from the edge of the map; the longer you drag it out, the larger the pack grows. Sprinting helps you shake them off.\n\nEach night lasts about 75 seconds; survive 3 nights to see the dawn. If body temperature reaches zero, you freeze and the game ends. Your high score is saved locally.\n\nControls: WASD / arrow keys to move, Space / Shift to sprint, P / Esc to pause, M to mute; on touch screens, hold to move toward the pointer and use the sprint button at the bottom right.",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-26",
+      "content": "游戏首发上线！"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-26",
+      "content": "Initial release!"
+    }
+  ]
+}
