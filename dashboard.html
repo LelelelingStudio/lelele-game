@@ -24,7 +24,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>开发者后台 · 了了了游</title>
-    
+
     <link rel="stylesheet" href="common.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
@@ -146,7 +146,7 @@
         }
         .metric-info h3 { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; }
         .metric-val { font-size: 2.5rem; font-weight: 800; color: var(--text-main); line-height: 1; }
-        
+
         /* Emoji 趋势盒 */
         .trend-box {
             background: rgba(148, 163, 184, 0.05); border: 1px solid var(--card-border);
@@ -176,7 +176,7 @@
         html.dark-mode .form-group input, html.dark-mode .form-group textarea { background: rgba(0,0,0,0.2); }
         .form-group textarea { resize: vertical; min-height: 100px; }
         .form-group input:disabled { opacity: 0.6; cursor: not-allowed; background: rgba(148, 163, 184, 0.1); }
-        
+
         .btn { padding: 12px 24px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 0.95rem;}
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-hover); }
@@ -184,6 +184,25 @@
         .btn-danger:hover { background: #dc2626; }
         .btn-outline { background: transparent; border: 1px solid var(--card-border); color: var(--text-main); }
         .btn-outline:hover { background: rgba(148, 163, 184, 0.1); }
+        .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+        /* 密码要求清单 */
+        .pwd-requirements {
+            margin-top: 12px; font-size: 0.82rem; color: var(--text-muted);
+            line-height: 1.7; padding: 12px 16px; background: rgba(148, 163, 184, 0.06);
+            border-radius: 12px; border: 1px solid var(--card-border);
+        }
+        .pwd-req-title { font-weight: 700; margin-bottom: 6px; color: var(--text-main); font-size: 0.82rem; }
+        .pwd-req-title + .pwd-req-item { margin-top: 0; }
+        .pwd-req-item { display: flex; align-items: center; gap: 8px; padding: 1px 0; }
+        .pwd-req-item .icon { display: inline-flex; justify-content: center; width: 14px; font-weight: 800; }
+        .pwd-req-item.pass { color: #059669; }
+        .pwd-req-item.pass .icon { color: #10b981; }
+        .pwd-req-item.fail { color: #dc2626; }
+        .pwd-req-item.fail .icon { color: #ef4444; }
+        .pwd-req-item.muted { color: var(--text-muted); opacity: 0.6; }
+        html.dark-mode .pwd-req-item.pass { color: #34d399; }
+        html.dark-mode .pwd-req-item.fail { color: #f87171; }
 
         /* 弹窗系统 */
         .modal-overlay {
@@ -195,13 +214,16 @@
             background: var(--card-bg); padding: 32px; border-radius: 24px; max-width: 400px; width: 100%;
             text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 1px solid var(--card-border);
         }
+        .modal-box.wide { max-width: 460px; }
         .modal-box h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 12px; color: var(--text-main); }
         .modal-box p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; }
-        .modal-box input { 
-            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--card-border); 
-            text-align: center; font-size: 1rem; font-weight: 700; margin-bottom: 16px; 
+        .modal-box input {
+            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--card-border);
+            text-align: center; font-size: 1rem; font-weight: 700; margin-bottom: 16px;
+            background: rgba(255,255,255,0.5); color: var(--text-main); font-family: inherit;
         }
-        
+        html.dark-mode .modal-box input { background: rgba(0,0,0,0.2); }
+
         @media (max-width: 900px) {
             .dashboard-layout { flex-direction: column; }
             .sidebar { width: 100%; }
@@ -243,7 +265,7 @@
             <span class="zh-inline">了了了游</span><span class="en-inline">lelele Game</span>
         </a>
         <div class="lang-switch">
-            <button class="lang-btn active" data-lang-btn="zh" onclick="switchLang('zh')">中文</button>
+            <button class="lang-btn" data-lang-btn="zh" onclick="switchLang('zh')">中文</button>
             <button class="lang-btn" data-lang-btn="en" onclick="switchLang('en')">English</button>
         </div>
     </div>
@@ -264,7 +286,6 @@
                 <button class="nav-item" onclick="switchTab('profile')" id="navProfile">
                     👤 <span class="zh-inline">个人资料设置</span><span class="en-inline">Profile Settings</span>
                 </button>
-                <!-- 新增：修改密码入口 -->
                 <button class="nav-item" onclick="switchTab('security')" id="navSecurity">
                     🔐 <span class="zh-inline">修改密码</span><span class="en-inline">Change Password</span>
                 </button>
@@ -276,7 +297,7 @@
 
         <!-- 右侧内容区 -->
         <div class="main-content">
-            
+
             <!-- 模块 1：数据看板 -->
             <div class="content-panel active" id="panel-dashboard">
                 <div class="panel-header">
@@ -285,9 +306,7 @@
                     </div>
                     <div style="display:flex; gap:12px;" id="dashboardControls">
                         <div class="select-wrapper">
-                            <select id="gameSelector" onchange="onGameChange()">
-                                <!-- 动态填充游戏列表 -->
-                            </select>
+                            <select id="gameSelector" onchange="onGameChange()"></select>
                         </div>
                         <div class="select-wrapper">
                             <select id="timeSelector" onchange="loadChartData()">
@@ -376,15 +395,24 @@
                 </div>
             </div>
 
-            <!-- 模块 3：修改密码（新增） -->
+            <!-- 模块 3：修改密码 -->
             <div class="content-panel" id="panel-security">
                 <div class="panel-header">
                     <div class="panel-title"><span class="zh-inline">修改密码</span><span class="en-inline">Change Password</span></div>
                 </div>
                 <div class="form-card">
                     <div class="form-group">
-                        <label><span class="zh-inline">新密码 (至少 6 位)</span><span class="en-inline">New Password (Min 6 chars)</span></label>
-                        <input type="password" id="newPassword" autocomplete="new-password">
+                        <label><span class="zh-inline">当前密码</span><span class="en-inline">Current Password</span></label>
+                        <input type="password" id="currentPassword" autocomplete="current-password">
+                        <div style="font-size:0.78rem;color:var(--text-muted);margin-top:6px;">
+                            <span class="zh-inline">为保护账号安全，修改前需先验证当前密码。</span>
+                            <span class="en-inline">For account security, please verify your current password first.</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><span class="zh-inline">新密码</span><span class="en-inline">New Password</span></label>
+                        <input type="password" id="newPassword" autocomplete="new-password" oninput="onPasswordInput('normal')">
+                        <div class="pwd-requirements" id="pwdReqNormal"></div>
                     </div>
                     <div class="form-group">
                         <label><span class="zh-inline">确认新密码</span><span class="en-inline">Confirm New Password</span></label>
@@ -428,12 +456,13 @@
 
     <!-- 强制重置密码弹窗（通过邮件链接跳转后显示） -->
     <div class="modal-overlay" id="forceResetModal">
-        <div class="modal-box" style="text-align: left;">
+        <div class="modal-box wide" style="text-align: left;">
             <h3 style="text-align: center;"><span class="zh-inline">重置您的密码</span><span class="en-inline">Reset Your Password</span></h3>
             <p style="text-align: center;"><span class="zh-inline">请为您的账号设置一个新密码。</span><span class="en-inline">Please set a new password for your account.</span></p>
             <div class="form-group" style="margin-bottom: 16px;">
-                <input type="password" id="forceNewPassword" placeholder="新密码 / New Password" autocomplete="new-password">
+                <input type="password" id="forceNewPassword" placeholder="新密码 / New Password" autocomplete="new-password" oninput="onPasswordInput('force')">
             </div>
+            <div class="pwd-requirements" id="pwdReqForce" style="margin-top:-8px;margin-bottom:16px;"></div>
             <div class="form-group" style="margin-bottom: 24px;">
                 <input type="password" id="forceConfirmPassword" placeholder="确认密码 / Confirm Password" autocomplete="new-password">
             </div>
@@ -467,6 +496,95 @@
         let myChart = null;
         let lastSeries = null;
 
+        // ===== 常见密码黑名单（常见弱口令，大小写不敏感） =====
+        const COMMON_PASSWORDS = new Set([
+            'password', 'password1', 'password123', 'passw0rd', 'p@ssw0rd',
+            '12345678', '123456789', '1234567890', '123456', '1234567',
+            '00000000', '11111111', '22222222', '33333333', '44444444',
+            '55555555', '66666666', '77777777', '88888888', '99999999',
+            '000000', '111111', '666666', '888888', '999999', '121212',
+            'qwerty', 'qwerty123', 'qwertyuiop', 'asdfgh', 'asdfghjkl',
+            'zxcvbn', 'zxcvbnm', '1q2w3e4r', '1qaz2wsx', 'qazwsx',
+            'abc123', 'abcd1234', '1234abcd', 'aa123456', 'a123456',
+            'iloveyou', 'admin', 'admin123', 'administrator', 'root',
+            'letmein', 'welcome', 'welcome123', 'monkey', 'dragon',
+            'sunshine', 'princess', 'football', 'baseball', 'master',
+            'shadow', 'superman', 'batman', 'trustno1', 'whatever',
+            'hello', 'hello123', 'changeme', 'secret', 'login',
+            'password!', 'password@', 'pass1234', 'test1234', 'guest'
+        ]);
+
+        // ===== 密码规则检测 =====
+        // 返回所有规则的通过情况
+        function checkPasswordRequirements(pwd) {
+            const len = pwd ? pwd.length : 0;
+            const isNumericOnly = /^\d+$/.test(pwd);
+            const rules = {
+                length:    len >= 4 && len <= 32,
+                numericOk: !isNumericOnly || len >= 6,
+                upper:     /[A-Z]/.test(pwd),
+                digit:     /[0-9]/.test(pwd),
+                special:   /[^A-Za-z0-9]/.test(pwd),
+                lower:     /[a-z]/.test(pwd),
+                notCommon: pwd.length > 0 && !COMMON_PASSWORDS.has(pwd.toLowerCase())
+            };
+            rules.strongCount = [rules.upper, rules.digit, rules.special, rules.lower, rules.notCommon]
+                .filter(Boolean).length;
+            rules.strongOk = rules.strongCount >= 3;
+            rules.valid = rules.length && rules.numericOk && rules.strongOk;
+            return rules;
+        }
+
+        // ===== 实时渲染密码规则清单 =====
+        function renderPwdRequirements(pwd, containerEl) {
+            if (!containerEl) return;
+            const zh = getLang() === 'zh';
+            const rules = checkPasswordRequirements(pwd);
+            const empty = !pwd;
+            const isNumericOnly = /^\d+$/.test(pwd);
+
+            const itemHTML = (pass, label, muted) => {
+                let cls = 'pwd-req-item';
+                let icon = '○';
+                if (empty || muted) {
+                    cls += ' muted';
+                    icon = '○';
+                } else if (pass) {
+                    cls += ' pass';
+                    icon = '✓';
+                } else {
+                    cls += ' fail';
+                    icon = '✗';
+                }
+                return `<div class="${cls}"><span class="icon">${icon}</span><span>${label}</span></div>`;
+            };
+
+            let html = `<div class="pwd-req-title">${zh ? '密码要求' : 'Password Requirements'}</div>`;
+            html += itemHTML(rules.length,    zh ? '长度 4-32 位（必须）' : 'Length 4-32 characters (required)', false);
+            html += itemHTML(rules.numericOk, zh ? '纯数字密码至少 6 位（必须）' : 'Numeric-only password ≥ 6 chars (required)', !isNumericOnly && !empty);
+
+            const countShown = empty ? 0 : rules.strongCount;
+            html += `<div class="pwd-req-title" style="margin-top:8px;">${
+                zh
+                    ? `以下至少满足 3 项（当前 ${countShown}/3）`
+                    : `Satisfy at least 3 of the following (${countShown}/3)`
+            }</div>`;
+            html += itemHTML(rules.upper,     zh ? '包含大写字母' : 'Contains uppercase letter',  false);
+            html += itemHTML(rules.digit,     zh ? '包含数字'     : 'Contains digit',             false);
+            html += itemHTML(rules.special,   zh ? '包含特殊符号' : 'Contains special character', false);
+            html += itemHTML(rules.lower,     zh ? '包含小写字母' : 'Contains lowercase letter',  false);
+            html += itemHTML(rules.notCommon, zh ? '不是常见密码' : 'Not a common password',     false);
+
+            containerEl.innerHTML = html;
+        }
+
+        window.onPasswordInput = function(type) {
+            const isForce = type === 'force';
+            const input = document.getElementById(isForce ? 'forceNewPassword' : 'newPassword');
+            const reqEl = document.getElementById(isForce ? 'pwdReqForce' : 'pwdReqNormal');
+            renderPwdRequirements(input.value, reqEl);
+        };
+
         // 国际化字典
         const I18N = {
             zh: {
@@ -480,10 +598,17 @@
                 noDataSub: '换个时间范围看看，或等有玩家来玩',
                 loadFail: '数据加载失败，请稍后重试',
                 rankNone: '未上榜',
-                pwdTooShort: '密码至少需要 6 位 / Password must be at least 6 characters',
-                pwdMismatch: '两次输入的密码不一致 / Passwords do not match',
-                pwdSuccess: '密码修改成功！ / Password updated successfully!',
-                pwdFail: '修改失败: / Failed: '
+                pwdLength:          '密码长度需为 4-32 位 / Password must be 4-32 characters',
+                pwdNumericTooShort: '纯数字密码至少需要 6 位 / Numeric-only password must be at least 6 characters',
+                pwdTooWeak:         '密码强度不足，请至少满足 5 项条件中的 3 项 / Password too weak: satisfy at least 3 of the 5 conditions',
+                pwdMismatch:        '两次输入的密码不一致 / Passwords do not match',
+                pwdSuccess:         '密码修改成功！ / Password updated successfully!',
+                pwdFail:            '修改失败: / Failed: ',
+                oldPwdRequired:     '请输入当前密码 / Please enter your current password',
+                oldPwdWrong:        '当前密码不正确 / Current password is incorrect',
+                pwdSame:            '新密码不能与当前密码相同 / New password must differ from the current one',
+                pwdRateLimited:     '尝试次数过多，请稍后再试 / Too many attempts, please try again later',
+                pwdNoPasswordProvider: '该账号未设置密码，请使用"忘记密码"流程 / This account has no password; use "Forgot password" instead'
             },
             en: {
                 slowUp: 'Slowly growing...', fastUp: 'Rising fast!', rocketUp: 'Trending!',
@@ -496,10 +621,17 @@
                 noDataSub: 'Try another range, or wait for players',
                 loadFail: 'Failed to load data. Please retry.',
                 rankNone: 'Unranked',
-                pwdTooShort: 'Password must be at least 6 characters',
-                pwdMismatch: 'Passwords do not match',
-                pwdSuccess: 'Password updated successfully!',
-                pwdFail: 'Failed: '
+                pwdLength:          'Password must be 4-32 characters',
+                pwdNumericTooShort: 'Numeric-only password must be at least 6 characters',
+                pwdTooWeak:         'Password too weak: satisfy at least 3 of the 5 conditions',
+                pwdMismatch:        'Passwords do not match',
+                pwdSuccess:         'Password updated successfully!',
+                pwdFail:            'Failed: ',
+                oldPwdRequired:     'Please enter your current password',
+                oldPwdWrong:        'Current password is incorrect',
+                pwdSame:            'New password must differ from the current one',
+                pwdRateLimited:     'Too many attempts, please try again later',
+                pwdNoPasswordProvider: 'This account has no password; use "Forgot password" instead'
             }
         };
         const getLang = () => document.documentElement.getAttribute('data-lang') || 'zh';
@@ -509,7 +641,7 @@
         window.switchTab = function(tab) {
             document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
+
             if (tab === 'dashboard') {
                 document.getElementById('panel-dashboard').classList.add('active');
                 document.getElementById('navDashboard').classList.add('active');
@@ -520,6 +652,10 @@
             } else if (tab === 'security') {
                 document.getElementById('panel-security').classList.add('active');
                 document.getElementById('navSecurity').classList.add('active');
+                renderPwdRequirements(
+                    document.getElementById('newPassword').value,
+                    document.getElementById('pwdReqNormal')
+                );
             }
         };
 
@@ -527,7 +663,6 @@
         async function init() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) {
-                // 把 URL 里的错误信息带到 login 页，避免用户莫名被踢回登录页
                 const params = new URLSearchParams(window.location.search);
                 const hashParams = new URLSearchParams(window.location.hash.substring(1));
                 const carry = new URLSearchParams();
@@ -541,14 +676,12 @@
             }
             currentUser = session.user;
 
-            // 拉取个人资料
             const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
             if (profile) {
                 userProfile = profile;
                 renderProfileUI();
             }
 
-            // 1. 去 authors.json 查自己的数字 ID
             let authorId = null;
             try {
                 const authRes = await fetch('https://authors.surge.sh/authors.json?t=' + Date.now());
@@ -561,14 +694,13 @@
                 console.warn('作者映射表拉取失败', e);
             }
 
-            // 2. 用数字 ID 去 lelegame_data.json 匹配游戏
             const res = await fetch('lelegame_data.json');
             const allGames = await res.json();
-            
+
             if (authorId) {
                 myGames = allGames.filter(g => String(g.author) === String(authorId));
             } else {
-                myGames = []; 
+                myGames = [];
             }
 
             initDashboard();
@@ -579,7 +711,7 @@
             document.getElementById('sidebarName').textContent = name;
             document.getElementById('inputDisplayName').value = name;
             document.getElementById('inputBio').value = userProfile.bio || '';
-            
+
             const avatarEl = document.getElementById('sidebarAvatar');
             if (userProfile.avatar_url) {
                 avatarEl.innerHTML = `<img src="${userProfile.avatar_url}" alt="Avatar">`;
@@ -614,7 +746,7 @@
                 document.getElementById('dashboardControls').style.display = 'none';
                 document.getElementById('analyticsDataView').style.display = 'none';
                 document.getElementById('gameSelectGrid').style.display = 'grid';
-                
+
                 const grid = document.getElementById('gameSelectGrid');
                 const isEn = getLang() === 'en';
                 grid.innerHTML = myGames.map(g => {
@@ -629,7 +761,6 @@
             }
         }
 
-        // 填充下拉框
         function fillGameSelector() {
             const sel = document.getElementById('gameSelector');
             const isEn = getLang() === 'en';
@@ -681,7 +812,7 @@
                 .sort((a, b) => b.value - a.value);
 
             const ranks = new Map();
-            games.forEach((e, i) => {
+            games.forEach((e) => {
                 const tied = games.findIndex(x => x.value === e.value);
                 ranks.set(e.name, tied + 1);
             });
@@ -963,32 +1094,70 @@
             myChart.setOption(option);
         }
 
-        // 修改密码核心函数
+        // ==================== 修改密码核心逻辑 ====================
         window.changePassword = async function(type) {
-            const pwd = type === 'force' ? document.getElementById('forceNewPassword').value : document.getElementById('newPassword').value;
-            const confirm = type === 'force' ? document.getElementById('forceConfirmPassword').value : document.getElementById('confirmPassword').value;
+            const isForce = type === 'force';
 
-            if (!pwd || pwd.length < 6) {
-                return alert(t('pwdTooShort'));
+            const pwdEl     = document.getElementById(isForce ? 'forceNewPassword'     : 'newPassword');
+            const confirmEl = document.getElementById(isForce ? 'forceConfirmPassword' : 'confirmPassword');
+            const pwd     = pwdEl.value;
+            const confirm = confirmEl.value;
+
+            // 1) 基础长度与规则检查
+            const rules = checkPasswordRequirements(pwd);
+            if (!rules.length) {
+                return alert(t('pwdLength'));
+            }
+            if (!rules.numericOk) {
+                return alert(t('pwdNumericTooShort'));
+            }
+            if (!rules.strongOk) {
+                return alert(t('pwdTooWeak'));
             }
             if (pwd !== confirm) {
                 return alert(t('pwdMismatch'));
             }
 
+            // 2) 普通修改：先验证当前密码
+            if (!isForce) {
+                const oldPwd = (document.getElementById('currentPassword').value || '');
+                if (!oldPwd) return alert(t('oldPwdRequired'));
+                if (oldPwd === pwd) return alert(t('pwdSame'));
+
+                // OAuth / magic-link 用户没有邮箱密码可验
+                const providers = (currentUser && currentUser.app_metadata && currentUser.app_metadata.providers) || [];
+                if (!providers.includes('email')) {
+                    return alert(t('pwdNoPasswordProvider'));
+                }
+
+                const { error: verifyError } = await supabaseClient.auth.signInWithPassword({
+                    email: currentUser.email,
+                    password: oldPwd
+                });
+                if (verifyError) {
+                    if (verifyError.status === 429 ||
+                        (verifyError.message && /rate/i.test(verifyError.message))) {
+                        return alert(t('pwdRateLimited'));
+                    }
+                    return alert(t('oldPwdWrong'));
+                }
+            }
+
+            // 3) 提交新密码
             try {
                 const { error } = await supabaseClient.auth.updateUser({ password: pwd });
                 if (error) throw error;
-                
+
                 alert(t('pwdSuccess'));
-                
-                if (type === 'force') {
-                    // 清除 URL 中的 hash 和 search
+
+                if (isForce) {
                     window.history.replaceState(null, '', window.location.pathname);
                     document.getElementById('forceResetModal').classList.remove('active');
                     init();
                 } else {
-                    document.getElementById('newPassword').value = '';
-                    document.getElementById('confirmPassword').value = '';
+                    ['currentPassword', 'newPassword', 'confirmPassword']
+                        .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+                    renderPwdRequirements('', document.getElementById('pwdReqNormal'));
                 }
             } catch (e) {
                 alert(t('pwdFail') + e.message);
@@ -1024,7 +1193,7 @@
                         }
                         const ext = file.name.split('.').pop();
                         const filePath = `${currentUser.id}/avatar_${Date.now()}.${ext}`;
-                        
+
                         const { error: uploadError } = await supabaseClient.storage.from('avatars').upload(filePath, blob);
                         if (uploadError) {
                             alert('上传失败: ' + uploadError.message);
@@ -1033,7 +1202,7 @@
 
                         const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(filePath);
                         document.getElementById('sidebarAvatar').innerHTML = `<img src="${urlData.publicUrl}">`;
-                        
+
                         userProfile.tempAvatarUrl = urlData.publicUrl;
                     }, 'image/jpeg', 0.8);
                 };
@@ -1089,6 +1258,13 @@
             window.location.href = 'index.html';
         };
 
+        // 语言按钮激活态同步
+        function syncLangButtons(lang) {
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.langBtn === lang);
+            });
+        }
+
         window.switchLang = function(lang) {
             if (typeof setLang === 'function') {
                 setLang(lang);
@@ -1097,10 +1273,8 @@
                 document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
                 try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
             }
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.langBtn === lang);
-            });
-            
+            syncLangButtons(lang);
+
             if (myGames.length > 0) {
                 fillGameSelector();
             }
@@ -1112,23 +1286,38 @@
                 const range = document.getElementById('timeSelector').value;
                 if (game) renderRank(game, rankCache[range] || null);
             }
+
+            // 密码清单重新渲染（语言切换后）
+            renderPwdRequirements(
+                document.getElementById('newPassword').value,
+                document.getElementById('pwdReqNormal')
+            );
+            renderPwdRequirements(
+                document.getElementById('forceNewPassword').value,
+                document.getElementById('pwdReqForce')
+            );
         };
 
         // ==================== 初始化入口 ====================
         document.addEventListener('DOMContentLoaded', () => {
-            // 监听 Supabase 事件，拦截 PASSWORD_RECOVERY
+            // 同步语言按钮状态
+            syncLangButtons(getLang());
+
+            // 拦截 PASSWORD_RECOVERY
             supabaseClient.auth.onAuthStateChange((event, session) => {
                 if (event === 'PASSWORD_RECOVERY') {
                     document.getElementById('forceResetModal').classList.add('active');
+                    renderPwdRequirements('', document.getElementById('pwdReqForce'));
                 }
             });
 
-            // 兼容URL直接带参数的场景
+            // URL 直接带参数的场景
             if (window.location.search.includes('type=recovery') || window.location.hash.includes('type=recovery')) {
                 document.getElementById('forceResetModal').classList.add('active');
+                renderPwdRequirements('', document.getElementById('pwdReqForce'));
             }
 
-            // 从 login 页"已登录"状态跳过来时，弹一次提示（recovery 优先，不弹）
+            // 已登录提示
             try {
                 if (!window.location.search.includes('type=recovery')
                     && sessionStorage.getItem('lelele_already_logged_in')) {
@@ -1139,6 +1328,10 @@
                         : '您已处于登录状态，无需重复登录。');
                 }
             } catch (e) {}
+
+            // 初始渲染密码清单（空白状态）
+            renderPwdRequirements('', document.getElementById('pwdReqNormal'));
+            renderPwdRequirements('', document.getElementById('pwdReqForce'));
 
             init();
             window.addEventListener('resize', () => { if (myChart) myChart.resize(); });
