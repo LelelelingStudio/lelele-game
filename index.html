@@ -282,7 +282,7 @@
         .rank-modal-link { color: #4f46e5; text-decoration: none; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; justify-content: center; width: 100%; }
 
         /* 游戏列表 */
-        .games-container { width: 100%; flex: 1; margin-bottom: 40px; }
+        .games-container { width: 100%; flex: 1; margin-bottom: 20px; }
         .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 36px; }
         .game-card { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(8px); border-radius: 24px; padding: 32px 16px; text-align: center; color: #1e293b; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); border: 1px solid rgba(148, 163, 184, 0.1); transition: all 0.25s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; cursor: pointer; min-height: 160px; font-family: inherit; }
         .game-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #4f46e5, #7c3aed); transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease; }
@@ -306,6 +306,27 @@
         .skeleton-line { width: 70%; height: 14px; border-radius: 8px; background: linear-gradient(90deg, #e8ecf5 25%, #f4f7fc 50%, #e8ecf5 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
 
         .status-message { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 14px; }
+
+        /* 主内容底部小徽章（不受 common.js 页脚覆盖影响） */
+        .site-badge {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 8px 0 4px;
+            margin-bottom: 8px;
+        }
+        .site-badge img {
+            height: 28px;
+            width: auto;
+            display: block;
+            opacity: 0.7;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .site-badge img:hover {
+            opacity: 1;
+            transform: translateY(-1px);
+        }
 
         /* 弹窗和按钮（保持不变） */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 200; display: none; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(4px); overscroll-behavior: contain; }
@@ -485,16 +506,16 @@
             <div class="status-message" id="statusMessage" style="display:none;"></div>
         </div>
 
-    </div>
+        <!-- 小徽章（放在 footer 之前，避免被 common.js 覆盖） -->
+        <div class="site-badge">
+            <a href="https://destroy.spritefusion.com/?from=badge&url=https%3A%2F%2Fgame.leleleling.site"
+               target="_blank" rel="noopener noreferrer" aria-label="Destroy this website">
+                <img src="https://destroy.spritefusion.com/badge-light.svg"
+                     alt="Destroy this website" loading="lazy" />
+            </a>
+        </div>
 
-    <!-- 页脚 -->
-    <footer class="site-footer">
-        <a href="https://destroy.spritefusion.com/?from=badge&url=https%3A%2F%2Fgame.leleleling.site"
-           target="_blank" rel="noopener noreferrer" aria-label="Destroy this website">
-            <img src="https://destroy.spritefusion.com/badge-light.svg"
-                 alt="Destroy this website" width="180" height="40" loading="lazy" />
-        </a>
-    </footer>
+    </div>
 
     <!-- 弹窗结构保持不变（游戏预览、排行榜、收藏夹、投稿1/2/3） -->
     <div class="modal-overlay" id="gamePreview">
