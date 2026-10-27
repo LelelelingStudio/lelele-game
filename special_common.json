@@ -1,6 +1,7 @@
 {
   "skip_effects_domains": [
-    "levil-evil.surge.sh"
+    "levil-evil.surge.sh",
+    "upclean.lelelegame.surge.sh"
   ],
   "skip_effects_paths": [
     "/game/levil_evil/"
