@@ -292,5 +292,19 @@
   "version": "v1.3.0",
   "author": 7,
   "url": "https://cozystay-8pt7va63.manus.game/"
+  },
+  {
+  "id": 22,
+  "name_zh": "一尘不染 · 上门保洁",
+  "name_en": "Spotless · Home Cleaning Service",
+  "icon": "🧹",
+  "category_zh": "模拟经营",
+  "category_en": "Simulation",
+  "type": "external",
+  "ageRating_zh": "6+",
+  "ageRating_en": "6+",
+  "version": "v1.0.0",
+  "author": 3,
+  "url": "https://upclean.lelelegame.surge.sh/"
   }
 ]

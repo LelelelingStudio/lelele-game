@@ -1,0 +1,32 @@
+{
+  "id": 22,
+  "name_zh": "一尘不染 · 上门保洁",
+  "name_en": "Spotless · Home Cleaning Service",
+  "icon": "🧹",
+  "category_zh": "模拟经营",
+  "category_en": "Simulation",
+  "type": "external",
+  "ageRating_zh": "6+",
+  "ageRating_en": "6+",
+  "version": "v1.0.0",
+  "author": "3",
+  "url": "https://upclean.lelelegame.surge.sh/",
+  "banner": "",
+  "screenshots": [],
+  "description_zh": "骑上小电驴上门保洁，第一人称拖地扫地，搓掉所有脏东西，客户扫码付款当场到账。\n\n在接单大厅选择客户，骑小电驴上门，限时清理房间里的灰尘、垃圾、头发和污渍。移动鼠标控制工具，按住左键像拖地一样来回搓。不同脏东西需要对应工具：扫把克灰尘和垃圾，拖把克污渍，吸尘器克头发。连续清洁会累积连击加成，金币翻倍。擦完全部脏东西后客户扫码验收，支付宝到账。收入包括基础保洁费、清洁零钱、剩余时间奖励和连击好评奖金。赚到的钱可以在工具店购买更高级的清洁工具，从抹布一路升级到黄金抹布。",
+  "description_en": "Ride your scooter to clean clients' homes in first-person. Scrub away all the dirt, and get paid on the spot via QR code.\n\nChoose a client from the job board and ride your scooter to their home. Clean up dust, trash, hair, and stains before the timer runs out. Move the mouse to aim your tool and hold the left button to scrub back and forth like mopping. Different dirt types require the right tool: broom for dust and trash, mop for stains, vacuum for hair. Consecutive cleaning builds a combo multiplier that doubles your coins. Once everything is spotless, the client scans your payment QR code and the money arrives instantly. Income includes the base cleaning fee, cleaning coins, remaining-time bonus, and combo bonus. Use your earnings to buy better tools in the shop, upgrading from a rag all the way to the Golden Cloth.",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-27",
+      "content": "游戏首发上线！"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-27",
+      "content": "Initial release!"
+    }
+  ]
+}
