@@ -43,16 +43,29 @@
         /* ===== 全局重置 ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html, body { min-height: 100%; }
+
         body {
             background: var(--bg-gradient);
             font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", sans-serif;
             color: var(--text-main);
             min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* 关键修复：独立居中容器，不再依赖 body 的 flex */
+        .error-page {
+            width: 100%;
+            flex: 1 0 auto;
+            min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            transition: background 0.3s, color 0.3s;
+            box-sizing: border-box;
         }
 
         .error-card {
@@ -64,6 +77,8 @@
             text-align: center;
             max-width: 500px;
             width: 100%;
+            margin: 0 auto;          /* 双保险 */
+            flex-shrink: 0;          /* 防止被 flex 容器压缩 */
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05), 0 4px 16px rgba(0, 0, 0, 0.02);
             border: 1px solid var(--card-border);
             animation: floatIn 0.6s ease-out;
@@ -145,20 +160,22 @@
 </head>
 <body>
 
-    <div class="error-card">
-        <div class="error-icon">🛸</div>
-        <div class="error-code">404</div>
-        
-        <div class="zh-text">
-            <div class="error-title">页面走丢了</div>
-            <div class="error-desc">你访问的页面不存在、已被移动，或者链接出错了。</div>
-            <a href="index.html" class="btn-back" id="homeBtnZh">🏠 返回了了了游首页</a>
-        </div>
+    <div class="error-page">
+        <div class="error-card">
+            <div class="error-icon">🛸</div>
+            <div class="error-code">404</div>
+            
+            <div class="zh-text">
+                <div class="error-title">页面走丢了</div>
+                <div class="error-desc">你访问的页面不存在、已被移动，或者链接出错了。</div>
+                <a href="index.html" class="btn-back" id="homeBtnZh">🏠 返回了了了游首页</a>
+            </div>
 
-        <div class="en-text">
-            <div class="error-title">Page Not Found</div>
-            <div class="error-desc">The page you are looking for doesn't exist, has been moved, or the link is broken.</div>
-            <a href="index.html?lang=en" class="btn-back" id="homeBtnEn">🏠 Back to lelele Home</a>
+            <div class="en-text">
+                <div class="error-title">Page Not Found</div>
+                <div class="error-desc">The page you are looking for doesn't exist, has been moved, or the link is broken.</div>
+                <a href="index.html?lang=en" class="btn-back" id="homeBtnEn">🏠 Back to lelele Home</a>
+            </div>
         </div>
     </div>
 
