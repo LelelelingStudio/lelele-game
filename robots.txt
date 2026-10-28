@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard.html
+Disallow: /login.html
+Disallow: /gamecheck.html
+
+Sitemap: https://game.leleleling.site/sitemap.xml
