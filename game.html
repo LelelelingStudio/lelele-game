@@ -245,6 +245,68 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
 
+        /* 视频条目（截图区域内）：封面帧 + 播放角标，点击进灯箱播放 */
+        .video-thumb {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid var(--card-border);
+            background: #000;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .video-thumb:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        .video-thumb video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+            display: block;
+        }
+        .video-thumb .video-play-icon {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 48px; height: 48px; border-radius: 50%;
+            background: rgba(0,0,0,0.55); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; padding-left: 3px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+            pointer-events: none;
+        }
+
+        /* 横幅区视频：自动播放、循环、静音（浏览器自动播放策略要求静音） */
+        .banner-area .banner-video {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .banner-area.has-video { overflow: hidden; }
+        .banner-area.has-video::after {
+            /* 让图标/占位内容仍可读的渐变压暗，仅在同时展示 icon 时生效 */
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.35) 100%);
+            pointer-events: none;
+        }
+        .banner-area .banner-mute-btn {
+            position: absolute; right: 14px; bottom: 14px;
+            z-index: 2;
+            width: 40px; height: 40px; border-radius: 50%;
+            border: none; cursor: pointer;
+            background: rgba(0,0,0,0.5); color: #fff;
+            font-size: 1.05rem; line-height: 1;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .banner-area .banner-mute-btn:hover { background: rgba(0,0,0,0.72); }
+
         .timeline { position: relative; padding-left: 20px; border-left: 2px solid var(--card-border); margin-left: 10px; }
         .timeline-item { position: relative; margin-bottom: 24px; }
         .timeline-item:last-child { margin-bottom: 0; }
@@ -279,6 +341,13 @@
             line-height: 1; transition: color 0.2s;
         }
         .lightbox-close:hover { color: #fff; }
+        .lightbox video {
+            max-width: 90%; max-height: 90%; border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5); object-fit: contain;
+            background: #000;
+            transform: scale(0.95); transition: transform 0.3s ease;
+        }
+        .lightbox.active video { transform: scale(1); }
 
         @media (max-width: 768px) {
             .content-area { padding: 24px; }
@@ -330,8 +399,12 @@
         </div>
 
         <div class="game-detail-card" id="gameCard">
-            <div class="banner-area" id="bannerArea" onclick="openLightbox(this.style.backgroundImage.slice(5, -2))">
+            <div class="banner-area" id="bannerArea" onclick="onBannerClick()">
+                <video class="banner-video" id="bannerVideo" muted loop playsinline webkit-playsinline autoplay preload="metadata" style="display:none;"></video>
                 <div class="banner-icon" id="bannerIcon">🎮</div>
+                <button class="banner-mute-btn" id="bannerMuteBtn" type="button" style="display:none;"
+                        onclick="event.stopPropagation(); toggleBannerMute()"
+                        aria-label="Toggle sound">🔇</button>
             </div>
 
             <div class="content-area">
@@ -375,6 +448,8 @@
     <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
         <span class="lightbox-close">&times;</span>
         <img id="lightboxImg" src="" alt="Preview" onclick="event.stopPropagation()">
+        <video id="lightboxVideo" controls playsinline webkit-playsinline
+               onclick="event.stopPropagation()" style="display:none;"></video>
     </div>
 
     <script src="common.js" defer></script>
@@ -401,8 +476,111 @@
             document.getElementById('errorBackBtn').href = 'index.html' + suffix;
         }
 
+        // ---------- 媒体工具：区分图片 / 视频 ----------
+        const VIDEO_FILE_RE = /\.(mp4|webm|ogv|ogg|mov|m4v|m3u8)(?:$|[?#])/i;
+
+        // 是否为“可直接用 <video> 播放”的地址（本地相对路径或直链文件）
+        function isDirectVideo(url) {
+            if (!url || typeof url !== 'string') return false;
+            return VIDEO_FILE_RE.test(url.trim());
+        }
+
+        // 解析可嵌入的视频平台链接（Bilibili / YouTube / Vimeo）
+        // 返回 { provider, embedUrl } 或 null
+        function parseEmbedVideo(url) {
+            if (!url || typeof url !== 'string') return null;
+            let u;
+            try { u = new URL(url, window.location.href); } catch (e) { return null; }
+            const host = u.hostname.replace(/^www\./, '').toLowerCase();
+
+            // Bilibili：BV 号 / av 号
+            if (host === 'bilibili.com' || host === 'm.bilibili.com' || host === 'b23.tv' || host === 'player.bilibili.com') {
+                if (host === 'player.bilibili.com') return { provider: 'bilibili', embedUrl: u.href };
+                const bv = u.pathname.match(/\/video\/(BV[0-9A-Za-z]+)/);
+                const av = u.pathname.match(/\/video\/av(\d+)/i);
+                const bvid = bv ? bv[1] : (u.searchParams.get('bvid') || '');
+                const aid = av ? av[1] : (u.searchParams.get('aid') || '');
+                if (!bvid && !aid) return null;
+                const idPart = bvid ? `bvid=${bvid}` : `aid=${aid}`;
+                const page = u.searchParams.get('p');
+                const pagePart = page ? `&page=${encodeURIComponent(page)}` : '';
+                return { provider: 'bilibili', embedUrl: `//player.bilibili.com/player.html?${idPart}${pagePart}&high_quality=1&autoplay=0` };
+            }
+            // YouTube
+            if (host === 'youtube.com' || host === 'm.youtube.com' || host === 'youtu.be' || host === 'youtube-nocookie.com') {
+                let id = '';
+                if (host === 'youtu.be') id = u.pathname.slice(1).split('/')[0];
+                else if (u.pathname === '/watch') id = u.searchParams.get('v') || '';
+                else { const m = u.pathname.match(/^\/(?:embed|shorts|live|v)\/([0-9A-Za-z_-]+)/); id = m ? m[1] : ''; }
+                if (!id) return null;
+                return { provider: 'youtube', embedUrl: `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?rel=0` };
+            }
+            // Vimeo
+            if (host === 'vimeo.com' || host === 'player.vimeo.com') {
+                const m = u.pathname.match(/(\d+)/);
+                if (!m) return null;
+                return { provider: 'vimeo', embedUrl: `https://player.vimeo.com/video/${m[1]}` };
+            }
+            return null;
+        }
+
+        // 任意“视频类”地址
+        function isVideoUrl(url) {
+            return isDirectVideo(url) || !!parseEmbedVideo(url);
+        }
+
+        // 在灯箱中播放视频：直链用 <video>，平台链接用 <iframe>
+        function openVideoLightbox(url) {
+            if (!url) return;
+            const lightbox = document.getElementById('lightbox');
+            const videoEl = document.getElementById('lightboxVideo');
+            const imgEl = document.getElementById('lightboxImg');
+            const frame = document.getElementById('lightboxFrame');
+
+            if (isDirectVideo(url)) {
+                imgEl.style.display = 'none';
+                imgEl.src = '';
+                if (frame) { frame.style.display = 'none'; frame.removeAttribute('src'); }
+                videoEl.style.display = 'block';
+                videoEl.src = url;
+                videoEl.play().catch(() => {});
+            } else {
+                const embed = parseEmbedVideo(url);
+                if (!embed) return;
+                imgEl.style.display = 'none';
+                imgEl.src = '';
+                videoEl.pause();
+                videoEl.style.display = 'none';
+                videoEl.removeAttribute('src');
+                let f = frame;
+                if (!f) {
+                    f = document.createElement('iframe');
+                    f.id = 'lightboxFrame';
+                    f.setAttribute('allow', 'autoplay; encrypted-media; fullscreen; picture-in-picture');
+                    f.setAttribute('allowfullscreen', '');
+                    f.setAttribute('frameborder', '0');
+                    f.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+                    f.style.cssText = 'width:min(90vw,960px);height:min(56vw,540px);border:none;border-radius:8px;background:#000;box-shadow:0 10px 40px rgba(0,0,0,0.5);';
+                    f.onclick = e => e.stopPropagation();
+                    lightbox.appendChild(f);
+                }
+                f.src = embed.embedUrl;
+                f.style.display = 'block';
+            }
+            lightbox.classList.add('active');
+        }
+        window.openVideoLightbox = openVideoLightbox;
+
         window.openLightbox = function(imgSrc) {
             if (!imgSrc || imgSrc === 'none' || imgSrc === 'url("")') return;
+            if (isVideoUrl(imgSrc)) { openVideoLightbox(imgSrc); return; }
+            const v = document.getElementById('lightboxVideo');
+            v.pause();
+            v.style.display = 'none';
+            v.removeAttribute('src');
+            const f = document.getElementById('lightboxFrame');
+            if (f) { f.style.display = 'none'; f.removeAttribute('src'); }
+            document.getElementById('lightboxImg').style.display = 'block';
             document.getElementById('lightboxImg').src = imgSrc;
             document.getElementById('lightbox').classList.add('active');
         };
@@ -410,8 +588,34 @@
         window.closeLightbox = function(event) {
             if (event.target.id === 'lightbox' || event.target.classList.contains('lightbox-close')) {
                 document.getElementById('lightbox').classList.remove('active');
-                setTimeout(() => { document.getElementById('lightboxImg').src = ''; }, 300);
+                const v = document.getElementById('lightboxVideo');
+                const f = document.getElementById('lightboxFrame');
+                const i = document.getElementById('lightboxImg');
+                setTimeout(() => {
+                    v.pause();
+                    v.style.display = 'none';
+                    v.removeAttribute('src'); if (v.load) v.load();
+                    if (f) { f.style.display = 'none'; f.removeAttribute('src'); }
+                    i.src = '';
+                }, 300);
             }
+        };
+
+        // 横幅点击：有视频则播放视频，否则打开横幅大图
+        window.onBannerClick = function() {
+            const banner = currentGameData && currentGameData.banner;
+            if (!banner) return;
+            if (isVideoUrl(banner)) openVideoLightbox(banner);
+            else openLightbox(banner);
+        };
+
+        // 横幅静音切换
+        window.toggleBannerMute = function() {
+            const v = document.getElementById('bannerVideo');
+            const btn = document.getElementById('bannerMuteBtn');
+            if (!v || !btn) return;
+            v.muted = !v.muted;
+            btn.textContent = v.muted ? '🔇' : '🔊';
         };
 
         function getFavorites() {
@@ -499,15 +703,50 @@
 
             const bannerArea = document.getElementById('bannerArea');
             const bannerIcon = document.getElementById('bannerIcon');
+            const bannerVideo = document.getElementById('bannerVideo');
+            const bannerMuteBtn = document.getElementById('bannerMuteBtn');
+            const DEFAULT_BANNER_BG = 'linear-gradient(135deg, rgba(79,70,229,0.1) 0%, rgba(124,58,237,0.1) 100%)';
+
+            // 重置横幅（语言切换会重复调用本函数）
+            bannerVideo.pause();
+            bannerVideo.style.display = 'none';
+            bannerVideo.removeAttribute('src');
+            bannerMuteBtn.style.display = 'none';
+            bannerArea.classList.remove('has-video');
+            bannerArea.style.backgroundImage = DEFAULT_BANNER_BG;
+
             if (game.banner) {
-                bannerArea.style.backgroundImage = `url('${escapeHtml(game.banner)}')`;
                 bannerArea.classList.remove('no-image');
                 bannerIcon.style.display = 'none';
-                bannerArea.setAttribute('title', en ? 'Click to enlarge' : '点击查看大图');
+                bannerArea.onclick = onBannerClick;
+                bannerArea.style.cursor = 'pointer';
+
+                if (isDirectVideo(game.banner)) {
+                    // ① 横幅指向视频文件：静音自动循环播放
+                    bannerArea.classList.add('has-video');
+                    bannerArea.style.backgroundImage = 'none';
+                    bannerVideo.src = game.banner;
+                    bannerVideo.style.display = 'block';
+                    bannerMuteBtn.style.display = 'flex';
+                    bannerMuteBtn.textContent = bannerVideo.muted ? '🔇' : '🔊';
+                    bannerVideo.play().catch(() => {});
+                    bannerArea.setAttribute('title', en ? 'Click to watch video' : '点击观看视频');
+                } else if (isVideoUrl(game.banner)) {
+                    // ② 横幅是平台视频链接（B站/YouTube 等）：无法自动播放，降级为图标 + 点击播放
+                    bannerArea.classList.remove('has-video');
+                    bannerIcon.style.display = 'block';
+                    bannerIcon.textContent = game.icon || '🎮';
+                    bannerArea.setAttribute('title', en ? 'Click to watch video' : '点击观看视频');
+                } else {
+                    // ③ 普通图片横幅
+                    bannerArea.style.backgroundImage = `url('${escapeHtml(game.banner)}')`;
+                    bannerArea.setAttribute('title', en ? 'Click to enlarge' : '点击查看大图');
+                }
             } else {
-                bannerArea.style.backgroundImage = 'linear-gradient(135deg, rgba(79,70,229,0.1) 0%, rgba(124,58,237,0.1) 100%)';
+                bannerArea.style.backgroundImage = DEFAULT_BANNER_BG;
                 bannerArea.classList.add('no-image');
                 bannerArea.onclick = null;
+                bannerArea.style.cursor = 'default';
                 bannerIcon.style.display = 'block';
                 bannerIcon.textContent = game.icon || '🎮';
             }
@@ -538,12 +777,30 @@
             }
             document.getElementById('gameDesc').textContent = descText;
 
-            if (game.screenshots && Array.isArray(game.screenshots) && game.screenshots.length > 0) {
+            const screenshotList = [
+                ...(Array.isArray(game.screenshots) ? game.screenshots : []),
+                // 额外支持独立的视频字段（单个字符串或数组），与截图合并展示
+                ...(Array.isArray(game.videos) ? game.videos : (game.videos ? [game.videos] : []))
+            ].filter(Boolean);
+
+            if (screenshotList.length > 0) {
                 document.getElementById('screenshotsContainer').style.display = 'block';
                 const grid = document.getElementById('screenshotsGrid');
-                grid.innerHTML = game.screenshots.map(src => `
-                    <img class="screenshot-img" src="${escapeHtml(src)}" alt="Screenshot" onclick="openLightbox('${escapeHtml(src)}')">
-                `).join('');
+                grid.innerHTML = screenshotList.map(src => {
+                    const safe = escapeHtml(src);
+                    const isVid = isVideoUrl(src);
+                    if (isVid) {
+                        // 直链视频用静音预览帧；平台链接用播放角标占位
+                        const inner = isDirectVideo(src)
+                            ? `<video muted playsinline preload="metadata" src="${safe}"></video>`
+                            : `<div style="width:100%;height:100%;background:linear-gradient(135deg,#111827,#374151);"></div>`;
+                        return `<div class="video-thumb" onclick="openLightbox('${safe}')" title="${en ? 'Click to play' : '点击播放'}">
+                            ${inner}
+                            <span class="video-play-icon">▶</span>
+                        </div>`;
+                    }
+                    return `<img class="screenshot-img" src="${safe}" alt="Screenshot" onclick="openLightbox('${safe}')">`;
+                }).join('');
             }
 
             const logs = en ? (game.updateLog_en || game.updateLog_zh || game.updateLog) : (game.updateLog_zh || game.updateLog_en || game.updateLog);
