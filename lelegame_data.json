@@ -10,7 +10,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
-    "author": 1,
+    "author": "1",
     "url": "https://happyfarmer.surge.sh"
   },
   {
@@ -24,7 +24,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
-    "author": 1,
+    "author": "1",
     "url": "/game/old_happyfarmer/index.html"
   },
   {
@@ -38,7 +38,7 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "version": "v1.0.0",
-    "author": 1,
+    "author": "1",
     "url": "/game/3Dshooting/index.html"
   },
   {
@@ -52,7 +52,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
-    "author": 1,
+    "author": "1",
     "url": "/game/deleting_bombs/index.html"
   },
   {
@@ -66,7 +66,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
-    "author": 1,
+    "author": "1",
     "url": "/game/happycorn/index.html"
   },
   {
@@ -80,7 +80,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
-    "author": 1,
+    "author": "1",
     "url": "/game/leveleating/index.html"
   },
   {
@@ -94,7 +94,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
-    "author": 2,
+    "author": "2",
     "url": "/game/others/2026_7_7/point_the_button/index.html"
   },
   {
@@ -108,7 +108,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
-    "author": 1,
+    "author": "1",
     "url": "/game/popping_banana/index.html"
   },
   {
@@ -122,7 +122,7 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "version": "v1.0.0",
-    "author": 1,
+    "author": "1",
     "url": "/game/space_shooting/index.html"
   },
   {
@@ -136,7 +136,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
-    "author": 1,
+    "author": "1",
     "url": "/game/universal_evolution/index.html"
   },
   {
@@ -150,7 +150,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
-    "author": 1,
+    "author": "1",
     "url": "/game/eat_planet/index.html"
   },
   {
@@ -164,7 +164,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v.2.0.0",
-    "author": 3,
+    "author": "3",
     "url": "https://levil-evil.surge.sh"
   },
   {
@@ -178,7 +178,7 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "version": "v1.0.0",
-    "author": 4,
+    "author": "4",
     "url": "https://jonathanxu-games.netlify.app/games/wilds-survival.html"
   },
   {
@@ -192,7 +192,7 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "version": "v1.0.0",
-    "author": 4,
+    "author": "4",
     "url": "https://jonathanxu-games.netlify.app/games/army-war-3d.html"
   },
   {
@@ -206,7 +206,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
-    "author": 1,
+    "author": "1",
     "url": "https://starseed-3fgwyvi5.manus.game/"
   },
   {
@@ -220,7 +220,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
-    "author": 5,
+    "author": "5",
     "url": "/game/MCpointygame/index.html"
   },
   {
@@ -234,7 +234,7 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "version": "v1.0.0",
-    "author": 6,
+    "author": "6",
     "url": "https://swordmasters.io"
   },
   {
@@ -248,7 +248,7 @@
     "ageRating_zh": "6+",
     "ageRating_en": "6+",
     "version": "v3.1.0",
-    "author": 7,
+    "author": "7",
     "url": "https://farmrise-nkwhymwt.manus.game"
   },
   {
@@ -262,77 +262,77 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "version": "v1.0.0",
-    "author": 5,
+    "author": "5",
     "url": "https://archive.lelelegame.surge.sh/"
   },
   {
-  "id": 20,
-  "name_zh": "雪原篝火",
-  "name_en": "Snowfield Embers",
-  "icon": "❄️",
-  "category_zh": "冒险",
-  "category_en": "Adventure",
-  "type": "local",
-  "ageRating_zh": "12+",
-  "ageRating_en": "12+",
-  "version": "v1.0.0",
-  "author": 5,
-  "url": "https://snowfield-embers.lelelegame.surge.sh/"
+    "id": 20,
+    "name_zh": "雪原篝火",
+    "name_en": "Snowfield Embers",
+    "icon": "❄️",
+    "category_zh": "冒险",
+    "category_en": "Adventure",
+    "type": "local",
+    "ageRating_zh": "12+",
+    "ageRating_en": "12+",
+    "version": "v1.0.0",
+    "author": "5",
+    "url": "https://snowfield-embers.lelelegame.surge.sh/"
   },
   {
-  "id": 21,
-  "name_zh": "小小酒店",
-  "name_en": "Cozy Stay",
-  "icon": "🏨",
-  "category_zh": "休闲",
-  "category_en": "Casual",
-  "type": "external",
-  "ageRating_zh": "6+",
-  "ageRating_en": "6+",
-  "version": "v1.3.0",
-  "author": 7,
-  "url": "https://cozystay-8pt7va63.manus.game/"
+    "id": 21,
+    "name_zh": "小小酒店",
+    "name_en": "Cozy Stay",
+    "icon": "🏨",
+    "category_zh": "休闲",
+    "category_en": "Casual",
+    "type": "external",
+    "ageRating_zh": "6+",
+    "ageRating_en": "6+",
+    "version": "v1.3.0",
+    "author": "7",
+    "url": "https://cozystay-8pt7va63.manus.game/"
   },
   {
-  "id": 22,
-  "name_zh": "一尘不染 · 上门保洁",
-  "name_en": "Spotless · Home Cleaning Service",
-  "icon": "🧹",
-  "category_zh": "模拟经营",
-  "category_en": "Simulation",
-  "type": "external",
-  "ageRating_zh": "6+",
-  "ageRating_en": "6+",
-  "version": "v1.0.0",
-  "author": 3,
-  "url": "https://upclean.lelelegame.surge.sh/"
+    "id": 22,
+    "name_zh": "一尘不染 · 上门保洁",
+    "name_en": "Spotless · Home Cleaning Service",
+    "icon": "🧹",
+    "category_zh": "模拟经营",
+    "category_en": "Simulation",
+    "type": "external",
+    "ageRating_zh": "6+",
+    "ageRating_en": "6+",
+    "version": "v1.0.0",
+    "author": "3",
+    "url": "https://upclean.lelelegame.surge.sh/"
   },
   {
-  "id": 23,
-  "name_zh": "等级恶魔",
-  "name_en": "Level Devil",
-  "icon": "😈",
-  "category_zh": "动作",
-  "category_en": "Action",
-  "type": "external",
-  "ageRating_zh": "12+",
-  "ageRating_en": "12+",
-  "version": "v1.0.0",
-  "author": "Unept",
-  "url": "https://playleveldevil.com/play/"
+    "id": 23,
+    "name_zh": "等级恶魔",
+    "name_en": "Level Devil",
+    "icon": "😈",
+    "category_zh": "动作",
+    "category_en": "Action",
+    "type": "external",
+    "ageRating_zh": "12+",
+    "ageRating_en": "12+",
+    "version": "v1.0.0",
+    "author": "Unept",
+    "url": "https://playleveldevil.com/play/"
   },
   {
-  "id": 24,
-  "name_zh": "科学大冒险",
-  "name_en": "Science Quest",
-  "icon": "🔬",
-  "category_zh": "益智",
-  "category_en": "Puzzle",
-  "type": "external",
-  "ageRating_zh": "6+",
-  "ageRating_en": "6+",
-  "version": "v1.0.0",
-  "author": 4,
-  "url": "https://jonathanxu-games.netlify.app/games/science-quest/"
+    "id": 24,
+    "name_zh": "科学大冒险",
+    "name_en": "Science Quest",
+    "icon": "🔬",
+    "category_zh": "益智",
+    "category_en": "Puzzle",
+    "type": "external",
+    "ageRating_zh": "6+",
+    "ageRating_en": "6+",
+    "version": "v1.0.0",
+    "author": "4",
+    "url": "https://jonathanxu-games.netlify.app/games/science-quest/"
   }
 ]

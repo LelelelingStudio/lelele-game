@@ -273,6 +273,7 @@
 
     <script src="common.js" defer></script>
     <script src="supabase-client.js" defer></script>
+    <script src="notice.js" defer></script>
 
     <script>
         let currentAuthorData = null;
@@ -370,13 +371,15 @@
                 isRegistered: isRegistered
             };
 
-            // 4. 获取所有游戏数据，过滤出该作者（数字 ID）的游戏
+            // 4. 获取所有游戏数据，过滤出该作者的游戏
+            // 注意：必须绕过 HTTP 缓存（线上 lelegame_data.json 带 max-age=600，
+            // 否则新上线的游戏要等最多 10 分钟才会出现在作者页）
             try {
-                const res = await fetch('lelegame_data.json');
+                const res = await fetch('lelegame_data.json?t=' + Date.now(), { cache: 'no-store' });
                 if (res.ok) {
                     allGamesData = await res.json();
-                    
-                    // 现在 JSON 里的 author 是数字 1，我们匹配这个数字
+
+                    // author 统一按字符串比较，兼容 "4" / 4 / "Unept" 等写法
                     currentGamesList = allGamesData.filter(g => {
                         if (g.author === undefined || g.author === null) return false;
                         return String(g.author) === String(authorId);

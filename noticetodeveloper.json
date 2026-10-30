@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "updatedAt": "2026-10-30T19:45:00+08:00",
+
+  "_readme": {
+    "说明": "本文件是「开发者定向告示」数据源，由 notice.js 读取。JSON 标准不支持 // 注释，所以字段说明都写在 _readme 里，程序会忽略它。",
+    "文件结构": "{ version, updatedAt, _readme, notices: [告示对象, ...] }。真正生效的只有 notices 数组。",
+    "notices[].id": "必填，字符串，全局唯一。用于 localStorage 记录已读，改 id 会导致重复弹出。",
+    "notices[].enabled": "可选，布尔，默认 true。false 表示临时下线该告示。",
+    "notices[].author": "必填，目标开发者。支持 \"4\"（单个ID）、[\"4\",\"5\"]（多人）、\"*\" 或 \"all\"（全体开发者）。ID 对应 authors.surge.sh/authors.json 的 id。",
+    "notices[].priority": "可选，数字，默认 0。多条同时命中时按从大到小依次弹出。",
+    "notices[].startAt": "可选，ISO 时间字符串，此前不显示。留空=立即生效。",
+    "notices[].endAt": "可选，ISO 时间字符串，超过此时间自动失效。留空=永不过期。",
+    "notices[].title_zh": "必填，中文标题。",
+    "notices[].title_en": "必填，英文标题。",
+    "notices[].body_zh": "必填，中文正文，支持 \\n 换行。",
+    "notices[].body_en": "必填，英文正文，支持 \\n 换行。",
+    "notices[].media": "可选，数组，弹窗媒体。元素写法见 media[].*。",
+    "media[].type": "必填，image 图片 / video 视频 / embed 内嵌。video 会自动识别直链和 B站、YouTube、Vimeo 链接。",
+    "media[].src": "必填，媒体地址。直链视频支持 .mp4 .webm .ogv .ogg .mov .m4v .m3u8。",
+    "media[].poster": "可选，视频封面图，仅 video 直链生效。",
+    "media[].alt": "可选，图片替代文本，仅 image 生效。",
+    "notices[].buttons": "可选，数组，底部按钮，建议最多 2 个。",
+    "buttons[].text_zh / text_en": "必填，中英文按钮文字。",
+    "buttons[].url": "必填，跳转地址，站内请写完整 URL。",
+    "buttons[].style": "可选，primary 实心主按钮 / ghost 浅色次按钮。",
+    "buttons[].target": "可选，_blank 新窗口（默认）/ _self 当前窗口。",
+    "notices[].dismissible": "可选，布尔，默认 true。false = 强制阅读，隐藏关闭按钮且点遮罩不关闭。",
+    "notices[].oncePerUser": "可选，布尔，默认 true。true = 同一用户读过一次后不再弹；false = 每次刷新都可能弹。",
+    "显示条件": "需同时满足：已登录 + 账号在 authors.json 有对应作者ID + author 匹配 + 在时间窗内 + 未读过。",
+    "生效范围": "index.html、game.html、author.html、dashboard.html。游戏本体目录 /game/xxx/ 内不显示。",
+    "新增告示": "在 notices 数组末尾追加对象，复制现有示例改字段即可，注意 id 不要重复。"
+  },
+
+  "notices": [
+    {
+      "id": "notice-2026-10-30-science-quest",
+      "enabled": true,
+      "author": "4",
+      "priority": 100,
+      "startAt": "2026-10-30T00:00:00+08:00",
+      "endAt": "2026-11-02T12:00:00+08:00",
+      "title_zh": "你的游戏《科学大冒险》已上线！",
+      "title_en": "Your game \"Science Quest\" is now live!",
+      "body_zh": "感谢投稿！《科学大冒险》已经收录到「了了了游」，玩家现在可以直接在平台上玩到了。\n\n你可以随时在开发者面板查看数据和更新游戏信息。\n\n本告示有效至 2026 年 11 月 2 日 12:00。",
+      "body_en": "Thanks for submitting! \"Science Quest\" is now listed on lelele Game, and players can jump in right away.\n\nYou can check stats and update the game info anytime from your Dashboard.\n\nThis notice is valid until Nov 2, 2026, 12:00 (UTC+8).",
+      "media": [
+        {
+          "type": "image",
+          "src": "https://gamepic.surge.sh/supersciencesmallplayinggamebanner-1.jpeg",
+          "alt": "Science Quest"
+        }
+      ],
+      "buttons": [
+        {
+          "text_zh": "立即试玩",
+          "text_en": "Play now",
+          "url": "https://game.leleleling.site/game.html?id=24",
+          "style": "primary",
+          "target": "_blank"
+        },
+        {
+          "text_zh": "开发者面板",
+          "text_en": "Dashboard",
+          "url": "https://game.leleleling.site/dashboard.html",
+          "style": "ghost",
+          "target": "_self"
+        }
+      ],
+      "dismissible": true,
+      "oncePerUser": true
+    }
+  ]
+}

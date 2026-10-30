@@ -454,6 +454,7 @@
 
     <script src="common.js" defer></script>
     <script src="supabase-client.js" defer></script>
+    <script src="notice.js" defer></script>
 
     <script>
         function escapeHtml(str) {
@@ -842,7 +843,7 @@
                 }
                 
                 console.warn(`未找到详细数据，尝试从主列表加载 ID: ${currentGameId}`);
-                const baseRes = await fetch('lelegame_data.json');
+                const baseRes = await fetch('lelegame_data.json?t=' + Date.now(), { cache: 'no-store' });
                 if (baseRes.ok) {
                     const baseData = await baseRes.json();
                     const baseGame = baseData.find(g => String(g.id) === String(currentGameId));

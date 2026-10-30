@@ -103,7 +103,7 @@ async function loadGames() {
     try {
         // 并发请求游戏主数据和作者映射表
         const [resGames, resAuthors] = await Promise.all([
-            fetch('lelegame_data.json'),
+            fetch('lelegame_data.json?t=' + Date.now(), { cache: 'no-store' }),
             fetch('https://authors.surge.sh/authors.json?t=' + Date.now()).catch(() => ({ ok: false }))
         ]);
 
