@@ -1,0 +1,40 @@
+{
+  "id": 23,
+  "name_zh": "等级恶魔",
+  "name_en": "Level Devil",
+  "icon": "😈",
+  "category_zh": "动作",
+  "category_en": "Action",
+  "type": "external",
+  "ageRating_zh": "12+",
+  "ageRating_en": "12+",
+  "version": "v1.0.0",
+  "author": "Unept",
+  "recommender": "了了了游官方",
+  "url": "https://playleveldevil.com/play/",
+  "banner": "https://playleveldevil.com/assets/key-art.png",
+  "screenshots": [
+    "https://playleveldevil.com/assets/shot-01.png",
+    "https://playleveldevil.com/assets/shot-02.png",
+    "https://playleveldevil.com/assets/shot-03.png"
+  ],
+  "videos": [
+    "https://www.youtube.com/watch?v=pv1OtS5TZRs"
+  ],
+  "description_zh": "一款“说公平其实不太公平”的2D平台跳跃游戏。你扮演一个小家伙，目标是抵达每关尽头的门——但地面会突然裂开、尖刺会凭空出现、传送门会把你送到致命的位置[reference:5]。\n\n近200个短小关卡，每5关围绕一个主题（尖刺、金币、移动平台等）。操作简单，但陷阱会不断变化：移动的洞、阴险的墙、塌陷的地板、隐形陷阱，还有反转重力和传送等新机制[reference:7]。适合喜欢硬核平台跳跃、搞笑失败和“ rage game ”的玩家[reference:8]。",
+  "description_en": "A 2D platformer with a mean twist. Your goal is simple: reach the door at the end of each level — but the floor opens up beneath you, spikes appear out of nowhere, and teleporters warp you to fatal spots[reference:9].\n\nNearly 200 short, unpredictable levels, grouped in fives around a theme (spikes, coins, moving platforms, etc.). Controls are simple, but the traps keep changing: moving holes, treacherous walls, collapsing floors, invisible traps, plus reverse gravity, teleports, and more[reference:11]. Built for fans of hard platformers, funny fails, and rage games[reference:12].",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-30",
+      "content": "游戏推荐收录！"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-30",
+      "content": "Recommended and listed!"
+    }
+  ]
+}

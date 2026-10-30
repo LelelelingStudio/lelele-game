@@ -306,5 +306,19 @@
   "version": "v1.0.0",
   "author": 3,
   "url": "https://upclean.lelelegame.surge.sh/"
+  },
+  {
+  "id": 23,
+  "name_zh": "等级恶魔",
+  "name_en": "Level Devil",
+  "icon": "😈",
+  "category_zh": "动作",
+  "category_en": "Action",
+  "type": "external",
+  "ageRating_zh": "12+",
+  "ageRating_en": "12+",
+  "version": "v1.0.0",
+  "author": "Unept",
+  "url": "https://playleveldevil.com/play/"
   }
 ]
