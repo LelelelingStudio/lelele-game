@@ -320,5 +320,19 @@
   "version": "v1.0.0",
   "author": "Unept",
   "url": "https://playleveldevil.com/play/"
+  },
+  {
+  "id": 24,
+  "name_zh": "科学大冒险",
+  "name_en": "Science Quest",
+  "icon": "🔬",
+  "category_zh": "益智",
+  "category_en": "Puzzle",
+  "type": "external",
+  "ageRating_zh": "6+",
+  "ageRating_en": "6+",
+  "version": "v1.0.0",
+  "author": 4,
+  "url": "https://jonathanxu-games.netlify.app/games/science-quest/"
   }
 ]

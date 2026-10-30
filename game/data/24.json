@@ -1,0 +1,35 @@
+{
+  "id": 24,
+  "name_zh": "科学大冒险",
+  "name_en": "Science Quest",
+  "icon": "🔬",
+  "category_zh": "益智",
+  "category_en": "Puzzle",
+  "type": "external",
+  "ageRating_zh": "6+",
+  "ageRating_en": "6+",
+  "version": "v1.0.0",
+  "author": "4",
+  "url": "https://jonathanxu-games.netlify.app/games/science-quest/",
+  "banner": "https://gamepic.surge.sh/supersciencesmallplayinggamebanner-1.jpeg",
+  "screenshots": [
+    "https://gamepic.surge.sh/supersciencesmallplayinggamebanner-1.jpeg"
+  ],
+  "videos": [],
+  "description_zh": "物理 · 化学 · 生物，闯关答题 + 趣味小游戏！\n\n一个科学答题网站，分简单、中等、困难三个模式，覆盖物理、化学、生物三个科目，每科十个单元，每单元三道题（选择题与填空题）。每单元结束后附带一个相关的小游戏。",
+  "description_en": "Physics, Chemistry, and Biology — quiz challenges plus fun mini-games!\n\nA science quiz site with Easy, Medium, and Hard modes, covering Physics, Chemistry, and Biology. Each subject has ten units, and each unit contains three questions (multiple choice and fill-in-the-blank), followed by a related mini-game.",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-30",
+      "content": "游戏首发上线！"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-10-30",
+      "content": "Initial release!"
+    }
+  ]
+}
