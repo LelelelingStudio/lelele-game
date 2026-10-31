@@ -434,6 +434,9 @@
                 <button class="action-btn submit-btn" id="openSubmitGuide">
                     <span class="zh-inline">✉️ 投稿</span><span class="en-inline">✉️ Submit</span>
                 </button>
+                <button class="action-btn recommend-btn" id="openRecommendGame">
+                    <span class="zh-inline">🎯 推荐游戏</span><span class="en-inline">🎯 Recommend</span>
+                </button>
                 <a class="action-btn studio-link" href="https://leleleling.site/index.html" target="_blank" rel="noopener noreferrer">
                     <span class="zh-inline">工作室</span><span class="en-inline">Studio</span>
                 </a>
@@ -619,6 +622,151 @@
             <div class="tally-wrapper" id="tallyContainer"></div>
         </div>
     </div>
+
+    <!-- ===== 推荐游戏弹窗（无需登录） ===== -->
+    <div class="modal-overlay" id="recommendModal">
+        <div class="modal recommend-modal">
+            <button class="modal-close" id="recommendCloseBtn" style="z-index:10;">×</button>
+            <div class="recommend-head">
+                <span class="zh-inline">🎯 推荐一款游戏</span><span class="en-inline">🎯 Recommend a Game</span>
+            </div>
+            <div class="recommend-frame-wrap" id="recommendFrameWrap">
+                <div class="recommend-loading">
+                    <span class="zh-inline">表单加载中…</span><span class="en-inline">Loading form…</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .recommend-btn { background: #10b981; color: #fff; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+        .recommend-btn:hover { background: #059669; transform: translateY(-1px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.4); }
+        .recommend-modal {
+            width: min(1100px, 90vw); max-width: 1100px;
+            height: 85vh; max-height: 85vh;
+            padding: 1rem; display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+        .recommend-head {
+            font-size: 1.1rem; font-weight: 700; margin: 0.1rem 0 0.7rem;
+            padding-right: 2rem; flex: 0 0 auto;
+        }
+        .recommend-frame-wrap {
+            flex: 1 1 auto; min-height: 0; overflow: auto;
+            border-radius: 1rem; background: rgba(148, 163, 184, 0.06);
+        }
+        .recommend-frame-wrap iframe { width: 100%; height: 100%; border: 0; display: block; }
+        .recommend-loading {
+            display: flex; align-items: center; justify-content: center;
+            height: 100%; min-height: 200px;
+            color: #94a3b8; font-size: 0.95rem;
+        }
+        @media (max-width: 768px) {
+            .recommend-modal { width: 100%; height: 90vh; max-height: 90vh; padding: 0.7rem; }
+            .recommend-head { font-size: 1rem; }
+        }
+    </style>
+
+    <script>
+        (function () {
+            // 中英文推荐表单
+            var FORMS = {
+                zh: 'https://tally.so/embed/5Xb4NP?alignLeft=1&hideTitle=1&transparentBackground=1',
+                en: 'https://tally.so/embed/dbENry?alignLeft=1&hideTitle=1&transparentBackground=1'
+            };
+            var TALLY_SRC = 'https://tally.so/widgets/embed.js';
+            var loadedLang = null;
+
+            function currentLang() {
+                var l = document.documentElement.getAttribute('data-lang');
+                if (l === 'zh' || l === 'en') return l;
+                try {
+                    var s = localStorage.getItem('lelele_lang');
+                    if (s === 'zh' || s === 'en') return s;
+                } catch (e) {}
+                return (navigator.language || 'zh').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en';
+            }
+
+            function ensureTally(cb) {
+                if (typeof Tally !== 'undefined') { cb(); return; }
+                if (document.querySelector('script[src="' + TALLY_SRC + '"]')) {
+                    var tries = 0;
+                    (function wait() {
+                        if (typeof Tally !== 'undefined') return cb();
+                        if (++tries > 60) return; // 最多等 6 秒
+                        setTimeout(wait, 100);
+                    })();
+                    return;
+                }
+                var s = document.createElement('script');
+                s.src = TALLY_SRC;
+                s.onload = cb;
+                s.onerror = cb;
+                document.body.appendChild(s);
+            }
+
+            function renderForm() {
+                var wrap = document.getElementById('recommendFrameWrap');
+                if (!wrap) return;
+                var lang = currentLang();
+                loadedLang = lang;
+                wrap.innerHTML = '<iframe data-tally-src="' + FORMS[lang] + '" loading="lazy" width="100%" height="100%" frameborder="0" marginheight="0" marginwidth="0" title="' +
+                    (lang === 'en' ? 'Lelele Game · Game Recommendation Form' : '了了了游 · 游戏推荐表单') + '"></iframe>';
+                ensureTally(function () {
+                    try {
+                        if (typeof Tally !== 'undefined') Tally.loadEmbeds();
+                        else throw new Error('Tally 未加载');
+                    } catch (e) {
+                        var f = wrap.querySelector('iframe[data-tally-src]');
+                        if (f) f.src = f.getAttribute('data-tally-src');
+                    }
+                });
+            }
+
+            window.openRecommendModal = function () {
+                if (loadedLang !== currentLang()) renderForm();
+                if (typeof window.openModal === 'function') window.openModal('recommendModal');
+                else document.getElementById('recommendModal').classList.add('active');
+            };
+            window.closeRecommendModal = function () {
+                if (typeof window.closeModal === 'function') window.closeModal('recommendModal');
+                else document.getElementById('recommendModal').classList.remove('active');
+            };
+
+            document.addEventListener('DOMContentLoaded', function () {
+                var btn = document.getElementById('openRecommendGame');
+                if (btn) btn.addEventListener('click', function (e) { e.preventDefault(); window.openRecommendModal(); });
+                var closeBtn = document.getElementById('recommendCloseBtn');
+                if (closeBtn) closeBtn.addEventListener('click', window.closeRecommendModal);
+                var overlay = document.getElementById('recommendModal');
+                if (overlay) overlay.addEventListener('click', function (e) {
+                    if (e.target === overlay) window.closeRecommendModal();
+                });
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && overlay && overlay.classList.contains('active')) window.closeRecommendModal();
+                });
+                // 语言切换时同步表单语言
+                window.addEventListener('langChanged', function () {
+                    var ov = document.getElementById('recommendModal');
+                    if (ov && ov.classList.contains('active')) renderForm();
+                });
+
+                // 支持外部带参直接唤起推荐弹窗：index.html?recommend=1
+                try {
+                    var params = new URLSearchParams(window.location.search);
+                    if (params.get('recommend') === '1') {
+                        setTimeout(function () {
+                            window.openRecommendModal();
+                            // 清掉参数，避免刷新重复弹出
+                            params.delete('recommend');
+                            var qs = params.toString();
+                            history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : '') + window.location.hash);
+                        }, 300);
+                    }
+                } catch (e) {}
+            });
+        })();
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-client.js" defer></script>

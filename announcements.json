@@ -1,5 +1,14 @@
 [
   {
+    "id": "20261031-recommend-game-launch",
+    "title_zh": "🎯 推荐游戏功能上线！没登录也能推荐好游戏",
+    "title_en": "🎯 Recommend a Game is here — no login required!",
+    "content_zh": "发现了一款想分享的好游戏？现在可以直接推荐给我们了！\n\n🎯 首页新增「推荐游戏」按钮，点开即填，无需注册登录\n📝 中英文表单自动匹配站点语言，手机电脑都能填\n⏱️ 提交后 5 个工作日内完成审核，结果会通过邮件通知\n🔗 如果点了「投稿」却还没登录，会提示你直接走推荐通道\n\n推荐时请务必确认已获得原作者授权，并填写真实有效的联系方式。审核通过后，游戏就会出现在「了了了游」上，推荐者信息也会一并收录。\n\n感谢每一位愿意分享的你，让摸鱼时光更快乐！",
+    "content_en": "Found a great game worth sharing? Now you can recommend it to us directly!\n\n🎯 A new \"Recommend\" button on the homepage — fill it in without signing up or logging in\n📝 The bilingual form follows your site language, and works on both desktop and mobile\n⏱️ Submissions are reviewed within 5 business days, and results are sent by email\n🔗 Clicked \"Submit\" without logging in? You will be offered the recommendation channel instead\n\nPlease make sure you have the original author's permission and provide valid contact information. Once approved, the game will be listed on lelele Game along with the recommender's credit.\n\nThanks to everyone who is willing to share — let's make those break-time moments more fun!",
+    "publishDate": "2026-10-30",
+    "expireDate": "2026-11-6"
+  },
+  {
     "id": "20261022-winter-theme-launch",
     "title_zh": "🎄 冰雪降临！了了了游冬季限定主题正式开启",
     "title_en": "🎄 Winter is Coming! lelele Game Winter Theme is Live",

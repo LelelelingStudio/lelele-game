@@ -1,5 +1,11 @@
 [
   {
+    "version": "3.1.0",
+    "date": "2026-10-31",
+    "content_zh": "1. 新增「推荐游戏」板块：首页可直接打开推荐表单弹窗，无需登录即可提交游戏推荐。\n2. 推荐表单支持中英文自动切换，弹窗内嵌表单、独立滚动，移动端自适应。\n3. 未登录用户点击「投稿」时会提示两条路径，可直接前往推荐游戏（免登录），也可跳转登录投稿。\n4. 新增开发者定向告示系统：通过 noticetodeveloper.json 配置，登录后按作者 ID 精准推送专属公告，支持图片、视频与按钮。\n5. 游戏详情页支持视频：横幅与截图区域可放视频直链，或 B站、YouTube、Vimeo 链接自动转换为内嵌播放器。\n6. 修复作者主页新上线游戏延迟显示的问题：游戏列表请求增加缓存绕过，上线后立即可见。\n7. 全站游戏数据的 author 字段统一为字符串类型，兼容数字 ID 与人名两种写法，避免作者页匹配失败。",
+    "content_en": "1. Added the \"Recommend a Game\" section: the recommendation form can be opened directly from the homepage and submitted without logging in.\n2. The recommendation form auto-switches between Chinese and English, embeds in a modal with independent scrolling, and adapts to mobile.\n3. When a logged-out user clicks \"Submit\", two paths are offered: go recommend a game (no login needed) or continue to login.\n4. Added the developer-targeted notice system: configured via noticetodeveloper.json, it pushes notices to specific authors by author ID after login, supporting images, videos and buttons.\n5. Game detail pages now support video: banners and screenshots accept direct video links, or Bilibili, YouTube and Vimeo links that are automatically converted into embedded players.\n6. Fixed the delayed display of newly published games on author pages: game list requests now bypass HTTP cache, so new games appear immediately.\n7. Unified the author field across all game data to string type, supporting both numeric IDs and names to avoid author page matching failures."
+  },
+  {
     "version": "3.0.1",
     "date": "2026-10-23",
     "content_zh": "1. 优化了开发者注册流程，放宽了邮箱验证码的输入长度限制，解决部分用户无法输入完整验证码的问题。\n2. 修复了搜索框在输入特定特殊字符时导致的控制台异常报错。\n3. 修复了全屏游戏页面被全站活动特效（如冬季雪花）遮挡的底层冲突问题，保障纯净游玩体验。\n4. 完善了开发者文档与游戏守则的双语跳转链接，优化了新用户的阅读体验。",

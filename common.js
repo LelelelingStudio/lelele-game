@@ -103,8 +103,15 @@
                     if (!session) {
                         e.preventDefault();
                         const isEn = getLang() === 'en';
-                        alert(isEn ? 'Publishing games requires an account. Redirecting to login...' : '发布游戏需要先注册/登录开发者账号，正在跳转登录...');
-                        window.location.href = 'login.html';
+                        // 未登录：提供两条路径 —— 登录投稿 / 直接去推荐游戏（无需登录）
+                        const goRecommend = confirm(isEn
+                            ? 'Publishing a game requires a developer account. You will be redirected to login.\n\nOK = Recommend a game instead (no login needed)\nCancel = Go to login'
+                            : '发布游戏需要先注册/登录开发者账号，将跳转到登录页。\n\n点「确定」= 我只想推荐游戏（无需登录，直接在首页打开推荐表单）\n点「取消」= 前往登录');
+                        if (goRecommend) {
+                            window.location.href = 'index.html?recommend=1';
+                        } else {
+                            window.location.href = 'login.html';
+                        }
                         return;
                     }
                     if (originalOnclick) originalOnclick.call(submitBtn, e);
