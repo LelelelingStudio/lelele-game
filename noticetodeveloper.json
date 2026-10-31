@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-30T19:45:00+08:00",
+  "updatedAt": "2026-10-31T12:00:00+08:00",
 
   "_readme": {
     "说明": "本文件是「开发者定向告示」数据源，由 notice.js 读取。JSON 标准不支持 // 注释，所以字段说明都写在 _readme 里，程序会忽略它。",
@@ -56,6 +56,36 @@
           "text_zh": "立即试玩",
           "text_en": "Play now",
           "url": "https://game.leleleling.site/game.html?id=24",
+          "style": "primary",
+          "target": "_blank"
+        },
+        {
+          "text_zh": "开发者面板",
+          "text_en": "Dashboard",
+          "url": "https://game.leleleling.site/dashboard.html",
+          "style": "ghost",
+          "target": "_self"
+        }
+      ],
+      "dismissible": true,
+      "oncePerUser": true
+    },
+    {
+      "id": "notice-2026-10-31-v310-update",
+      "enabled": true,
+      "author": "all",
+      "priority": 150,
+      "startAt": "2026-10-31T00:00:00+08:00",
+      "endAt": "2026-11-05T23:59:59+08:00",
+      "title_zh": "3.1.0 版本更新：推荐游戏、定向告示与视频支持已上线",
+      "title_en": "v3.1.0 Update: Recommend a Game, Targeted Notices & Video Support Are Live",
+      "body_zh": "本次 3.1.0 更新带来了多项与开发者相关的新能力：\n\n1. 新增「推荐游戏」板块：首页可直接打开推荐表单，无需登录即可提交游戏推荐。\n2. 新增开发者定向告示系统：通过 noticetodeveloper.json 配置，登录后按作者 ID 精准推送专属公告，支持图片、视频与按钮。\n3. 游戏详情页支持视频：横幅与截图区域可放视频直链，或 B站、YouTube、Vimeo 链接自动转换为内嵌播放器。\n4. 修复作者主页新上线游戏延迟显示的问题，上线后立即可见。\n5. 全站游戏数据的 author 字段统一为字符串类型，兼容数字 ID 与人名两种写法。\n\n欢迎前往更新日志查看完整说明。本告示有效至 2026 年 11 月 5 日 23:59。",
+      "body_en": "The 3.1.0 update brings several new capabilities relevant to developers:\n\n1. New \"Recommend a Game\" section: the recommendation form can be opened directly from the homepage and submitted without logging in.\n2. New developer-targeted notice system: configured via noticetodeveloper.json, it pushes notices to specific authors by author ID after login, supporting images, videos and buttons.\n3. Game detail pages now support video: banners and screenshots accept direct video links, or Bilibili, YouTube and Vimeo links that are automatically converted into embedded players.\n4. Fixed the delayed display of newly published games on author pages; new games now appear immediately.\n5. Unified the author field across all game data to string type, supporting both numeric IDs and names.\n\nVisit the changelog for full details. This notice is valid until Nov 5, 2026, 23:59 (UTC+8).",
+      "buttons": [
+        {
+          "text_zh": "查看更新日志",
+          "text_en": "View Changelog",
+          "url": "https://game.leleleling.site/changelog.html",
           "style": "primary",
           "target": "_blank"
         },
