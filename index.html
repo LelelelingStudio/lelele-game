@@ -751,17 +751,39 @@
                     if (ov && ov.classList.contains('active')) renderForm();
                 });
 
-                // 支持外部带参直接唤起推荐弹窗：index.html?recommend=1
+                // 支持外部带参直接唤起弹窗：
+                //   index.html?recommend=1  打开推荐游戏表单
+                //   index.html?submit=1     打开投稿流程
                 try {
                     var params = new URLSearchParams(window.location.search);
-                    if (params.get('recommend') === '1') {
-                        setTimeout(function () {
-                            window.openRecommendModal();
-                            // 清掉参数，避免刷新重复弹出
-                            params.delete('recommend');
-                            var qs = params.toString();
+                    var wantRecommend = params.get('recommend') === '1';
+                    var wantSubmit = params.get('submit') === '1';
+
+                    if (wantRecommend || wantSubmit) {
+                        // 清掉参数，避免刷新重复弹出（保留 lang 等其他参数）
+                        params.delete('recommend');
+                        params.delete('submit');
+                        var qs = params.toString();
+                        try {
                             history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : '') + window.location.hash);
-                        }, 300);
+                        } catch (e2) {}
+
+                        if (wantRecommend) {
+                            setTimeout(function () { window.openRecommendModal(); }, 300);
+                        } else {
+                            // 投稿按钮的点击处理由 index.js / common.js 异步挂载，需重试等待就绪
+                            var tries = 0;
+                            var tryOpenSubmit = function () {
+                                var btn = document.getElementById('openSubmitGuide');
+                                var guide = document.getElementById('stepGuide');
+                                if (guide && guide.classList.contains('active')) return;
+                                if (btn && ++tries <= 12) {
+                                    btn.click();
+                                    setTimeout(tryOpenSubmit, 350);
+                                }
+                            };
+                            setTimeout(tryOpenSubmit, 700);
+                        }
                     }
                 } catch (e) {}
             });

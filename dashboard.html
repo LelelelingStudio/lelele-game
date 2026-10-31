@@ -289,6 +289,12 @@
                 <button class="nav-item" onclick="switchTab('security')" id="navSecurity">
                     🔐 <span class="zh-inline">修改密码</span><span class="en-inline">Change Password</span>
                 </button>
+                <button class="nav-item nav-jump" onclick="goHomeWith('submit')">
+                    ✉️ <span class="zh-inline">投稿新游戏</span><span class="en-inline">Submit a Game</span>
+                </button>
+                <button class="nav-item nav-jump" onclick="goHomeWith('recommend')">
+                    🎯 <span class="zh-inline">推荐游戏</span><span class="en-inline">Recommend a Game</span>
+                </button>
                 <button class="nav-item danger" onclick="logout()">
                     🚪 <span class="zh-inline">退出登录</span><span class="en-inline">Log Out</span>
                 </button>
@@ -1257,6 +1263,16 @@
         window.logout = async function() {
             await supabaseClient.auth.signOut();
             window.location.href = 'index.html';
+        };
+
+        // 跳回首页并携带参数，由首页自动唤起对应弹窗
+        // mode: 'submit' 投稿新游戏 / 'recommend' 推荐游戏
+        window.goHomeWith = function(mode) {
+            const lang = (typeof getLang === 'function') ? getLang() : (document.documentElement.getAttribute('data-lang') || 'zh');
+            const params = new URLSearchParams();
+            params.set(mode, '1');
+            if (lang === 'en') params.set('lang', 'en');
+            window.location.href = 'index.html?' + params.toString();
         };
 
         // 语言按钮激活态同步
