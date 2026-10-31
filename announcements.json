@@ -24,7 +24,16 @@
     "content_zh": "想找游戏但忘了名字？全新上线的拼音搜索、首字母匹配与高亮功能帮你轻松搞定！同时，我们将搜索框移到了顶部导航栏，全站热度榜也搬到了首页更显眼的位置，快去体验吧！",
     "content_en": "Forgot the game name? The brand-new pinyin search, initials matching, and highlighting are here to help! We also moved the search bar to the top navigation and placed the Global Ranking higher on the homepage. Try it out!",
     "publishDate": "2026-10-22",
-    "expireDate": "2026-12-31"
+    "expireDate": "2026-10-31"
+  },
+  {
+    "id": "rankings-2026-10-22",
+    "title_zh": "首页新增全站游戏热度榜",
+    "title_en": "Homepage added global game popularity rankings",
+    "content_zh": "首页现已新增全站游戏热度榜：前三名会突出展示，点击可跳转到对应游戏详情页；查看更多可查看前 25 名排行榜，并支持每 5 分钟自动刷新。",
+    "content_en": "The homepage now includes a global game popularity ranking: the top three games are highlighted, each links to its detail page, and the full top-25 leaderboard can be opened for a quick view with automatic refresh every 5 minutes.",
+    "publishDate": "2026-10-22",
+    "expireDate": "2027-10-22"
   },
   {
     "id": "20261022-starseed-launch",
