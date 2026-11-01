@@ -48,12 +48,59 @@
     }
 
     // ==================== 主站鉴权与 UI 注入（新增） ====================
+    let captchaClientPromise = null;
+
+    function loadCaptchaClient() {
+        if (window.LeleleCaptcha) return Promise.resolve(window.LeleleCaptcha);
+        if (captchaClientPromise) return captchaClientPromise;
+
+        if (!document.querySelector('link[href$="recaptcha.css"]')) {
+            const style = document.createElement('link');
+            style.rel = 'stylesheet';
+            style.href = '/recaptcha.css';
+            document.head.appendChild(style);
+        }
+
+        const loadScript = (src, id) => new Promise((resolve, reject) => {
+            const existing = document.getElementById(id);
+            if (existing) {
+                existing.addEventListener('load', resolve, { once: true });
+                existing.addEventListener('error', reject, { once: true });
+                return;
+            }
+            const script = document.createElement('script');
+            script.id = id;
+            script.src = src;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+
+        captchaClientPromise = loadScript('/recaptcha-config.js', 'lelele-recaptcha-config')
+            .then(() => loadScript('/recaptcha.js', 'lelele-recaptcha-client'))
+            .then(() => {
+                if (!window.LeleleCaptcha) throw new Error('Captcha client unavailable');
+                return window.LeleleCaptcha;
+            })
+            .catch((error) => {
+                captchaClientPromise = null;
+                throw error;
+            });
+        return captchaClientPromise;
+    }
+
     async function initMainSiteAuth() {
         if (isGamePage) return;
         if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
 
         try {
             const { data: { session } } = await supabaseClient.auth.getSession();
+            const sessionCaptchaClient = session ? loadCaptchaClient() : Promise.resolve(null);
+            if (session) {
+                sessionCaptchaClient
+                    .then((client) => client.showReminderIfDue(session))
+                    .catch(() => console.warn('Captcha reminder unavailable'));
+            }
             
             // 1. 注入右上角头像和开发者面板按钮
             const rightActions = document.querySelector('.right-actions');
@@ -69,8 +116,6 @@
 
                 // 如果登录了，插入头像
                 if (session) {
-                    const { data: profile } = await supabaseClient.from('profiles').select('avatar_url, display_name').eq('id', session.user.id).single();
-                    
                     const userBtn = document.createElement('a');
                     userBtn.href = 'dashboard.html';
                     userBtn.className = 'action-btn';
@@ -82,15 +127,22 @@
                     userBtn.style.display = 'flex';
                     userBtn.style.alignItems = 'center';
                     userBtn.style.justifyContent = 'center';
-                    
-                    if (profile && profile.avatar_url) {
-                        userBtn.innerHTML = `<img src="${profile.avatar_url}" style="width:100%; height:100%; object-fit:cover;">`;
-                    } else {
-                        userBtn.innerHTML = '👤';
-                        userBtn.style.fontSize = '1.2rem';
-                        userBtn.style.background = 'var(--card-border)';
-                    }
+                    userBtn.innerHTML = '👤';
+                    userBtn.style.fontSize = '1.2rem';
+                    userBtn.style.background = 'var(--card-border)';
                     rightActions.insertBefore(userBtn, rightActions.firstChild);
+
+                    supabaseClient.from('profiles').select('avatar_url, display_name').eq('id', session.user.id).single()
+                        .then(({ data: profile }) => {
+                            if (!profile || !profile.avatar_url) return;
+                            const avatar = document.createElement('img');
+                            avatar.src = profile.avatar_url;
+                            avatar.alt = '';
+                            avatar.style.cssText = 'width:100%; height:100%; object-fit:cover;';
+                            userBtn.replaceChildren(avatar);
+                            userBtn.style.background = 'transparent';
+                        })
+                        .catch(() => {});
                 }
             }
 
@@ -99,9 +151,15 @@
             if (submitBtn) {
                 // 移除原有的 onclick 绑定，改用自定义拦截
                 const originalOnclick = submitBtn.onclick;
-                submitBtn.onclick = (e) => {
-                    if (!session) {
-                        e.preventDefault();
+                submitBtn.onclick = async (e) => {
+                    e.preventDefault();
+                    let currentSession = null;
+                    try {
+                        const { data } = await supabaseClient.auth.getSession();
+                        currentSession = data?.session || null;
+                    } catch (error) {}
+
+                    if (!currentSession) {
                         const isEn = getLang() === 'en';
                         // 未登录：提供两条路径 —— 登录投稿 / 直接去推荐游戏（无需登录）
                         const goRecommend = confirm(isEn
@@ -114,7 +172,21 @@
                         }
                         return;
                     }
-                    if (originalOnclick) originalOnclick.call(submitBtn, e);
+
+                    submitBtn.disabled = true;
+                    try {
+                        const client = await loadCaptchaClient();
+                        try {
+                            await client.requireCurrentVerification(currentSession);
+                        } catch (error) {
+                            await client.showReverificationModal(currentSession);
+                        }
+                        if (originalOnclick) originalOnclick.call(submitBtn, e);
+                    } catch (error) {
+                        console.warn('Captcha gate unavailable');
+                    } finally {
+                        submitBtn.disabled = false;
+                    }
                 };
             }
         } catch (e) {

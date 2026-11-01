@@ -26,6 +26,7 @@
     <title>开发者后台 · 了了了游</title>
 
     <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="recaptcha.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 
@@ -478,6 +479,8 @@
         </div>
     </div>
 
+    <script src="recaptcha-config.js"></script>
+    <script src="recaptcha.js"></script>
     <script src="supabase-client.js"></script>
     <script src="notice.js" defer></script>
     <script>
@@ -681,6 +684,17 @@
                 window.location.replace('login.html' + (qs ? '?' + qs : ''));
                 return;
             }
+
+            if (!window.LeleleCaptcha) {
+                throw new Error('Security verification failed to load');
+            }
+            try {
+                await window.LeleleCaptcha.requireCurrentVerification(session);
+            } catch (error) {
+                console.warn('Captcha status check failed; requesting verification');
+                await window.LeleleCaptcha.showReverificationModal(session);
+            }
+
             currentUser = session.user;
 
             const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();

@@ -26,6 +26,7 @@
     <title>开发者登录 · 了了了游</title>
 
     <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="recaptcha.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -197,6 +198,11 @@
                 <input type="text" id="inputOtp" class="otp-input" maxlength="8" placeholder="000000" autocomplete="one-time-code">
             </div>
 
+            <div id="formGroupCaptcha" class="recaptcha-inline" aria-live="polite">
+                <p class="recaptcha-inline-status"><span class="zh-inline">请完成人机验证</span><span class="en-inline">Please complete the security check</span></p>
+                <div class="recaptcha-v2-host"></div>
+            </div>
+
             <button class="btn-main" id="submitBtn" onclick="handleSubmit()">
                 <span class="zh-inline" id="btnTextZh">登 录</span>
                 <span class="en-inline" id="btnTextEn">Sign In</span>
@@ -246,6 +252,8 @@
         </div>
     </div>
 
+    <script src="recaptcha-config.js"></script>
+    <script src="recaptcha.js"></script>
     <script src="supabase-client.js"></script>
     <script>
         // ===== setLang 兜底（本页未引 common.js，避免语言切换报错）=====
@@ -261,6 +269,8 @@
         let currentMode = 'login';
         let targetEmail = '';
         let hasSubmitted = false;
+        let authSubmissionInProgress = false;
+        let pendingCaptchaTicket = null;
         let redirectTimer = null;
 
         const authContainer = document.getElementById('authContainer');
@@ -268,6 +278,7 @@
         const subEl = document.getElementById('authSub');
         const pwdGroup = document.getElementById('formGroupPassword');
         const otpGroup = document.getElementById('formGroupOtp');
+        const captchaGroup = document.getElementById('formGroupCaptcha');
         const msgBox = document.getElementById('msgBox');
         const submitBtn = document.getElementById('submitBtn');
         const linkToggle = document.getElementById('linkToggleMode');
@@ -301,6 +312,11 @@
         function applyMode(mode) {
             currentMode = mode;
             hideMsg();
+            if (mode !== 'otp') pendingCaptchaTicket = null;
+            captchaGroup.classList.remove('active');
+            captchaGroup.removeAttribute('data-state');
+            const captchaHost = captchaGroup.querySelector('.recaptcha-v2-host');
+            if (captchaHost) captchaHost.innerHTML = '';
 
             if (mode === 'login') {
                 titleEl.innerHTML = '<span class="zh-inline">欢迎回来</span><span class="en-inline">Welcome Back</span>';
@@ -404,7 +420,7 @@
             if (!window.supabaseClient) return;
             window.supabaseClient.auth.onAuthStateChange((event, session) => {
                 if (event !== 'SIGNED_IN' || !session) return;
-                if (hasSubmitted) return;
+                if (hasSubmitted || authSubmissionInProgress) return;
                 if (currentMode === 'register' || currentMode === 'otp') return;
                 showLoggedIn();
             });
@@ -453,9 +469,36 @@
             }
         }
 
+        async function completeCaptchaForSession(ticket, action, session, allowRefresh) {
+            if (!window.LeleleCaptcha || !session) {
+                throw new Error('安全验证组件不可用 / Security verification is unavailable');
+            }
+            try {
+                await window.LeleleCaptcha.consume(ticket, action, session);
+            } catch (error) {
+                if (allowRefresh && (error.code === 'expired_ticket' || error.code === 'invalid_ticket')) {
+                    const refreshed = await window.LeleleCaptcha.ensure(action, { container: captchaGroup });
+                    await window.LeleleCaptcha.consume(refreshed.ticket, action, session);
+                    return;
+                }
+                if (error.code === 'ticket_already_used') {
+                    try {
+                        const status = await window.LeleleCaptcha.getStatus(session, { force: true });
+                        if (!status.due) return;
+                    } catch (statusError) {}
+                }
+                try { await window.supabaseClient.auth.signOut(); } catch (e) {}
+                throw error;
+            }
+        }
+
         async function handleSubmit() {
             if (!window.supabaseClient) {
                 showMsg('Supabase 加载失败 / Failed to load Supabase', 'error');
+                return;
+            }
+            if (!window.LeleleCaptcha) {
+                showMsg('安全验证加载失败 / Failed to load security verification', 'error');
                 return;
             }
             hideMsg();
@@ -468,8 +511,11 @@
             try {
                 if (currentMode === 'login') {
                     if (!email || !password) throw new Error('请输入邮箱和密码 / Enter email and password');
-                    const { error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+                    const captcha = await window.LeleleCaptcha.ensure('login', { container: captchaGroup });
+                    authSubmissionInProgress = true;
+                    const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
                     if (error) throw error;
+                    await completeCaptchaForSession(captcha.ticket, 'login', data.session, false);
                     hasSubmitted = true;
                     showMsg('登录成功，正在跳转... / Success, redirecting...', 'success');
                     redirectAfterLogin();
@@ -478,6 +524,9 @@
                     if (!email || !password) throw new Error('请输入邮箱和密码 / Enter email and password');
                     if (password.length < 6) throw new Error('密码至少需要 6 位 / Password must be at least 6 characters');
 
+                    const captcha = await window.LeleleCaptcha.ensure('register', { container: captchaGroup });
+                    pendingCaptchaTicket = captcha.ticket;
+                    authSubmissionInProgress = true;
                     const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
                     if (error) throw error;
 
@@ -485,6 +534,8 @@
 
                     // 邮箱确认关闭：signUp 直接返回 session，跳过 OTP
                     if (data && data.session) {
+                        await completeCaptchaForSession(pendingCaptchaTicket, 'register', data.session, false);
+                        pendingCaptchaTicket = null;
                         hasSubmitted = true;
                         showMsg('注册成功，正在跳转... / Success, redirecting...', 'success');
                         redirectAfterLogin();
@@ -496,13 +547,20 @@
 
                 } else if (currentMode === 'otp') {
                     if (!otpCode || otpCode.length < 6) throw new Error('请输入完整验证码 / Enter full code');
+                    if (!pendingCaptchaTicket) {
+                        const captcha = await window.LeleleCaptcha.ensure('register', { container: captchaGroup });
+                        pendingCaptchaTicket = captcha.ticket;
+                    }
 
-                    const { error } = await window.supabaseClient.auth.verifyOtp({
+                    authSubmissionInProgress = true;
+                    const { data, error } = await window.supabaseClient.auth.verifyOtp({
                         email: targetEmail,
                         token: otpCode,
                         type: 'signup'
                     });
                     if (error) throw error;
+                    await completeCaptchaForSession(pendingCaptchaTicket, 'register', data.session, true);
+                    pendingCaptchaTicket = null;
 
                     hasSubmitted = true;
                     showMsg('注册成功，正在跳转... / Success, redirecting...', 'success');
@@ -522,6 +580,7 @@
             } catch (err) {
                 showMsg(err.message || '发生错误，请重试 / Error, please try again', 'error');
             } finally {
+                authSubmissionInProgress = false;
                 submitBtn.disabled = false;
             }
         }
