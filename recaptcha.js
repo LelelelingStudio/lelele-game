@@ -46,7 +46,7 @@
 
     function getRemoteConfig(force) {
         if (!configPromise || force) {
-            configPromise = fetchJson('/api/captcha/config', {
+            configPromise = fetchJson('/config', {
                 method: 'GET',
                 headers: { Accept: 'application/json' },
                 cache: 'no-store'
@@ -109,7 +109,7 @@
     }
 
     async function verifyToken(token, action, mode) {
-        return fetchJson('/api/captcha/verify', {
+        return fetchJson('/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
             body: JSON.stringify({ token, action, mode })
@@ -205,7 +205,7 @@
 
     async function consume(ticket, action, session) {
         if (!session?.access_token) throw new Error(text('登录状态无效，请重新登录', 'Invalid session. Please sign in again.'));
-        const result = await fetchJson('/api/captcha/consume', {
+        const result = await fetchJson('/consume', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -241,7 +241,7 @@
         const cached = options.force ? null : readStatusCache(session.user.id);
         if (cached) return cached;
 
-        const result = await fetchJson('/api/captcha/status', {
+        const result = await fetchJson('/status', {
             method: 'GET',
             headers: { Accept: 'application/json', Authorization: `Bearer ${session.access_token}` },
             cache: 'no-store'
