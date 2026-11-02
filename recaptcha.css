@@ -1,3 +1,23 @@
+/* 隐藏 reCAPTCHA v3 右下角徽标（已通过下方文字声明满足 Google 展示要求） */
+.grecaptcha-badge {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.recaptcha-terms {
+    margin: 10px 0 0;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.recaptcha-terms a {
+    color: var(--text-muted);
+    text-decoration: underline;
+}
+
 .recaptcha-inline {
     display: none;
     margin: 0 0 18px;
