@@ -701,7 +701,11 @@
             if (profile) {
                 userProfile = profile;
                 renderProfileUI();
+            } else {
+                await ensureOAuthProfile(session);
             }
+
+            applyPasswordProviderState();
 
             let authorId = null;
             try {
@@ -727,8 +731,46 @@
             initDashboard();
         }
 
+        // Google 等第三方登录：profiles 行可能尚未生成，先用 Google 资料兜底并尝试补写一行
+        async function ensureOAuthProfile(session) {
+            const meta = (session && session.user && session.user.user_metadata) || {};
+            const email = (session && session.user && session.user.email) || '';
+            const fallback = {
+                id: session.user.id,
+                display_name: meta.full_name || meta.name || (email ? email.split('@')[0] : ''),
+                avatar_url: meta.avatar_url || meta.picture || null
+            };
+            userProfile = fallback;
+            renderProfileUI();
+            try {
+                const { data } = await supabaseClient.from('profiles').upsert(fallback).select().single();
+                if (data) {
+                    userProfile = data;
+                    renderProfileUI();
+                }
+            } catch (e) {
+                console.warn('profiles 兜底写入失败 / Failed to seed profile row:', e);
+            }
+        }
+
+        // 无邮箱密码（如 Google 登录）的账号：禁用“当前密码”并给出提示
+        function applyPasswordProviderState() {
+            const providers = (currentUser && currentUser.app_metadata && currentUser.app_metadata.providers) || [];
+            if (providers.includes('email')) return;
+            const oldPwdEl = document.getElementById('currentPassword');
+            if (!oldPwdEl) return;
+            oldPwdEl.disabled = true;
+            oldPwdEl.placeholder = getLang() === 'zh' ? 'Google 登录账号未设置密码' : 'Google account has no password';
+            const hint = oldPwdEl.nextElementSibling;
+            if (hint) {
+                hint.innerHTML =
+                    '<span class="zh-inline">此账号通过 Google 登录，未设置邮箱密码。如需设置密码，请在登录页使用“忘记密码”获取重置链接。</span>' +
+                    '<span class="en-inline">This account signs in with Google and has no email password. Use “Forgot password” on the login page to set one.</span>';
+            }
+        }
+
         function renderProfileUI() {
-            const name = userProfile.display_name || userProfile.username;
+            const name = (userProfile && (userProfile.display_name || userProfile.username)) || '';
             document.getElementById('sidebarName').textContent = name;
             document.getElementById('inputDisplayName').value = name;
             document.getElementById('inputBio').value = userProfile.bio || '';
@@ -1141,15 +1183,15 @@
 
             // 2) 普通修改：先验证当前密码
             if (!isForce) {
-                const oldPwd = (document.getElementById('currentPassword').value || '');
-                if (!oldPwd) return alert(t('oldPwdRequired'));
-                if (oldPwd === pwd) return alert(t('pwdSame'));
-
                 // OAuth / magic-link 用户没有邮箱密码可验
                 const providers = (currentUser && currentUser.app_metadata && currentUser.app_metadata.providers) || [];
                 if (!providers.includes('email')) {
                     return alert(t('pwdNoPasswordProvider'));
                 }
+
+                const oldPwd = (document.getElementById('currentPassword').value || '');
+                if (!oldPwd) return alert(t('oldPwdRequired'));
+                if (oldPwd === pwd) return alert(t('pwdSame'));
 
                 const { error: verifyError } = await supabaseClient.auth.signInWithPassword({
                     email: currentUser.email,

@@ -110,6 +110,30 @@
         }
         .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
 
+        /* Google 第三方登录 */
+        .oauth-divider {
+            display: flex; align-items: center; gap: 12px;
+            margin: 22px 0 16px;
+            color: var(--text-muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;
+        }
+        .oauth-divider::before, .oauth-divider::after {
+            content: ''; flex: 1; height: 1px; background: var(--card-border);
+        }
+
+        .btn-google {
+            width: 100%; padding: 12px 16px; border-radius: 12px;
+            border: 1px solid var(--card-border); background: #fff;
+            color: #1f2937; font-size: 0.95rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; font-family: inherit;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-google:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08); border-color: rgba(148, 163, 184, 0.6); }
+        .btn-google:active { transform: scale(0.99); }
+        .btn-google:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-google svg { width: 18px; height: 18px; flex-shrink: 0; }
+        html.dark-mode .btn-google { background: rgba(255, 255, 255, 0.08); color: #e2e8f0; }
+        html.dark-mode .btn-google:hover { background: rgba(255, 255, 255, 0.14); }
+
         .auth-links {
             margin-top: 20px; display: flex; justify-content: space-between; align-items: center;
             font-size: 0.85rem; font-weight: 600;
@@ -213,6 +237,21 @@
                 <span class="en-inline" id="btnTextEn">Sign In</span>
             </button>
 
+            <div class="oauth-divider" id="oauthDivider">
+                <span class="zh-inline">或</span><span class="en-inline">OR</span>
+            </div>
+
+            <button class="btn-google" id="googleBtn" type="button" onclick="handleGoogleLogin()">
+                <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24s.92 7.54 2.56 10.78l7.97-6.19z"/>
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                </svg>
+                <span class="zh-inline" id="googleBtnTextZh">使用 Google 账号继续</span>
+                <span class="en-inline" id="googleBtnTextEn">Continue with Google</span>
+            </button>
+
             <div class="msg-box" id="msgBox"></div>
 
             <div class="auth-links" id="authLinks">
@@ -225,8 +264,8 @@
             </div>
 
             <div class="rules-links">
-                <span class="zh-inline">注册/登录即代表您同意 <a href="author_rules.html" target="_blank">《游戏守则》</a> 与 <a href="developer_docs.html" target="_blank">《开发者文档》</a></span>
-                <span class="en-inline">By signing up/in, you agree to the <a href="author_rules.html" target="_blank">Game Rules</a> and <a href="developer_docs.html" target="_blank">Developer Docs</a>.</span>
+                <span class="zh-inline">注册/登录即代表您同意 <a href="game_rules.html" target="_blank">《游戏守则》</a>、<a href="developer_docs.html" target="_blank">《开发者文档》</a> 与 <a href="terms.html" target="_blank">《服务条款》</a></span>
+                <span class="en-inline">By signing up/in, you agree to the <a href="game_rules.html" target="_blank">Game Rules</a>, <a href="developer_docs.html" target="_blank">Developer Docs</a> and <a href="terms.html" target="_blank">Terms of Service</a>.</span>
             </div>
         </div>
 
@@ -277,6 +316,7 @@
         let authSubmissionInProgress = false;
         let pendingCaptchaTicket = null;
         let redirectTimer = null;
+        let oauthHandling = false;
 
         const authContainer = document.getElementById('authContainer');
         const titleEl = document.getElementById('authTitle');
@@ -291,9 +331,30 @@
         const inputEmail = document.getElementById('inputEmail');
         const inputPassword = document.getElementById('inputPassword');
         const inputOtp = document.getElementById('inputOtp');
+        const googleBtn = document.getElementById('googleBtn');
+        const oauthDivider = document.getElementById('oauthDivider');
+        const checkingText = document.querySelector('#sessionChecking .session-text');
 
         function setState(state) {
             authContainer.setAttribute('data-state', state);
+        }
+
+        function setCheckingMessage(zh, en) {
+            if (!checkingText) return;
+            checkingText.innerHTML = `<span class="zh-inline">${zh}</span><span class="en-inline">${en}</span>`;
+        }
+
+        function setGoogleSectionVisible(visible) {
+            const display = visible ? '' : 'none';
+            if (googleBtn) googleBtn.style.display = display;
+            if (oauthDivider) oauthDivider.style.display = visible ? 'flex' : 'none';
+        }
+
+        function setGoogleBtnText(zh, en) {
+            const zhEl = document.getElementById('googleBtnTextZh');
+            const enEl = document.getElementById('googleBtnTextEn');
+            if (zhEl) zhEl.textContent = zh;
+            if (enEl) enEl.textContent = en;
         }
 
         function updateLangBtn() {
@@ -317,6 +378,7 @@
         function applyMode(mode) {
             currentMode = mode;
             hideMsg();
+            setGoogleSectionVisible(mode === 'login' || mode === 'register');
             if (mode !== 'otp') pendingCaptchaTicket = null;
             captchaGroup.classList.remove('active');
             captchaGroup.removeAttribute('data-state');
@@ -393,6 +455,116 @@
             return 'dashboard.html' + (qs ? '?' + qs : '');
         }
 
+        // ===== Google 第三方登录 =====
+        const OAUTH_FLAG = 'lelele_oauth_google';
+
+        function setOAuthFlag(on) {
+            try {
+                if (on) sessionStorage.setItem(OAUTH_FLAG, '1');
+                else sessionStorage.removeItem(OAUTH_FLAG);
+            } catch (e) {}
+        }
+
+        function readOAuthFlag() {
+            try { return sessionStorage.getItem(OAUTH_FLAG) === '1'; } catch (e) { return false; }
+        }
+
+        // 标记存在，或 URL 上还挂着 OAuth 回调参数，都视为 Google 回跳
+        function isOAuthCallback(params) {
+            return readOAuthFlag() || params.has('code') || params.has('provider');
+        }
+
+        function buildOAuthRedirectUrl() {
+            const origin = (window.location.origin && window.location.origin !== 'null')
+                ? window.location.origin
+                : window.location.href.replace(/\/login\.html.*$/, '');
+            return origin + '/login.html';
+        }
+
+        function describeOAuthError(error) {
+            const raw = (error && (error.error_description || error.message)) || '';
+            const base = raw
+                ? `Google 登录失败：${raw} / Google sign-in failed: ${raw}`
+                : 'Google 登录失败，请重试 / Google sign-in failed, please retry';
+            if (/redirect|回调/i.test(raw)) {
+                return base + '（请确认登录页已加入 Supabase Redirect URLs 白名单 / Make sure the login page is allowlisted in Supabase Redirect URLs）';
+            }
+            return base;
+        }
+
+        async function handleGoogleLogin() {
+            if (!window.supabaseClient) {
+                showMsg('Supabase 加载失败 / Failed to load Supabase', 'error');
+                return;
+            }
+            hideMsg();
+            googleBtn.disabled = true;
+            setGoogleBtnText('正在跳转 Google…', 'Redirecting to Google…');
+            setOAuthFlag(true);
+
+            const { error } = await window.supabaseClient.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: buildOAuthRedirectUrl(),
+                    queryParams: { prompt: 'select_account' }
+                }
+            });
+
+            if (error) {
+                setOAuthFlag(false);
+                showMsg(describeOAuthError(error), 'error');
+                googleBtn.disabled = false;
+                setGoogleBtnText('使用 Google 账号继续', 'Continue with Google');
+            }
+        }
+
+        // 回跳后补做一次人机验证，避免进后台立刻弹“安全复验”
+        async function completeOAuthVerification(session) {
+            if (!window.LeleleCaptcha || !session) return false;
+            try {
+                const captcha = await window.LeleleCaptcha.ensure('login');
+                await window.LeleleCaptcha.consume(captcha.ticket, 'login', session);
+                return true;
+            } catch (e) {
+                console.warn('OAuth 会话安全验证未当场完成，交给后台兜底 / OAuth captcha deferred:', e);
+                return false;
+            }
+        }
+
+        async function handleOAuthReturn() {
+            oauthHandling = true;
+            setOAuthFlag(false);
+            setState('checking');
+            setCheckingMessage('正在完成 Google 登录…', 'Finalizing Google sign-in…');
+
+            if (!window.supabaseClient) {
+                oauthHandling = false;
+                setState('form');
+                return;
+            }
+
+            let session = null;
+            try {
+                const { data } = await window.supabaseClient.auth.getSession();
+                session = (data && data.session) || null;
+            } catch (e) {}
+
+            if (!session) {
+                oauthHandling = false;
+                setState('form');
+                showMsg('Google 登录未完成，请重试 / Google sign-in did not complete. Please try again.', 'error');
+                return;
+            }
+
+            setCheckingMessage('正在完成安全验证…', 'Running security check…');
+            await completeOAuthVerification(session);
+
+            hasSubmitted = true;
+            oauthHandling = false;
+            setCheckingMessage('登录成功，正在前往开发者控制台…', 'Signed in. Redirecting to your dashboard…');
+            redirectAfterLogin();
+        }
+
         // 已登录状态：显示提示 → 传标志给 dashboard → 跳转
         function showLoggedIn() {
             clearTimeout(redirectTimer);
@@ -425,6 +597,7 @@
             if (!window.supabaseClient) return;
             window.supabaseClient.auth.onAuthStateChange((event, session) => {
                 if (event !== 'SIGNED_IN' || !session) return;
+                if (oauthHandling) return;
                 if (hasSubmitted || authSubmissionInProgress) return;
                 if (currentMode === 'register' || currentMode === 'otp') return;
                 showLoggedIn();
@@ -439,6 +612,7 @@
             const urlErrorDesc = params.get('error_description') || hashParams.get('error_description');
 
             if (urlError) {
+                setOAuthFlag(false);
                 setState('form');
                 showMsg((urlErrorDesc || urlError).replace(/\+/g, ' '), 'error');
                 try {
@@ -452,13 +626,19 @@
                 return;
             }
 
-            // 2. 无 client → 直接显示表单
+            // 2. Google OAuth 回跳：完成会话 → 补安全验证 → 进后台
+            if (isOAuthCallback(params)) {
+                await handleOAuthReturn();
+                return;
+            }
+
+            // 3. 无 client → 直接显示表单
             if (!window.supabaseClient) {
                 setState('form');
                 return;
             }
 
-            // 3. getSession（含 4s 兜底）
+            // 4. getSession（含 4s 兜底）
             let settled = false;
             const guard = setTimeout(() => { if (!settled) setState('form'); }, 4000);
             try {

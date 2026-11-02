@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务条款 · Terms of Service</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="common.css">
+    <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
+
+    <style>
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text { display: block; }
+        html[data-lang="zh"] .zh-inline { display: inline; }
+        html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="en"] .en-inline { display: inline; }
+        html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+        html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            line-height: 1.8;
+            padding: 0 1.5rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 2rem auto 0;
+            background: var(--card-bg);
+            border-radius: 36px;
+            padding: 3.5rem 4rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.04);
+            flex: 1;
+            border: 1px solid var(--card-border);
+        }
+        .back-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.9rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            background: rgba(79,70,229,0.06);
+            border: 1px solid rgba(79,70,229,0.12);
+        }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; color: var(--text-main); }
+        .subhead { color: var(--text-muted); margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--card-border); }
+        h2 { font-size: 1.3rem; margin: 2rem 0 1rem; color: var(--text-main); padding-left: 0.5rem; border-left: 4px solid var(--primary); }
+        p { margin: 0.8rem 0; color: var(--text-main); }
+        ul { margin: 0.8rem 0 1rem 1.5rem; color: var(--text-main); }
+        a { color: var(--primary); text-decoration: none; }
+
+        .quick-links {
+            display: flex; flex-wrap: wrap; gap: 0.6rem;
+            margin-top: 0.8rem;
+        }
+        .quick-links a {
+            font-size: 0.85rem; font-weight: 600;
+            padding: 0.35rem 0.9rem; border-radius: 30px;
+            background: rgba(79,70,229,0.06);
+            border: 1px solid rgba(79,70,229,0.14);
+        }
+        .quick-links a:hover { background: rgba(79,70,229,0.14); }
+
+        .lang-bar { width: 100%; max-width: 800px; margin: 0 auto; display: flex; justify-content: flex-end; padding: 0.8rem 0 0; }
+        .lang-switch { display: inline-flex; background: rgba(148, 163, 184, 0.15); border-radius: 30px; padding: 3px; border: none; }
+        .lang-btn {
+            padding: 6px 16px; border: none; border-radius: 24px; background: transparent;
+            font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer;
+            transition: all 0.2s; font-family: inherit; outline: none; -webkit-appearance: none;
+        }
+        .lang-btn.active { background: #4f46e5; color: #fff !important; box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25); }
+        .lang-btn:hover:not(.active) { color: var(--text-main); }
+
+        @media (max-width: 640px) { .container { padding: 2rem 1.2rem; border-radius: 24px; } }
+    </style>
+</head>
+<body>
+    <div class="lang-bar">
+        <div class="lang-switch" role="group" aria-label="语言 / Language">
+            <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+            <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <a href="index.html" class="back-home" id="backHomeBtn">
+            <span class="zh-inline">← 返回首页</span><span class="en-inline">← Back to Home</span>
+        </a>
+
+        <!-- 中文版 -->
+        <div class="zh-text">
+            <h1>服务条款</h1>
+            <div class="subhead">最后更新：2026 年 11 月 2 日 ｜ 生效日期：发布之日</div>
+
+            <p>欢迎使用「了了了游」（部署于 <a href="https://game.leleleling.site" target="_blank" rel="noopener">game.leleleling.site</a>，以下简称“本平台”）。本平台由了了了岭工作室（以下简称“我们”）运营。<strong>您访问本平台、注册开发者账号、投稿或推荐游戏，即表示您已阅读、理解并同意本服务条款的全部内容。</strong>如您不同意，请立即停止使用。</p>
+
+            <div class="quick-links">
+                <a href="game_rules.html">《游戏守则》</a>
+                <a href="developer_docs.html">《开发者文档》</a>
+                <a href="privacy.html">《隐私政策》</a>
+                <a href="copyright.html">《版权投诉》</a>
+            </div>
+
+            <h2>1. 服务内容</h2>
+            <p>本平台是一个纯前端的独立游戏聚合与分发导航站，为玩家提供游戏发现入口，并为独立开发者、小型团队及个人创作者提供作品展示机会。本平台仅托管纯静态资源（HTML、CSS、JavaScript、JSON 及配套的图片、音频、字体等），不接收带有服务端逻辑、数据库依赖或需要构建步骤才能运行的项目。</p>
+            <p>我们保留因技术升级、政策合规或运营需要，随时调整、暂停或下线部分功能的权利，并会尽量提前通过站内公告告知。</p>
+
+            <h2>2. 账号注册与登录</h2>
+            <ul>
+                <li><strong>注册方式：</strong>您可以使用邮箱密码注册（需通过邮件验证码完成验证），也可以使用 <strong>Google 账号</strong>一键登录/注册。使用 Google 登录时，我们会从 Google 获取您的基本公开资料（昵称、头像、邮箱），用于创建并展示您的开发者资料。</li>
+                <li><strong>信息真实：</strong>您应保证注册信息真实、准确，并对账号下的一切活动负责。</li>
+                <li><strong>账号安全：</strong>请妥善保管账号凭据，不要将账号出借他人。如发现异常，请立即修改密码或联系 <a href="mailto:leleleling@2980.com">leleleling@2980.com</a>。</li>
+                <li><strong>安全验证：</strong>为保障账号安全，登录及定期复验时可能触发人机验证（reCAPTCHA）。相关数据处理见 <a href="privacy.html">《隐私政策》</a>。</li>
+                <li><strong>账号注销：</strong>您可在开发者后台自助注销账号，注销后相关数据将被删除且不可恢复。</li>
+            </ul>
+
+            <h2>3. 投稿与内容规范</h2>
+            <ul>
+                <li>投稿作品必须为纯前端静态项目，可直接在浏览器打开运行。</li>
+                <li>作品不得包含色情、暴力、赌博、仇恨或歧视内容，不得侵害未成年人身心健康。</li>
+                <li>作品不得侵犯他人著作权、商标权、肖像权等合法权益；因侵权产生的纠纷与责任由投稿者自行承担。</li>
+                <li>投稿须符合 <a href="game_rules.html">《游戏守则》</a>；审核周期约为 5 个工作日，结果将以邮件通知。</li>
+                <li>您授予本平台<strong>非独占、可撤回</strong>的展示许可，用于在本平台展示作品；您始终保留著作权、署名权与随时撤回权。</li>
+            </ul>
+
+            <h2>4. 用户行为准则</h2>
+            <p>使用本平台时，您不得从事以下行为：</p>
+            <ul>
+                <li>以爬虫、刷量、注入脚本等方式干扰平台正常运行或伪造统计数据；</li>
+                <li>上传包含病毒、木马、挖矿脚本或其他恶意代码的内容；</li>
+                <li>冒用他人身份、伪造版权声明或盗用他人作品投稿；</li>
+                <li>利用平台从事违法活动，或发布违反中华人民共和国法律法规的内容。</li>
+            </ul>
+            <p>违反上述约定的，我们有权在不另行通知的情况下下架相关内容、限制或封禁账号，并保留追究法律责任的权利。</p>
+
+            <h2>5. 知识产权</h2>
+            <p>本平台的页面设计、代码、文字、图标、Logo「了了了游」及「了了了岭工作室」相关标识，均归我们所有，未经书面许可不得复制、修改、镜像或用于商业用途。各游戏的著作权归其原作者所有，平台仅依授权进行展示。</p>
+
+            <h2>6. 第三方服务</h2>
+            <p>本平台接入了以下第三方服务，其使用受各自的服务条款与隐私政策约束：</p>
+            <ul>
+                <li><strong>Supabase</strong>：账号体系与数据存储；</li>
+                <li><strong>Google</strong>：第三方登录（Google OAuth）与人机验证（reCAPTCHA）；</li>
+                <li><strong>Tally</strong>：投稿与推荐表单收集；</li>
+                <li><strong>自建统计</strong>：匿名访问量统计，不采集个人身份信息。</li>
+            </ul>
+            <p>对于外链游戏，本平台仅提供跳转入口，不参与其运营，亦不对其内容、稳定性或消费行为负责。</p>
+
+            <h2>7. 免责声明</h2>
+            <p>本平台按“现状”提供服务，我们不对服务的无中断、无错误作出承诺。在法律允许的最大范围内，我们不对因使用或无法使用本平台而产生的间接损失、数据丢失或利润损失承担责任。因不可抗力（如网络中断、机房故障、政策变化）导致服务不可用的，我们不承担责任。</p>
+
+            <h2>8. 条款变更与终止</h2>
+            <p>本条款可能随法律法规或平台规则调整而更新，更新后将在本页面发布并自发布之日起生效，恕不逐一通知。若您继续使用本平台，视为接受更新后的条款。本条款任何部分被认定无效或不可执行，不影响其余部分的效力。</p>
+
+            <h2>9. 争议解决与联系方式</h2>
+            <p>本条款适用中华人民共和国法律。因本条款产生的争议，应友好协商解决；协商不成的，提交我们所在地有管辖权的人民法院处理。</p>
+            <p>意见反馈、投诉举报与条款咨询：<a href="mailto:leleleling@2980.com">leleleling@2980.com</a>，我们通常在 7 个工作日内答复。</p>
+        </div>
+
+        <!-- English Version -->
+        <div class="en-text">
+            <h1>Terms of Service</h1>
+            <div class="subhead">Last updated: November 2, 2026 ｜ Effective upon publication</div>
+
+            <p>Welcome to lelele Game (deployed at <a href="https://game.leleleling.site" target="_blank" rel="noopener">game.leleleling.site</a>, the "Platform"), operated by leleleling Studio ("we"). <strong>By accessing the Platform, creating a developer account, or submitting/recommending a game, you confirm that you have read, understood and agreed to these Terms in full.</strong> If you do not agree, please stop using the Platform immediately.</p>
+
+            <div class="quick-links">
+                <a href="game_rules.html?lang=en">Game Rules</a>
+                <a href="developer_docs.html?lang=en">Developer Docs</a>
+                <a href="privacy.html?lang=en">Privacy Policy</a>
+                <a href="copyright.html?lang=en">Copyright</a>
+            </div>
+
+            <h2>1. The Service</h2>
+            <p>The Platform is a pure front-end aggregation and discovery hub for indie games. It hosts static assets only (HTML, CSS, JavaScript, JSON and accompanying images, audio and fonts). Projects with server-side logic, database dependencies, or required build steps are not accepted.</p>
+            <p>We may adjust, suspend or retire features for technical, compliance or operational reasons, and will announce significant changes in advance where feasible.</p>
+
+            <h2>2. Accounts and Sign-in</h2>
+            <ul>
+                <li><strong>Registration:</strong> You may register with an email and password (confirmed by an emailed code), or sign in / sign up with your <strong>Google account</strong> in one click. With Google sign-in we receive basic profile data (name, avatar, email) to create and display your developer profile.</li>
+                <li><strong>Accuracy:</strong> Your registration information must be truthful, and you are responsible for all activity under your account.</li>
+                <li><strong>Security:</strong> Keep your credentials safe and never lend your account. If you notice anything unusual, change your password or contact <a href="mailto:leleleling@2980.com">leleleling@2980.com</a>.</li>
+                <li><strong>Verification:</strong> To protect accounts, a reCAPTCHA check may run at sign-in and periodically afterwards. See the <a href="privacy.html?lang=en">Privacy Policy</a> for data handling.</li>
+                <li><strong>Deletion:</strong> You can delete your account from the Dashboard. Deletion is permanent and irreversible.</li>
+            </ul>
+
+            <h2>3. Submissions and Content Standards</h2>
+            <ul>
+                <li>Submissions must be pure static front-end projects that run directly in a browser.</li>
+                <li>No pornographic, violent, gambling, hateful or discriminatory content, and nothing harmful to minors.</li>
+                <li>Submissions must not infringe copyright, trademarks, portrait rights or other rights of third parties; the submitter bears full responsibility for any dispute.</li>
+                <li>Submissions must comply with the <a href="game_rules.html?lang=en">Game Rules</a>. Review takes about 5 business days and results are sent by email.</li>
+                <li>You grant the Platform a <strong>non-exclusive, revocable</strong> license to display your work. You retain copyright, attribution and the right to withdraw at any time.</li>
+            </ul>
+
+            <h2>4. Acceptable Use</h2>
+            <p>You must not:</p>
+            <ul>
+                <li>disrupt the Platform with crawlers, traffic inflation, script injection or fabricated statistics;</li>
+                <li>upload viruses, trojans, crypto-mining scripts or other malicious code;</li>
+                <li>impersonate others, forge copyright statements, or submit stolen work;</li>
+                <li>use the Platform for unlawful purposes or publish content that violates applicable law.</li>
+            </ul>
+            <p>Violations may result in removal of content and restriction or termination of your account without prior notice, without prejudice to our legal remedies.</p>
+
+            <h2>5. Intellectual Property</h2>
+            <p>The Platform's design, code, copy, icons and the "lelele Game" / "leleleling Studio" marks are owned by us and may not be copied, modified, mirrored or used commercially without written permission. Each game's copyright remains with its author; the Platform only displays it under license.</p>
+
+            <h2>6. Third-Party Services</h2>
+            <p>The Platform integrates the following third-party services, governed by their own terms and privacy policies:</p>
+            <ul>
+                <li><strong>Supabase</strong>: authentication and data storage;</li>
+                <li><strong>Google</strong>: third-party sign-in (Google OAuth) and reCAPTCHA;</li>
+                <li><strong>Tally</strong>: submission and recommendation forms;</li>
+                <li><strong>Self-hosted analytics</strong>: anonymous page-view statistics, no personally identifiable data.</li>
+            </ul>
+            <p>For externally linked games, the Platform only provides a jump link. We do not operate them and are not responsible for their content, availability or purchases.</p>
+
+            <h2>7. Disclaimer</h2>
+            <p>The Service is provided "as is" without warranty of uninterrupted or error-free operation. To the maximum extent permitted by law, we are not liable for indirect damages, data loss or lost profits arising from use or inability to use the Platform, nor for unavailability caused by force majeure such as network outages, hosting failures or regulatory changes.</p>
+
+            <h2>8. Changes and Termination</h2>
+            <p>We may update these Terms to reflect legal or rule changes. Updates take effect upon publication on this page without individual notice; continued use constitutes acceptance. If any provision is held invalid or unenforceable, the remaining provisions remain in effect.</p>
+
+            <h2>9. Governing Law and Contact</h2>
+            <p>These Terms are governed by the laws of the People's Republic of China. Disputes should be resolved amicably first; failing that, they shall be submitted to the competent court in our place of residence.</p>
+            <p>Feedback, complaints and questions: <a href="mailto:leleleling@2980.com">leleleling@2980.com</a>. We usually reply within 7 business days.</p>
+        </div>
+    </div>
+
+    <script src="common.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.langBtn === currentLang);
+            });
+            const backHome = document.getElementById('backHomeBtn');
+            if (backHome) backHome.href = currentLang === 'en' ? 'index.html?lang=en' : 'index.html';
+        });
+    </script>
+</body>
+</html>

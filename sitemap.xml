@@ -67,6 +67,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://game.leleleling.site/terms.html</loc>
+    <lastmod>2026-11-02</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://game.leleleling.site/copyright.html</loc>
     <lastmod>2026-10-28</lastmod>
     <changefreq>yearly</changefreq>
@@ -549,6 +555,12 @@
   <url>
     <loc>https://game.leleleling.site/privacy.html?lang=en</loc>
     <lastmod>2026-10-28</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://game.leleleling.site/terms.html?lang=en</loc>
+    <lastmod>2026-11-02</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
