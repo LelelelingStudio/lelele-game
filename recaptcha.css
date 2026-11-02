@@ -1,8 +1,13 @@
-/* 隐藏 reCAPTCHA v3 右下角徽标（已通过下方文字声明满足 Google 展示要求） */
+/* 缩小 reCAPTCHA v3 右下角徽标（保留可见，同时页面另有文字声明） */
 .grecaptcha-badge {
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
+    transform: scale(0.2) !important;
+    transform-origin: bottom right !important;
+    opacity: 0.75 !important;
+    transition: opacity 0.2s ease;
+}
+
+.grecaptcha-badge:hover {
+    opacity: 1 !important;
 }
 
 .recaptcha-terms {
