@@ -279,6 +279,10 @@
                     <div class="recaptcha-modal-status">${text('正在进行无感验证…', 'Running a background check…')}</div>
                     <div class="recaptcha-modal-widget"></div>
                     <button type="button" class="recaptcha-retry" hidden>${text('重试', 'Retry')}</button>
+                    <p class="recaptcha-terms">
+                        <span class="zh-inline">本网站受 reCAPTCHA 保护，并适用 <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google 隐私权政策</a> 和 <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">服务条款</a>。</span>
+                        <span class="en-inline">This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> apply.</span>
+                    </p>
                 </div>
             `;
             document.body.appendChild(overlay);
