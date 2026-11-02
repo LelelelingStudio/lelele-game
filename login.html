@@ -110,7 +110,7 @@
         }
         .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
 
-        /* Google 第三方登录 */
+        /* 第三方登录 */
         .oauth-divider {
             display: flex; align-items: center; gap: 12px;
             margin: 22px 0 16px;
@@ -120,19 +120,24 @@
             content: ''; flex: 1; height: 1px; background: var(--card-border);
         }
 
-        .btn-google {
-            width: 100%; padding: 12px 16px; border-radius: 12px;
+        .oauth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .btn-oauth {
+            width: 100%; padding: 12px 14px; border-radius: 12px;
             border: 1px solid var(--card-border); background: #fff;
-            color: #1f2937; font-size: 0.95rem; font-weight: 600;
+            color: #1f2937; font-size: 0.9rem; font-weight: 600;
             cursor: pointer; transition: all 0.2s; font-family: inherit;
             display: flex; align-items: center; justify-content: center; gap: 10px;
+            min-width: 0;
         }
-        .btn-google:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08); border-color: rgba(148, 163, 184, 0.6); }
-        .btn-google:active { transform: scale(0.99); }
-        .btn-google:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
-        .btn-google svg { width: 18px; height: 18px; flex-shrink: 0; }
-        html.dark-mode .btn-google { background: rgba(255, 255, 255, 0.08); color: #e2e8f0; }
-        html.dark-mode .btn-google:hover { background: rgba(255, 255, 255, 0.14); }
+        .btn-oauth:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08); border-color: rgba(148, 163, 184, 0.6); }
+        .btn-oauth:active { transform: scale(0.99); }
+        .btn-oauth:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-oauth svg { width: 18px; height: 18px; flex-shrink: 0; }
+        .btn-oauth span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .btn-oauth.oauth-google { grid-column: 1 / -1; }
+        html.dark-mode .btn-oauth { background: rgba(255, 255, 255, 0.08); color: #e2e8f0; }
+        html.dark-mode .btn-oauth:hover { background: rgba(255, 255, 255, 0.14); }
 
         .auth-links {
             margin-top: 20px; display: flex; justify-content: space-between; align-items: center;
@@ -241,16 +246,38 @@
                 <span class="zh-inline">或</span><span class="en-inline">OR</span>
             </div>
 
-            <button class="btn-google" id="googleBtn" type="button" onclick="handleGoogleLogin()">
-                <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24s.92 7.54 2.56 10.78l7.97-6.19z"/>
-                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-                </svg>
-                <span class="zh-inline" id="googleBtnTextZh">使用 Google 账号继续</span>
-                <span class="en-inline" id="googleBtnTextEn">Continue with Google</span>
-            </button>
+            <div class="oauth-grid" id="oauthGrid">
+                <button class="btn-oauth oauth-google" id="oauthBtn-google" type="button" onclick="handleOAuthLogin('google')">
+                    <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24s.92 7.54 2.56 10.78l7.97-6.19z"/>
+                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                    </svg>
+                    <span class="zh-inline" data-oauth-text>使用 Google 账号继续</span>
+                    <span class="en-inline" data-oauth-text>Continue with Google</span>
+                </button>
+                <button class="btn-oauth" id="oauthBtn-github" type="button" onclick="handleOAuthLogin('github')">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#181717" d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.75 2.69 1.25 3.35.95.1-.74.4-1.25.72-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.69 5.38-5.25 5.67.41.35.77 1.05.77 2.12 0 1.53-.01 2.76-.01 3.14 0 .31.21.67.8.56A10.52 10.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+                    <span class="zh-inline" data-oauth-text>GitHub 登录</span>
+                    <span class="en-inline" data-oauth-text>GitHub</span>
+                </button>
+                <button class="btn-oauth" id="oauthBtn-discord" type="button" onclick="handleOAuthLogin('discord')">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#5865F2" d="M20.317 4.369a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.128 12.3 12.3 0 0 1-1.873.891.077.077 0 0 0-.041.107c.36.698.772 1.363 1.225 1.993a.076.076 0 0 0 .084.029 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.055c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.029zM8.02 15.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.095 2.157 2.418 0 1.334-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.095 2.157 2.418 0 1.334-.947 2.419-2.157 2.419z"/></svg>
+                    <span class="zh-inline" data-oauth-text>Discord 登录</span>
+                    <span class="en-inline" data-oauth-text>Discord</span>
+                </button>
+                <button class="btn-oauth" id="oauthBtn-gitlab" type="button" onclick="handleOAuthLogin('gitlab')">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#FC6D26" d="m23.6 9.593-.034-.086L20.3.98a.851.851 0 0 0-.336-.405.875.875 0 0 0-1 .054.875.875 0 0 0-.29.44l-2.205 6.748H7.537L5.332 1.069a.857.857 0 0 0-.29-.441.875.875 0 0 0-1-.054.859.859 0 0 0-.336.405L.433 9.501l-.033.086a6.066 6.066 0 0 0 2.012 7.011l.011.008.03.021 4.976 3.726 2.462 1.863 1.499 1.133a1.009 1.009 0 0 0 1.22 0l1.499-1.133 2.462-1.863 5.006-3.752.013-.01a6.068 6.068 0 0 0 2.009-7.002z"/></svg>
+                    <span class="zh-inline" data-oauth-text>GitLab 登录</span>
+                    <span class="en-inline" data-oauth-text>GitLab</span>
+                </button>
+                <button class="btn-oauth" id="oauthBtn-twitter" type="button" onclick="handleOAuthLogin('twitter')">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#0f1419" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    <span class="zh-inline" data-oauth-text>X (Twitter) 登录</span>
+                    <span class="en-inline" data-oauth-text>X (Twitter)</span>
+                </button>
+            </div>
 
             <div class="msg-box" id="msgBox"></div>
 
@@ -331,8 +358,8 @@
         const inputEmail = document.getElementById('inputEmail');
         const inputPassword = document.getElementById('inputPassword');
         const inputOtp = document.getElementById('inputOtp');
-        const googleBtn = document.getElementById('googleBtn');
         const oauthDivider = document.getElementById('oauthDivider');
+        const oauthGrid = document.getElementById('oauthGrid');
         const checkingText = document.querySelector('#sessionChecking .session-text');
 
         function setState(state) {
@@ -344,17 +371,34 @@
             checkingText.innerHTML = `<span class="zh-inline">${zh}</span><span class="en-inline">${en}</span>`;
         }
 
-        function setGoogleSectionVisible(visible) {
+        function setOAuthSectionVisible(visible) {
             const display = visible ? '' : 'none';
-            if (googleBtn) googleBtn.style.display = display;
+            if (oauthGrid) oauthGrid.style.display = display;
             if (oauthDivider) oauthDivider.style.display = visible ? 'flex' : 'none';
         }
 
-        function setGoogleBtnText(zh, en) {
-            const zhEl = document.getElementById('googleBtnTextZh');
-            const enEl = document.getElementById('googleBtnTextEn');
-            if (zhEl) zhEl.textContent = zh;
-            if (enEl) enEl.textContent = en;
+        const OAUTH_PROVIDER_LABELS = {
+            google:  ['使用 Google 账号继续', 'Continue with Google'],
+            github:  ['GitHub 登录', 'GitHub'],
+            discord: ['Discord 登录', 'Discord'],
+            gitlab:  ['GitLab 登录', 'GitLab'],
+            twitter: ['X (Twitter) 登录', 'X (Twitter)']
+        };
+
+        function setOAuthBusy(provider, busy) {
+            if (!oauthGrid) return;
+            const buttons = oauthGrid.querySelectorAll('.btn-oauth');
+            buttons.forEach(btn => { btn.disabled = busy; });
+            const active = oauthGrid.querySelector(`#oauthBtn-${provider}`);
+            if (!active) return;
+            const spans = active.querySelectorAll('[data-oauth-text]');
+            const busyText = busy
+                ? { zh: '正在跳转…', en: 'Redirecting…' }
+                : { zh: OAUTH_PROVIDER_LABELS[provider][0], en: OAUTH_PROVIDER_LABELS[provider][1] };
+            spans.forEach(span => {
+                if (span.classList.contains('zh-inline')) span.textContent = busyText.zh;
+                else span.textContent = busyText.en;
+            });
         }
 
         function updateLangBtn() {
@@ -378,7 +422,7 @@
         function applyMode(mode) {
             currentMode = mode;
             hideMsg();
-            setGoogleSectionVisible(mode === 'login' || mode === 'register');
+            setOAuthSectionVisible(mode === 'login' || mode === 'register');
             if (mode !== 'otp') pendingCaptchaTicket = null;
             captchaGroup.classList.remove('active');
             captchaGroup.removeAttribute('data-state');
@@ -455,7 +499,7 @@
             return 'dashboard.html' + (qs ? '?' + qs : '');
         }
 
-        // ===== Google 第三方登录 =====
+        // ===== 第三方 OAuth 登录（Google / GitHub / Discord / GitLab / X）=====
         const OAUTH_FLAG = 'lelele_oauth_google';
 
         function setOAuthFlag(on) {
@@ -469,7 +513,7 @@
             try { return sessionStorage.getItem(OAUTH_FLAG) === '1'; } catch (e) { return false; }
         }
 
-        // 标记存在，或 URL 上还挂着 OAuth 回调参数，都视为 Google 回跳
+        // 标记存在，或 URL 上还挂着 OAuth 回调参数，都视为 OAuth 回跳
         function isOAuthCallback(params) {
             return readOAuthFlag() || params.has('code') || params.has('provider');
         }
@@ -481,40 +525,37 @@
             return origin + '/login.html';
         }
 
-        function describeOAuthError(error) {
+        function describeOAuthError(provider, error) {
             const raw = (error && (error.error_description || error.message)) || '';
+            const providerName = (OAUTH_PROVIDER_LABELS[provider] || [provider])[0];
             const base = raw
-                ? `Google 登录失败：${raw} / Google sign-in failed: ${raw}`
-                : 'Google 登录失败，请重试 / Google sign-in failed, please retry';
+                ? `${providerName}登录失败：${raw} / ${providerName} sign-in failed: ${raw}`
+                : `${providerName}登录失败，请重试（若该方式尚未在后台开启，请联系站长）/ ${providerName} sign-in failed (contact us if this provider is not enabled)`;
             if (/redirect|回调/i.test(raw)) {
                 return base + '（请确认登录页已加入 Supabase Redirect URLs 白名单 / Make sure the login page is allowlisted in Supabase Redirect URLs）';
             }
             return base;
         }
 
-        async function handleGoogleLogin() {
+        async function handleOAuthLogin(provider) {
             if (!window.supabaseClient) {
                 showMsg('Supabase 加载失败 / Failed to load Supabase', 'error');
                 return;
             }
+            if (!OAUTH_PROVIDER_LABELS[provider]) return;
             hideMsg();
-            googleBtn.disabled = true;
-            setGoogleBtnText('正在跳转 Google…', 'Redirecting to Google…');
+            setOAuthBusy(provider, true);
             setOAuthFlag(true);
 
-            const { error } = await window.supabaseClient.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: buildOAuthRedirectUrl(),
-                    queryParams: { prompt: 'select_account' }
-                }
-            });
+            const options = { redirectTo: buildOAuthRedirectUrl() };
+            if (provider === 'google') options.queryParams = { prompt: 'select_account' };
+
+            const { error } = await window.supabaseClient.auth.signInWithOAuth({ provider, options });
 
             if (error) {
                 setOAuthFlag(false);
-                showMsg(describeOAuthError(error), 'error');
-                googleBtn.disabled = false;
-                setGoogleBtnText('使用 Google 账号继续', 'Continue with Google');
+                showMsg(describeOAuthError(provider, error), 'error');
+                setOAuthBusy(provider, false);
             }
         }
 
@@ -535,7 +576,7 @@
             oauthHandling = true;
             setOAuthFlag(false);
             setState('checking');
-            setCheckingMessage('正在完成 Google 登录…', 'Finalizing Google sign-in…');
+            setCheckingMessage('正在完成第三方登录…', 'Finalizing sign-in…');
 
             if (!window.supabaseClient) {
                 oauthHandling = false;
@@ -552,7 +593,7 @@
             if (!session) {
                 oauthHandling = false;
                 setState('form');
-                showMsg('Google 登录未完成，请重试 / Google sign-in did not complete. Please try again.', 'error');
+                showMsg('第三方登录未完成，请重试 / Sign-in did not complete. Please try again.', 'error');
                 return;
             }
 

@@ -227,6 +227,85 @@
             display: flex; flex-direction: column; gap: 20px;
         }
 
+        /* 首页双栏布局：游戏主区 + 侧边栏（排行榜/公告） */
+        .home-layout { display: flex; gap: 20px; align-items: flex-start; width: 100%; }
+        .home-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+        .home-side {
+            width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px;
+            position: sticky; top: 84px;
+        }
+
+        /* 侧边栏内的排行榜紧凑化 */
+        .home-side .rank-showcase { padding: 22px 18px 18px; border-radius: 24px; }
+        .home-side .rank-header { margin-bottom: 16px; }
+        .home-side .rank-header h3 { font-size: 1.1rem; }
+        .home-side .rank-grid { flex-direction: column; align-items: stretch; gap: 12px; }
+        .home-side .rank-card { padding: 14px 14px; }
+        .home-side .rank-card.rank-1, .home-side .rank-card.rank-2, .home-side .rank-card.rank-3 { width: 100%; min-width: unset; min-height: unset; transform: none; }
+        .home-side .rank-card.rank-1:hover { transform: translateY(-4px) scale(1.01); }
+        .home-side .rank-main { gap: 12px; margin-top: 10px; }
+        .home-side .rank-icon { width: 44px; height: 44px; font-size: 1.6rem; border-radius: 14px; }
+        .home-side .rank-card.rank-1 .rank-icon { width: 54px; height: 54px; font-size: 2rem; }
+        .home-side .rank-card.rank-1 .rank-name { font-size: 1.1rem; }
+        .home-side .rank-card.rank-2 .rank-name { font-size: 1rem; }
+        .home-side .rank-card.rank-3 .rank-name { font-size: 0.95rem; }
+        .home-side .rank-meta { margin-top: 10px; }
+
+        /* 侧边栏公告：仅标题 + 查看详情 */
+        .home-side .announcements-title { font-size: 1rem; margin-bottom: 10px; }
+        .home-side .announcements-list { gap: 8px; }
+        .announce-detail-btn {
+            appearance: none; border: none; cursor: pointer; font-family: inherit;
+            margin-top: 8px; padding: 6px 12px; border-radius: 999px;
+            background: rgba(79, 70, 229, 0.1); color: #4f46e5;
+            font-size: 0.78rem; font-weight: 700; transition: all 0.2s;
+        }
+        .announce-detail-btn:hover { background: rgba(79, 70, 229, 0.2); transform: translateY(-1px); }
+
+        @media (max-width: 1024px) {
+            .home-layout { flex-direction: column; }
+            .home-side { width: 100%; position: static; flex-direction: row; flex-wrap: wrap; }
+            .home-side .rank-showcase { flex: 1 1 100%; }
+            .home-side .announcements-container { flex: 1 1 100%; }
+            .home-side .rank-grid { flex-direction: row; align-items: flex-end; justify-content: center; flex-wrap: wrap; }
+        }
+        @media (max-width: 640px) {
+            .home-side .rank-grid { flex-direction: column; align-items: stretch; }
+            .home-side .rank-card.rank-1, .home-side .rank-card.rank-2, .home-side .rank-card.rank-3 { transform: none; }
+        }
+
+        /* 新布局引导（2026-11-05 前限时显示）：全屏变黑 + 聚光灯高亮 + 中央提示卡 */
+        .guide-blocker { position: fixed; inset: 0; z-index: 99997; background: transparent; }
+        .guide-spot {
+            position: fixed; z-index: 99998; pointer-events: none;
+            border-radius: 22px; box-shadow: 0 0 0 100000px rgba(2, 6, 23, 0.78);
+            outline: 2px solid rgba(129, 140, 248, 0.95); outline-offset: 3px;
+            transition: top 0.45s cubic-bezier(0.4, 0, 0.2, 1), left 0.45s cubic-bezier(0.4, 0, 0.2, 1), width 0.45s cubic-bezier(0.4, 0, 0.2, 1), height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .guide-card {
+            position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            z-index: 99999; width: min(400px, calc(100vw - 48px));
+            background: #fff; border-radius: 20px; padding: 26px 26px 20px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35); text-align: center; font-family: inherit;
+            animation: guidePop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.4);
+        }
+        @keyframes guidePop { from { opacity: 0; transform: translate(-50%, -46%) scale(0.92); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+        html.dark-mode .guide-card { background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .guide-card h4 { margin: 0 0 10px; font-size: 1.12rem; font-weight: 800; color: #1e293b; }
+        html.dark-mode .guide-card h4 { color: #e2e8f0; }
+        .guide-card p { margin: 0 0 18px; font-size: 0.88rem; line-height: 1.75; color: #64748b; }
+        html.dark-mode .guide-card p { color: #94a3b8; }
+        .guide-card .guide-btn {
+            appearance: none; border: none; cursor: pointer; font-family: inherit;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff;
+            padding: 11px 34px; border-radius: 999px; font-size: 0.92rem; font-weight: 700;
+            box-shadow: 0 8px 18px rgba(79, 70, 229, 0.3); transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .guide-card .guide-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 22px rgba(79, 70, 229, 0.42); }
+        .guide-dots { display: flex; gap: 7px; justify-content: center; margin-top: 14px; }
+        .guide-dots span { width: 8px; height: 8px; border-radius: 50%; background: rgba(148, 163, 184, 0.4); transition: all 0.25s; }
+        .guide-dots span.active { background: #4f46e5; width: 22px; border-radius: 999px; }
+
         /* 公告板块 */
         .announcements-container { width: 100%; display: none; }
         .announcements-title { font-size: 1.1rem; font-weight: 800; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
@@ -485,7 +564,12 @@
 
     <!-- 主内容区 -->
     <div class="main-content">
-        
+
+        <div class="home-layout">
+
+            <!-- 右侧边栏：排行榜 + 公告 -->
+            <div class="home-side">
+
         <!-- 游戏排行榜 (移到了最上面) -->
         <div class="rank-showcase" id="rankShowcase">
             <div class="rank-header">
@@ -500,7 +584,7 @@
             <div class="rank-grid" id="top3RankContainer"></div>
         </div>
 
-        <!-- 公告板块 -->
+        <!-- 公告板块：仅显示标题，点击查看详情 -->
         <div class="announcements-container" id="announcementsContainer">
             <div class="announcements-title">
                 <span class="zh-inline">📢 最新公告</span>
@@ -508,6 +592,11 @@
             </div>
             <div class="announcements-list" id="announcementsList"></div>
         </div>
+
+            </div>
+
+            <!-- 左侧主区：游戏列表 -->
+            <div class="home-main">
 
         <!-- 游戏列表 -->
         <div class="games-container">
@@ -522,6 +611,10 @@
                 <img src="https://destroy.spritefusion.com/badge-light.svg"
                      alt="Destroy this website" loading="lazy" />
             </a>
+        </div>
+
+            </div>
+
         </div>
 
     </div>
@@ -802,6 +895,122 @@
                     }
                 } catch (e) {}
             });
+        })();
+    </script>
+
+    <script>
+        /* ===== 新布局限时引导（2026-11-05 前每人一次）=====
+           全屏变黑不可操作，被讲解区域聚光灯高亮，中央提示卡 + 按钮，语言自适应 */
+        (function () {
+            var KEY = 'lelele_layout_guide_20261102';
+            try { if (localStorage.getItem(KEY)) return; } catch (e) { return; }
+            // 11月5日 23:59 (UTC+8) 之后不再显示
+            if (Date.now() > new Date('2026-11-05T23:59:59+08:00').getTime()) return;
+
+            var STEPS = [
+                {
+                    target: '#rankShowcase',
+                    title: { zh: '🏆 排行榜搬新家啦', en: '🏆 The Ranking Moved' },
+                    text: {
+                        zh: '全站热度排行榜移到了右侧边栏，不再遮挡下方的游戏列表。想看完整榜单？点击「查看更多」即可。',
+                        en: 'The global popularity ranking now lives in the right sidebar and no longer blocks the games below. Click "View more" for the full leaderboard.'
+                    }
+                },
+                {
+                    target: '#announcementsContainer',
+                    title: { zh: '📢 公告也移到这里了', en: '📢 Announcements Moved Here' },
+                    text: {
+                        zh: '公告区现在只显示标题，不再直接展示预览内容。点击「查看详情」即可在弹窗中阅读完整公告。',
+                        en: 'The announcement panel now shows titles only. Click "View Details" to read the full announcement in a popup.'
+                    }
+                }
+            ];
+
+            function lang() {
+                return (document.documentElement.getAttribute('data-lang') || 'zh') === 'en' ? 'en' : 'zh';
+            }
+
+            function start() {
+                if (document.getElementById('guideBlocker')) return;
+                var steps = STEPS.filter(function (s) {
+                    var el = document.querySelector(s.target);
+                    if (!el) return false;
+                    var r = el.getBoundingClientRect();
+                    return r.width > 0 && r.height > 0;
+                });
+                if (!steps.length) return;
+
+                var blocker = document.createElement('div');
+                blocker.className = 'guide-blocker';
+                blocker.id = 'guideBlocker';
+
+                var spot = document.createElement('div');
+                spot.className = 'guide-spot';
+                spot.id = 'guideSpot';
+
+                var card = document.createElement('div');
+                card.className = 'guide-card';
+                card.id = 'guideCard';
+
+                document.body.appendChild(blocker);
+                document.body.appendChild(spot);
+                document.body.appendChild(card);
+                document.body.style.overflow = 'hidden';
+
+                var idx = 0;
+
+                function positionSpot() {
+                    var el = document.querySelector(steps[idx].target);
+                    if (!el) return;
+                    var r = el.getBoundingClientRect();
+                    var pad = 8;
+                    spot.style.left = Math.max(4, r.left - pad) + 'px';
+                    spot.style.top = Math.max(4, r.top - pad) + 'px';
+                    spot.style.width = Math.min(window.innerWidth - 8, r.width + pad * 2) + 'px';
+                    spot.style.height = Math.min(window.innerHeight - 8, r.height + pad * 2) + 'px';
+                }
+
+                function render() {
+                    var s = steps[idx];
+                    var l = lang();
+                    var isLast = idx === steps.length - 1;
+                    positionSpot();
+                    card.innerHTML =
+                        '<h4>' + s.title[l] + '</h4>' +
+                        '<p>' + s.text[l] + '</p>' +
+                        '<button class="guide-btn" id="guideNextBtn">' +
+                        (isLast ? (l === 'en' ? 'Got it' : '知道了') : (l === 'en' ? 'Next' : '下一步')) +
+                        '</button>' +
+                        '<div class="guide-dots">' + steps.map(function (_, i) {
+                            return '<span class="' + (i === idx ? 'active' : '') + '"></span>';
+                        }).join('') + '</div>';
+                    document.getElementById('guideNextBtn').onclick = function () {
+                        if (idx < steps.length - 1) { idx++; render(); }
+                        else finish();
+                    };
+                }
+
+                function finish() {
+                    try { localStorage.setItem(KEY, '1'); } catch (e) {}
+                    [blocker, spot, card].forEach(function (n) { if (n.parentNode) n.parentNode.removeChild(n); });
+                    document.body.style.overflow = '';
+                    window.removeEventListener('resize', positionSpot);
+                }
+
+                window.addEventListener('resize', positionSpot);
+                render();
+            }
+
+            // 等排行榜与公告渲染完毕后再启动
+            var started = false;
+            var boot = function () {
+                if (started) return;
+                started = true;
+                setTimeout(start, 1200);
+            };
+            if (document.readyState === 'complete') boot();
+            else window.addEventListener('load', boot);
+            setTimeout(boot, 3500); // 兜底：load 事件被别处拦截时也能启动
         })();
     </script>
 

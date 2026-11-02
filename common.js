@@ -703,11 +703,7 @@
             listEl.innerHTML = renderList.map(item => {
                 const titleZh = item.title_zh || item.title || '';
                 const titleEn = item.title_en || item.title || titleZh;
-                const contentZh = item.content_zh || item.content || '';
-                const contentEn = item.content_en || item.content || contentZh;
                 const title = lang === 'en' ? titleEn : titleZh;
-                const rawContent = lang === 'en' ? contentEn : contentZh;
-                const formattedContent = rawContent ? rawContent.replace(/\n/g, '<br>') : '';
                 return `
                     <div class="announce-card" data-id="${item.id}">
                         <button class="announce-close" onclick="window.closeGlobalAnnounce('${item.id}', this)">×</button>
@@ -715,7 +711,7 @@
                             <div class="announce-name">${escapeHtml(title)}</div>
                             <div class="announce-date">${escapeHtml(item.publishDate)}</div>
                         </div>
-                        <div class="announce-content">${formattedContent}</div>
+                        <button class="announce-detail-btn" onclick="window.openAnnounceDetail('${item.id}')">${lang === 'en' ? 'View Details ➔' : '查看详情 ➔'}</button>
                     </div>
                 `;
             }).join('');
@@ -745,6 +741,38 @@
         const closedObj = getStorage('lelele_closed_announcements', {});
         closedObj[id] = Date.now();
         setStorage('lelele_closed_announcements', closedObj);
+    };
+
+    // 公告详情弹窗：侧栏仅显示标题，点此查看完整内容
+    window.openAnnounceDetail = function(id) {
+        const item = (allValidAnnouncements || []).find(a => a.id === id);
+        if (!item) return;
+        const isEn = getLang() === 'en';
+        const title = isEn ? (item.title_en || item.title) : (item.title_zh || item.title);
+        const rawContent = isEn ? (item.content_en || item.content) : (item.content_zh || item.content);
+        const formattedContent = rawContent ? rawContent.replace(/\n/g, '<br>') : '';
+
+        let overlay = document.getElementById('commonAnnounceDetailModal');
+        if (overlay) overlay.remove();
+        overlay = document.createElement('div');
+        overlay.className = 'common-modal-overlay active';
+        overlay.id = 'commonAnnounceDetailModal';
+        overlay.innerHTML = `
+            <div class="common-modal" style="max-width: 640px;">
+                <button class="common-modal-close" onclick="document.getElementById('commonAnnounceDetailModal').remove()">×</button>
+                <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.4rem;">${escapeHtml(title)}</h3>
+                <div style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 1rem;">${escapeHtml(item.publishDate || '')}</div>
+                <div class="common-announce-detail-content">${formattedContent}</div>
+            </div>
+        `;
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+        document.body.appendChild(overlay);
+
+        const readList = getStorage('lelele_read_announcements', []);
+        if (!readList.includes(id)) {
+            readList.push(id);
+            setStorage('lelele_read_announcements', readList);
+        }
     };
 
     function showUnreadModal(unreadIds) {

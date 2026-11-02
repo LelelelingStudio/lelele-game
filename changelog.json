@@ -1,5 +1,23 @@
 [
   {
+    "version": "3.3.0",
+    "date": "2026-11-02",
+    "content_zh": "1. 【布局改版】首页升级为双栏布局：游戏列表为主区，排行榜与公告收纳至右侧边栏，不再遮挡下方的游戏内容。\n2. 排行榜卡片在侧边栏内自动紧凑化（纵向排列、缩小卡面），并支持侧栏吸顶滚动。\n3. 公告板块精简为标题列表：不再直接展示预览内容，点击「查看详情」后在弹窗中阅读完整公告。\n4. 新增新布局限时引导：11 月 5 日前首次访问会全屏高亮讲解排行榜与公告的新位置，点击「知道了」完成引导（每人仅一次）。\n5. 窄屏（平板/手机）下侧边栏自动回退为单列堆叠，保证移动端阅读体验。",
+    "content_en": "1. [Layout Redesign] The homepage now uses a two-column layout: the game list becomes the main area, while the ranking and announcements move to a right sidebar so they no longer block the games below.\n2. Ranking cards compact automatically inside the sidebar (vertical stacking, smaller cards) with sticky scrolling.\n3. The announcement panel is simplified to a title list: preview content is removed; click \"View Details\" to read the full announcement in a modal.\n4. Added a limited-time onboarding guide: before Nov 5, first visits get a full-screen spotlight walkthrough of the new ranking and announcement positions, dismissed with \"Got it\" (once per visitor).\n5. On narrow screens (tablet/mobile) the sidebar automatically falls back to a single column to preserve the reading experience."
+  },
+  {
+    "version": "3.2.0",
+    "date": "2026-11-02",
+    "content_zh": "1. 【登录矩阵】开发者登录/注册全面支持第三方一键登录：Google、GitHub、Discord、GitLab、X (Twitter) 五种方式，与邮箱密码并存。\n2. 【账号绑定】开发者后台新增「账号绑定」模块：可将多个第三方身份关联到同一账号，任一方式登录均为同一账号与数据，支持一键绑定/解绑（至少保留一种登录方式）。\n3. OAuth 登录回调后自动补做人机验证绑定，与邮箱登录的安全体验完全一致。\n4. 第三方登录用户进入后台时自动以第三方昵称/头像兜底生成个人资料；无密码账号的「修改密码」流程给出明确指引（通过忘记密码设置）。\n5. 第三方登录失败（未开启、白名单未配置、用户取消）时给出中英双语错误提示。",
+    "content_en": "1. [Sign-in Matrix] Developer sign-in/sign-up now fully supports one-tap third-party login with Google, GitHub, Discord, GitLab and X (Twitter), alongside email and password.\n2. [Account Linking] Added a \"Linked Accounts\" module in the Dashboard: link multiple third-party identities to the same account — any of them signs into the same account and data, with one-click link/unlink (at least one sign-in method must remain).\n3. OAuth callbacks automatically complete the captcha verification binding, matching the security experience of email sign-in.\n4. Third-party users get an auto-seeded profile (nickname/avatar) when entering the Dashboard, and passwordless accounts get clear guidance for setting a password via \"Forgot password\".\n5. Bilingual error messages for third-party sign-in failures (provider not enabled, redirect URL not allowlisted, user cancellation)."
+  },
+  {
+    "version": "3.1.1",
+    "date": "2026-11-02",
+    "content_zh": "1. 【合规完善】新增《服务条款》页面（terms.html），中英双语，覆盖账号注册、投稿规范、行为准则、知识产权、第三方服务与免责声明九大章节。\n2. 服务条款入口铺设至全站页脚、登录页、游戏守则、关于页、站点文档页、投稿与推荐弹窗，并收录进站点地图（sitemap）。\n3. 首页右上角新增「文档」快捷入口，直达站点文档中心（docs.html）。\n4. 修复登录页与投稿须知中指向已更名《游戏守则》（game_rules.html）的失效链接。\n5. 开发者文档补充第三方一键登录的注册说明。",
+    "content_en": "1. [Compliance] Added the bilingual Terms of Service page (terms.html), covering account registration, submission standards, acceptable use, IP, third-party services and disclaimers in nine chapters.\n2. Terms of Service links added across the site footer, login page, game rules, about page, docs hub, and the submit/recommend modals, and included in the sitemap.\n3. Added a \"Docs\" shortcut in the homepage top bar linking to the site documentation hub (docs.html).\n4. Fixed broken links pointing to the renamed Game Rules page (game_rules.html) on the login page and submission guidelines.\n5. Developer docs updated with third-party one-tap sign-up instructions."
+  },
+  {
     "version": "3.1.0",
     "date": "2026-10-31",
     "content_zh": "1. 新增「推荐游戏」板块：首页可直接打开推荐表单弹窗，无需登录即可提交游戏推荐。\n2. 推荐表单支持中英文自动切换，弹窗内嵌表单、独立滚动，移动端自适应。\n3. 未登录用户点击「投稿」时会提示两条路径，可直接前往推荐游戏（免登录），也可跳转登录投稿。\n4. 新增开发者定向告示系统：通过 noticetodeveloper.json 配置，登录后按作者 ID 精准推送专属公告，支持图片、视频与按钮。\n5. 游戏详情页支持视频：横幅与截图区域可放视频直链，或 B站、YouTube、Vimeo 链接自动转换为内嵌播放器。\n6. 修复作者主页新上线游戏延迟显示的问题：游戏列表请求增加缓存绕过，上线后立即可见。\n7. 全站游戏数据的 author 字段统一为字符串类型，兼容数字 ID 与人名两种写法，避免作者页匹配失败。",

@@ -1,5 +1,14 @@
 [
   {
+    "id": "20261102-oauth-terms-layout",
+    "title_zh": "🎉 一键登录、服务条款与首页新布局上线！",
+    "title_en": "🎉 One-tap Sign-in, Terms of Service & New Homepage Layout!",
+    "content_zh": "本次带来三项大更新：\n\n🔐 开发者登录/注册全新支持 Google、GitHub、Discord、GitLab、X (Twitter) 一键登录，还可在后台「账号绑定」中把多个账号关联到一起，任意方式登录都是同一个账号。\n📜 全新《服务条款》正式发布（中英双语），注册/登录即代表您同意，可在登录页与全站页脚查看。\n🎨 首页改为双栏布局：排行榜与公告移至右侧边栏，不再遮挡游戏列表；公告只显示标题，点击「查看详情」即可查看完整内容。\n\n📱 首次访问还会有全屏引导带你认识新布局（11 月 5 日前），快去体验吧！",
+    "content_en": "Three major updates are here:\n\n🔐 Developer sign-in/sign-up now supports one-tap login with Google, GitHub, Discord, GitLab and X (Twitter). You can also link multiple providers in Dashboard → Linked Accounts — any of them signs into the same account.\n📜 The bilingual Terms of Service is now published; by signing up/in you agree to it. Find it on the login page and in the site footer.\n🎨 The homepage adopts a two-column layout: the ranking and announcements move to the right sidebar and no longer block the game list. Announcements show titles only — click \"View Details\" to read the full content.\n\n📱 A full-screen guide will walk you through the new layout on your first visit (until Nov 5). Enjoy!",
+    "publishDate": "2026-11-02",
+    "expireDate": "2026-11-30"
+  },
+  {
     "id": "20261031-recommend-game-launch",
     "title_zh": "🎯 推荐游戏功能上线！没登录也能推荐好游戏",
     "title_en": "🎯 Recommend a Game is here — no login required!",
