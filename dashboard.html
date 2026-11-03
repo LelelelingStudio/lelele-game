@@ -814,7 +814,9 @@
                         <div class="identity-name">${isEn ? 'Email & Password' : '邮箱密码'}</div>
                         <div class="identity-sub">${hasEmail ? (currentUser.email || '') : (isEn ? t('unlinkedLabel') : t('unlinkedLabel'))}</div>
                     </div>
-                    ${hasEmail ? `<span style="font-size:0.75rem;font-weight:700;color:#10b981;">${t('linkedLabel')}</span>` : ''}
+                    ${hasEmail
+                        ? `<span style="font-size:0.75rem;font-weight:700;color:#10b981;">${t('linkedLabel')}</span><button class="identity-btn link" onclick="changeEmail()">${isEn ? 'Change' : '更换'}</button>`
+                        : `<button class="identity-btn link" onclick="changeEmail()">${isEn ? 'Add email' : '添加邮箱'}</button>`}
                 </div>`);
 
             // 第三方行
@@ -849,11 +851,46 @@
                 : window.location.href.replace(/\/dashboard\.html.*$/, '');
             const { error } = await supabaseClient.auth.linkIdentity({
                 provider,
-                options: { redirectTo: origin + '/login.html' }
+                options: { redirectTo: origin + '/dashboard.html' }
             });
             if (error) return alert(t('linkFail') + error.message);
             alert(t('linkSuccess'));
         };
+
+        // 添加 / 更换登录邮箱（Supabase 账号以邮箱为主键，仅支持一个邮箱，故为“更换”）
+        window.changeEmail = async function() {
+            const isEn = getLang() === 'en';
+            const email = prompt(isEn
+                ? 'Enter the new email (a confirmation link will be sent to it):'
+                : '输入要添加/更换的邮箱（我们会向该邮箱发送确认链接）：');
+            if (!email) return;
+            const { error } = await supabaseClient.auth.updateUser({ email: email });
+            if (error) return alert(t('linkFail') + ' ' + error.message);
+            alert(isEn
+                ? 'Confirmation email sent. Verify in the new inbox to finish.'
+                : '确认邮件已发送，请前往新邮箱点击链接完成添加/更换。');
+        };
+
+        // ===== OAuth 回跳（绑定身份）专属处理：留在 dashboard 完成，避免跳登录页建新号 =====
+        async function handleOAuthLinkReturn() {
+            const params = new URLSearchParams(window.location.search);
+            if (!params.has('code')) return false;
+            try {
+                const { error } = await supabaseClient.auth.exchangeCodeForSession(window.location.href);
+                history.replaceState({}, '', window.location.pathname);
+                if (error) { alert(t('linkFail') + ' ' + error.message); return true; }
+                const { data: u } = await supabaseClient.auth.getUser();
+                if (u && u.user) currentUser = u.user;
+                renderIdentities();
+                applyPasswordProviderState();
+                alert(t('linkSuccess'));
+                return true;
+            } catch (e) {
+                history.replaceState({}, '', window.location.pathname);
+                alert(t('linkFail') + ' ' + ((e && e.message) || e));
+                return true;
+            }
+        }
 
         window.unlinkAccount = async function(identityId) {
             if (!confirm(t('unbindConfirm'))) return;
@@ -1513,6 +1550,9 @@
 
         // ==================== 初始化入口 ====================
         document.addEventListener('DOMContentLoaded', () => {
+            // 绑定身份（第三方）的 OAuth 回跳：留在本页完成，避免跳登录页建新号
+            handleOAuthLinkReturn().catch(function () {});
+
             // 同步语言按钮状态
             syncLangButtons(getLang());
 

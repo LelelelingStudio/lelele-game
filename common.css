@@ -559,6 +559,38 @@ html.dark-mode .lelele-settings-card { background: rgba(30,41,59,0.92); }
 }
 .lelele-bg-upload:hover, .lelele-bg-clear:hover, .lelele-layout-btn:hover { border-color: var(--accent); color: var(--accent); }
 .lelele-layout-btn { width: 100%; }
+
+/* ===== 作者认证徽章体系（新增） ===== */
+.lelele-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 6px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.6;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+.lelele-badge-level {
+    color: var(--badge-color, #64748b);
+    background: var(--badge-bg, #f1f5f9);
+    border: 1px solid var(--badge-color, #64748b);
+}
+.lelele-badge-official {
+    color: #fff;
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    box-shadow: 0 1px 4px rgba(239, 68, 68, 0.3);
+}
+.lelele-badge-special {
+    color: #3b2f00;
+    background: linear-gradient(135deg, #fde68a, #f59e0b);
+    box-shadow: 0 1px 6px rgba(245, 158, 11, 0.4);
+}
+/* 游戏详情 / 作者页的作者行徽章 */
+.author-badges { display: inline-flex; align-items: center; flex-wrap: wrap; }
 body.layout-mode .top-bar { outline: 2px dashed var(--accent); outline-offset: -6px; border-radius: 16px; }
 body.layout-mode .layout-draggable { cursor: grab; touch-action: none; position: relative; }
 body.layout-mode .layout-draggable:active { cursor: grabbing; }

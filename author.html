@@ -247,6 +247,7 @@
             <div class="author-info">
                 <div class="author-role" id="authorRole">Developer</div>
                 <h1 class="author-name" id="authorName"></h1>
+                <div class="author-badges" id="authorBadges"></div>
                 <div class="author-bio" id="authorBio"></div>
                 <div class="author-unregistered" id="authorUnregistered" style="display: none;">
                     <span class="zh-inline">该作者还未在这里填写自己的资料。</span>
@@ -309,6 +310,7 @@
             let defaultNameEn = '';
             let isRegistered = false;
             let profile = null;
+            let matchedRaw = null;
 
             // 1. 从 authors.surge.sh 查找对应的 UUID 和原本设定的名字
             try {
@@ -320,6 +322,7 @@
                         uuid = matched.uuid;
                         defaultNameZh = matched.name_zh || '';
                         defaultNameEn = matched.name_en || '';
+                        matchedRaw = matched;
                     }
                 }
             } catch (e) {
@@ -368,7 +371,10 @@
                 avatar_url: profile ? profile.avatar_url : null,
                 bio: profile ? profile.bio : null,
                 role: profile ? profile.role : 'External / Unregistered',
-                isRegistered: isRegistered
+                isRegistered: isRegistered,
+                authorlevel: matchedRaw ? matchedRaw.authorlevel : 1,
+                official: matchedRaw ? matchedRaw.official : false,
+                studio_special: matchedRaw ? matchedRaw.studio_special : false
             };
 
             // 4. 获取所有游戏数据，过滤出该作者的游戏
@@ -404,6 +410,10 @@
 
             const displayName = en ? (currentAuthorData.name_en || currentAuthorData.name_zh) : (currentAuthorData.name_zh || currentAuthorData.name_en);
             document.getElementById('authorName').textContent = displayName || (en ? 'Unknown Author' : '未知作者');
+            const badgesEl = document.getElementById('authorBadges');
+            if (badgesEl) {
+                badgesEl.innerHTML = window.leleleAuthorBadges ? window.leleleAuthorBadges(currentAuthorData, { en: en }) : '';
+            }
             
             document.getElementById('authorRole').textContent = currentAuthorData.isRegistered 
                 ? (currentAuthorData.role === 'developer' ? (en ? 'Developer' : '开发者') : currentAuthorData.role)

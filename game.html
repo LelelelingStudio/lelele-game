@@ -671,6 +671,7 @@
             const authorLabel = en ? 'Developer' : '开发者';
             let finalName = authorData;
             let finalId = authorData;
+            let matchedAuthor = null;
 
             // 如果是数字 ID，先给个占位符去拉取真实名字
             if (typeof authorData === 'number' || /^\d+$/.test(authorData)) {
@@ -680,6 +681,7 @@
                     if (res.ok) {
                         const authors = await res.json();
                         const matched = authors.find(a => String(a.id) === String(authorData));
+                        matchedAuthor = matched;
                         if (matched) {
                             finalName = en ? (matched.name_en || matched.name_zh) : (matched.name_zh || matched.name_en);
                         } else {
@@ -694,7 +696,7 @@
 
             const url = `author.html?id=${finalId}`;
             const langSuffix = en ? '&lang=en' : '';
-            authorBar.innerHTML = `${authorLabel}: <a href="${url}${langSuffix}" class="author-link">${escapeHtml(finalName)}</a>`;
+            authorBar.innerHTML = `${authorLabel}: <a href="${url}${langSuffix}" class="author-link">${escapeHtml(finalName)}</a><span class="author-badges">${window.leleleAuthorBadges ? window.leleleAuthorBadges(matchedAuthor) : ''}</span>`;
         }
 
         function renderGamePage(game) {

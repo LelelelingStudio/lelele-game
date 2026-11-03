@@ -18,6 +18,46 @@
         }
     };
 
+    // ==================== 作者认证徽章体系（新增） ====================
+    // 等级 1-6：普通创作者 / 制作人 / 优质制作人 / 开发者 / 金牌开发者 / 开发团队
+    const LELELE_AUTHOR_LEVELS = [
+        { level: 1, zh: '普通创作者', en: 'Creator',          color: '#64748b', bg: '#f1f5f9',
+          reqZh: '完成开发者注册即获此等级，可发布第一款游戏。', reqEn: 'Granted upon developer registration; can publish the first game.' },
+        { level: 2, zh: '制作人',     en: 'Producer',         color: '#0ea5e9', bg: '#e0f2fe',
+          reqZh: '已发布 ≥1 款游戏；资料完整（头像+简介）；至少绑定一种登录方式。', reqEn: '≥1 published game; complete profile (avatar + bio); ≥1 linked sign-in method.' },
+        { level: 3, zh: '优质制作人', en: 'Quality Producer', color: '#8b5cf6', bg: '#ede9fe',
+          reqZh: '累计发布 ≥3 款游戏；至少 1 款上架 ≥14 天且无严重违规；或被官方编辑推荐。', reqEn: '≥3 games; ≥1 live ≥14d with no serious violations; or editor-picked.' },
+        { level: 4, zh: '开发者',     en: 'Developer',        color: '#4f46e5', bg: '#e0e7ff',
+          reqZh: '累计发布 ≥3 款且至少 1 款上架 ≥30 天；通过内容合规复审；收到 ≥10 条有效玩家反馈。', reqEn: '≥3 games (≥1 live ≥30d); passed content compliance review; ≥10 valid player feedback.' },
+        { level: 5, zh: '金牌开发者', en: 'Gold Developer',   color: '#d97706', bg: '#fef3c7',
+          reqZh: '累计发布 ≥5 款；至少 2 款评分 ≥4.7 或总游玩 ≥10 万；无违规记录；经官方评定。', reqEn: '≥5 games; ≥2 rated ≥4.7 or total plays ≥100k; clean record; official verdict.' },
+        { level: 6, zh: '开发团队',   en: 'Dev Team',         color: '#059669', bg: '#d1fae5',
+          reqZh: '以团队名义注册并绑定组织；≥5 款游戏；官方认证的组织实体；支持多人协作。', reqEn: 'Team/org account with org binding; ≥5 games; officially recognized org; multi-member.' }
+    ];
+    const LELELE_AUTHOR_OFFICIAL = { zh: '官方', en: 'Official' };
+    const LELELE_AUTHOR_SPECIAL = { zh: '本站原创团队', en: 'Official Studio' };
+
+    // 根据作者对象返回徽章 HTML（作者对象需含 authorlevel / official / studio_special）
+    function leleleAuthorBadges(author, opts) {
+        if (!author) author = {};
+        const en = !!(opts && opts.en) || document.documentElement.getAttribute('data-lang') === 'en';
+        const out = [];
+        if (author.studio_special) {
+            out.push('<span class="lelele-badge lelele-badge-special" title="' + (en ? 'This is the site’s own studio' : '本站官方原创团队') + '">★ ' + (en ? LELELE_AUTHOR_SPECIAL.en : LELELE_AUTHOR_SPECIAL.zh) + '</span>');
+        }
+        if (author.official) {
+            out.push('<span class="lelele-badge lelele-badge-official">【' + (en ? LELELE_AUTHOR_OFFICIAL.en : LELELE_AUTHOR_OFFICIAL.zh) + '】</span>');
+        }
+        const lvl = Number(author.authorlevel) || 1;
+        const def = LELELE_AUTHOR_LEVELS.find(function (x) { return x.level === lvl; }) || LELELE_AUTHOR_LEVELS[0];
+        out.push('<span class="lelele-badge lelele-badge-level" style="--badge-color:' + def.color + ';--badge-bg:' + def.bg + '">' + (en ? def.en : def.zh) + '</span>');
+        return out.join('');
+    }
+    window.leleleAuthorBadges = leleleAuthorBadges;
+    window.LELELE_AUTHOR_LEVELS = LELELE_AUTHOR_LEVELS;
+    window.LELELE_AUTHOR_OFFICIAL = LELELE_AUTHOR_OFFICIAL;
+    window.LELELE_AUTHOR_SPECIAL = LELELE_AUTHOR_SPECIAL;
+
     // ==================== 游戏直链访问探针（新增） ====================
     function initDirectLinkTracker() {
         if (!isGamePage) return;
