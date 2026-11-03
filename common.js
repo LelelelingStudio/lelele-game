@@ -678,6 +678,17 @@
     // ==================== 公告核心逻辑 ====================
     let allValidAnnouncements = [];
 
+    // 公告弹窗 3 天缓存：3 天内除非出现真正的新公告，否则不再弹出
+    const ANN_MODAL_KEY = 'lelele_ann_modal_cache';
+    function getAnnModalCache() { return getStorage(ANN_MODAL_KEY, { lastShown: 0, ids: [] }); }
+    function shouldShowAnnModal(ids) {
+        const c = getAnnModalCache();
+        const within = (Date.now() - (c.lastShown || 0)) < 3 * 24 * 60 * 60 * 1000;
+        const hasNew = (ids || []).some(id => !(c.ids || []).includes(id));
+        return !within || hasNew;
+    }
+    function setAnnModalCache(ids) { setStorage(ANN_MODAL_KEY, { lastShown: Date.now(), ids: ids }); }
+
     async function initAnnouncements() {
         try {
             const res = await fetch(`${MAIN_SITE_URL}/announcements.json`);
@@ -708,7 +719,10 @@
 
             renderIndexAnnouncements(top3Data, closedObj);
             const hasUnread = top3Data.some(item => !newReadList.includes(item.id));
-            if (hasUnread) showUnreadModal(top3Ids);
+            if (hasUnread && shouldShowAnnModal(top3Ids)) {
+                showUnreadModal(top3Ids);
+                setAnnModalCache(top3Ids);
+            }
 
             setInterval(() => {
                 const currentClosed = getStorage('lelele_closed_announcements', {});
@@ -952,7 +966,6 @@
     const BG_EXPIRY_DAYS = 14;
     const FONT_KEY = 'lelele_font_scale';
     const THEME_KEY = 'lelele_accent';
-    const LAYOUT_KEY = 'lelele_layout_positions';
 
     // 换色：同时驱动 --primary 与 --accent（站内两类令牌都在用，只改一个会"看起来没用"）
     function applyAccent(color) {
@@ -1088,23 +1101,7 @@
                     '</div>' +
                 '</div>' +
                 '<div class="lelele-settings-section">' +
-                    '<div class="lelele-settings-label">' + tr('自定义排版', 'Custom layout') + '</div>' +
-                    '<button class="lelele-layout-btn">' + tr('进入排版模式', 'Enter layout mode') + '</button>' +
-                '</div>' +
-                '<div class="lelele-settings-section">' +
-                    '<div class="lelele-settings-label">' + tr('排版模版', 'Layout template') + '</div>' +
-                    '<div class="lelele-tpl-row">' +
-                        '<button class="lelele-tpl-btn" data-tpl="default">' + tr('默认', 'Default') + '</button>' +
-                        '<button class="lelele-tpl-btn" data-tpl="rank">' + tr('排行榜优先', 'Ranking first') + '</button>' +
-                        '<button class="lelele-tpl-btn" data-tpl="game">' + tr('游戏置顶', 'Games first') + '</button>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="lelele-settings-section">' +
-                    '<div class="lelele-settings-label">' + tr('板块大小', 'Section size') + '</div>' +
-                    sizeSlider('topbar', tr('导航栏', 'Top bar')) +
-                    sizeSlider('island', tr('灵动岛', 'Island')) +
-                    sizeSlider('rank', tr('排行榜', 'Ranking')) +
-                    sizeSlider('notice', tr('公告', 'Announcements')) +
+                    '<div class="lelele-settings-label">' + tr('游戏方块大小', 'Game card size') + '</div>' +
                     sizeSlider('card', tr('游戏方块', 'Game cards')) +
                 '</div>' +
             '</div>';
@@ -1129,13 +1126,6 @@
             catch (err) { toast(err.message || tr('上传失败', 'Upload failed')); }
         });
         panel.querySelector('.lelele-bg-clear').addEventListener('click', clearCustomBg);
-        panel.querySelector('.lelele-layout-btn').addEventListener('click', () => { closeSettings(); toggleLayout(); });
-        panel.querySelectorAll('.lelele-tpl-btn').forEach((b) => b.addEventListener('click', () => {
-            window.applyHomeTemplate(b.dataset.tpl);
-            panel.querySelectorAll('.lelele-tpl-btn').forEach((x) => x.classList.toggle('active', x === b));
-        }));
-        const curTpl = window.getHomeTemplate();
-        panel.querySelectorAll('.lelele-tpl-btn').forEach((x) => x.classList.toggle('active', x.dataset.tpl === curTpl));
         panel.querySelectorAll('.lelele-size-range').forEach((r) => {
             r.addEventListener('input', () => {
                 const key = r.dataset.key, v = parseFloat(r.value);
@@ -1154,94 +1144,16 @@
         const btn = document.getElementById('openSettingsBtn'); if (btn) btn.addEventListener('click', openSettings);
         initAccent(); initFontScale();
         applySizes();
-        if (window.applyHomeTemplate) window.applyHomeTemplate(window.getHomeTemplate());
     }
 
-    let layoutActive = false;
-    let layoutDragHandlers = [];
-    function layoutKey(el) { return el.id || (el.className || '').split(/\s+/).find((c) => c.indexOf('btn-') === 0) || el.className; }
-    function readLayout() { try { return JSON.parse(localStorage.getItem(LAYOUT_KEY) || '{}'); } catch (e) { return {}; } }
-    function applyLayout() {
-        const pos = readLayout(); if (!pos) return;
-        document.querySelectorAll('#topRightActions > *').forEach((el) => { const p = pos[layoutKey(el)]; if (p) el.style.transform = 'translate(' + (p.dx || 0) + 'px,' + (p.dy || 0) + 'px)'; });
-    }
-    function clearLayoutListeners() {
-        layoutDragHandlers.forEach((h) => {
-            h.el.removeEventListener('pointerdown', h.fn);
-            if (h.clickFn) h.el.removeEventListener('click', h.clickFn, true);
-        });
-        layoutDragHandlers = [];
-    }
-    function toggleLayout() {
-        if (layoutActive) { exitLayout(); return; }
-        layoutActive = true;
-        document.body.classList.add('layout-mode');
-        toast(tr('排版模式：拖动按钮调整位置（仅本模式可拖），刷新后保留；再点「排版」或按 Esc 退出', 'Layout mode: drag buttons to reposition (only in this mode); click Layout or Esc to exit'), 4200);
-        const container = document.getElementById('topRightActions'); if (!container) return;
-        const pos = readLayout();
-        Array.from(container.children).forEach((el) => {
-            const p = pos[layoutKey(el)] || { dx: 0, dy: 0 };
-            el.style.transform = 'translate(' + p.dx + 'px,' + p.dy + 'px)';
-            el.classList.add('layout-draggable');
-            const fn = (e) => {
-                e.preventDefault();
-                el.setPointerCapture(e.pointerId);
-                const startX = e.clientX, startY = e.clientY, baseX = p.dx, baseY = p.dy;
-                const move = (ev) => {
-                    const dx = Math.max(-160, Math.min(160, baseX + ev.clientX - startX));
-                    const dy = Math.max(-40, Math.min(60, baseY + ev.clientY - startY));
-                    el.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
-                };
-                const up = () => {
-                    el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up);
-                    const m = /translate\(([-\d.]+)px,\s*([-\d.]+)px\)/.exec(el.style.transform);
-                    const np = { dx: m ? parseFloat(m[1]) : 0, dy: m ? parseFloat(m[2]) : 0 };
-                    const all = readLayout(); all[layoutKey(el)] = np;
-                    try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(all)); } catch (e2) {}
-                };
-                el.addEventListener('pointermove', move); el.addEventListener('pointerup', up);
-            };
-            // 排版模式下：拦截点击，避免触发按钮原本的动作（但「排版」按钮自身除外，否则无法再次点击退出）
-            const clickFn = (el.id === 'openLayoutBtn') ? null : (ev) => { if (layoutActive) { ev.preventDefault(); ev.stopPropagation(); ev.stopImmediatePropagation(); } };
-            el.addEventListener('pointerdown', fn);
-            if (clickFn) el.addEventListener('click', clickFn, true);
-            layoutDragHandlers.push({ el: el, fn: fn, clickFn: clickFn });
-        });
-    }
-    function exitLayout() {
-        layoutActive = false; document.body.classList.remove('layout-mode');
-        clearLayoutListeners();
-        const pos = readLayout();
-        document.querySelectorAll('#topRightActions > *').forEach((el) => {
-            el.classList.remove('layout-draggable');
-            const p = pos[layoutKey(el)];
-            el.style.transform = p ? 'translate(' + (p.dx || 0) + 'px,' + (p.dy || 0) + 'px)' : '';
-        });
-        toast(tr('已保存排版', 'Layout saved'));
-    }
-
-    // ===== 首页排版模版（default / rank 排行榜优先 / game 游戏置顶）=====
-    const HOME_TPL_KEY = 'lelele_home_template';
-    window.applyHomeTemplate = function (key) {
-        ['tpl-default', 'tpl-rank', 'tpl-game'].forEach((c) => document.body.classList.remove(c));
-        if (key && key !== 'default') document.body.classList.add('tpl-' + key);
-        try { localStorage.setItem(HOME_TPL_KEY, key || 'default'); } catch (e) {}
-    };
-    window.getHomeTemplate = function () { try { return localStorage.getItem(HOME_TPL_KEY) || 'default'; } catch (e) { return 'default'; } };
-
-    // ===== 板块大小（CSS 变量驱动）=====
-    const SIZE_KEYS = { topbar: '--sz-topbar', island: '--sz-island', rank: '--sz-rank', notice: '--sz-notice', card: '--sz-card' };
+    // ===== 板块大小（仅保留「游戏方块」可调，CSS 变量驱动）=====
+    const SIZE_KEYS = { card: '--sz-card' };
     function applySizes() {
         Object.keys(SIZE_KEYS).forEach((k) => {
             let v = 1; try { v = parseFloat(localStorage.getItem('lelele_sz_' + k)); } catch (e) {}
             if (!Number.isFinite(v) || v < 0.8 || v > 1.4) v = 1;
             document.documentElement.style.setProperty(SIZE_KEYS[k], String(v));
         });
-    }
-    function initLayout() {
-        const btn = document.getElementById('openLayoutBtn'); if (btn) btn.addEventListener('click', toggleLayout);
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && layoutActive) exitLayout(); });
-        applyLayout();
     }
 
     // ==================== 初始化调用 ====================
@@ -1262,7 +1174,6 @@
         initIslandNav();
         initCustomBg();
         initSettings();
-        initLayout();
 
         const currentLang = getLang();
         document.querySelectorAll('.lang-btn').forEach(btn => { btn.classList.toggle('active', btn.dataset.langBtn === currentLang); });
@@ -1290,5 +1201,16 @@
             }).catch(() => {});
         });
     }
+
+    // ==================== 鼠标跟随聚光（Spotlight，React Bits 风格） ====================
+    (function initSpotlight() {
+        document.addEventListener('pointermove', function (e) {
+            const el = e.target && e.target.closest ? e.target.closest('.action-btn, .btn-primary, .fx-spotlight') : null;
+            if (!el) return;
+            const r = el.getBoundingClientRect();
+            el.style.setProperty('--mx', ((e.clientX - r.left) / r.width) * 100 + '%');
+            el.style.setProperty('--my', ((e.clientY - r.top) / r.height) * 100 + '%');
+        }, { passive: true });
+    })();
 
 })();

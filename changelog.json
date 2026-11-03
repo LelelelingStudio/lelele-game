@@ -1,5 +1,23 @@
 [
   {
+    "version": "4.0.7",
+    "date": "2026-11-03",
+    "content_zh": "修复游戏详情页：当无独立详情文件、回退到主列表加载时，原先会把简介写死为占位文字并丢弃截图；现改为透传真实 description / screenshots / banner 等字段（仅缺省时用占位）。更新 ID 25 游戏《双人大富翁》全部信息。",
+    "content_en": "Fixed game detail page fallback: when no per-game detail file exists and it falls back to the main list, the description was previously hardcoded to a placeholder and screenshots were dropped; now it passes through real description / screenshots / banner fields (placeholder only when missing). Updated game ID 25 (Two-player Monopoly) with all details."
+  },
+  {
+    "version": "4.0.6",
+    "date": "2026-11-03",
+    "content_zh": "特效扩展至全站（React Bits 风格纯 CSS）：common.css 通过 @import 统一加载 effects.css；游戏卡 / 排行榜卡 / 作者卡 / 公告卡 / 详情卡悬浮显示渐变描边；按钮（action-btn / btn-primary）加入鼠标跟随聚光（Spotlight）；标题（panel-title / section-title / game-title 等）改为流动渐变文字；官方 / 原创徽标增加脉冲辉光。",
+    "content_en": "Site-wide React Bits-style effects (pure CSS): effects.css is now imported globally via common.css; cards (game / ranking / author / announcement / detail) show an animated gradient border on hover; buttons (action-btn / btn-primary) get a pointer-follow spotlight; titles (panel-title / section-title / game-title, etc.) use animated gradient text; official / studio badges pulse with glow."
+  },
+  {
+    "version": "4.0.5",
+    "date": "2026-11-03",
+    "content_zh": "1. 【Dashboard 创作者认证】新增「创作者认证」标签页：展示来自 authors.json 的开发者全部信息（名称、开发者 ID、UUID、等级、官方认证、本站原创、已发布游戏数）与全部认证徽标（等级 / 官方 / 本站原创），未认证时引导去申请。\n2. 【开发者 ID 可见】左上角用户卡与「个人资料」区均显示当前账号的开发者 ID（取自 authors.json）。\n3. 【About / Docs 入口】后台侧栏新增「关于本站」与「认证文档」按钮。\n4. 【React Bits 风格特效】创作者卡片加入渐变描边 + 辉光、极光背景、光泽扫过、徽标悬浮等纯 CSS 特效（effects.css，可复用）。\n5. 【设置精简】移除自定义排版与排版模版，板块大小仅保留「游戏方块」一项。\n6. 【公告弹窗 3 天缓存】升级提醒弹窗仅在 3 天缓存过期或出现真正新公告时弹出。\n7. 【灵动岛】缩短收缩过渡并加 will-change，减少下滑卡顿。",
+    "content_en": "1. [Dashboard Creator Profile] New 'Creator Certification' tab shows the author's full info from authors.json (name, developer ID, UUID, level, official, studio-special, published count) and all certification badges (level / official / studio); un-certified users get an apply prompt.\n2. [Visible Dev ID] The top-left user card and the Profile tab now show the account's developer ID (from authors.json).\n3. [About / Docs links] Dashboard sidebar gains 'About' and 'Docs' buttons.\n4. [React Bits-style effects] The creator card uses gradient-border + glow, aurora, shine sweep and badge float (pure-CSS effects.css, reusable).\n5. [Settings cleanup] Removed custom layout and layout templates; section size keeps only 'Game cards'.\n6. [Announcement 3-day cache] The update modal now only appears when the 3-day cache expires or a genuinely new announcement exists.\n7. [Dynamic Island] Shortened collapse transition and added will-change to reduce scroll jank."
+  },
+  {
     "version": "4.0.4",
     "date": "2026-11-03",
     "content_zh": "1. 【徽标可点击】游戏详情页作者行与作者页头部的认证徽标现在可点击：等级徽章跳转 authorlevel.html?level=N 等级说明页，官方 / 特殊徽章跳转认证文档；并在等级说明页与作者页提供「🏅 申请官方认证」按钮（带等级参数跳转 apply-certification.html）。\n2. 【认证等级说明页】新增 authorlevel.html?level=N，按等级展示扩充后的晋升要求与权益（中英双语），点击徽标可直接到达对应等级。\n3. 【入口补全】关于页（致独立开发者）与作者页作者卡新增「申请官方认证」入口。",

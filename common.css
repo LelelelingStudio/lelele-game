@@ -1,4 +1,5 @@
 /* ===== 全局 CSS 变量（支持深色模式） ===== */
+@import url('effects.css');
 :root {
     --bg-gradient: linear-gradient(145deg, #f0f4f9 0%, #e8ecf5 100%);
     --text-main: #1e293b;
@@ -416,10 +417,11 @@ html.dark-mode .modal {
     border-radius: 26px;
     box-shadow: 0 8px 32px rgba(15, 23, 42, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
     overflow: hidden;
-    transition: width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
-                height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
-                background 0.3s ease, border-radius 0.3s ease,
-                top 0.3s ease, padding 0.3s ease, box-shadow 0.3s ease;
+    will-change: width, height, background, border-radius;
+    transition: width 0.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+                height 0.18s cubic-bezier(0.2, 0.8, 0.2, 1),
+                background 0.18s ease, border-radius 0.18s ease,
+                top 0.18s ease, padding 0.18s ease, box-shadow 0.18s ease;
 }
 /* 岛内只保留第一行：搜索行与分类行平滑收起（保留占位过渡，避免内容跳动） */
 .top-bar.island-mode .nav-search-row,
@@ -431,7 +433,7 @@ html.dark-mode .modal {
     border: none;
     overflow: hidden;
     pointer-events: none;
-    transition: max-height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease;
+    transition: max-height 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.15s ease;
 }
 .top-bar.island-mode .top-bar-row { flex-wrap: nowrap; width: 100%; height: 100%; min-height: 0; align-items: center; gap: 8px; }
 .top-bar.island-mode .title-group { gap: 8px; flex: 0 1 auto; min-width: 0; }
@@ -552,13 +554,12 @@ html.dark-mode .lelele-settings-card { background: rgba(30,41,59,0.92); }
 .lelele-font-range { flex: 1; accent-color: var(--accent); }
 .lelele-font-val { font-size: 0.85rem; color: var(--text-muted); min-width: 42px; text-align: right; }
 .lelele-bg-row { display: flex; gap: 10px; }
-.lelele-bg-upload, .lelele-bg-clear, .lelele-layout-btn {
+.lelele-bg-upload, .lelele-bg-clear {
     flex: 1; text-align: center; padding: 12px; border-radius: 14px; font-size: 0.9rem; font-weight: 600;
     border: 1px solid var(--card-border, rgba(148,163,184,0.25)); background: var(--card-bg); color: var(--text-main); cursor: pointer;
     transition: background 0.2s, border-color 0.2s; box-sizing: border-box; font-family: inherit;
 }
-.lelele-bg-upload:hover, .lelele-bg-clear:hover, .lelele-layout-btn:hover { border-color: var(--accent); color: var(--accent); }
-.lelele-layout-btn { width: 100%; }
+.lelele-bg-upload:hover, .lelele-bg-clear:hover { border-color: var(--accent); color: var(--accent); }
 
 /* ===== 作者认证徽章体系（新增） ===== */
 .lelele-badge {
@@ -594,27 +595,10 @@ html.dark-mode .lelele-settings-card { background: rgba(30,41,59,0.92); }
 /* 徽标可点击：跳转等级说明 / 认证文档 */
 .lelele-badge-link { text-decoration: none; color: inherit; outline: none; }
 .lelele-badge-link:hover { opacity: 0.85; }
-body.layout-mode .top-bar { outline: 2px dashed var(--accent); outline-offset: -6px; border-radius: 16px; }
-body.layout-mode .layout-draggable { cursor: grab; touch-action: none; position: relative; }
-body.layout-mode .layout-draggable:active { cursor: grabbing; }
-body.layout-mode .layout-draggable::after { content: '\2B24'; position: absolute; top: -8px; right: -6px; font-size: 0.7rem; color: var(--accent); opacity: 0.7; }
-
-/* ===== 设置面板：排版模版 / 板块大小（新增） ===== */
-.lelele-tpl-row { display: flex; gap: 8px; flex-wrap: wrap; }
-.lelele-tpl-btn {
-    flex: 1 1 auto; min-width: 84px; padding: 8px 10px; border-radius: 12px;
-    border: 1px solid var(--card-border); background: var(--card-bg); color: var(--text-main);
-    font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
-}
-.lelele-tpl-btn:hover { border-color: var(--accent); }
-.lelele-tpl-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+/* ===== 设置面板：板块大小（仅游戏方块） ===== */
 .lelele-size-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; font-size: 0.85rem; color: var(--text-main); }
 .lelele-size-row > span:first-child { width: 72px; flex: none; }
 .lelele-size-range { flex: 1; accent-color: var(--accent); }
 .lelele-size-val { width: 42px; text-align: right; flex: none; color: var(--text-muted); }
 
-/* ===== 板块大小变量应用（全局） ===== */
-.top-bar { font-size: calc(14px * var(--sz-topbar, 1)); }
-.rank-showcase { font-size: calc(1rem * var(--sz-rank, 1)); }
-.announcements-container { font-size: calc(1rem * var(--sz-notice, 1)); }
-.home-side { font-size: calc(1rem * var(--sz-island, 1)); }
+/* 游戏方块大小由 index.html 的 .games-grid { zoom: var(--sz-card, 1); } 控制 */

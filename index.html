@@ -91,9 +91,12 @@
         .game-title {
             font-size: 26px;
             font-weight: 800;
-            background: linear-gradient(135deg, #1e293b 0%, #4f46e5 80%);
+            background: linear-gradient(90deg, #4f46e5, #a855f7, #06b6d4, #4f46e5);
+            background-size: 220% auto;
             background-clip: text;
+            -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            animation: fxGradientText 7s linear infinite;
             cursor: pointer;
             user-select: none;
             line-height: 1.2;
@@ -270,13 +273,6 @@
             .home-side .rank-grid { flex-direction: row; align-items: flex-end; justify-content: center; flex-wrap: wrap; }
         }
 
-        /* ===== 首页排版模版（设置面板切换） ===== */
-        body.tpl-rank .home-layout,
-        body.tpl-game .home-layout { flex-direction: column; }
-        body.tpl-rank .home-side { order: 0; }
-        body.tpl-rank .home-main { order: 1; }
-        body.tpl-game .home-main { order: 0; }
-        body.tpl-game .home-side { order: 1; }
         /* 板块大小：游戏方块缩放 */
         .games-grid { zoom: var(--sz-card, 1); }
         @media (max-width: 640px) {
@@ -540,9 +536,6 @@
                 </a>
                 <button class="action-btn btn-settings" id="openSettingsBtn" type="button">
                     <span class="zh-inline">⚙️ 设置</span><span class="en-inline">⚙️ Settings</span>
-                </button>
-                <button class="action-btn btn-layout" id="openLayoutBtn" type="button">
-                    <span class="zh-inline">🎛️ 排版</span><span class="en-inline">🎛️ Layout</span>
                 </button>
             </div>
         </div>

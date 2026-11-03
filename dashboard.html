@@ -26,6 +26,7 @@
     <title>开发者后台 · 了了了游</title>
 
     <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="effects.css">
     <link rel="stylesheet" href="recaptcha.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
@@ -301,6 +302,7 @@
                 <div class="user-avatar" id="sidebarAvatar">👤</div>
                 <div class="user-name" id="sidebarName">Loading...</div>
                 <div class="user-role" id="sidebarRole">Developer</div>
+                <div class="user-devid" id="sidebarDevId"></div>
             </div>
             <div class="nav-menu">
                 <button class="nav-item active" onclick="switchTab('dashboard')" id="navDashboard">
@@ -317,6 +319,15 @@
                 </button>
                 <button class="nav-item nav-jump" onclick="goHomeWith('recommend')">
                     🎯 <span class="zh-inline">推荐游戏</span><span class="en-inline">Recommend a Game</span>
+                </button>
+                <a class="nav-item nav-jump" href="about.html" target="_blank" rel="noopener">
+                    📖 <span class="zh-inline">关于本站</span><span class="en-inline">About</span>
+                </a>
+                <a class="nav-item nav-jump" href="AUTHOR_CERTIFICATION.html" target="_blank" rel="noopener">
+                    📚 <span class="zh-inline">认证文档</span><span class="en-inline">Docs</span>
+                </a>
+                <button class="nav-item" onclick="switchTab('creator')" id="navCreator">
+                    🪪 <span class="zh-inline">创作者认证</span><span class="en-inline">Creator Profile</span>
                 </button>
                 <button class="nav-item danger" onclick="logout()">
                     🚪 <span class="zh-inline">退出登录</span><span class="en-inline">Log Out</span>
@@ -421,6 +432,7 @@
                     <button class="btn btn-primary" onclick="saveProfile()">
                         <span class="zh-inline">保存更改</span><span class="en-inline">Save Changes</span>
                     </button>
+                    <div class="devid-box" id="profileDevId"></div>
                 </div>
 
                 <!-- 账号绑定（第三方身份关联） -->
@@ -467,6 +479,14 @@
                         <span class="zh-inline">确认修改</span><span class="en-inline">Update Password</span>
                     </button>
                 </div>
+            </div>
+
+            <!-- 模块 4：创作者认证信息 -->
+            <div class="content-panel" id="panel-creator">
+                <div class="panel-header">
+                    <div class="panel-title"><span class="zh-inline">创作者认证</span><span class="en-inline">Creator Certification</span></div>
+                </div>
+                <div id="creatorCardWrap"></div>
             </div>
 
         </div>
@@ -540,6 +560,7 @@
         let currentUser = null;
         let userProfile = null;
         let myGames = [];
+        let myAuthorData = null;
         let activeGameId = null;
         let myChart = null;
         let lastSeries = null;
@@ -720,6 +741,9 @@
                     document.getElementById('newPassword').value,
                     document.getElementById('pwdReqNormal')
                 );
+            } else if (tab === 'creator') {
+                document.getElementById('panel-creator').classList.add('active');
+                document.getElementById('navCreator').classList.add('active');
             }
         };
 
@@ -768,7 +792,7 @@
                 if (authRes.ok) {
                     const authorsData = await authRes.json();
                     const myAuthor = authorsData.find(a => a.uuid === currentUser.id);
-                    if (myAuthor) authorId = myAuthor.id;
+                    if (myAuthor) { authorId = myAuthor.id; myAuthorData = myAuthor; }
                 }
             } catch (e) {
                 console.warn('作者映射表拉取失败', e);
@@ -783,6 +807,8 @@
                 myGames = [];
             }
 
+            renderDevId();
+            renderCreatorCard();
             initDashboard();
         }
 
@@ -961,6 +987,92 @@
             } else {
                 avatarEl.innerHTML = '👤';
             }
+        }
+
+        // ===== 创作者认证卡片（展示全部信息 + 徽标，含 React Bits 风格特效）=====
+        const DASH_LEVELS = [
+            { level: 1, zh: '普通创作者', en: 'Creator', color: '#64748b', bg: '#f1f5f9' },
+            { level: 2, zh: '制作人', en: 'Producer', color: '#0ea5e9', bg: '#e0f2fe' },
+            { level: 3, zh: '优质制作人', en: 'Premium Producer', color: '#8b5cf6', bg: '#f3e8ff' },
+            { level: 4, zh: '开发者', en: 'Developer', color: '#4f46e5', bg: '#eef2ff' },
+            { level: 5, zh: '金牌开发者', en: 'Gold Developer', color: '#d97706', bg: '#fef3c7' },
+            { level: 6, zh: '开发团队', en: 'Development Team', color: '#059669', bg: '#d1fae5' }
+        ];
+        function dashAuthorBadges(a) {
+            a = a || {};
+            const en = getLang() === 'en';
+            const wrap = (href, inner) => '<a href="' + href + '" class="lelele-badge-link" title="' + (en ? 'View certification details' : '查看认证详情') + '">' + inner + '</a>';
+            const out = [];
+            if (a.studio_special) out.push(wrap('AUTHOR_CERTIFICATION.html', '<span class="lelele-badge lelele-badge-special">★ ' + (en ? 'Official Studio' : '本站原创团队') + '</span>'));
+            if (a.official) out.push(wrap('AUTHOR_CERTIFICATION.html', '<span class="lelele-badge lelele-badge-official">【' + (en ? 'Official' : '官方') + '】</span>'));
+            const lvl = Number(a.authorlevel) || 1;
+            const def = DASH_LEVELS.find(x => x.level === lvl) || DASH_LEVELS[0];
+            out.push(wrap('authorlevel.html?level=' + def.level, '<span class="lelele-badge lelele-badge-level" style="--badge-color:' + def.color + ';--badge-bg:' + def.bg + '">' + (en ? def.en : def.zh) + '</span>'));
+            return out.join('');
+        }
+        function renderDevId() {
+            const idEl = document.getElementById('sidebarDevId');
+            const pEl = document.getElementById('profileDevId');
+            const devId = (myAuthorData && myAuthorData.id != null) ? myAuthorData.id : null;
+            const uuid = currentUser ? currentUser.id : null;
+            if (idEl) {
+                idEl.innerHTML = devId != null
+                    ? '<span class="zh-inline">开发者 ID：' + devId + '</span><span class="en-inline">Dev ID: ' + devId + '</span>'
+                    : '<span class="zh-inline">未认证</span><span class="en-inline">Not certified</span>';
+            }
+            if (pEl) {
+                pEl.innerHTML =
+                    '<div class="devid-row"><span class="devid-label"><span class="zh-inline">开发者 ID</span><span class="en-inline">Developer ID</span></span><span class="devid-value">' + (devId != null ? devId : '—') + '</span></div>' +
+                    (uuid ? '<div class="devid-row"><span class="devid-label">UUID</span><span class="devid-value devid-uuid">' + uuid + '</span></div>' : '') +
+                    '<a class="devid-link" href="authorlevel.html?level=' + ((myAuthorData && myAuthorData.authorlevel) || 1) + '"><span class="zh-inline">查看等级说明 →</span><span class="en-inline">View level →</span></a>';
+            }
+        }
+        function renderCreatorCard() {
+            const wrap = document.getElementById('creatorCardWrap');
+            if (!wrap) return;
+            if (!myAuthorData) {
+                wrap.innerHTML =
+                    '<div class="creator-empty">' +
+                    '<div class="creator-empty-emoji">🏅</div>' +
+                    '<p><span class="zh-inline">你还没有官方认证身份。提交申请后，这里会展示你的创作者信息与徽标。</span><span class="en-inline">You don’t have a certified creator identity yet. After applying, your info and badges will appear here.</span></p>' +
+                    '<a class="btn btn-primary" href="apply-certification.html"><span class="zh-inline">🏅 申请官方认证</span><span class="en-inline">🏅 Apply for Certification</span></a>' +
+                    '</div>';
+                return;
+            }
+            const a = myAuthorData;
+            const lvl = Number(a.authorlevel) || 1;
+            const def = DASH_LEVELS.find(x => x.level === lvl) || DASH_LEVELS[0];
+            const nameZh = a.name_zh || '';
+            const nameEn = a.name_en || a.name_zh || '';
+            const avatar = (userProfile && userProfile.avatar_url) ? '<img src="' + userProfile.avatar_url + '" alt="">' : '👤';
+            const badges = dashAuthorBadges(a);
+            const gamesCount = myGames.length;
+            wrap.innerHTML =
+                '<div class="creator-card fx-card">' +
+                    '<div class="creator-card-inner fx-shine">' +
+                        '<div class="creator-card-aurora"></div>' +
+                        '<div class="creator-head">' +
+                            '<div class="creator-avatar">' + avatar + '</div>' +
+                            '<div class="creator-id">' +
+                                '<div class="creator-name"><span class="zh-inline">' + nameZh + '</span><span class="en-inline">' + nameEn + '</span></div>' +
+                                '<div class="creator-level"><span class="zh-inline">等级 ' + lvl + ' · ' + def.zh + '</span><span class="en-inline">Level ' + lvl + ' · ' + def.en + '</span></div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="creator-badges fx-badges">' + badges + '</div>' +
+                        '<div class="creator-meta">' +
+                            '<div class="cm"><span class="cm-k"><span class="zh-inline">开发者 ID</span><span class="en-inline">Dev ID</span></span><span class="cm-v">' + (a.id != null ? a.id : '—') + '</span></div>' +
+                            '<div class="cm"><span class="cm-k">UUID</span><span class="cm-v cm-uuid">' + (currentUser ? currentUser.id : '') + '</span></div>' +
+                            '<div class="cm"><span class="cm-k"><span class="zh-inline">官方认证</span><span class="en-inline">Official</span></span><span class="cm-v">' + (a.official ? '✅' : '—') + '</span></div>' +
+                            '<div class="cm"><span class="cm-k"><span class="zh-inline">本站原创</span><span class="en-inline">Studio</span></span><span class="cm-v">' + (a.studio_special ? '✅' : '—') + '</span></div>' +
+                            '<div class="cm"><span class="cm-k"><span class="zh-inline">已发布游戏</span><span class="en-inline">Published</span></span><span class="cm-v">' + gamesCount + '</span></div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+        }
+        // 语言切换时重渲染创作者卡片（徽标文案随语言变化）
+        if (window.MutationObserver) {
+            new MutationObserver(() => { renderDevId(); renderCreatorCard(); })
+                .observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
         }
 
         // 看板初始化

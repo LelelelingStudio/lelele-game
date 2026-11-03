@@ -859,11 +859,14 @@
                             category_en: baseGame.category_en || baseGame.category,
                             ageRating_zh: baseGame.ageRating_zh || baseGame.ageRating,
                             ageRating_en: baseGame.ageRating_en || baseGame.ageRating,
-                            url: baseGame.url, 
+                            url: baseGame.url,
                             version: baseGame.version || (isEn() ? 'Unknown' : '未知版本'),
-                            description_zh: '暂无详细简介，作者可能正在努力编写中。你可以直接点击上方按钮开始游戏体验。',
-                            description_en: 'No detailed description yet. Click Play to try.',
-                            author: baseGame.author || '' 
+                            description_zh: baseGame.description_zh || '暂无详细简介，作者可能正在努力编写中。你可以直接点击上方按钮开始游戏体验。',
+                            description_en: baseGame.description_en || 'No detailed description yet. Click Play to try.',
+                            screenshots: baseGame.screenshots || [],
+                            banner: baseGame.banner || '',
+                            email: baseGame.email || '',
+                            author: baseGame.author || ''
                         };
 
                         renderGamePage(currentGameData);

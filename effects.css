@@ -1,0 +1,134 @@
+/* ===== React Bits 风格特效（纯 CSS 复刻，全站复用） ===== */
+
+/* —— 渐变描边 + 辉光（Gradient Border / Glow） —— */
+.fx-card {
+    position: relative;
+    border-radius: 22px;
+    padding: 2px;
+    background: linear-gradient(130deg, var(--accent, #4f46e5), #06b6d4, #a855f7, var(--accent, #4f46e5));
+    background-size: 300% 300%;
+    animation: fxGradient 9s ease infinite;
+    box-shadow: 0 12px 40px rgba(79, 70, 229, 0.18);
+    isolation: isolate;
+}
+@keyframes fxGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.creator-card-inner {
+    position: relative;
+    border-radius: 20px;
+    padding: 22px;
+    background: var(--card-bg, #fff);
+    overflow: hidden;
+    z-index: 1;
+}
+html.dark-mode .creator-card-inner { background: #0f172a; }
+.creator-head, .creator-badges, .creator-meta { position: relative; z-index: 1; }
+
+/* 极光背景（Aurora） */
+.creator-card-aurora {
+    position: absolute; inset: -40%; z-index: 0;
+    background:
+        radial-gradient(38% 38% at 18% 22%, rgba(168, 85, 247, 0.35), transparent 60%),
+        radial-gradient(34% 34% at 82% 30%, rgba(6, 182, 212, 0.30), transparent 60%),
+        radial-gradient(44% 44% at 50% 82%, rgba(79, 70, 229, 0.30), transparent 60%);
+    filter: blur(22px);
+    animation: fxAurora 14s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+@keyframes fxAurora {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(4%, -3%) scale(1.08); }
+    100% { transform: translate(-3%, 4%) scale(1.04); }
+}
+
+/* 光泽扫过（Shine） */
+.fx-shine { position: relative; overflow: hidden; }
+.fx-shine::before {
+    content: ''; position: absolute; top: 0; left: -75%; width: 50%; height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+    transform: skewX(-20deg); animation: fxShine 5s ease-in-out infinite; pointer-events: none; z-index: 2;
+}
+@keyframes fxShine { 0%, 60% { left: -75%; } 100% { left: 130%; } }
+
+/* 徽标悬浮 + 入场（Float） */
+.fx-badges .lelele-badge { transition: transform .2s ease, box-shadow .2s ease; animation: fxFloat 4s ease-in-out infinite; }
+.fx-badges .lelele-badge:nth-child(2) { animation-delay: .35s; }
+.fx-badges .lelele-badge:nth-child(3) { animation-delay: .7s; }
+.fx-badges .lelele-badge:hover { transform: translateY(-3px) scale(1.06); box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35); }
+@keyframes fxFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+/* ===== 全站卡片：悬浮渐变描边（Gradient Border on hover） ===== */
+.game-card, .rank-card, .author-card, .game-select-card, .announce-card, .game-detail-card {
+    position: relative;
+}
+.game-card::after, .rank-card::after, .author-card::after, .game-select-card::after, .announce-card::after, .game-detail-card::after {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px;
+    background: linear-gradient(135deg, var(--accent, #4f46e5), #a855f7, #06b6d4);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    opacity: 0; transition: opacity .3s ease; pointer-events: none;
+}
+.game-card:hover::after, .rank-card:hover::after, .author-card:hover::after, .game-select-card:hover::after, .announce-card:hover::after, .game-detail-card:hover::after { opacity: 1; }
+
+/* ===== 按钮：鼠标跟随聚光（Spotlight） ===== */
+.action-btn, .btn-primary, .fx-spotlight { position: relative; overflow: hidden; }
+.action-btn::after, .btn-primary::after, .fx-spotlight::after {
+    content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.22), transparent 60%);
+    opacity: 0; transition: opacity .25s ease;
+}
+.action-btn:hover::after, .btn-primary:hover::after, .fx-spotlight:hover::after { opacity: 1; }
+
+/* ===== 标题：流动渐变文字（Gradient Text） ===== */
+.panel-title, .section-title, .game-title, .announcements-title, .rank-subtitle {
+    background: linear-gradient(90deg, var(--accent, #4f46e5), #a855f7, #06b6d4, var(--accent, #4f46e5));
+    background-size: 220% auto;
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+    animation: fxGradientText 7s linear infinite;
+}
+@keyframes fxGradientText { to { background-position: 220% center; } }
+
+/* ===== 官方 / 原创徽标：脉冲辉光（Glow Pulse） ===== */
+.lelele-badge-official { animation: fxGlowPulseRed 3s ease-in-out infinite; }
+.lelele-badge-special { animation: fxGlowPulseGold 3s ease-in-out infinite; }
+@keyframes fxGlowPulseRed {
+    0%, 100% { box-shadow: 0 0 0 rgba(220, 38, 38, 0); }
+    50% { box-shadow: 0 0 12px rgba(220, 38, 38, 0.45); }
+}
+@keyframes fxGlowPulseGold {
+    0%, 100% { box-shadow: 0 0 0 rgba(217, 119, 6, 0); }
+    50% { box-shadow: 0 0 12px rgba(217, 119, 6, 0.5); }
+}
+
+/* ===== 通用工具类 ===== */
+.fx-float { animation: fxFloat 4s ease-in-out infinite; }
+.fx-glow { box-shadow: 0 0 0 1px var(--card-border), 0 10px 30px rgba(79, 70, 229, 0.15); }
+
+/* ===== 创作者卡片结构样式（Dashboard） ===== */
+.creator-head { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+.creator-avatar { width: 64px; height: 64px; border-radius: 50%; background: rgba(148, 163, 184, 0.15); overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; flex: 0 0 auto; }
+.creator-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.creator-id { min-width: 0; }
+.creator-name { font-size: 1.25rem; font-weight: 800; color: var(--text-main); }
+.creator-level { font-size: 0.9rem; color: var(--text-muted); margin-top: 2px; }
+.creator-badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 16px; }
+.creator-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.cm { background: rgba(148, 163, 184, 0.10); border: 1px solid var(--card-border, rgba(148, 163, 184, 0.18)); border-radius: 12px; padding: 10px 12px; }
+.cm-k { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
+.cm-v { font-size: 0.95rem; font-weight: 700; color: var(--text-main); word-break: break-all; }
+.cm-uuid { font-size: 0.8rem; }
+.creator-empty { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+.creator-empty-emoji { font-size: 2.6rem; margin-bottom: 10px; }
+.creator-empty p { margin: 0 auto 16px; max-width: 420px; line-height: 1.6; }
+.user-devid { font-size: 0.78rem; color: var(--text-muted); margin-top: 6px; }
+.devid-box { margin-top: 16px; padding: 14px 16px; border-radius: 14px; background: rgba(148, 163, 184, 0.10); border: 1px solid var(--card-border, rgba(148, 163, 184, 0.18)); }
+.devid-row { display: flex; justify-content: space-between; gap: 12px; font-size: 0.85rem; padding: 3px 0; }
+.devid-label { color: var(--text-muted); }
+.devid-value { font-weight: 700; color: var(--text-main); word-break: break-all; text-align: right; }
+.devid-uuid { font-size: 0.75rem; }
+.devid-link { display: inline-block; margin-top: 8px; color: var(--primary); font-size: 0.85rem; font-weight: 600; text-decoration: none; }
+.devid-link:hover { text-decoration: underline; }

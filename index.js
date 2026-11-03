@@ -693,6 +693,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 首页排版模版：确保进入页面时应用设置中保存的模版
-    if (window.applyHomeTemplate) window.applyHomeTemplate(window.getHomeTemplate());
 });
