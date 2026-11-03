@@ -1,5 +1,5 @@
 // ==================== 搜索与拼音匹配引擎 ====================
-window.leleleSearch = function(query, games, lang, scope = 'all') {
+window.leleleSearch = function(query, games, lang) {
     if (!query || query.trim() === '') {
         return games.map(g => ({ ...g, score: 0, matchHtml: null }));
     }
@@ -17,7 +17,6 @@ window.leleleSearch = function(query, games, lang, scope = 'all') {
     games.forEach(game => {
         let maxScore = 0;
         let matchedHtml = null;
-        let bestType = null;
 
         const targets = [
             { str: game.name_zh || '', type: 'name' },
@@ -40,55 +39,39 @@ window.leleleSearch = function(query, games, lang, scope = 'all') {
                 const tPinyin = pinyinPro.pinyin(str, { toneType: 'none', type: 'array' }).join('');
                 const tFirst = pinyinPro.pinyin(str, { pattern: 'first', toneType: 'none', type: 'array' }).join('');
                 
-                if (qPinyin.length >= 2 && tPinyin === qPinyin) currentScore = Math.max(currentScore, 65);
-                else if (qPinyin.length >= 2 && tPinyin.includes(qPinyin)) currentScore = Math.max(currentScore, 60);
-                else if (qFirst.length >= 2 && tFirst === qFirst) currentScore = Math.max(currentScore, 55);
-                else if (qFirst.length >= 2 && tFirst.includes(qFirst)) currentScore = Math.max(currentScore, 50);
+                if (tPinyin === qPinyin) currentScore = Math.max(currentScore, 65);
+                else if (tPinyin.includes(qPinyin)) currentScore = Math.max(currentScore, 60);
+                else if (tFirst === qFirst) currentScore = Math.max(currentScore, 55);
+                else if (tFirst.includes(qFirst)) currentScore = Math.max(currentScore, 50);
             }
 
-            // 兜底：仅当完整查询按顺序连续命中时才计分（避免单字符/乱序造成“显示一大堆”）
-            if (currentScore === 0 && q.length >= 2) {
+            if (currentScore === 0) {
+                let matchCount = 0;
                 let qIdx = 0;
                 for (let i = 0; i < str.length && qIdx < q.length; i++) {
-                    if (str[i].toLowerCase() === q[qIdx]) qIdx++;
+                    if (str[i].toLowerCase() === q[qIdx]) {
+                        matchCount++;
+                        qIdx++;
+                    }
                 }
-                if (qIdx === q.length) currentScore = 40;
+                if (matchCount > 0) currentScore = 10 + matchCount * 5;
             }
-
-            // 字段权重：标题 > 分类/标签 > 作者
-            const weight = target.type === 'name' ? 1 : (target.type === 'category' ? 0.75 : 0.6);
-            currentScore = Math.round(currentScore * weight);
 
             if (currentScore > maxScore) {
                 maxScore = currentScore;
-                bestType = target.type;
-                if (currentScore >= 40 && (target.type === 'name' || target.type === 'author')) {
+                if (currentScore >= 50 && target.type === 'name') {
                     matchedHtml = highlightText(str, q, qPinyin);
                 }
             }
         }
 
         if (maxScore > 0) {
-            results.push({ ...game, score: maxScore, matchHtml: matchedHtml, matchType: bestType });
+            results.push({ ...game, score: maxScore, matchHtml: matchedHtml });
         }
     });
 
-    // 按范围（全部/游戏/作者）筛选
-    let scoped = results;
-    if (scope === 'game') scoped = results.filter(r => r.matchType && r.matchType !== 'author');
-    else if (scope === 'author') scoped = results.filter(r => r.matchType === 'author');
-
-    // 去重 → 相关度排序
-    const seen = new Set();
-    const deduped = [];
-    for (const r of scoped) {
-        const key = r.id != null ? `id:${r.id}` : `n:${r.name_zh || r.name_en}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        deduped.push(r);
-    }
-    deduped.sort((a, b) => b.score - a.score || a.id - b.id);
-    return deduped.slice(0, 500);
+    results.sort((a, b) => b.score - a.score || a.id - b.id);
+    return results;
 };
 
 // 高亮处理函数

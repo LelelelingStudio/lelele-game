@@ -9,29 +9,9 @@
 
     const ACTIONS = new Set(['login', 'register', 'periodic_reverify']);
     const CACHE_KEY = 'lelele_captcha_status';
-
-    // 三家人机验证服务：reCAPTCHA / hCaptcha / Cloudflare Turnstile
-    const PROVIDER_SCRIPTS = {
-        recaptcha: {
-            src: () => `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(config.v3SiteKey)}`,
-            id: 'lelele-recaptcha-api',
-            ready: () => window.grecaptcha
-        },
-        hcaptcha: {
-            src: () => 'https://js.hcaptcha.com/1/api.js?render=explicit',
-            id: 'lelele-hcaptcha-api',
-            ready: () => window.hcaptcha
-        },
-        turnstile: {
-            src: () => 'https://challenges.cloudflare.com/turnstile/v0/api.js',
-            id: 'lelele-turnstile-api',
-            ready: () => window.turnstile
-        }
-    };
-
+    let googleLoadPromise = null;
     let configPromise = null;
     let modalPromise = null;
-    const scriptPromises = new Map();
 
     function isEnglish() {
         return document.documentElement.getAttribute('data-lang') === 'en';
@@ -78,88 +58,46 @@
         return configPromise;
     }
 
-    function loadScript(provider) {
-        const def = PROVIDER_SCRIPTS[provider];
-        if (!def) return Promise.reject(new Error('unknown_provider'));
-        const current = def.ready();
-        if (current) return Promise.resolve(current);
-        if (scriptPromises.has(provider)) return scriptPromises.get(provider);
+    function loadGoogle() {
+        if (window.grecaptcha) return Promise.resolve(window.grecaptcha);
+        if (googleLoadPromise) return googleLoadPromise;
 
-        const promise = new Promise((resolve, reject) => {
-            const existing = document.getElementById(def.id);
+        googleLoadPromise = new Promise((resolve, reject) => {
+            const existing = document.getElementById('lelele-recaptcha-api');
             const script = existing || document.createElement('script');
-            const timeoutMs = config.probeTimeoutMs || 8000;
-            const timeout = setTimeout(() => {
-                scriptPromises.delete(provider);
-                reject(new Error(text('验证组件加载超时', 'Verification widget timed out')));
-            }, timeoutMs);
+            const timeout = setTimeout(() => reject(new Error(text('Google 验证加载超时', 'Google verification timed out'))), 15000);
 
             script.onload = () => {
-                const check = () => {
-                    const api = def.ready();
-                    if (api) {
-                        clearTimeout(timeout);
-                        resolve(api);
-                        return;
-                    }
-                    setTimeout(check, 80);
-                };
-                check();
+                if (!window.grecaptcha) {
+                    clearTimeout(timeout);
+                    reject(new Error(text('Google 验证加载失败', 'Failed to load Google verification')));
+                    return;
+                }
+                window.grecaptcha.ready(() => {
+                    clearTimeout(timeout);
+                    resolve(window.grecaptcha);
+                });
             };
             script.onerror = () => {
                 clearTimeout(timeout);
-                scriptPromises.delete(provider);
-                reject(new Error(text('验证组件加载失败', 'Failed to load verification widget')));
+                googleLoadPromise = null;
+                reject(new Error(text('Google 验证加载失败', 'Failed to load Google verification')));
             };
 
             if (!existing) {
-                script.id = def.id;
-                script.src = def.src();
+                script.id = 'lelele-recaptcha-api';
+                script.src = `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(config.v3SiteKey)}`;
                 script.async = true;
                 script.defer = true;
                 document.head.appendChild(script);
             }
         });
-        scriptPromises.set(provider, promise);
-        return promise;
+        return googleLoadPromise;
     }
 
-    async function loadProvider(provider) {
-        const api = await loadScript(provider);
-        if (provider === 'recaptcha' && typeof api.ready === 'function') {
-            await new Promise((resolve) => api.ready(resolve));
-        }
-        return api;
-    }
-
-    // 探测各服务在当前网络下的可达性，返回一个可用的 provider；全都不可达时返回 null
-    async function pickProvider(remoteConfig) {
-        const providers = Array.isArray(remoteConfig.providers) && remoteConfig.providers.length
-            ? remoteConfig.providers
-            : ['recaptcha'];
-        const results = await Promise.all(providers.map(async (id) => {
-            if (!PROVIDER_SCRIPTS[id]) return null;
-            try {
-                await loadProvider(id);
-                return id;
-            } catch {
-                return null;
-            }
-        }));
-        const available = results.filter(Boolean);
-        if (!available.length) return null;
-        return available[Math.floor(Math.random() * available.length)];
-    }
-
-    async function verifyProviderToken(token, action, provider, mode) {
-        const payload = { token, action };
-        if (provider) payload.provider = provider;
-        if (mode) payload.mode = mode;
-        return fetchJson('/verify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-            body: JSON.stringify(payload)
-        });
+    async function executeV3(action) {
+        const grecaptcha = await loadGoogle();
+        return grecaptcha.execute(config.v3SiteKey, { action });
     }
 
     function setInlineState(container, state, message) {
@@ -170,27 +108,17 @@
         if (status) status.textContent = message || '';
     }
 
-    function getWidgetHost(container, provider) {
-        let host = container.querySelector(`.recaptcha-widget-host[data-provider="${provider}"]`);
-        if (!host) {
-            host = document.createElement('div');
-            host.className = 'recaptcha-widget-host';
-            host.dataset.provider = provider;
-            const previous = container.querySelector('.recaptcha-v2-host');
-            if (previous) previous.replaceWith(host);
-            else container.appendChild(host);
-        }
-        return host;
-    }
-
-    async function executeV3(action) {
-        const grecaptcha = await loadProvider('recaptcha');
-        return grecaptcha.execute(config.v3SiteKey, { action });
+    async function verifyToken(token, action, mode) {
+        return fetchJson('/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ token, action, mode })
+        });
     }
 
     async function executeV2(action, container) {
         if (!container) throw new Error(text('缺少验证码容器', 'Captcha container is missing'));
-        const grecaptcha = await loadProvider('recaptcha');
+        const grecaptcha = await loadGoogle();
         setInlineState(container, 'v2', text('请完成下方验证', 'Please complete the check below'));
         const previousHost = container.querySelector('.recaptcha-v2-host');
         const host = document.createElement('div');
@@ -213,49 +141,7 @@
                     callback: async (token) => {
                         try {
                             setInlineState(container, 'v2', text('正在确认…', 'Confirming…'));
-                            const result = await verifyProviderToken(token, action, 'recaptcha', 'v2');
-                            if (result.decision !== 'pass' || !result.ticket) throw new Error(text('验证未通过，请重试', 'Verification failed. Please retry.'));
-                            setInlineState(container, 'passed', text('验证已通过', 'Verification passed'));
-                            finish(resolve, result);
-                        } catch (error) {
-                            setInlineState(container, 'error', error.message);
-                            finish(reject, error);
-                        }
-                    },
-                    'expired-callback': () => finish(reject, new Error(text('验证已过期，请重试', 'Verification expired. Please retry.'))),
-                    'error-callback': () => finish(reject, new Error(text('验证组件加载失败，请重试', 'Verification widget failed. Please retry.')))
-                });
-            } catch (error) {
-                finish(reject, error);
-            }
-        });
-    }
-
-    // hCaptcha / Turnstile 共用：勾选框式验证，回调拿到 token 后交后端校验
-    async function executeCheckboxProvider(provider, action, container) {
-        if (!container) throw new Error(text('缺少验证码容器', 'Captcha container is missing'));
-        const api = await loadProvider(provider);
-        const siteKey = provider === 'hcaptcha' ? config.hcaptchaSiteKey : config.turnstileSiteKey;
-        if (!siteKey) throw new Error(text('验证配置缺失', 'Verification config missing'));
-        setInlineState(container, 'v2', text('请完成下方验证', 'Please complete the check below'));
-        const host = getWidgetHost(container, provider);
-
-        return new Promise((resolve, reject) => {
-            let settled = false;
-            const finish = (callback, value) => {
-                if (settled) return;
-                settled = true;
-                callback(value);
-            };
-
-            try {
-                api.render(host, {
-                    sitekey: siteKey,
-                    theme: document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light',
-                    callback: async (token) => {
-                        try {
-                            setInlineState(container, 'v2', text('正在确认…', 'Confirming…'));
-                            const result = await verifyProviderToken(token, action, provider);
+                            const result = await verifyToken(token, action, 'v2');
                             if (result.decision !== 'pass' || !result.ticket) throw new Error(text('验证未通过，请重试', 'Verification failed. Please retry.'));
                             setInlineState(container, 'passed', text('验证已通过', 'Verification passed'));
                             finish(resolve, result);
@@ -281,37 +167,17 @@
         setInlineState(container, 'checking', text('正在进行安全验证…', 'Running security check…'));
 
         const remoteConfig = await getRemoteConfig();
-
-        // 后端整体关闭 / 没有任何已配置服务：按“用不了就不用了”放行
         if (!remoteConfig.required) {
-            const bypass = await verifyProviderToken('', action, null, 'bypass');
+            const bypass = await verifyToken('', action, 'bypass');
             if (bypass.decision !== 'pass' || !bypass.ticket) throw new Error(text('地区验证状态确认失败', 'Failed to confirm regional verification status'));
             onState('passed');
             return bypass;
         }
 
-        // 探测当前网络下各服务的可达性，随机挑一个可用的
-        const provider = await pickProvider(remoteConfig);
-        if (!provider) {
-            // 三家都不可达：向后端申请免验证票据
-            const bypass = await verifyProviderToken('', action, 'none');
-            if (bypass.decision !== 'pass' || !bypass.ticket) {
-                throw new Error(text('安全验证暂时不可用，请稍后重试', 'Security verification is temporarily unavailable. Please retry.'));
-            }
-            setInlineState(container, 'passed', text('已跳过验证（当前网络不可用）', 'Skipped (verification unavailable on this network)'));
-            onState('passed');
-            return bypass;
-        }
-
-        onState(provider === 'recaptcha' ? 'checking' : 'v2');
         let result;
         try {
-            if (provider === 'recaptcha') {
-                const token = await executeV3(action);
-                result = await verifyProviderToken(token, action, 'recaptcha', 'v3');
-            } else {
-                result = await executeCheckboxProvider(provider, action, container);
-            }
+            const token = await executeV3(action);
+            result = await verifyToken(token, action, 'v3');
         } catch (error) {
             setInlineState(container, 'error', error.message);
             throw error;
@@ -414,8 +280,8 @@
                     <div class="recaptcha-modal-widget"></div>
                     <button type="button" class="recaptcha-retry" hidden>${text('重试', 'Retry')}</button>
                     <p class="recaptcha-terms">
-                        <span class="zh-inline">本网站受 hCaptcha / reCAPTCHA / Cloudflare Turnstile 之一保护，验证结果由服务端最终确认。reCAPTCHA 适用 <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google 隐私权政策</a> 和 <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">服务条款</a>。</span>
-                        <span class="en-inline">This site is protected by hCaptcha, reCAPTCHA, or Cloudflare Turnstile; results are confirmed server-side. reCAPTCHA is subject to the <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a>.</span>
+                        <span class="zh-inline">本网站受 reCAPTCHA 保护，并适用 <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google 隐私权政策</a> 和 <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">服务条款</a>。</span>
+                        <span class="en-inline">This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> apply.</span>
                     </p>
                 </div>
             `;

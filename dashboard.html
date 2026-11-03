@@ -23,28 +23,12 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
-    <link rel="apple-touch-icon" href="lelelegame.png">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <meta name="description" content="了了了游开发者后台：查看游戏播放量、收藏趋势与智能反馈，管理你的作品。">
-    <link rel="canonical" href="https://game.leleleling.site/dashboard.html">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="了了了游 lelele Game">
-    <meta property="og:title" content="开发者后台 · 了了了游 lelele Game">
-    <meta property="og:description" content="了了了游开发者后台：查看游戏播放量、收藏趋势与智能反馈，管理你的作品。">
-    <meta property="og:url" content="https://game.leleleling.site/dashboard.html">
-    <meta property="og:image" content="https://game.leleleling.site/lelelegame.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="开发者后台 · 了了了游 lelele Game">
-    <meta name="twitter:description" content="了了了游开发者后台：查看游戏播放量、收藏趋势与智能反馈，管理你的作品。">
-    <meta name="twitter:image" content="https://game.leleleling.site/lelelegame.png">
-    <title>开发者后台 · 了了了游 lelele Game</title>
-
+    <title>开发者后台 · 了了了游</title>
 
     <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="recaptcha.css">
-    <script src="vendor/supabase.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 
     <style>
         .zh-text, .en-text { display: none; }
@@ -66,7 +50,12 @@
         }
 
         /* 顶栏 */
-        /* 顶部导航：复用 common.css（苹果风 + 灵动岛）*/
+        .top-bar {
+            width: 100%; background: var(--card-bg); backdrop-filter: blur(16px);
+            padding: 12px 28px; position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04); border-bottom: 1px solid var(--card-border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
         .site-title { font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; color: var(--text-main); }
         .site-title img { height: 24px; }
         .lang-switch {
@@ -293,43 +282,14 @@
 <body>
 
     <!-- 顶部导航 -->
-    <!-- 顶部导航（复用 common.css 苹果风 + 灵动岛；di-* 分级） -->
     <div class="top-bar">
-        <div class="top-bar-row">
-            <div class="title-group">
-                <img src="lelelegame.svg" alt="了了了游" class="site-logo di-keep" onclick="location.href='index.html'" onerror="this.style.display='none'">
-                <div class="title-text-group di-hide">
-                    <button class="game-title" onclick="location.href='index.html'">
-                        <span class="zh-inline">了了了游</span><span class="en-inline">lelele Game</span>
-                    </button>
-                </div>
-                <a class="action-btn btn-home di-icon" href="index.html">
-                    <span class="zh-inline"><span class="di-emoji">🏠</span><span class="di-label">首页</span></span>
-                    <span class="en-inline"><span class="di-emoji">🏠</span><span class="di-label">Home</span></span>
-                </a>
-            </div>
-            <div class="right-actions" id="topRightActions">
-                <div class="lang-switch di-keep" role="group">
-                    <button class="lang-btn" data-lang-btn="zh" onclick="switchLang('zh')">中文</button>
-                    <button class="lang-btn" data-lang-btn="en" onclick="switchLang('en')">English</button>
-                </div>
-                <a class="action-btn btn-about di-icon" href="about.html">
-                    <span class="zh-inline"><span class="di-emoji">ℹ️</span><span class="di-label">关于</span></span>
-                    <span class="en-inline"><span class="di-emoji">ℹ️</span><span class="di-label">About</span></span>
-                </a>
-                <a class="action-btn btn-docs di-icon" href="docs.html">
-                    <span class="zh-inline"><span class="di-emoji">📖</span><span class="di-label">导航</span></span>
-                    <span class="en-inline"><span class="di-emoji">📖</span><span class="di-label">Docs</span></span>
-                </a>
-                <button class="action-btn btn-settings di-icon" id="openSettingsBtn" type="button">
-                    <span class="zh-inline"><span class="di-emoji">⚙️</span><span class="di-label">设置</span></span>
-                    <span class="en-inline"><span class="di-emoji">⚙️</span><span class="di-label">Settings</span></span>
-                </button>
-                <button class="action-btn btn-layout di-icon" id="openLayoutBtn" type="button">
-                    <span class="zh-inline"><span class="di-emoji">🎛️</span><span class="di-label">排版</span></span>
-                    <span class="en-inline"><span class="di-emoji">🎛️</span><span class="di-label">Layout</span></span>
-                </button>
-            </div>
+        <a href="index.html" class="site-title">
+            <img src="lelelegame.svg" alt="Logo" onerror="this.style.display='none'">
+            <span class="zh-inline">了了了游</span><span class="en-inline">lelele Game</span>
+        </a>
+        <div class="lang-switch">
+            <button class="lang-btn" data-lang-btn="zh" onclick="switchLang('zh')">中文</button>
+            <button class="lang-btn" data-lang-btn="en" onclick="switchLang('en')">English</button>
         </div>
     </div>
 

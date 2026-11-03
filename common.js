@@ -108,15 +108,17 @@
                 // 插入开发者面板按钮
                 const devPanelBtn = document.createElement('a');
                 devPanelBtn.href = 'dashboard.html';
-                devPanelBtn.className = 'action-btn btn-docs di-icon';
-                devPanelBtn.innerHTML = '<span class="zh-inline"><span class="di-emoji">💻</span><span class="di-label">开发者面板</span></span><span class="en-inline"><span class="di-emoji">💻</span><span class="di-label">Dashboard</span></span>';
+                devPanelBtn.className = 'action-btn';
+                devPanelBtn.style.background = 'rgba(79, 70, 229, 0.1)';
+                devPanelBtn.style.color = 'var(--primary)';
+                devPanelBtn.innerHTML = '<span class="zh-inline">💻 开发者面板</span><span class="en-inline">💻 Dashboard</span>';
                 rightActions.insertBefore(devPanelBtn, rightActions.firstChild);
 
                 // 如果登录了，插入头像
                 if (session) {
                     const userBtn = document.createElement('a');
                     userBtn.href = 'dashboard.html';
-                    userBtn.className = 'action-btn di-icon';
+                    userBtn.className = 'action-btn';
                     userBtn.style.padding = '4px';
                     userBtn.style.borderRadius = '50%';
                     userBtn.style.overflow = 'hidden';
@@ -363,29 +365,6 @@
         }
 
         document.getElementById('slideHintBtn').onclick = closeHint;
-    }
-
-    // ==================== 灵动岛（滚动导航） ====================
-    function initIslandNav() {
-        const bar = document.querySelector('.top-bar');
-        if (!bar) return;
-
-        let ticking = false;
-        const update = () => {
-            const isLand = window.scrollY > 80;
-            bar.classList.toggle('island-mode', isLand);
-            if (!isLand) bar.classList.remove('filters-open'); // 回顶收起筛选
-            ticking = false;
-        };
-        window.addEventListener('scroll', () => {
-            if (!ticking) { ticking = true; requestAnimationFrame(update); }
-        }, { passive: true });
-        update();
-
-        const filterBtn = document.getElementById('islandFilterBtn');
-        if (filterBtn) {
-            filterBtn.addEventListener('click', () => bar.classList.toggle('filters-open'));
-        }
     }
 
     // ==================== 活动核心逻辑 ====================
@@ -878,207 +857,6 @@
         });
     }
 
-    // ==================== 自定义背景 / 设置面板 / 自定义排版（4.0.0） ====================
-    function t(zh, en) { return getLang() === 'en' ? en : zh; }
-    function readJSON(key) { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } }
-    function toast(message, ms = 3200) {
-        let el = document.getElementById('leleleToast');
-        if (!el) { el = document.createElement('div'); el.id = 'leleleToast'; el.className = 'lelele-toast'; document.body.appendChild(el); }
-        el.textContent = message; el.classList.add('active');
-        clearTimeout(el._timer); el._timer = setTimeout(() => el.classList.remove('active'), ms);
-    }
-
-    const ACCENT_PRESETS = ['#0071e3', '#4f46e5', '#0a84ff', '#10b981', '#f59e0b', '#ff375f'];
-    const BG_KEY = 'lelele_custom_bg';
-    const BG_EXPIRY_DAYS = 14;
-    const FONT_KEY = 'lelele_font_scale';
-    const THEME_KEY = 'lelele_accent';
-    const LAYOUT_KEY = 'lelele_layout_positions';
-
-    function applyAccent(color) { if (color) document.documentElement.style.setProperty('--accent', color); }
-    function initAccent() { applyAccent(localStorage.getItem(THEME_KEY)); }
-    function getFontScale() { const v = parseFloat(localStorage.getItem(FONT_KEY)); return Number.isFinite(v) && v >= 0.7 && v <= 1.6 ? v : 1; }
-    function applyFontScale(scale) { document.documentElement.style.fontSize = (16 * scale) + 'px'; }
-    function initFontScale() { applyFontScale(getFontScale()); }
-
-    function removeBgLayer() { const el = document.getElementById('customBgLayer'); if (el) el.remove(); }
-    function applyBgLayer(cfg) {
-        removeBgLayer();
-        const el = document.createElement('div'); el.id = 'customBgLayer';
-        const dim = (typeof cfg.dim === 'number') ? cfg.dim : 0.45;
-        const dark = document.documentElement.classList.contains('dark-mode');
-        const top = dark ? dim : Math.min(0.9, dim + 0.18);
-        const bottom = dark ? Math.min(0.96, dim + 0.2) : 0.94;
-        el.style.cssText = `position:fixed;inset:0;z-index:-2;background:#0f172a url('${cfg.dataUrl}') center/cover no-repeat;pointer-events:none;`;
-        if (!cfg.hasBorder) el.style.boxShadow = 'inset 0 0 0 1px rgba(148,163,184,0.22)';
-        const overlay = document.createElement('div');
-        overlay.style.cssText = `position:absolute;inset:0;background:linear-gradient(180deg, rgba(${dark?'15,23,42':'245,245,247'},${top}) 0%, rgba(${dark?'15,23,42':'245,245,247'},${bottom}) 100%);`;
-        el.appendChild(overlay); document.body.appendChild(el);
-    }
-    function analyzeImage(img) {
-        const maxW = 1600;
-        let w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
-        const scale = Math.min(1, maxW / Math.max(w, h));
-        w = Math.max(1, Math.round(w * scale)); h = Math.max(1, Math.round(h * scale));
-        const c = document.createElement('canvas'); c.width = w; c.height = h;
-        c.getContext('2d').drawImage(img, 0, 0, w, h);
-        const s = document.createElement('canvas'); s.width = 64; s.height = 64;
-        const sx = s.getContext('2d'); sx.drawImage(c, 0, 0, 64, 64);
-        const d = sx.getImageData(0, 0, 64, 64).data; const lum = new Float64Array(4096); let sum = 0;
-        for (let i = 0; i < d.length; i += 4) { const l = 0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2]; lum[i>>2] = l; sum += l; }
-        const mean = sum / 4096; let varSum = 0;
-        for (let i = 0; i < 4096; i++) varSum += (lum[i]-mean)*(lum[i]-mean);
-        const variance = varSum / 4096; let edge = 0;
-        for (let y = 1; y < 63; y++) for (let x = 1; x < 63; x++) { const idx = y*64+x; const g = Math.abs(lum[idx-1]-lum[idx+1]) + Math.abs(lum[idx-64]-lum[idx+64]); if (g > 55) edge++; }
-        const busy = Math.min(1, (variance/120) * 1.6 + (edge/3844) * 2.4);
-        const dim = 0.22 + busy * 0.5;
-        const get = (x,y) => lum[y*64+x];
-        const ring = [], inner = [];
-        for (let x = 0; x < 64; x++) { ring.push(get(x,2), get(x,61)); }
-        for (let y = 0; y < 64; y++) { ring.push(get(2,y), get(61,y)); }
-        for (let y = 10; y < 54; y++) for (let x = 10; x < 54; x++) inner.push(get(x,y));
-        const avg = (a) => a.reduce((s,v)=>s+v,0)/a.length;
-        const sd = (a,m) => { let s=0; for (const v of a) s += (v-m)*(v-m); return Math.sqrt(s/a.length); };
-        const rAvg = avg(ring), iAvg = avg(inner);
-        const hasBorder = Math.abs(rAvg - iAvg) > 22 && sd(ring, rAvg) < sd(inner, iAvg) * 1.4;
-        return { dim, hasBorder, canvas: c };
-    }
-    function processCustomBg(file) {
-        return new Promise((resolve, reject) => {
-            if (!file || !file.type || file.type.indexOf('image/') !== 0) return reject(new Error(t('请上传图片文件', 'Please upload an image')));
-            const reader = new FileReader();
-            reader.onerror = () => reject(new Error(t('读取失败', 'Failed to read file')));
-            reader.onload = () => {
-                const img = new Image();
-                img.onerror = () => reject(new Error(t('图片解析失败', 'Failed to decode image')));
-                img.onload = () => {
-                    try {
-                        const { dim, hasBorder, canvas } = analyzeImage(img);
-                        const maxE = 1600; const sc = Math.min(1, maxE / Math.max(canvas.width, canvas.height));
-                        const out = document.createElement('canvas'); out.width = Math.round(canvas.width*sc); out.height = Math.round(canvas.height*sc);
-                        out.getContext('2d').drawImage(canvas, 0, 0, out.width, out.height);
-                        const dataUrl = out.toDataURL('image/jpeg', 0.82);
-                        const cfg = { dataUrl, hasBorder, dim, setAt: Date.now() };
-                        try { localStorage.setItem(BG_KEY, JSON.stringify(cfg)); } catch { reject(new Error(t('本地存储空间不足', 'Local storage is full'))); return; }
-                        applyBgLayer(cfg); resolve(cfg);
-                    } catch (e) { reject(e); }
-                };
-                img.src = reader.result;
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-    function initCustomBg() {
-        const cfg = readJSON(BG_KEY);
-        if (!cfg || !cfg.dataUrl) return;
-        if (Date.now() - cfg.setAt > BG_EXPIRY_DAYS * 864e5) {
-            try { localStorage.removeItem(BG_KEY); } catch {}
-            removeBgLayer();
-            toast(t('自定义背景已 14 天到期，已恢复默认背景', 'Your custom background expired (14 days) and was reset'));
-            return;
-        }
-        applyBgLayer(cfg);
-    }
-    function clearCustomBg() { try { localStorage.removeItem(BG_KEY); } catch {} removeBgLayer(); toast(t('已恢复默认背景', 'Default background restored')); }
-
-    function buildSettingsPanel() {
-        let panel = document.getElementById('leleleSettings');
-        if (panel) return panel;
-        panel = document.createElement('div'); panel.id = 'leleleSettings'; panel.className = 'lelele-settings-panel';
-        panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', t('设置', 'Settings'));
-        const scale = getFontScale();
-        panel.innerHTML = `
-            <div class="lelele-settings-backdrop"></div>
-            <div class="lelele-settings-card">
-                <div class="lelele-settings-head"><h3>${t('设置', 'Settings')}</h3><button class="lelele-settings-close" aria-label="close">×</button></div>
-                <div class="lelele-settings-section">
-                    <div class="lelele-settings-label">${t('主题色', 'Accent color')}</div>
-                    <div class="lelele-accent-row">${ACCENT_PRESETS.map(c => `<button class="lelele-accent-dot" data-accent="${c}" style="background:${c}" aria-label="${c}"></button>`).join('')}</div>
-                </div>
-                <div class="lelele-settings-section">
-                    <div class="lelele-settings-label"><span>${t('字号', 'Font size')}</span><span class="lelele-font-val">${Math.round(scale*100)}%</span></div>
-                    <div class="lelele-font-row">
-                        <button class="lelele-font-btn" data-step="-1">A−</button>
-                        <input type="range" class="lelele-font-range" min="0.85" max="1.3" step="0.05" value="${scale}">
-                        <button class="lelele-font-btn" data-step="1">A+</button>
-                    </div>
-                </div>
-                <div class="lelele-settings-section">
-                    <div class="lelele-settings-label">${t('自定义背景', 'Custom background')}</div>
-                    <p class="lelele-settings-hint">${t('每 14 天需重新上传一次，过期自动恢复默认', 'Re-upload every 14 days; resets automatically after expiry')}</p>
-                    <div class="lelele-bg-row">
-                        <label class="lelele-bg-upload">${t('上传图片', 'Upload image')}<input type="file" accept="image/*" class="lelele-bg-input" hidden></label>
-                        <button class="lelele-bg-clear">${t('恢复默认', 'Reset')}</button>
-                    </div>
-                </div>
-                <div class="lelele-settings-section">
-                    <div class="lelele-settings-label">${t('自定义排版', 'Custom layout')}</div>
-                    <button class="lelele-layout-btn">${t('进入排版模式', 'Enter layout mode')}</button>
-                </div>
-            </div>`;
-        document.body.appendChild(panel);
-        panel.querySelector('.lelele-settings-backdrop').addEventListener('click', closeSettings);
-        panel.querySelector('.lelele-settings-close').addEventListener('click', closeSettings);
-        panel.querySelectorAll('.lelele-accent-dot').forEach(dot => dot.addEventListener('click', () => {
-            applyAccent(dot.dataset.accent); localStorage.setItem(THEME_KEY, dot.dataset.accent);
-            panel.querySelectorAll('.lelele-accent-dot').forEach(d => d.classList.toggle('active', d === dot));
-        }));
-        const range = panel.querySelector('.lelele-font-range'); const val = panel.querySelector('.lelele-font-val');
-        const setScale = (v) => { v = Math.min(1.3, Math.max(0.85, Math.round(v*20)/20)); applyFontScale(v); localStorage.setItem(FONT_KEY, String(v)); range.value = v; val.textContent = Math.round(v*100) + '%'; };
-        range.addEventListener('input', () => setScale(parseFloat(range.value)));
-        panel.querySelectorAll('.lelele-font-btn').forEach(b => b.addEventListener('click', () => setScale(getFontScale() + (b.dataset.step === '1' ? 0.05 : -0.05))));
-        panel.querySelector('.lelele-bg-input').addEventListener('change', async (e) => {
-            const file = e.target.files && e.target.files[0]; if (!file) return;
-            try { await processCustomBg(file); toast(t('背景已更新', 'Background updated')); }
-            catch (err) { toast(err.message || t('上传失败', 'Upload failed')); }
-        });
-        panel.querySelector('.lelele-bg-clear').addEventListener('click', clearCustomBg);
-        panel.querySelector('.lelele-layout-btn').addEventListener('click', () => { closeSettings(); toggleLayout(); });
-        const cur = localStorage.getItem(THEME_KEY);
-        if (cur) panel.querySelectorAll('.lelele-accent-dot').forEach(d => d.classList.toggle('active', d.dataset.accent === cur));
-        return panel;
-    }
-    function openSettings() { buildSettingsPanel().classList.add('active'); }
-    function closeSettings() { const p = document.getElementById('leleleSettings'); if (p) p.classList.remove('active'); }
-    function initSettings() {
-        const btn = document.getElementById('openSettingsBtn'); if (btn) btn.addEventListener('click', openSettings);
-        initAccent(); initFontScale();
-    }
-
-    let layoutActive = false;
-    function layoutKey(el) { return el.id || (el.className || '').split(/\s+/).find(c => c.indexOf('btn-') === 0) || el.className; }
-    function applyLayout() {
-        const pos = readJSON(LAYOUT_KEY); if (!pos) return;
-        document.querySelectorAll('#topRightActions > *').forEach(el => { const p = pos[layoutKey(el)]; if (p) el.style.transform = `translateY(${p.dy||0}px)`; });
-    }
-    function toggleLayout() {
-        if (layoutActive) { exitLayout(); return; }
-        layoutActive = true;
-        document.body.classList.add('layout-mode');
-        toast(t('排版模式：拖动按钮上下微调，刷新后保留；再点「排版」或按 Esc 退出', 'Layout mode on: drag to nudge; click Layout or Esc to exit'), 4200);
-        const container = document.getElementById('topRightActions'); if (!container) return;
-        const items = Array.from(container.children); const pos = readJSON(LAYOUT_KEY) || {};
-        items.forEach(el => {
-            el.classList.add('layout-draggable');
-            el.addEventListener('pointerdown', (e) => {
-                e.preventDefault(); el.setPointerCapture(e.pointerId); const startY = e.clientY;
-                const move = (ev) => { const dy = Math.max(-18, Math.min(18, ev.clientY - startY)); el.style.transform = `translateY(${dy}px)`; };
-                const up = (ev) => { el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up); const dy = Math.max(-18, Math.min(18, ev.clientY - startY)); const key = layoutKey(el); pos[key] = { dy }; try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(pos)); } catch {} };
-                el.addEventListener('pointermove', move); el.addEventListener('pointerup', up);
-            });
-        });
-    }
-    function exitLayout() {
-        layoutActive = false; document.body.classList.remove('layout-mode');
-        const pos = readJSON(LAYOUT_KEY) || {};
-        document.querySelectorAll('#topRightActions > *').forEach(el => { el.classList.remove('layout-draggable'); const p = pos[layoutKey(el)]; el.style.transform = p ? `translateY(${p.dy||0}px)` : ''; });
-        toast(t('已保存排版', 'Layout saved'));
-    }
-    function initLayout() {
-        const btn = document.getElementById('openLayoutBtn'); if (btn) btn.addEventListener('click', toggleLayout);
-        applyLayout();
-    }
-
     // ==================== 初始化调用 ====================
     document.addEventListener('DOMContentLoaded', () => {
         if (isGamePage) {
@@ -1087,7 +865,6 @@
         initTheme();
         initActivityTheme();
         initSlideHint();
-        initIslandNav();
         injectFooter();
         injectFloatingTools();
         initAnnouncements();
@@ -1095,11 +872,6 @@
         // 启动新增功能
         initDirectLinkTracker();
         initMainSiteAuth();
-
-        // 4.0.0：自定义背景 / 设置面板 / 自定义排版
-        initCustomBg();
-        initSettings();
-        initLayout();
 
         const currentLang = getLang();
         document.querySelectorAll('.lang-btn').forEach(btn => { btn.classList.toggle('active', btn.dataset.langBtn === currentLang); });

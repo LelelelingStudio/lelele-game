@@ -23,24 +23,10 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="theme-color" content="#4f46e5">
-                <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
-    <link rel="apple-touch-icon" href="lelelegame.png">
+    <meta name="description" content="关于了了了游 · 发现独立游戏的魅力">
+    <meta name="theme-color" content="#4f46e5">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <meta name="description" content="了解了了了游（lelele Game）的初衷：为玩家发现好玩的独立小游戏，为开发者提供展示与投稿平台。">
-    <link rel="canonical" href="https://game.leleleling.site/about.html">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="了了了游 lelele Game">
-    <meta property="og:title" content="关于我们 · 了了了游 lelele Game">
-    <meta property="og:description" content="了解了了了游（lelele Game）的初衷：为玩家发现好玩的独立小游戏，为开发者提供展示与投稿平台。">
-    <meta property="og:url" content="https://game.leleleling.site/about.html">
-    <meta property="og:image" content="https://game.leleleling.site/lelelegame.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="关于我们 · 了了了游 lelele Game">
-    <meta name="twitter:description" content="了解了了了游（lelele Game）的初衷：为玩家发现好玩的独立小游戏，为开发者提供展示与投稿平台。">
-    <meta name="twitter:image" content="https://game.leleleling.site/lelelegame.png">
-    <title>关于我们 · 了了了游 lelele Game</title>
-
+    <title>关于我们 · 了了了游</title>
     
     <!-- 引入全局样式 -->
     <link rel="stylesheet" href="common.css">
@@ -73,8 +59,67 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        /* 顶部导航：复用 common.css 的苹果风 + 灵动岛样式（di-* 分级在 common.css） */
+        /* ===== 顶部导航 ===== */
+        .top-bar {
+            width: 100%;
+            max-width: 900px;
+            padding: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 8px 16px;
+            background: rgba(79, 70, 229, 0.08);
+            border-radius: 30px;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: rgba(79, 70, 229, 0.15); }
+        
+        .logo-container { display: flex; align-items: center; cursor: pointer; }
+        .site-logo { height: 36px; width: auto; transition: transform 0.2s; }
+        .site-logo:hover { transform: scale(1.05); }
         .logo-fallback { font-size: 1.8rem; line-height: 1; }
+        
+        /* 语言切换 */
+        .lang-switch {
+            display: inline-flex; 
+            background: rgba(148, 163, 184, 0.15);
+            border-radius: 30px; 
+            padding: 3px;
+            border: none;
+        }
+        .lang-btn {
+            padding: 6px 16px; 
+            border: none; 
+            border-radius: 24px; 
+            background: transparent;
+            font-size: 0.85rem; 
+            font-weight: 600; 
+            color: var(--text-muted); 
+            cursor: pointer;
+            transition: all 0.2s; 
+            font-family: inherit;
+            outline: none;
+            -webkit-appearance: none;
+            margin: 0;
+            line-height: 1.2;
+        }
+        .lang-btn.active { 
+            background: #4f46e5; 
+            color: #fff !important; 
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25); 
+        }
+        .lang-btn:hover:not(.active) { 
+            color: var(--text-main); 
+        }
 
         /* ===== 主内容区 ===== */
         .main-container {
@@ -368,44 +413,22 @@
 </head>
 <body>
 
-    <!-- 顶部导航（复用 common.css 苹果风 + 灵动岛；di-* 分级） -->
+    <!-- 顶部导航 -->
     <div class="top-bar">
-        <div class="top-bar-row">
-            <div class="title-group">
-                <img src="lelelegame.svg" alt="了了了游" class="site-logo di-keep" onclick="location.href='index.html'" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <span class="logo-fallback di-keep" style="display:none;">🎮</span>
-                <div class="title-text-group di-hide">
-                    <button class="game-title" onclick="location.href='index.html'">
-                        <span class="zh-inline">了了了游</span><span class="en-inline">lelele Game</span>
-                    </button>
-                </div>
-                <a class="action-btn btn-about di-icon" href="index.html" id="backBtn">
-                    <span class="zh-inline"><span class="di-emoji">↩️</span><span class="di-label">返回首页</span></span>
-                    <span class="en-inline"><span class="di-emoji">↩️</span><span class="di-label">Back</span></span>
-                </a>
-            </div>
-            <div class="right-actions" id="topRightActions">
-                <div class="lang-switch di-keep" role="group">
-                    <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
-                    <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
-                </div>
-                <a class="action-btn btn-home di-icon" href="index.html">
-                    <span class="zh-inline"><span class="di-emoji">🏠</span><span class="di-label">首页</span></span>
-                    <span class="en-inline"><span class="di-emoji">🏠</span><span class="di-label">Home</span></span>
-                </a>
-                <a class="action-btn btn-docs di-icon" href="docs.html">
-                    <span class="zh-inline"><span class="di-emoji">📖</span><span class="di-label">导航</span></span>
-                    <span class="en-inline"><span class="di-emoji">📖</span><span class="di-label">Docs</span></span>
-                </a>
-                <button class="action-btn btn-settings di-icon" id="openSettingsBtn" type="button">
-                    <span class="zh-inline"><span class="di-emoji">⚙️</span><span class="di-label">设置</span></span>
-                    <span class="en-inline"><span class="di-emoji">⚙️</span><span class="di-label">Settings</span></span>
-                </button>
-                <button class="action-btn btn-layout di-icon" id="openLayoutBtn" type="button">
-                    <span class="zh-inline"><span class="di-emoji">🎛️</span><span class="di-label">排版</span></span>
-                    <span class="en-inline"><span class="di-emoji">🎛️</span><span class="di-label">Layout</span></span>
-                </button>
-            </div>
+        <a href="index.html" class="back-btn" id="backBtn">
+            ← <span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span>
+        </a>
+        
+        <!-- 顶部 Logo + 兜底 -->
+        <div class="logo-container" onclick="window.location.href='index.html'">
+            <img src="lelelegame.svg" alt="了了了游" class="site-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <span class="logo-fallback" style="display:none;">🎮</span>
+        </div>
+        
+        <!-- 语言切换 -->
+        <div class="lang-switch" role="group">
+            <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+            <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
         </div>
     </div>
 

@@ -1,11 +1,5 @@
 [
   {
-    "version": "4.0.0",
-    "date": "2026-11-03",
-    "content_zh": "【超级 UI 大重构（A 大版本，已授权）】\n1. 苹果风 + 灵动岛：滚动导航 morph 为居中胶囊岛，三级分级（保留/仅图标/隐藏），保留靛蓝主色 #4f46e5 并新增系统蓝强调色 #0071e3，统一毛玻璃/留白/圆角/17px 正文设计令牌。\n2. 设置面板（⚙️）：主题色 6 预设、字号 ±（0.85–1.3×）、自定义背景入口、排版模式入口。\n3. 自定义背景：上传图按信息量自适应淡化 + 边框检测 + 固定背景层（不遮挡雪花/贴纸）+ 每 14 天过期自动恢复默认。\n4. 自定义排版：拖拽顶栏按钮上下微调，位置本地持久化。\n5. 展示字体：引入 LelelelingFont1.otf，仅套标题（中文自动回退）。\n6. 搜索增强：相关度排序 + 字段权重（标题/分类/作者）+ 去重；新增「游戏/作者/全部」范围筛选；结果展示作者；首页 25 条分页（必要时下一页）。\n7. 国内性能：自托管 supabase-js 到 vendor/ 并改为同域引用、echarts 加 defer。\n8. SEO/UX：7 个主页面补 favicon 多格式、Open Graph、Twitter Card、canonical、扩展 title 与 description。",
-    "content_en": "[Major UI rebuild (A-release, authorized)]\n1. Apple-style Dynamic Island nav: scroll morphs the top bar into a centered pill with 3-tier grading; keeps indigo #4f46e5 and adds system-blue accent #0071e3, unified glassmorphism/spacing/radius/17px tokens.\n2. Settings panel (⚙️): 6 accent presets, font scale ± (0.85–1.3×), custom-background entry, layout-mode entry.\n3. Custom background: upload image with info-density adaptive dimming + border detection + fixed layer (does not block snow/stickers) + 14-day expiry auto-reset.\n4. Custom layout: drag top-bar buttons vertically, persisted locally.\n5. Display font: LelelelingFont1.otf, titles only (Chinese falls back to system).\n6. Search upgrade: relevance ranking + field weights (title/category/author) + dedup; new Game/Author/All scope; author shown in results; 25-per-page pagination.\n7. China performance: self-host supabase-js in vendor/ (same-origin) + defer, echarts defer.\n8. SEO/UX: 7 pages gained multi-format favicon, Open Graph, Twitter Card, canonical, expanded title & description."
-  },
-  {
     "version": "3.3.0",
     "date": "2026-11-02",
     "content_zh": "1. 【布局改版】首页升级为双栏布局：游戏列表为主区，排行榜与公告收纳至右侧边栏，不再遮挡下方的游戏内容。\n2. 排行榜卡片在侧边栏内自动紧凑化（纵向排列、缩小卡面），并支持侧栏吸顶滚动。\n3. 公告板块精简为标题列表：不再直接展示预览内容，点击「查看详情」后在弹窗中阅读完整公告。\n4. 新增新布局限时引导：11 月 5 日前首次访问会全屏高亮讲解排行榜与公告的新位置，点击「知道了」完成引导（每人仅一次）。\n5. 窄屏（平板/手机）下侧边栏自动回退为单列堆叠，保证移动端阅读体验。",
