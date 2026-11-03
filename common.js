@@ -25,13 +25,13 @@
           reqZh: '完成开发者注册即获此等级，可发布第一款游戏。', reqEn: 'Granted upon developer registration; can publish the first game.' },
         { level: 2, zh: '制作人',     en: 'Producer',         color: '#0ea5e9', bg: '#e0f2fe',
           reqZh: '已发布 ≥1 款游戏；资料完整（头像+简介）；至少绑定一种登录方式。', reqEn: '≥1 published game; complete profile (avatar + bio); ≥1 linked sign-in method.' },
-        { level: 3, zh: '优质制作人', en: 'Quality Producer', color: '#8b5cf6', bg: '#ede9fe',
+        { level: 3, zh: '优质制作人', en: 'Premium Producer', color: '#8b5cf6', bg: '#ede9fe',
           reqZh: '累计发布 ≥3 款游戏；至少 1 款上架 ≥14 天且无严重违规；或被官方编辑推荐。', reqEn: '≥3 games; ≥1 live ≥14d with no serious violations; or editor-picked.' },
         { level: 4, zh: '开发者',     en: 'Developer',        color: '#4f46e5', bg: '#e0e7ff',
           reqZh: '累计发布 ≥3 款且至少 1 款上架 ≥30 天；通过内容合规复审；收到 ≥10 条有效玩家反馈。', reqEn: '≥3 games (≥1 live ≥30d); passed content compliance review; ≥10 valid player feedback.' },
         { level: 5, zh: '金牌开发者', en: 'Gold Developer',   color: '#d97706', bg: '#fef3c7',
           reqZh: '累计发布 ≥5 款；至少 2 款评分 ≥4.7 或总游玩 ≥10 万；无违规记录；经官方评定。', reqEn: '≥5 games; ≥2 rated ≥4.7 or total plays ≥100k; clean record; official verdict.' },
-        { level: 6, zh: '开发团队',   en: 'Dev Team',         color: '#059669', bg: '#d1fae5',
+        { level: 6, zh: '开发团队',   en: 'Development Team',  color: '#059669', bg: '#d1fae5',
           reqZh: '以团队名义注册并绑定组织；≥5 款游戏；官方认证的组织实体；支持多人协作。', reqEn: 'Team/org account with org binding; ≥5 games; officially recognized org; multi-member.' }
     ];
     const LELELE_AUTHOR_OFFICIAL = { zh: '官方', en: 'Official' };
@@ -41,16 +41,17 @@
     function leleleAuthorBadges(author, opts) {
         if (!author) author = {};
         const en = !!(opts && opts.en) || document.documentElement.getAttribute('data-lang') === 'en';
+        const wrap = (href, inner) => '<a href="' + href + '" class="lelele-badge-link" title="' + (en ? 'View certification details' : '查看认证详情') + '">' + inner + '</a>';
         const out = [];
         if (author.studio_special) {
-            out.push('<span class="lelele-badge lelele-badge-special" title="' + (en ? 'This is the site’s own studio' : '本站官方原创团队') + '">★ ' + (en ? LELELE_AUTHOR_SPECIAL.en : LELELE_AUTHOR_SPECIAL.zh) + '</span>');
+            out.push(wrap('AUTHOR_CERTIFICATION.html', '<span class="lelele-badge lelele-badge-special" title="' + (en ? 'This is the site’s own studio' : '本站官方原创团队') + '">★ ' + (en ? LELELE_AUTHOR_SPECIAL.en : LELELE_AUTHOR_SPECIAL.zh) + '</span>'));
         }
         if (author.official) {
-            out.push('<span class="lelele-badge lelele-badge-official">【' + (en ? LELELE_AUTHOR_OFFICIAL.en : LELELE_AUTHOR_OFFICIAL.zh) + '】</span>');
+            out.push(wrap('AUTHOR_CERTIFICATION.html', '<span class="lelele-badge lelele-badge-official">【' + (en ? LELELE_AUTHOR_OFFICIAL.en : LELELE_AUTHOR_OFFICIAL.zh) + '】</span>'));
         }
         const lvl = Number(author.authorlevel) || 1;
         const def = LELELE_AUTHOR_LEVELS.find(function (x) { return x.level === lvl; }) || LELELE_AUTHOR_LEVELS[0];
-        out.push('<span class="lelele-badge lelele-badge-level" style="--badge-color:' + def.color + ';--badge-bg:' + def.bg + '">' + (en ? def.en : def.zh) + '</span>');
+        out.push(wrap('authorlevel.html?level=' + def.level, '<span class="lelele-badge lelele-badge-level" style="--badge-color:' + def.color + ';--badge-bg:' + def.bg + '">' + (en ? def.en : def.zh) + '</span>'));
         return out.join('');
     }
     window.leleleAuthorBadges = leleleAuthorBadges;
@@ -920,9 +921,14 @@
         }
 
         let ticking = false;
+        let islandOn = bar.classList.contains('island-mode');
         const update = () => {
             ticking = false;
-            bar.classList.toggle('island-mode', window.scrollY > 80);
+            const y = window.scrollY;
+            // 迟滞：进入阈值 80、退出阈值 40，避免滚动到边界时反复横跳（"一阵一阵抽"）
+            if (!islandOn && y > 80) islandOn = true;
+            else if (islandOn && y < 40) islandOn = false;
+            bar.classList.toggle('island-mode', islandOn);
         };
         window.addEventListener('scroll', () => {
             if (!ticking) { ticking = true; requestAnimationFrame(update); }
@@ -1052,6 +1058,11 @@
         panel = document.createElement('div'); panel.id = 'leleleSettings'; panel.className = 'lelele-settings-panel';
         panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', tr('设置', 'Settings'));
         const scale = getFontScale();
+        const sizeSlider = (k, label) => {
+            let v = 1; try { v = parseFloat(localStorage.getItem('lelele_sz_' + k)); } catch (e) {}
+            if (!Number.isFinite(v) || v < 0.8 || v > 1.4) v = 1;
+            return '<div class="lelele-size-row"><span>' + label + '</span><input type="range" class="lelele-size-range" data-key="' + k + '" min="0.8" max="1.4" step="0.05" value="' + v + '"><span class="lelele-size-val">' + Math.round(v * 100) + '%</span></div>';
+        };
         panel.innerHTML =
             '<div class="lelele-settings-backdrop"></div>' +
             '<div class="lelele-settings-card">' +
@@ -1080,6 +1091,22 @@
                     '<div class="lelele-settings-label">' + tr('自定义排版', 'Custom layout') + '</div>' +
                     '<button class="lelele-layout-btn">' + tr('进入排版模式', 'Enter layout mode') + '</button>' +
                 '</div>' +
+                '<div class="lelele-settings-section">' +
+                    '<div class="lelele-settings-label">' + tr('排版模版', 'Layout template') + '</div>' +
+                    '<div class="lelele-tpl-row">' +
+                        '<button class="lelele-tpl-btn" data-tpl="default">' + tr('默认', 'Default') + '</button>' +
+                        '<button class="lelele-tpl-btn" data-tpl="rank">' + tr('排行榜优先', 'Ranking first') + '</button>' +
+                        '<button class="lelele-tpl-btn" data-tpl="game">' + tr('游戏置顶', 'Games first') + '</button>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="lelele-settings-section">' +
+                    '<div class="lelele-settings-label">' + tr('板块大小', 'Section size') + '</div>' +
+                    sizeSlider('topbar', tr('导航栏', 'Top bar')) +
+                    sizeSlider('island', tr('灵动岛', 'Island')) +
+                    sizeSlider('rank', tr('排行榜', 'Ranking')) +
+                    sizeSlider('notice', tr('公告', 'Announcements')) +
+                    sizeSlider('card', tr('游戏方块', 'Game cards')) +
+                '</div>' +
             '</div>';
         document.body.appendChild(panel);
         panel.querySelector('.lelele-settings-backdrop').addEventListener('click', closeSettings);
@@ -1103,6 +1130,20 @@
         });
         panel.querySelector('.lelele-bg-clear').addEventListener('click', clearCustomBg);
         panel.querySelector('.lelele-layout-btn').addEventListener('click', () => { closeSettings(); toggleLayout(); });
+        panel.querySelectorAll('.lelele-tpl-btn').forEach((b) => b.addEventListener('click', () => {
+            window.applyHomeTemplate(b.dataset.tpl);
+            panel.querySelectorAll('.lelele-tpl-btn').forEach((x) => x.classList.toggle('active', x === b));
+        }));
+        const curTpl = window.getHomeTemplate();
+        panel.querySelectorAll('.lelele-tpl-btn').forEach((x) => x.classList.toggle('active', x.dataset.tpl === curTpl));
+        panel.querySelectorAll('.lelele-size-range').forEach((r) => {
+            r.addEventListener('input', () => {
+                const key = r.dataset.key, v = parseFloat(r.value);
+                document.documentElement.style.setProperty(SIZE_KEYS[key], String(v));
+                try { localStorage.setItem('lelele_sz_' + key, String(v)); } catch (e) {}
+                const lab = r.parentElement.querySelector('.lelele-size-val'); if (lab) lab.textContent = Math.round(v * 100) + '%';
+            });
+        });
         const cur = localStorage.getItem(THEME_KEY);
         if (cur) panel.querySelectorAll('.lelele-accent-dot').forEach((d) => d.classList.toggle('active', d.dataset.accent === cur));
         return panel;
@@ -1112,45 +1153,90 @@
     function initSettings() {
         const btn = document.getElementById('openSettingsBtn'); if (btn) btn.addEventListener('click', openSettings);
         initAccent(); initFontScale();
+        applySizes();
+        if (window.applyHomeTemplate) window.applyHomeTemplate(window.getHomeTemplate());
     }
 
     let layoutActive = false;
+    let layoutDragHandlers = [];
     function layoutKey(el) { return el.id || (el.className || '').split(/\s+/).find((c) => c.indexOf('btn-') === 0) || el.className; }
+    function readLayout() { try { return JSON.parse(localStorage.getItem(LAYOUT_KEY) || '{}'); } catch (e) { return {}; } }
     function applyLayout() {
-        const pos = readJSON(LAYOUT_KEY); if (!pos) return;
-        document.querySelectorAll('#topRightActions > *').forEach((el) => { const p = pos[layoutKey(el)]; if (p) el.style.transform = 'translateY(' + (p.dy || 0) + 'px)'; });
+        const pos = readLayout(); if (!pos) return;
+        document.querySelectorAll('#topRightActions > *').forEach((el) => { const p = pos[layoutKey(el)]; if (p) el.style.transform = 'translate(' + (p.dx || 0) + 'px,' + (p.dy || 0) + 'px)'; });
+    }
+    function clearLayoutListeners() {
+        layoutDragHandlers.forEach((h) => {
+            h.el.removeEventListener('pointerdown', h.fn);
+            if (h.clickFn) h.el.removeEventListener('click', h.clickFn, true);
+        });
+        layoutDragHandlers = [];
     }
     function toggleLayout() {
         if (layoutActive) { exitLayout(); return; }
         layoutActive = true;
         document.body.classList.add('layout-mode');
-        toast(tr('排版模式：拖动按钮上下微调，刷新后保留；再点「排版」或按 Esc 退出', 'Layout mode on: drag to nudge; click Layout or Esc to exit'), 4200);
+        toast(tr('排版模式：拖动按钮调整位置（仅本模式可拖），刷新后保留；再点「排版」或按 Esc 退出', 'Layout mode: drag buttons to reposition (only in this mode); click Layout or Esc to exit'), 4200);
         const container = document.getElementById('topRightActions'); if (!container) return;
-        const pos = readJSON(LAYOUT_KEY) || {};
+        const pos = readLayout();
         Array.from(container.children).forEach((el) => {
+            const p = pos[layoutKey(el)] || { dx: 0, dy: 0 };
+            el.style.transform = 'translate(' + p.dx + 'px,' + p.dy + 'px)';
             el.classList.add('layout-draggable');
-            el.addEventListener('pointerdown', (e) => {
-                e.preventDefault(); el.setPointerCapture(e.pointerId); const startY = e.clientY;
-                const move = (ev) => { const dy = Math.max(-18, Math.min(18, ev.clientY - startY)); el.style.transform = 'translateY(' + dy + 'px)'; };
-                const up = (ev) => {
+            const fn = (e) => {
+                e.preventDefault();
+                el.setPointerCapture(e.pointerId);
+                const startX = e.clientX, startY = e.clientY, baseX = p.dx, baseY = p.dy;
+                const move = (ev) => {
+                    const dx = Math.max(-160, Math.min(160, baseX + ev.clientX - startX));
+                    const dy = Math.max(-40, Math.min(60, baseY + ev.clientY - startY));
+                    el.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+                };
+                const up = () => {
                     el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', up);
-                    const dy = Math.max(-18, Math.min(18, ev.clientY - startY));
-                    pos[layoutKey(el)] = { dy };
-                    try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(pos)); } catch (e2) {}
+                    const m = /translate\(([-\d.]+)px,\s*([-\d.]+)px\)/.exec(el.style.transform);
+                    const np = { dx: m ? parseFloat(m[1]) : 0, dy: m ? parseFloat(m[2]) : 0 };
+                    const all = readLayout(); all[layoutKey(el)] = np;
+                    try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(all)); } catch (e2) {}
                 };
                 el.addEventListener('pointermove', move); el.addEventListener('pointerup', up);
-            });
+            };
+            // 排版模式下：拦截点击，避免触发按钮原本的动作（但「排版」按钮自身除外，否则无法再次点击退出）
+            const clickFn = (el.id === 'openLayoutBtn') ? null : (ev) => { if (layoutActive) { ev.preventDefault(); ev.stopPropagation(); ev.stopImmediatePropagation(); } };
+            el.addEventListener('pointerdown', fn);
+            if (clickFn) el.addEventListener('click', clickFn, true);
+            layoutDragHandlers.push({ el: el, fn: fn, clickFn: clickFn });
         });
     }
     function exitLayout() {
         layoutActive = false; document.body.classList.remove('layout-mode');
-        const pos = readJSON(LAYOUT_KEY) || {};
+        clearLayoutListeners();
+        const pos = readLayout();
         document.querySelectorAll('#topRightActions > *').forEach((el) => {
             el.classList.remove('layout-draggable');
             const p = pos[layoutKey(el)];
-            el.style.transform = p ? 'translateY(' + (p.dy || 0) + 'px)' : '';
+            el.style.transform = p ? 'translate(' + (p.dx || 0) + 'px,' + (p.dy || 0) + 'px)' : '';
         });
         toast(tr('已保存排版', 'Layout saved'));
+    }
+
+    // ===== 首页排版模版（default / rank 排行榜优先 / game 游戏置顶）=====
+    const HOME_TPL_KEY = 'lelele_home_template';
+    window.applyHomeTemplate = function (key) {
+        ['tpl-default', 'tpl-rank', 'tpl-game'].forEach((c) => document.body.classList.remove(c));
+        if (key && key !== 'default') document.body.classList.add('tpl-' + key);
+        try { localStorage.setItem(HOME_TPL_KEY, key || 'default'); } catch (e) {}
+    };
+    window.getHomeTemplate = function () { try { return localStorage.getItem(HOME_TPL_KEY) || 'default'; } catch (e) { return 'default'; } };
+
+    // ===== 板块大小（CSS 变量驱动）=====
+    const SIZE_KEYS = { topbar: '--sz-topbar', island: '--sz-island', rank: '--sz-rank', notice: '--sz-notice', card: '--sz-card' };
+    function applySizes() {
+        Object.keys(SIZE_KEYS).forEach((k) => {
+            let v = 1; try { v = parseFloat(localStorage.getItem('lelele_sz_' + k)); } catch (e) {}
+            if (!Number.isFinite(v) || v < 0.8 || v > 1.4) v = 1;
+            document.documentElement.style.setProperty(SIZE_KEYS[k], String(v));
+        });
     }
     function initLayout() {
         const btn = document.getElementById('openLayoutBtn'); if (btn) btn.addEventListener('click', toggleLayout);

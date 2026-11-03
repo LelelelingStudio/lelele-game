@@ -333,6 +333,20 @@
     "ageRating_en": "6+",
     "version": "v1.0.0",
     "author": "4",
-    "url": "https://jonathanxu-games.netlify.app/games/science-quest/"
+    "url": "https://jonathanxu-games.netfilify.app/games/science-quest/"
+  },
+  {
+    "id": 25,
+    "name_zh": "斜坡大富翁",
+    "name_en": "Ramp Monopoly",
+    "icon": "🏦",
+    "category_zh": "休闲",
+    "category_en": "Casual",
+    "type": "external",
+    "ageRating_zh": "全年龄",
+    "ageRating_en": "All Ages",
+    "version": "v1.0.0",
+    "author": "8",
+    "url": "https://ramp-monopoly.netlify.app/"
   }
 ]

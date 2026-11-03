@@ -15,12 +15,12 @@
 | --- | --- | --- | --- |
 | 1 | 普通创作者 | Creator | 完成开发者注册即获得，可发布第一款游戏。 |
 | 2 | 制作人 | Producer | 已发布 ≥1 款游戏；资料完整（头像+简介）；至少绑定一种登录方式。 |
-| 3 | 优质制作人 | Quality Producer | 累计发布 ≥3 款游戏；至少 1 款上架 ≥14 天且无严重违规；或被官方编辑推荐。 |
-| 4 | 开发者 | Developer | 累计发布 ≥3 款且至少 1 款上架 ≥30 天；通过内容合规复审；收到 ≥10 条有效玩家反馈。 |
-| 5 | 金牌开发者 | Gold Developer | 累计发布 ≥5 款；至少 2 款评分 ≥4.7 或总游玩 ≥10 万；无违规记录；经官方评定。 |
-| 6 | 开发团队 | Dev Team | 以团队名义注册并绑定组织；≥5 款游戏；官方认证的组织实体；支持多人协作。 |
+| 3 | 优质制作人 | Premium Producer | 累计发布 ≥3 款游戏；至少 1 款上架 ≥14 天且无严重违规；或被官方编辑推荐。 |
+| 4 | 开发者 | Developer | 累计发布 ≥3 款且至少 1 款上架 ≥30 天；通过内容合规复审；保持持续的内容更新；无严重违规记录。 |
+| 5 | 金牌开发者 | Gold Developer | 累计发布 ≥5 款游戏；多款作品保持稳定更新与良好口碑；无违规记录；经官方评定。 |
+| 6 | 开发团队 | Development Team | 以团队名义注册并绑定组织；≥5 款游戏；官方认证的组织实体；支持多人协作。 |
 
-> 要求为产品侧设计，实际晋升由官方后台/人工审核决定（暂未做自动判定脚本）。如需自动判定，可依据 `lelegame_data.json` 的游戏数/评分/上线天数在构建期计算 `authorlevel`。
+> 要求为产品侧设计，实际晋升由官方后台/人工审核决定（暂未做自动判定脚本）。如需自动判定，可依据 `lelegame_data.json` 的游戏数/上线天数在构建期计算 `authorlevel`。
 
 ## 3. 官方认证标志（official）
 
@@ -78,3 +78,13 @@ Supabase 的账号**以单个邮箱为主键**，**原生不支持同一账号�
 1. 编辑 `/Users/david/Desktop/authors/authors.json`，改对应作者的 `authorlevel` / `official` / `studio_special`；
 2. 重新部署到 Surge（`authors.surge.sh`）；
 3. 清缓存（或等 CDN）后，游戏详情页与作者页即时生效（前端每次拉取都带 `?t=` 时间戳）。
+
+## 10. 如何申请（Tally 表单）
+
+开发者通过在线表单提交认证申请，由人工审核后在 `authors.json` 设置等级 / 官方标志。
+
+- **申请页（站内）**：`apply-certification.html` —— 按站点语言自动切换，中文嵌入 Tally 中文表单 `kblp0R`，英文嵌入英文表单 `LD9gO1`。
+- **入口**：开发者后台 `dashboard.html` 的「🏅 申请官方认证」按钮，以及本说明文档。
+- **表单字段**（与 `authors.json` 对齐）：开发者/工作室名称（需与 `name_zh`/`name_en` 一致）、作者 ID（数字）、联系邮箱、申请等级（Producer / Premium Producer / Developer / Gold Developer / Development Team）、作品链接、已发布数量、自评说明、官网（选填）、资质证明（Developer/Gold/Team 必填）、条款勾选。
+- **提交成功页**：提示 3–5 个工作日审核，结果由 `leleleling@2980.com` 邮件通知，并提供返回了了了游的链接。
+- **搭建规格**：`github/vertified-application-form.md`。

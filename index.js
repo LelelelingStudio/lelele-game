@@ -681,4 +681,18 @@ document.addEventListener('DOMContentLoaded', () => {
             else this.href = 'about.html';
         });
     }
+
+    // 随机游玩：从已加载的游戏数据中随机挑一个跳转到详情页
+    const randomBtn = document.getElementById('randomPlayBtn');
+    if (randomBtn) {
+        randomBtn.addEventListener('click', () => {
+            if (!gameData || !gameData.length) { if (window.toast) window.toast('数据加载中…'); return; }
+            const item = gameData[Math.floor(Math.random() * gameData.length)];
+            const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+            window.location.href = 'game.html?id=' + encodeURIComponent(item.id) + (isEn ? '&lang=en' : '');
+        });
+    }
+
+    // 首页排版模版：确保进入页面时应用设置中保存的模版
+    if (window.applyHomeTemplate) window.applyHomeTemplate(window.getHomeTemplate());
 });

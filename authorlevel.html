@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>认证等级说明 · 了了了游</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        body { background: var(--bg); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+        .lv-wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+        .lv-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+        .lv-home { color: var(--primary); text-decoration: none; font-weight: 700; font-size: 0.9rem; }
+        .lv-title { font-size: 1.6rem; font-weight: 800; margin: 6px 0 4px; display: flex; align-items: center; gap: 10px; }
+        .lv-badge { font-size: 0.8rem; font-weight: 700; padding: 4px 12px; border-radius: 999px; color: #fff; }
+        .lv-tagline { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 18px; }
+        .lv-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 18px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); }
+        .lv-sub { font-size: 1.05rem; font-weight: 800; margin: 18px 0 10px; }
+        .lv-sub:first-child { margin-top: 0; }
+        .lv-list { margin: 0; padding-left: 20px; line-height: 1.8; font-size: 0.92rem; }
+        .lv-list li { margin: 4px 0; }
+        .lv-apply { margin-top: 22px; text-align: center; }
+        .lv-apply a { display: inline-block; background: var(--accent); color: #fff; text-decoration: none; border-radius: 12px; padding: 12px 22px; font-weight: 700; }
+        .lv-apply a:hover { opacity: 0.9; }
+        .lv-other { margin-top: 24px; font-size: 0.82rem; color: var(--text-muted); text-align: center; }
+        .lv-other a { color: var(--primary); }
+        .lv-footer { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 12px 20px; justify-content: center; font-size: 0.82rem; }
+        .lv-footer a { color: var(--text-muted); text-decoration: none; }
+        .lv-footer a:hover { color: var(--primary); }
+        .zh-inline, .en-inline { display: none; }
+        html[data-lang="en"] .en-inline { display: inline; }
+        html:not([data-lang="en"]) .zh-inline { display: inline; }
+    </style>
+</head>
+<body>
+    <div class="lv-wrap">
+        <div class="lv-top">
+            <a class="lv-home" href="index.html">← <span class="zh-inline">返回首页</span><span class="en-inline">Home</span></a>
+            <div class="lang-switch" role="group">
+                <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+                <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
+            </div>
+        </div>
+
+        <h1 class="lv-title"><span id="lvName"></span><span class="lv-badge" id="lvBadge"></span></h1>
+        <p class="lv-tagline" id="lvTagline"></p>
+
+        <div class="lv-card">
+            <div class="lv-sub"><span class="zh-inline">晋升要求</span><span class="en-inline">Requirements</span></div>
+            <ul class="lv-list" id="lvReq"></ul>
+            <div class="lv-sub"><span class="zh-inline">你将获得</span><span class="en-inline">What you get</span></div>
+            <ul class="lv-list" id="lvBenefit"></ul>
+        </div>
+
+        <div class="lv-apply">
+            <a id="lvApplyBtn" href="apply-certification.html"><span class="zh-inline">🏅 申请此等级认证</span><span class="en-inline">🏅 Apply for this level</span></a>
+        </div>
+
+        <p class="lv-other"><span class="zh-inline">查看全部等级：</span><span class="en-inline">See all levels: </span><a href="AUTHOR_CERTIFICATION.html">AUTHOR_CERTIFICATION</a></p>
+
+        <div class="lv-footer">
+            <a href="AUTHOR_CERTIFICATION.html"><span class="zh-inline">认证规则</span><span class="en-inline">Certification Rules</span></a>
+            <a href="apply-certification.html"><span class="zh-inline">申请认证</span><span class="en-inline">Apply</span></a>
+            <a href="game_rules.html"><span class="zh-inline">游戏守则</span><span class="en-inline">Game Rules</span></a>
+            <a href="terms.html"><span class="zh-inline">服务条款</span><span class="en-inline">Terms</span></a>
+            <a href="privacy.html"><span class="zh-inline">隐私政策</span><span class="en-inline">Privacy</span></a>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        // 各等级要求与权益（中英双语），仅写站内已支持的功能，虚高指标已去除
+        const LEVEL_DATA = {
+            1: {
+                zh: { name: '普通创作者', color: '#64748b', tagline: '完成注册即获得，迈出创作第一步。',
+                    req: ['完成开发者注册并通过邮箱 / 第三方登录验证', '可发布你的第一款游戏', '同意并遵守《了了了游游戏守则》'],
+                    benefit: ['拥有个人作者主页', '游戏可被全站玩家发现'] },
+                en: { name: 'Creator', color: '#64748b', tagline: 'Granted upon registration — your first step as a creator.',
+                    req: ['Complete developer registration (email or third-party sign-in verified)', 'Can publish your first game', 'Agree to and follow the lelele Game Rules'],
+                    benefit: ['Your own author page', 'Games discoverable site-wide'] }
+            },
+            2: {
+                zh: { name: '制作人', color: '#0ea5e9', tagline: '已稳定产出至少一款作品。',
+                    req: ['累计发布 ≥1 款游戏', '资料完整：上传头像、填写简介', '至少绑定一种登录方式', '无严重违规记录'],
+                    benefit: ['作者名显示「制作人」等级徽章', '作品在搜索与推荐中获得基础权重'] },
+                en: { name: 'Producer', color: '#0ea5e9', tagline: 'Has shipped at least one stable title.',
+                    req: ['≥1 published game', 'Complete profile: avatar + bio', '≥1 linked sign-in method', 'No serious violations'],
+                    benefit: ['"Producer" level badge by your name', 'Basic weight in search & recommendations'] }
+            },
+            3: {
+                zh: { name: '优质制作人', color: '#8b5cf6', tagline: '质量稳定、持续产出的潜力作者。',
+                    req: ['累计发布 ≥3 款游戏', '至少 1 款上架 ≥14 天且无严重违规', '或被官方编辑推荐', '游戏质量稳定'],
+                    benefit: ['「优质制作人」徽章', '优先进入官方推荐候选', '作者页展示认证标识'] },
+                en: { name: 'Premium Producer', color: '#8b5cf6', tagline: 'A promising author with stable, consistent output.',
+                    req: ['≥3 published games', '≥1 live ≥14 days with no serious violations', 'Or editor-picked by the official team', 'Stable quality'],
+                    benefit: ['"Premium Producer" badge', 'Priority for official recommendations', 'Certification mark shown on author page'] }
+            },
+            4: {
+                zh: { name: '开发者', color: '#4f46e5', tagline: '通过官方复审、值得信赖的成熟开发者。',
+                    req: ['累计发布 ≥3 款，且至少 1 款上架 ≥30 天', '通过内容合规复审', '保持持续的内容更新', '无严重违规记录'],
+                    benefit: ['「开发者」徽章与官方认证标识', '在搜索与推荐中获得更高权重', '优先进入官方推荐'] },
+                en: { name: 'Developer', color: '#4f46e5', tagline: 'A vetted, trustworthy mature developer.',
+                    req: ['≥3 games, with ≥1 live ≥30 days', 'Passed content compliance review', 'Maintains ongoing content updates', 'No serious violations'],
+                    benefit: ['"Developer" badge with official certification mark', 'Higher weight in search & recommendations', 'Priority for official recommendations'] }
+            },
+            5: {
+                zh: { name: '金牌开发者', color: '#d97706', tagline: '站内顶尖、口碑优秀的招牌作者。',
+                    req: ['累计发布 ≥5 款游戏', '多款作品保持稳定更新与良好口碑', '无违规记录', '经官方评定'],
+                    benefit: ['「金牌开发者」金色徽章', '首页与排行榜优先曝光', '获得官方联合宣传支持'] },
+                en: { name: 'Gold Developer', color: '#d97706', tagline: 'Top-tier authors with excellent reputation.',
+                    req: ['≥5 published games', 'Multiple titles with steady updates and good reputation', 'Clean record', 'Official verdict'],
+                    benefit: ['Gold "Gold Developer" badge', 'Priority exposure on home & rankings', 'Official co-promotion support'] }
+            },
+            6: {
+                zh: { name: '开发团队', color: '#059669', tagline: '以组织形态运作、支持多人协作的正式团队。',
+                    req: ['以团队名义注册并绑定组织', '≥5 款游戏', '官方认证的组织实体', '支持多人协作'],
+                    benefit: ['「开发团队」徽章', '团队署名的认证展示于作品与作者页'] },
+                en: { name: 'Development Team', color: '#059669', tagline: 'A formal team operating as an organization with multi-member collaboration.',
+                    req: ['Registered as a team and bound to an org', '≥5 games', 'Officially recognized org entity', 'Supports multi-member collaboration'],
+                    benefit: ['"Development Team" badge', 'Team-name certification shown on games & author pages'] }
+            }
+        };
+
+        function getLang() { return document.documentElement.getAttribute('data-lang') || 'zh'; }
+
+        function renderLevel() {
+            const params = new URLSearchParams(location.search);
+            let lvl = parseInt(params.get('level'), 10);
+            if (!(lvl >= 1 && lvl <= 6)) lvl = 1;
+            const data = LEVEL_DATA[lvl] || LEVEL_DATA[1];
+            const L = getLang() === 'en' ? data.en : data.zh;
+            document.getElementById('lvName').textContent = L.name;
+            const badge = document.getElementById('lvBadge');
+            badge.textContent = L.name;
+            badge.style.background = data.zh.color;
+            document.getElementById('lvTagline').textContent = L.tagline;
+            document.getElementById('lvReq').innerHTML = L.req.map(function (r) { return '<li>' + r + '</li>'; }).join('');
+            document.getElementById('lvBenefit').innerHTML = L.benefit.map(function (b) { return '<li>' + b + '</li>'; }).join('');
+            document.getElementById('lvApplyBtn').href = 'apply-certification.html?level=' + lvl;
+            document.title = L.name + ' · 了了了游认证';
+        }
+
+        function syncLangBtns() {
+            var cur = document.documentElement.getAttribute('data-lang') || 'zh';
+            document.querySelectorAll('.lang-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.langBtn === cur); });
+        }
+        window.addEventListener('langChanged', function () { renderLevel(); syncLangBtns(); });
+        syncLangBtns();
+        renderLevel();
+    </script>
+</body>
+</html>

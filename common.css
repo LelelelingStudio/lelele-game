@@ -591,7 +591,30 @@ html.dark-mode .lelele-settings-card { background: rgba(30,41,59,0.92); }
 }
 /* 游戏详情 / 作者页的作者行徽章 */
 .author-badges { display: inline-flex; align-items: center; flex-wrap: wrap; }
+/* 徽标可点击：跳转等级说明 / 认证文档 */
+.lelele-badge-link { text-decoration: none; color: inherit; outline: none; }
+.lelele-badge-link:hover { opacity: 0.85; }
 body.layout-mode .top-bar { outline: 2px dashed var(--accent); outline-offset: -6px; border-radius: 16px; }
 body.layout-mode .layout-draggable { cursor: grab; touch-action: none; position: relative; }
 body.layout-mode .layout-draggable:active { cursor: grabbing; }
 body.layout-mode .layout-draggable::after { content: '\2B24'; position: absolute; top: -8px; right: -6px; font-size: 0.7rem; color: var(--accent); opacity: 0.7; }
+
+/* ===== 设置面板：排版模版 / 板块大小（新增） ===== */
+.lelele-tpl-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.lelele-tpl-btn {
+    flex: 1 1 auto; min-width: 84px; padding: 8px 10px; border-radius: 12px;
+    border: 1px solid var(--card-border); background: var(--card-bg); color: var(--text-main);
+    font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
+}
+.lelele-tpl-btn:hover { border-color: var(--accent); }
+.lelele-tpl-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.lelele-size-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; font-size: 0.85rem; color: var(--text-main); }
+.lelele-size-row > span:first-child { width: 72px; flex: none; }
+.lelele-size-range { flex: 1; accent-color: var(--accent); }
+.lelele-size-val { width: 42px; text-align: right; flex: none; color: var(--text-muted); }
+
+/* ===== 板块大小变量应用（全局） ===== */
+.top-bar { font-size: calc(14px * var(--sz-topbar, 1)); }
+.rank-showcase { font-size: calc(1rem * var(--sz-rank, 1)); }
+.announcements-container { font-size: calc(1rem * var(--sz-notice, 1)); }
+.home-side { font-size: calc(1rem * var(--sz-island, 1)); }
