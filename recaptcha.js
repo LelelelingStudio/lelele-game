@@ -227,11 +227,9 @@
                 if (attempt === 0 && err.code === 'network_error') continue;
             }
         }
-        // 重试仍失败：计入熔断
-        if (recordFailure()) {
-            return { decision: 'pass', mode: 'bypass', ticket: null, skipped: true, reason: 'breaker_open' };
-        }
-        throw lastErr || makeServerError();
+        // 服务端持续故障：不再拦截用户（fail-open，按需求跳过验证环节）；4xx 真实拒绝仍会抛出
+        recordFailure();
+        return { decision: 'pass', mode: 'bypass', ticket: null, skipped: true, reason: 'server_failopen' };
     }
 
     async function executeV2(action, container) {
@@ -334,17 +332,27 @@
 
     async function consume(ticket, action, session) {
         if (!session?.access_token) throw new Error(text('登录状态无效，请重新登录', 'Invalid session. Please sign in again.'));
-        const result = await fetchJson('/consume', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-                Authorization: `Bearer ${session.access_token}`
-            },
-            body: JSON.stringify({ ticket, action })
-        });
-        clearStatusCache();
-        return result;
+        try {
+            const result = await fetchJson('/consume', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    Authorization: `Bearer ${session.access_token}`
+                },
+                body: JSON.stringify({ ticket, action })
+            });
+            clearStatusCache();
+            return result;
+        } catch (error) {
+            // 验证已在 /verify 通过，登记（consume）失败不拦截用户
+            if (isServerError(error)) {
+                console.warn('[reCAPTCHA] consume 失败，降级放行:', { status: error.status, code: error.code });
+                clearStatusCache();
+                return { ok: true, degraded: true };
+            }
+            throw error;
+        }
     }
 
     function readStatusCache(userId) {
