@@ -87,6 +87,8 @@ let currentType = 'all';
 let currentCategory = 'all';
 let searchKeyword = '';
 let searchTimer = null;
+let searchScope = 'all';
+let searchPage = 1;
 
 async function loadGames() {
     const grid = document.getElementById('gamesGrid');
@@ -176,54 +178,102 @@ function renderCategories() {
 window.renderGames = function() {
     const grid = document.getElementById('gamesGrid');
     const status = document.getElementById('statusMessage');
+    const scopeBar = document.getElementById('searchScopeBar');
+    const pagination = document.getElementById('searchPagination');
     if (!grid) return;
     grid.innerHTML = '';
+    if (scopeBar) scopeBar.style.display = 'none';
+    if (pagination) pagination.style.display = 'none';
 
     const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+    const isSearch = searchKeyword.trim() !== '';
     let filtered = [];
 
-    if (searchKeyword.trim() !== '') {
-        const searchResults = window.leleleSearch(searchKeyword, gameData, isEn);
-        filtered = searchResults; 
-        
+    if (isSearch) {
+        filtered = window.leleleSearch(searchKeyword, gameData, isEn, searchScope);
+
         if (filtered.length === 0) {
             status.style.display = 'block';
             status.innerHTML = `<span class="zh-inline">没有找到匹配的游戏</span><span class="en-inline">No matching games found</span>`;
             return;
         }
-    } else {
-        filtered = gameData.filter(g => {
-            const matchType = (currentType === 'all') || (g.type === currentType);
-            const cat = isEn ? g.category_en : g.category_zh;
-            const matchCat = (currentCategory === 'all') || (cat === currentCategory);
-            return matchType && matchCat;
-        });
 
-        if (filtered.length === 0) {
-            status.style.display = 'block';
-            status.innerHTML = `<span class="zh-inline">该分类下暂无游戏，敬请期待 ✨</span><span class="en-inline">No games in this category yet ✨</span>`;
-            return;
-        }
+        const pageSize = 25;
+        const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+        if (searchPage > totalPages) searchPage = totalPages;
+        if (searchPage < 1) searchPage = 1;
+        const pageItems = filtered.slice((searchPage - 1) * pageSize, searchPage * pageSize);
+
+        status.style.display = 'none';
+        if (scopeBar) renderSearchScopeBar(filtered.length);
+        if (pagination) renderSearchPagination(totalPages);
+        pageItems.forEach(item => renderGameCard(item, isEn, true));
+        return;
+    }
+
+    filtered = gameData.filter(g => {
+        const matchType = (currentType === 'all') || (g.type === currentType);
+        const cat = isEn ? g.category_en : g.category_zh;
+        const matchCat = (currentCategory === 'all') || (cat === currentCategory);
+        return matchType && matchCat;
+    });
+
+    if (filtered.length === 0) {
+        status.style.display = 'block';
+        status.innerHTML = `<span class="zh-inline">该分类下暂无游戏，敬请期待 ✨</span><span class="en-inline">No games in this category yet ✨</span>`;
+        return;
     }
 
     status.style.display = 'none';
-    filtered.forEach(item => {
-        const g = item.game || item;
-        const finalHtmlName = item.matchHtml || escapeHtml(isEn ? (g.name_en || g.name_zh || g.name) : (g.name_zh || g.name_en || g.name));
-        
-        const card = document.createElement('div');
-        card.className = 'game-card';
-        card.setAttribute('tabindex', '0');
-        card.innerHTML = `
-            <div class="game-icon">${g.icon || '🎮'}</div>
-            <div class="game-name">${finalHtmlName}</div>
-        `;
-        card.onclick = () => showPreview(g);
-        card.onkeydown = (e) => {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showPreview(g); }
-        };
-        grid.appendChild(card);
-    });
+    filtered.forEach(item => renderGameCard(item, isEn, false));
+};
+
+function renderGameCard(item, isEn, showAuthor) {
+    const grid = document.getElementById('gamesGrid');
+    const g = item.game || item;
+    const finalHtmlName = item.matchHtml || escapeHtml(isEn ? (g.name_en || g.name_zh || g.name) : (g.name_zh || g.name_en || g.name));
+    let authorHtml = '';
+    if (showAuthor && g.author) {
+        authorHtml = `<div class="game-author">${escapeHtml(g.author)}</div>`;
+    }
+    const card = document.createElement('div');
+    card.className = 'game-card';
+    card.setAttribute('tabindex', '0');
+    card.innerHTML = `
+        <div class="game-icon">${g.icon || '🎮'}</div>
+        <div class="game-name">${finalHtmlName}</div>
+        ${authorHtml}
+    `;
+    card.onclick = () => showPreview(g);
+    card.onkeydown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showPreview(g); }
+    };
+    grid.appendChild(card);
+}
+
+function renderSearchScopeBar(total) {
+    const bar = document.getElementById('searchScopeBar');
+    if (!bar) return;
+    bar.style.display = 'flex';
+    const countEl = bar.querySelector('.scope-count');
+    if (countEl) countEl.textContent = `(${total})`;
+}
+
+function renderSearchPagination(totalPages) {
+    const p = document.getElementById('searchPagination');
+    if (!p) return;
+    if (totalPages <= 1) { p.style.display = 'none'; return; }
+    p.style.display = 'flex';
+    let html = `<button class="page-btn" data-page="${searchPage - 1}" ${searchPage <= 1 ? 'disabled' : ''} aria-label="上一页">‹</button>`;
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || Math.abs(i - searchPage) <= 1) {
+            html += `<button class="page-btn ${i === searchPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+        } else if (Math.abs(i - searchPage) === 2) {
+            html += `<span class="page-ellipsis">…</span>`;
+        }
+    }
+    html += `<button class="page-btn" data-page="${searchPage + 1}" ${searchPage >= totalPages ? 'disabled' : ''} aria-label="下一页">›</button>`;
+    p.innerHTML = html;
 }
 
 const renderGames = window.renderGames;
@@ -242,6 +292,7 @@ searchInput.addEventListener('input', (e) => {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => { 
         searchKeyword = val; 
+        searchPage = 1;
         renderGames(); 
     }, 200);
 });
@@ -249,6 +300,7 @@ searchInput.addEventListener('input', (e) => {
 searchClearBtn.addEventListener('click', () => {
     searchInput.value = '';
     searchKeyword = '';
+    searchPage = 1;
     searchClearBtn.classList.remove('show');
     renderGames();
 });
@@ -270,6 +322,31 @@ document.getElementById('categoryNav').addEventListener('click', (e) => {
     currentCategory = btn.dataset.cat;
     renderGames();
 });
+
+// 搜索范围切换（全部 / 游戏 / 作者）
+const searchScopeBar = document.getElementById('searchScopeBar');
+if (searchScopeBar) {
+    searchScopeBar.addEventListener('click', (e) => {
+        const btn = e.target.closest('.scope-btn');
+        if (!btn) return;
+        searchScopeBar.querySelectorAll('.scope-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        searchScope = btn.dataset.scope;
+        searchPage = 1;
+        renderGames();
+    });
+}
+
+// 搜索分页
+const searchPaginationEl = document.getElementById('searchPagination');
+if (searchPaginationEl) {
+    searchPaginationEl.addEventListener('click', (e) => {
+        const btn = e.target.closest('.page-btn');
+        if (!btn || btn.disabled) return;
+        const p = parseInt(btn.dataset.page, 10);
+        if (!isNaN(p)) { searchPage = p; renderGames(); }
+    });
+}
 
 window.addEventListener('langChanged', () => {
     renderCategories();
