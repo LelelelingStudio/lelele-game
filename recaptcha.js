@@ -77,6 +77,26 @@
         return e;
     }
 
+    // 后端错误码 → 用户可读文案（绝不裸显错误码）
+    function friendlyReason(code) {
+        const map = {
+            google_rejected: ['人机验证未通过，请重试', 'Verification failed. Please retry.'],
+            hostname_mismatch: ['验证域名不匹配，请刷新后重试', 'Domain mismatch. Please refresh and retry.'],
+            challenge_expired: ['验证已过期，请重试', 'Verification expired. Please retry.'],
+            action_mismatch: ['验证参数异常，请刷新后重试', 'Verification mismatch. Please refresh and retry.'],
+            missing_score: ['验证结果异常，请重试', 'Verification failed. Please retry.'],
+            invalid_json: ['请求异常，请重试', 'Request error. Please retry.'],
+            request_too_large: ['请求异常，请重试', 'Request error. Please retry.'],
+            missing_token: ['验证令牌缺失，请重试', 'Missing token. Please retry.'],
+            verification_unavailable: ['安全验证服务暂时不可用，请稍后再试', 'Verification service is temporarily unavailable. Please try again later.'],
+            unsupported_action: ['验证配置异常，请联系站长', 'Verification config error. Please contact the site owner.'],
+            unsupported_provider: ['验证配置异常，请联系站长', 'Verification config error. Please contact the site owner.'],
+            unsupported_mode: ['验证配置异常，请联系站长', 'Verification config error. Please contact the site owner.']
+        };
+        const entry = map[code];
+        return entry ? text(entry[0], entry[1]) : text('安全验证失败，请重试', 'Security verification failed. Please retry.');
+    }
+
     async function fetchJson(path, options) {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 8000);
@@ -102,7 +122,7 @@
                 error: payload.error || null,
                 decision: payload.decision || null
             });
-            const error = new Error(payload.error || text('安全验证失败，请重试', 'Security verification failed. Please retry.'));
+            const error = new Error(friendlyReason(payload.error));
             error.code = payload.error;
             error.status = response.status;
             error.decision = payload.decision;
@@ -203,7 +223,8 @@
             } catch (err) {
                 lastErr = err;
                 if (!isServerError(err)) { recordSuccess(); throw err; } // 非服务端错误（如用户未通过）不计入熔断
-                if (attempt === 0) continue; // 仅对服务端错误重试一次
+                // 仅网络层失败重试；5xx 时 token 可能已被 Google 消费，重试必得 timeout-or-duplicate
+                if (attempt === 0 && err.code === 'network_error') continue;
             }
         }
         // 重试仍失败：计入熔断
