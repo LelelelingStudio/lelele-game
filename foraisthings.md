@@ -99,9 +99,10 @@ lelele-game/
 
 ---
 
-## 4. 顶部导航 + 灵动岛（4.0.0 新增）
+## 4. 顶部导航 + 灵动岛（4.0.1 重做）
 
-> 详见 `common.css`（`.top-bar`、`.island-mode`、`.di-keep`/`.di-icon`/`.di-hide`）与 `common.js`（`updateIsland` 滚动监听）。
+> 详见 `common.css`（`.top-bar`、`.top-bar.island-mode`）与 `common.js`（`initIslandNav` 滚动监听 + 注入 `.island-search-btn`）。
+> ⚠️ **4.0.1 已弃用 4.0.0 的 `.di-keep`/`.di-icon`/`.di-hide` 分级 class**，改为：岛模式下用 `.island-mode .btn-about/.btn-docs/.btn-support/.recommend-btn/.studio-link{display:none}` 隐藏次级按钮，保留 `.lang-switch`/`.action-btn`/`.island-search-btn`；搜索行与分类行用 `max-height:0` 平滑收起。
 
 **行为**：
 - 不滚动（`scrollY ≤ 80`）：顶部三行导航保持原样（Logo+标题+右侧按钮 / 类型导航+搜索+收藏 / 分类筛选）。
@@ -178,10 +179,10 @@ lelele-game/
 
 ## 10. 4.0.0 留存与体验增强（2026-11-03）
 
-### 10.1 设置面板（⚙️，灵动岛按钮）
-- 入口：`#openSettingsBtn`（灵动岛 `.di-icon`）。模块在 `common.js` 的 `CustomUI` 区（`buildSettingsPanel` / `openSettings` / `closeSettings` / `initSettings`）。
-- 功能：主题色 6 预设（`--accent` 实时切换 + `localStorage.lelele_accent`）；字号 ±（根 `font-size` 缩放 0.85–1.3×、`localStorage.lelele_font_scale`）；自定义背景入口；排版模式入口。
-- UI：右侧滑出毛玻璃面板（`#leleleSettings`），样式 `.lelele-settings-panel/.card/...` 均在 `common.css`。
+### 10.1 设置面板（⚙️ / 🎛️ 排版，4.0.1 修正）
+- 入口：`#openSettingsBtn`（⚙️ 设置）、`#openLayoutBtn`（🎛️ 排版）。模块在 `common.js` 的 IIFE（`buildSettingsPanel` / `openSettings` / `closeSettings` / `initSettings` / `initLayout` / `toggleLayout`）。
+- 功能：主题色 6 预设 → **同时写 `--primary` 与 `--accent`**（`applyAccent`，因为站内组件两令牌都在用，只改一个会「看起来没用」）+ `localStorage.lelele_accent`；字号 ± → **`document.body.style.zoom`**（站内文本多为 px 定值，仅改根 font-size 不生效）+ `--ui-scale` 令牌 + `localStorage.lelele_font_scale`。
+- UI：右侧滑出毛玻璃面板（`#leleleSettings`），样式 `.lelele-settings-panel/*.card` 等均在 `common.css`。
 
 ### 10.2 自定义背景
 - `processCustomBg(file)`（`common.js`）：FileReader → Image → canvas 采样 64×64 计算「信息量」（`analyzeImage`：亮度方差 + 边缘密度），信息量大则遮罩淡化多（dim 0.22–0.72），小则淡化少；边框检测（环形 vs 内部方差）决定要不要补 1px 描边。
@@ -193,20 +194,34 @@ lelele-game/
 - `toggleLayout()`：给 `#topRightActions > *` 加 `.layout-draggable`，pointer 拖拽上下微调（±18px），位置存 `localStorage.lelele_layout_positions`（键 `layoutKey` = id 或首个 `btn-` class）。再点按钮或 Esc 退出并 `exitLayout()` 保存。
 
 ### 10.4 OTF 展示字体
-- `fonts/LelelelingFont1.otf` 进仓库，`common.css` `@font-face` 注册 `'Leleleling Display'`，套 `h1/h2/h3/.game-title`（中文自动回退系统字体，正文不动）。令牌 `--font-display`。
+> ⚠️ **已被 revert，不在当前代码库**（`fonts/` 已删除）。如需恢复需重新放入 `.otf` 并在 `common.css` 注册。
 
-### 10.5 搜索增强
+### 10.5 搜索增强（4.0.1 修正）
 - `search.js`：相关度排序（精确>前缀>包含>拼音>连续子序列兜底）、字段权重（标题 1.0 / 分类 0.75 / 作者 0.6）、去重、按范围筛选（`scope`：`all`/`game`/`author`）。
-- `index.js`：`renderGames` 支持搜索范围切换条（全部/游戏/作者 `#searchScopeBar`）、结果展示作者（`game.author` 行）、**首页 25 条分页**（`pageSize=25`，`#searchPagination` 上一页/页码/下一页，>25 才出现）。
+- `index.js`：`renderGames` 支持搜索范围切换条（全部/游戏/作者 `#searchScopeBar`）、结果展示作者（`game.author` 行）；**作者范围渲染真正的作者卡片**（`renderAuthorCard`：头像 + 名称 + 作品数，点击跳 `author.html?id=`）；**首页 25 条分页**（`pageSize=25`，`#searchPagination` 上一页/页码/下一页，>25 才出现）。
 - 收紧旧版「单字符/乱序显示一大堆」的宽松子序列兜底（现要求查询 ≥2 且完整顺序命中才计分）。
 
 ### 10.6 国内性能 / 可达性
-- 自托管 `vendor/supabase.js`（从 jsdelivr UMD 下载，218KB），5 个页面改为同域引用；client 为 defer 的页 UMD 也 defer，同步页保持同步。`dashboard.html` 的 echarts 加 `defer`。
-- 全站无 Google Fonts / font-awesome 外部依赖。
+> ⚠️ **已被 revert，不在当前代码库**（`vendor/supabase.js` 自托管方案当时被撤销；当前仍是 jsdelivr 引用）。如需恢复需重新下载 UMD 到 `vendor/` 并改引用。
 
 ### 10.7 SEO / UX 修复
-- 7 个主页面（`index/about/docs/game/author/dashboard/login`）统一补：`favicon.ico`+`icon-192.png`+`apple-touch-icon`、扩展 `title`（告别 4 字标题）、扩展 `description`、`<link rel="canonical">`、Open Graph（`og:*`）+ Twitter Card（`summary_large_image`）。
-- 注入方式：清除旧 description/icon 行 → 在 title 位置插入完整 meta 块（可复用脚本思路）。
+> ⚠️ **已被 revert，不在当前代码库**（7 页的 favicon/OG/Twitter/canonical/扩展 title 当时被撤销）。如需恢复需重新注入。
+
+---
+
+## 11. 4.0.1 修复版要点（2026-11-03，4.0.0 被 revert 后重做）
+
+**缓存根治（关键）**
+- `sw.js` 缓存名升 `lelele-pwa-v1.1`，预缓存全部页面 + css/js/json；`activate` 阶段 `skipWaiting` + `clients.claim` + 删旧缓存；`common.js` 注册 SW 后监听新版本并**自动刷新一次**（sessionStorage 防抖），消除线上新旧资源混染。
+
+**reCAPTCHA 容错（recaptcha.js）**
+- `fetchJson` 加 **8s AbortController 超时** + 解析 HTTP 状态与后端 `error` 码；**5xx/网络**显示友好文案「安全验证服务暂时不可用」，且**只在内联/弹层一处展示**（去重，不再裸显 `internal_error` 双重显示）。
+- `verifyToken` 带 **1 次重试**（仅服务端错误重试）；**熔断**：`sessionStorage` 累计服务端错误 ≥3 次即 `isBreakerOpen`，之后 `periodic_reverify` 直接放行（`skipped:true`，跳过 `/consume`）；`login/register` 仍走严格分支（`ACTIONS` 不含 periodic_reverify 之外的 fail-open）。
+- 控制台输出结构化诊断（`[reCAPTCHA] 接口返回非 2xx: {path,status,error,decision}`）。
+- 后端（`recaptcha-lelelegame-back`）：`lib/ticket.js`/`lib/google.js` 缺失密钥时优雅返回 `503 verification_unavailable`（不再抛 500）；新增 `.env.example` 列出必填 `RECAPTCHA_V3_SECRET`/`RECAPTCHA_V2_SECRET`/`CAPTCHA_TICKET_SECRET`/`ALLOWED_ORIGIN`/`ALLOWED_HOSTNAME`。**部署时必须在 Vercel 配置这些密钥**，否则安全复验会一直 503 熔断放行。
+
+**雪期**：`activity_whole.json` 两处 `end` 延长至 `2027-01-31`（跨年逻辑在 `common.js` 已兼容）。
 
 ### 变更记录补充
-- **2026-11-03 · 4.0.0 增强**（见第 10 节）：设置面板（⚙️）/ 自定义背景 / 自定义排版 / OTF 字体 / 搜索增强（游戏·作者·全部范围 + 结果显作者 + 25 条分页）/ 国内性能（vendor/supabase-js 同域 + defer）/ SEO（7 页 favicon+OG+Twitter+canonical+扩展 title/description）。
+- **2026-11-03 · 4.0.1 修复版**（见第 11 节）：缓存根治（sw.js v1.1 + 自动刷新）/ 灵动岛重做（52px 胶囊 morph）/ 搜索三范围 + 作者卡片 + 25 条分页 / 设置换色双令牌 + 字号 zoom 立即生效 / 雪期延至 2027-01-31 / reCAPTCHA 容错（5xx 友好文案 + 8s 超时 + 1 次重试 + 服务端错误≥3次熔断跳过验证）+ 后端缺失密钥降级 503。
+- _（10.4 OTF 字体 / 10.6 自托管 vendor / 10.7 SEO 在 4.0.0 被 revert 后未重做，当前代码库不含这些功能。）_

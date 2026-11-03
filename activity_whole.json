@@ -2,11 +2,11 @@
   "forceEnable": false, 
   "specialPeriod": {
     "start": "2026-10-21",
-    "end": "2026-12-31"
+    "end": "2027-01-31"
   },
   "yearlyPeriod": {
     "start": "11-01",
-    "end": "12-31"
+    "end": "01-31"
   },
   "assets": {
     "background": "https://game.leleleling.site/background-winter.png",

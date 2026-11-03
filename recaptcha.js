@@ -9,6 +9,8 @@
 
     const ACTIONS = new Set(['login', 'register', 'periodic_reverify']);
     const CACHE_KEY = 'lelele_captcha_status';
+    const BREAKER_KEY = 'lelele_rc_breaker';
+    const BREAKER_LIMIT = 3; // internal/服务端错误累计达到该值即熔断，停止验证
     let googleLoadPromise = null;
     let configPromise = null;
     let modalPromise = null;
@@ -25,20 +27,85 @@
         return config.apiBaseUrl.replace(/\/$/, '') + path;
     }
 
+    // 轻量 toast，用于熔断时提示
+    function toast(message, ms) {
+        ms = ms || 3600;
+        let el = document.getElementById('leleleCaptchaToast');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'leleleCaptchaToast';
+            el.style.cssText = 'position:fixed;left:50%;bottom:32px;transform:translateX(-50%);background:rgba(15,23,42,.92);color:#fff;padding:12px 22px;border-radius:30px;font-size:14px;font-weight:600;z-index:10006;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:88%;text-align:center;';
+            document.body.appendChild(el);
+        }
+        el.textContent = message;
+        requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translateX(-50%) translateY(0)'; });
+        clearTimeout(el._t);
+        el._t = setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(-50%) translateY(16px)'; }, ms);
+    }
+
+    // ===== 熔断计数（会话级）=====
+    function getBreakerCount() {
+        const v = parseInt(sessionStorage.getItem(BREAKER_KEY) || '0', 10);
+        return Number.isFinite(v) ? v : 0;
+    }
+    function recordFailure() {
+        const c = getBreakerCount() + 1;
+        try { sessionStorage.setItem(BREAKER_KEY, String(c)); } catch (e) {}
+        if (c >= BREAKER_LIMIT) {
+            toast(text('安全验证服务暂时不可用，已为你跳过验证', 'The verification service is temporarily unavailable; this check was skipped.'));
+            return true;
+        }
+        return false;
+    }
+    function recordSuccess() {
+        if (getBreakerCount() !== 0) { try { sessionStorage.setItem(BREAKER_KEY, '0'); } catch (e) {} }
+    }
+    function isBreakerOpen() { return getBreakerCount() >= BREAKER_LIMIT; }
+
+    // 判断是否为服务端/internal 错误（应计入熔断、而非用户重试）
+    function isServerError(err) {
+        if (!err) return false;
+        if (err.code === 'verification_unavailable') return true;
+        if (err.status && err.status >= 500) return true;
+        if (!err.status) return true; // 网络层失败（无 HTTP 状态）
+        return false;
+    }
+    function makeServerError(code) {
+        const e = new Error(text('安全验证服务暂时不可用，请稍后再试', 'Verification service is temporarily unavailable. Please try again later.'));
+        e.code = code || 'service_unavailable';
+        e.status = 503;
+        return e;
+    }
+
     async function fetchJson(path, options) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
         let response;
         try {
-            response = await fetch(apiUrl(path), options);
-        } catch {
-            throw new Error(text('安全验证服务暂时无法连接，请稍后重试', 'Security verification is temporarily unavailable. Please retry.'));
+            response = await fetch(apiUrl(path), Object.assign({ signal: controller.signal }, options));
+        } catch (e) {
+            clearTimeout(timeout);
+            const err = new Error(text('安全验证服务暂时无法连接，请稍后重试', 'Security verification is temporarily unavailable. Please retry.'));
+            err.code = 'network_error';
+            throw err;
         }
+        clearTimeout(timeout);
 
         let payload = {};
         try { payload = await response.json(); } catch (e) {}
+
         if (!response.ok) {
+            // 结构化诊断：便于对照后端日志
+            console.warn('[reCAPTCHA] 接口返回非 2xx:', {
+                path,
+                status: response.status,
+                error: payload.error || null,
+                decision: payload.decision || null
+            });
             const error = new Error(payload.error || text('安全验证失败，请重试', 'Security verification failed. Please retry.'));
             error.code = payload.error;
             error.status = response.status;
+            error.decision = payload.decision;
             throw error;
         }
         return payload;
@@ -105,15 +172,45 @@
         container.classList.toggle('active', state === 'v2' || state === 'error');
         container.dataset.state = state;
         const status = container.querySelector('.recaptcha-inline-status');
-        if (status) status.textContent = message || '';
+        // 去重：错误文案只在弹层里显示，内联容器不再重复展示原始错误码
+        if (status) status.textContent = (state === 'error') ? '' : (message || '');
     }
 
+    // 带熔断 + 1 次重试的 /verify 调用
     async function verifyToken(token, action, mode) {
-        return fetchJson('/verify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-            body: JSON.stringify({ token, action, mode })
-        });
+        // 熔断已开启：直接放行，不再请求
+        if (isBreakerOpen()) {
+            return { decision: 'pass', mode: 'bypass', ticket: null, skipped: true, reason: 'breaker_open' };
+        }
+
+        let lastErr = null;
+        for (let attempt = 0; attempt < 2; attempt++) {
+            try {
+                const result = await fetchJson('/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    body: JSON.stringify({ token, action, mode })
+                });
+                if (result.decision === 'reject' && result.error === 'verification_unavailable') {
+                    throw makeServerError('verification_unavailable');
+                }
+                if (result.decision === 'reject') {
+                    recordSuccess();
+                    return result;
+                }
+                recordSuccess();
+                return result;
+            } catch (err) {
+                lastErr = err;
+                if (!isServerError(err)) { recordSuccess(); throw err; } // 非服务端错误（如用户未通过）不计入熔断
+                if (attempt === 0) continue; // 仅对服务端错误重试一次
+            }
+        }
+        // 重试仍失败：计入熔断
+        if (recordFailure()) {
+            return { decision: 'pass', mode: 'bypass', ticket: null, skipped: true, reason: 'breaker_open' };
+        }
+        throw lastErr || makeServerError();
     }
 
     async function executeV2(action, container) {
@@ -146,7 +243,7 @@
                             setInlineState(container, 'passed', text('验证已通过', 'Verification passed'));
                             finish(resolve, result);
                         } catch (error) {
-                            setInlineState(container, 'error', error.message);
+                            setInlineState(container, 'error', '');
                             finish(reject, error);
                         }
                     },
@@ -169,7 +266,7 @@
         const remoteConfig = await getRemoteConfig();
         if (!remoteConfig.required) {
             const bypass = await verifyToken('', action, 'bypass');
-            if (bypass.decision !== 'pass' || !bypass.ticket) throw new Error(text('地区验证状态确认失败', 'Failed to confirm regional verification status'));
+            if (bypass.decision !== 'pass') throw new Error(text('地区验证状态确认失败', 'Failed to confirm regional verification status'));
             onState('passed');
             return bypass;
         }
@@ -179,8 +276,19 @@
             const token = await executeV3(action);
             result = await verifyToken(token, action, 'v3');
         } catch (error) {
-            setInlineState(container, 'error', error.message);
+            // 熔断开启时，将本次验证降级为放行
+            if (isBreakerOpen()) {
+                onState('passed');
+                return { decision: 'pass', mode: 'bypass', ticket: null, skipped: true, reason: 'breaker_open' };
+            }
+            setInlineState(container, 'error', '');
             throw error;
+        }
+
+        // 熔断放行（v3 正常返回路径）：直接通过，不再校验 ticket
+        if (result && result.skipped) {
+            onState('passed');
+            return result;
         }
 
         if (result.decision === 'pass' && result.ticket) {
@@ -292,6 +400,13 @@
             const inline = buildInlineContainer();
             widgetArea.appendChild(inline);
 
+            const finishPass = () => {
+                overlay.classList.add('leaving');
+                setTimeout(() => overlay.remove(), 220);
+                modalPromise = null;
+                resolve(true);
+            };
+
             const run = async () => {
                 retry.hidden = true;
                 status.textContent = text('正在进行无感验证…', 'Running a background check…');
@@ -303,13 +418,15 @@
                             if (state === 'passed') status.textContent = text('验证已通过，正在继续…', 'Verified. Continuing…');
                         }
                     });
+                    // 熔断放行：跳过 consume 直接通过
+                    if (result.skipped) { finishPass(); return; }
                     await consume(result.ticket, 'periodic_reverify', session);
-                    overlay.classList.add('leaving');
-                    setTimeout(() => overlay.remove(), 220);
-                    modalPromise = null;
-                    resolve(true);
+                    finishPass();
                 } catch (error) {
-                    status.textContent = error.message || text('验证失败，请重试', 'Verification failed. Please retry.');
+                    const server = isServerError(error);
+                    status.textContent = server
+                        ? text('安全验证服务暂时不可用，已为你跳过验证', 'Verification service is temporarily unavailable; this check was skipped.')
+                        : (error.message || text('验证失败，请重试', 'Verification failed. Please retry.'));
                     retry.hidden = false;
                 }
             };

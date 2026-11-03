@@ -525,6 +525,12 @@
                 <a class="action-btn studio-link" href="https://leleleling.site/index.html" target="_blank" rel="noopener noreferrer">
                     <span class="zh-inline">工作室</span><span class="en-inline">Studio</span>
                 </a>
+                <button class="action-btn btn-settings" id="openSettingsBtn" type="button">
+                    <span class="zh-inline">⚙️ 设置</span><span class="en-inline">⚙️ Settings</span>
+                </button>
+                <button class="action-btn btn-layout" id="openLayoutBtn" type="button">
+                    <span class="zh-inline">🎛️ 排版</span><span class="en-inline">🎛️ Layout</span>
+                </button>
             </div>
         </div>
 
@@ -600,8 +606,15 @@
 
         <!-- 游戏列表 -->
         <div class="games-container">
+            <div class="search-scope-bar" id="searchScopeBar" style="display:none;">
+                <button type="button" class="scope-btn active" data-scope="all"><span class="zh-inline">全部</span><span class="en-inline">All</span></button>
+                <button type="button" class="scope-btn" data-scope="game"><span class="zh-inline">游戏</span><span class="en-inline">Games</span></button>
+                <button type="button" class="scope-btn" data-scope="author"><span class="zh-inline">作者</span><span class="en-inline">Authors</span></button>
+                <span class="scope-count"></span>
+            </div>
             <div class="games-grid" id="gamesGrid"></div>
             <div class="status-message" id="statusMessage" style="display:none;"></div>
+            <div class="search-pagination" id="searchPagination" style="display:none;"></div>
         </div>
 
         <!-- 小徽章（放在 footer 之前，避免被 common.js 覆盖） -->

@@ -1,25 +1,55 @@
-const CACHE_NAME = 'lelele-pwa-v1.0';
+const CACHE_NAME = 'lelele-pwa-v1.1';
+
+// 预缓存清单：覆盖全部页面与核心静态资源（任一 404 不影响整体安装）
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
     '/about.html',
+    '/docs.html',
     '/game.html',
+    '/author.html',
+    '/dashboard.html',
+    '/login.html',
+    '/404.html',
+    '/privacy.html',
+    '/terms.html',
+    '/copyright.html',
+    '/game_rules.html',
+    '/developer_docs.html',
     '/common.css',
     '/common.js',
     '/index.js',
+    '/search.js',
+    '/rank-loader.js',
+    '/notice.js',
+    '/recaptcha.js',
+    '/recaptcha.css',
+    '/recaptcha-config.js',
+    '/supabase-client.js',
+    '/manifest-zh.json',
+    '/manifest-en.json',
     '/lelegame_data.json',
+    '/activity_whole.json',
+    '/announcements.json',
+    '/special_common.json',
     '/lelelegame.svg',
+    '/lelelegame.png',
+    '/lelelegame-winter.png',
+    '/background-winter.png',
     '/favicon.ico',
+    '/favicon-winter.ico',
     '/icon-192.png',
     '/icon-512.png'
 ];
 
-// 安装 Service Worker 并缓存核心资源
+// 安装 Service Worker 并缓存核心资源（弹性：单个资源失败不影响安装）
 self.addEventListener('install', (e) => {
     e.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            console.log('✅ 正在预缓存核心资源');
-            return cache.addAll(ASSETS_TO_CACHE);
+        caches.open(CACHE_NAME).then(async (cache) => {
+            console.log('✅ 正在预缓存核心资源 (', CACHE_NAME, ')');
+            await Promise.allSettled(
+                ASSETS_TO_CACHE.map((u) => cache.add(u).catch((err) => console.warn('跳过缓存:', u, err)))
+            );
         }).then(() => self.skipWaiting())
     );
 });
@@ -40,26 +70,21 @@ self.addEventListener('activate', (e) => {
     );
 });
 
-// 拦截网络请求（网络优先，失败时降级使用缓存）
+// 拦截网络请求：同域走网络优先（保证版本更新即时生效），失败再降级缓存；外部链接直通
 self.addEventListener('fetch', (e) => {
-    // 不缓存外部链接（比如外网游戏、Tally 表单）
-    if (!e.request.url.startsWith(self.location.origin)) {
-        return;
-    }
-    
+    if (e.request.method !== 'GET') return;
+    if (!e.request.url.startsWith(self.location.origin)) return;
+
     e.respondWith(
         fetch(e.request)
             .then((response) => {
-                // 如果请求成功，克隆一份放到缓存里
-                const responseClone = response.clone();
-                caches.open(CACHE_NAME).then((cache) => {
-                    cache.put(e.request, responseClone);
-                });
+                // 仅缓存成功的同域响应
+                if (response && response.status === 200 && response.type === 'basic') {
+                    const responseClone = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(e.request, responseClone));
+                }
                 return response;
             })
-            .catch(() => {
-                // 网络失败（断网），去缓存里找
-                return caches.match(e.request);
-            })
+            .catch(() => caches.match(e.request))
     );
 });
