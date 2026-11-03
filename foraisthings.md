@@ -216,12 +216,14 @@ lelele-game/
 
 **reCAPTCHA 容错（recaptcha.js）**
 - `fetchJson` 加 **8s AbortController 超时** + 解析 HTTP 状态与后端 `error` 码；**5xx/网络**显示友好文案「安全验证服务暂时不可用」，且**只在内联/弹层一处展示**（去重，不再裸显 `internal_error` 双重显示）。
-- `verifyToken` 带 **1 次重试**（仅服务端错误重试）；**熔断**：`sessionStorage` 累计服务端错误 ≥3 次即 `isBreakerOpen`，之后 `periodic_reverify` 直接放行（`skipped:true`，跳过 `/consume`）；`login/register` 仍走严格分支（`ACTIONS` 不含 periodic_reverify 之外的 fail-open）。
+- `verifyToken` **不再对 5xx 用同一 token 重试**（reCAPTCHA token 一次性，Google 已消费后重试必得 `timeout-or-duplicate`→`google_rejected`）；仅网络层失败（fetch 抛错、无 HTTP 响应）重试 1 次。**熔断**：`sessionStorage` 累计服务端错误 ≥3 次即 `isBreakerOpen`，之后 `periodic_reverify` 直接放行（`skipped:true`，跳过 `/consume`）；`login/register` 仍走严格分支。v3 正常返回路径上的 `skipped` 也正确放行（修复过一处误报「验证未通过」的分支缺失）。
+- **4xx 错误码映射友好文案**（`friendlyReason`）：`google_rejected`→「人机验证未通过，请重试」等，任何错误码都不再裸显给用户。
 - 控制台输出结构化诊断（`[reCAPTCHA] 接口返回非 2xx: {path,status,error,decision}`）。
-- 后端（`recaptcha-lelelegame-back`）：`lib/ticket.js`/`lib/google.js` 缺失密钥时优雅返回 `503 verification_unavailable`（不再抛 500）；新增 `.env.example` 列出必填 `RECAPTCHA_V3_SECRET`/`RECAPTCHA_V2_SECRET`/`CAPTCHA_TICKET_SECRET`/`ALLOWED_ORIGIN`/`ALLOWED_HOSTNAME`。**部署时必须在 Vercel 配置这些密钥**，否则安全复验会一直 503 熔断放行。
+- **后端 500 真正根因（2026-11-03 定位，与密钥无关）**：`api/captcha/verify.js` 第 79 行 Google 校验通过后调用 `issueTicket({mode: provider})`，`provider='recaptcha'`，但 `lib/env.js` 的 `MODES=['v3','v2','bypass','hcaptcha','turnstile']` **不含 `'recaptcha'`** → `assertMode` 抛 `Unsupported captcha mode` → `publicError` 不识别 → **500 internal_error**。此时 token 已被 Google 消费，前端旧逻辑重试同 token 必得 400 `google_rejected`（与用户截图「一次 500 + 一次 google_rejected」完全吻合）。**修复**：`MODES` 加入 `'recaptcha'`（发/验 ticket 两侧同时修好），本地单测 `issueTicket(mode:'recaptcha')`+`verifyTicket` 通过；线上真实 token 实测 500 消失。Vercel 密钥（`CAPTCHA_TICKET_SECRET`/`RECAPTCHA_V3/V2_SECRET`/`ALLOWED_*`）经用户截图确认均已配置且工作正常（`provider:'none'` bypass 路径 200 + 合法 ticket + CORS 头齐全）。
+- 后端另有防御层：`lib/ticket.js`/`lib/google.js` 缺失/过短密钥时优雅返回 `503 verification_unavailable`（不再抛 500）；`.env.example` 列出必填变量。
 
 **雪期**：`activity_whole.json` 两处 `end` 延长至 `2027-01-31`（跨年逻辑在 `common.js` 已兼容）。
 
 ### 变更记录补充
-- **2026-11-03 · 4.0.1 修复版**（见第 11 节）：缓存根治（sw.js v1.1 + 自动刷新）/ 灵动岛重做（52px 胶囊 morph）/ 搜索三范围 + 作者卡片 + 25 条分页 / 设置换色双令牌 + 字号 zoom 立即生效 / 雪期延至 2027-01-31 / reCAPTCHA 容错（5xx 友好文案 + 8s 超时 + 1 次重试 + 服务端错误≥3次熔断跳过验证）+ 后端缺失密钥降级 503。
+- **2026-11-03 · 4.0.1 修复版**（见第 11 节）：缓存根治（sw.js v1.1 + 自动刷新）/ 灵动岛重做（52px 胶囊 morph）/ 搜索三范围 + 作者卡片 + 25 条分页 / 设置换色双令牌 + 字号 zoom 立即生效 / 雪期延至 2027-01-31 / reCAPTCHA：**后端 500 根因修复（env.js MODES 补 'recaptcha'，与密钥无关）** + 前端取消同 token 重试 + 4xx 友好文案 + 服务端错误≥3次熔断跳过验证 + 后端缺密钥防御性降级 503。
 - _（10.4 OTF 字体 / 10.6 自托管 vendor / 10.7 SEO 在 4.0.0 被 revert 后未重做，当前代码库不含这些功能。）_
