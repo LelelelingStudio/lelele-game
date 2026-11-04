@@ -311,86 +311,11 @@
                 return;
             }
 
-            let uuid = null;
-            let defaultNameZh = '';
-            let defaultNameEn = '';
-            let isRegistered = false;
-            let profile = null;
-            let matchedRaw = null;
-
-            // 1. 从 authors.surge.sh 查找对应的 UUID 和原本设定的名字
-            try {
-                const res = await fetch('https://authors.surge.sh/authors.json?t=' + Date.now());
-                if (res.ok) {
-                    const authors = await res.json();
-                    const matched = authors.find(a => String(a.id) === String(authorId));
-                    if (matched) {
-                        uuid = matched.uuid;
-                        defaultNameZh = matched.name_zh || '';
-                        defaultNameEn = matched.name_en || '';
-                        matchedRaw = matched;
-                    }
-                }
-            } catch (e) {
-                console.warn('作者映射表拉取失败', e);
-            }
-
-            // 2. 用 UUID 去 Supabase 拿最新资料
-            if (uuid && typeof supabaseClient !== 'undefined' && supabaseClient) {
-                try {
-                    const { data, error } = await supabaseClient
-                        .from('profiles')
-                        .select('*')
-                        .eq('id', uuid)
-                        .single();
-                    if (data) {
-                        profile = data;
-                        isRegistered = true;
-                    }
-                } catch (e) {
-                    console.warn('查无此作者 Supabase 资料', e);
-                }
-            }
-
-            // 3. 智能整合作者信息
-            let finalNameZh = defaultNameZh;
-            let finalNameEn = defaultNameEn;
-
-            if (profile) {
-                const emailPrefix = profile.username; // 触发器里 username 存的是邮箱前缀
-                const currentDisplay = profile.display_name || '';
-                
-                // 如果 display_name 存在，并且不等于邮箱前缀，说明用户自己改过名字，使用 Supabase 的名字
-                if (currentDisplay && currentDisplay !== emailPrefix) {
-                    finalNameZh = currentDisplay;
-                    finalNameEn = currentDisplay;
-                } else if (currentDisplay) {
-                    // 如果还是邮箱前缀，优先回退使用 authors.json 里的优美名字，除非 authors.json 也没有
-                    finalNameZh = defaultNameZh || currentDisplay;
-                    finalNameEn = defaultNameEn || currentDisplay;
-                }
-            }
-
-            currentAuthorData = {
-                name_zh: finalNameZh,
-                name_en: finalNameEn,
-                avatar_url: profile ? profile.avatar_url : null,
-                bio: profile ? profile.bio : null,
-                role: profile ? profile.role : 'External / Unregistered',
-                isRegistered: isRegistered,
-                authorlevel: matchedRaw ? matchedRaw.authorlevel : 1,
-                official: matchedRaw ? matchedRaw.official : false,
-                studio_special: matchedRaw ? matchedRaw.studio_special : false
-            };
-
-            // 4. 获取所有游戏数据，过滤出该作者的游戏
-            // 注意：必须绕过 HTTP 缓存（线上 lelegame_data.json 带 max-age=600，
-            // 否则新上线的游戏要等最多 10 分钟才会出现在作者页）
+            // 1. 本地游戏数据先加载并立即渲染（不依赖远程，远程卡住也不会白屏）
             try {
                 const res = await fetch('lelegame_data.json?t=' + Date.now(), { cache: 'no-store' });
                 if (res.ok) {
                     allGamesData = await res.json();
-
                     // author 统一按字符串比较，兼容 "4" / 4 / "Unept" 等写法
                     currentGamesList = allGamesData.filter(g => {
                         if (g.author === undefined || g.author === null) return false;
@@ -401,7 +326,73 @@
                 console.warn('游戏数据拉取失败', e);
             }
 
+            // 先用本地可得信息渲染（名字暂为“未知作者”，远程拿到后再补充刷新）
+            currentAuthorData = {
+                name_zh: '', name_en: '',
+                avatar_url: null, bio: null,
+                role: 'External / Unregistered', isRegistered: false,
+                authorlevel: 1, official: false, studio_special: false
+            };
             renderAuthorPage();
+
+            // 2. 远程作者信息（非阻塞 + 5s 超时）：拿到 UUID / 名字 / 等级 / 徽标后刷新
+            loadAuthorMeta(authorId);
+        }
+
+        // 远程作者映射 + Supabase 资料：非阻塞获取，失败/超时也不影响已渲染的页面
+        function loadAuthorMeta(authorId) {
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), 5000);
+            fetch('https://authors.surge.sh/authors.json?t=' + Date.now(), { signal: ctrl.signal })
+                .then(r => (r && r.ok ? r.json() : null))
+                .then(authors => {
+                    clearTimeout(timer);
+                    let uuid = null, defaultNameZh = '', defaultNameEn = '', matchedRaw = null;
+                    if (authors) {
+                        const matched = authors.find(a => String(a.id) === String(authorId));
+                        if (matched) {
+                            uuid = matched.uuid;
+                            defaultNameZh = matched.name_zh || '';
+                            defaultNameEn = matched.name_en || '';
+                            matchedRaw = matched;
+                        }
+                    }
+
+                    const applyMeta = (profile, isRegistered) => {
+                        let finalNameZh = defaultNameZh, finalNameEn = defaultNameEn;
+                        if (profile) {
+                            const emailPrefix = profile.username; // 触发器里 username 存的是邮箱前缀
+                            const currentDisplay = profile.display_name || '';
+                            if (currentDisplay && currentDisplay !== emailPrefix) {
+                                finalNameZh = currentDisplay; finalNameEn = currentDisplay;
+                            } else if (currentDisplay) {
+                                finalNameZh = defaultNameZh || currentDisplay;
+                                finalNameEn = defaultNameEn || currentDisplay;
+                            }
+                        }
+                        currentAuthorData = {
+                            name_zh: finalNameZh, name_en: finalNameEn,
+                            avatar_url: profile ? profile.avatar_url : null,
+                            bio: profile ? profile.bio : null,
+                            role: profile ? profile.role : 'External / Unregistered',
+                            isRegistered: isRegistered,
+                            authorlevel: matchedRaw ? matchedRaw.authorlevel : 1,
+                            official: matchedRaw ? matchedRaw.official : false,
+                            studio_special: matchedRaw ? matchedRaw.studio_special : false
+                        };
+                        renderAuthorPage();
+                    };
+
+                    if (uuid && typeof supabaseClient !== 'undefined' && supabaseClient) {
+                        supabaseClient
+                            .from('profiles').select('*').eq('id', uuid).single()
+                            .then(({ data }) => applyMeta(data || null, !!data))
+                            .catch(() => applyMeta(null, false));
+                    } else {
+                        applyMeta(null, false);
+                    }
+                })
+                .catch(e => { clearTimeout(timer); console.warn('作者映射表拉取失败/超时', e); });
         }
 
         // 渲染页面核心逻辑

@@ -1,5 +1,11 @@
 [
   {
+    "version": "4.0.8",
+    "date": "2026-11-04",
+    "content_zh": "修复作者主页（author.html）偶发“加载不出来”：原先整页渲染被远程 authors.surge.sh 的 fetch 阻塞，一旦该远程变慢/挂起就白屏。现改为本地游戏数据先渲染、远程作者信息非阻塞并以 5 秒超时获取，拿到后刷新名字/头像/徽标，远程不可达也不会白屏。",
+    "content_en": "Fixed author.html occasionally failing to load: the whole-page render was previously blocked by the remote authors.surge.sh fetch, so a slow/unreachable remote caused a blank page. Now the local game data renders first, while the remote author info loads non-blocking with a 5s timeout and refreshes name/avatar/badges when available — the page can no longer white-screen due to the remote."
+  },
+  {
     "version": "4.0.7",
     "date": "2026-11-03",
     "content_zh": "修复游戏详情页：当无独立详情文件、回退到主列表加载时，原先会把简介写死为占位文字并丢弃截图；现改为透传真实 description / screenshots / banner 等字段（仅缺省时用占位）。更新 ID 25 游戏《双人大富翁》全部信息。",
