@@ -1,0 +1,39 @@
+{
+  "id": 25,
+  "name_zh": "双人大富翁",
+  "name_en": "Two-player Monopoly",
+  "icon": "💰",
+  "category_zh": "休闲",
+  "category_en": "Casual",
+  "ageRating_zh": "6+",
+  "ageRating_en": "6+",
+  "type": "external",
+  "version": "v0.0.1a",
+  "author": "8",
+  "url": "https://ramp-monopoly.netlify.app",
+  "banner": "https://gamepic.surge.sh/ramp-monopoly-1.jpg",
+  "screenshots": [
+    "https://gamepic.surge.sh/ramp-monopoly-1.jpg"
+  ],
+  "description_zh": "一个简易的双人大富翁游戏，二人轮流点击自己那一边的“roll dice”并购买地盘、交税等，根据弹窗操作。",
+  "description_en": "A simple two-player Monopoly game: two players take turns clicking the 'roll dice' button on their side to buy properties, pay taxes, etc., following the on-screen prompts.",
+  "email": "jeremytheking2013@gmail.com",
+  "authorName": "Jeremytheking",
+  "summary": "一个简单的线上大富翁游戏，可以两个人在一个电脑上玩。",
+  "extra": "英文的，源代码我已经不知道在哪里了。",
+  "contactOther": "GitHub被封了",
+  "updateLog_zh": [
+    {
+      "version": "v0.0.1a",
+      "date": "2026-11-04",
+      "content": "游戏收录上线！"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v0.0.1a",
+      "date": "2026-11-04",
+      "content": "Game added!"
+    }
+  ]
+}

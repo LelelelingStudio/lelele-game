@@ -1,14 +1,5 @@
 // ==================== 全局工具函数 ====================
-function escapeHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-}
-
+// escapeHtml / getFavorites / saveFavorites 已由 common.js 统一挂到 window，这里不再重复定义
 window.openModal = function(modalId) {
     const el = document.getElementById(modalId);
     if (el) el.classList.add('active');
@@ -20,14 +11,7 @@ window.closeModal = function(modalId) {
 };
 
 // ==================== 收藏夹逻辑 ====================
-function getFavorites() {
-    try { return JSON.parse(localStorage.getItem('lelele_favs') || '[]'); } 
-    catch (e) { return []; }
-}
-
-function saveFavorites(favs) {
-    try { localStorage.setItem('lelele_favs', JSON.stringify(favs)); } catch (e) {}
-}
+// getFavorites / saveFavorites 见 common.js（window.getFavorites / window.saveFavorites）
 
 window.removeFavorite = function(id, event) {
     if (event) event.stopPropagation();
@@ -90,6 +74,17 @@ let searchTimer = null;
 let searchScope = 'all';
 let searchPage = 1;
 
+// 共享目录数据缓存：首页 loadGames 与排行榜共用同一份 lelegame_data.json，避免重复请求
+let _catalogPromise = null;
+function getCatalog() {
+    if (!_catalogPromise) {
+        _catalogPromise = fetch('lelegame_data.json', { cache: 'no-store' })
+            .then(r => r.ok ? r.json() : [])
+            .catch(() => []);
+    }
+    return _catalogPromise;
+}
+
 async function loadGames() {
     const grid = document.getElementById('gamesGrid');
     const status = document.getElementById('statusMessage');
@@ -103,19 +98,16 @@ async function loadGames() {
     status.style.display = 'none';
 
     try {
-        // 并发请求游戏主数据和作者映射表
-        const [resGames, resAuthors] = await Promise.all([
-            fetch('lelegame_data.json?t=' + Date.now(), { cache: 'no-store' }),
-            fetch('https://authors.surge.sh/authors.json?t=' + Date.now()).catch(() => ({ ok: false }))
+        // 游戏主数据走共享缓存（与排行榜复用同一次 fetch），仅作者映射表单独请求
+        const [gamesJson, resAuthors] = await Promise.all([
+            getCatalog(),
+            fetch('https://authors.surge.sh/authors.json?t=' + Date.now()).catch(() => null)
         ]);
 
-        if (resGames.ok) {
-            gameData = await resGames.json();
-        } else {
-            throw new Error('HTTP ' + resGames.status);
-        }
+        gameData = Array.isArray(gamesJson) ? gamesJson : [];
+        if (!gameData.length) throw new Error('empty catalog');
 
-        if (resAuthors.ok) {
+        if (resAuthors && resAuthors.ok) {
             authorsData = await resAuthors.json();
         }
 
@@ -533,14 +525,7 @@ window.addEventListener("message", function(event) {
         return String(value).replace(/^play-game[_\s-]*/i, '').replace(/[_-]+/g, ' ').trim().toLowerCase();
     }
 
-    async function fetchCatalog() {
-        try {
-            const res = await fetch('lelegame_data.json', { cache: 'no-store' });
-            if (!res.ok) return [];
-            const json = await res.json();
-            return Array.isArray(json) ? json : [];
-        } catch (e) { return []; }
-    }
+    async function fetchCatalog() { return getCatalog(); }
 
     function getGameDetailUrl(id) {
         const lang = getCurrentLang();
@@ -609,18 +594,28 @@ window.addEventListener("message", function(event) {
         modal.addEventListener('click', (event) => { if (event.target === modal) modal.classList.remove('active'); });
     }
 
+    // analytics 结果内存缓存：10 分钟内切语言只重渲染、不重拉接口；轮询周期同步放宽
+    let _analyticsCache = null;
+    let _analyticsTime = 0;
+    const ANALYTICS_TTL = 10 * 60 * 1000;
+
     async function refreshRankings() {
+        const now = Date.now();
         try {
-            const res = await fetch(ANALYTICS_API, { cache: 'no-store' });
-            if (!res.ok) throw new Error('fetch failed');
-            const json = await res.json();
-            const events = json.breakdowns?.event || [];
-            
-            const rawList = events
-                .filter(item => typeof item?.name === 'string' && item.name.toLowerCase().startsWith('play-game_'))
-                .map(item => ({ name: String(item.name).replace(/^play-game[_\s-]*/i, '').trim(), count: Number(item.value || 0) }))
-                .filter(item => item.name)
-                .sort((a, b) => b.count - a.count);
+            let rawList = _analyticsCache;
+            if (!rawList || now - _analyticsTime > ANALYTICS_TTL) {
+                const res = await fetch(ANALYTICS_API, { cache: 'no-store' });
+                if (!res.ok) throw new Error('fetch failed');
+                const json = await res.json();
+                const events = json.breakdowns?.event || [];
+                rawList = events
+                    .filter(item => typeof item?.name === 'string' && item.name.toLowerCase().startsWith('play-game_'))
+                    .map(item => ({ name: String(item.name).replace(/^play-game[_\s-]*/i, '').trim(), count: Number(item.value || 0) }))
+                    .filter(item => item.name)
+                    .sort((a, b) => b.count - a.count);
+                _analyticsCache = rawList;
+                _analyticsTime = now;
+            }
 
             if (!rawList.length) { renderEmpty(); return; }
 
@@ -656,7 +651,7 @@ window.addEventListener("message", function(event) {
 
     function initRanking() {
         bindModal(); syncTexts(); refreshRankings();
-        setInterval(refreshRankings, 5 * 60 * 1000);
+        setInterval(refreshRankings, 10 * 60 * 1000);
     }
 
     document.addEventListener('DOMContentLoaded', initRanking);

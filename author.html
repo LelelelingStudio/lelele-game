@@ -295,10 +295,7 @@
             document.getElementById('backBtn').href = 'index.html' + suffix;
         }
 
-        function escapeHtml(str) {
-            if (str === null || str === undefined) return '';
-            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-        }
+        // escapeHtml 已由 common.js 统一挂到 window（本页不再重复定义）
 
         // 初始化逻辑
         async function initAuthorPage() {

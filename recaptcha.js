@@ -9,6 +9,19 @@
 
     const ACTIONS = new Set(['login', 'register', 'periodic_reverify']);
     const CACHE_KEY = 'lelele_captcha_status';
+    // 本地“已验证”记忆：验证通过后的 7 天内视为已验证，避免服务端 due 标志未持久化导致“每次访问都复验”
+    const LOCAL_VERIFIED_KEY = 'lelele_captcha_verified_at';
+    const VERIFY_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+    function getLocalVerifiedAt() {
+        try { return parseInt(localStorage.getItem(LOCAL_VERIFIED_KEY) || '0', 10) || 0; } catch (e) { return 0; }
+    }
+    function setLocalVerifiedAt() {
+        try { localStorage.setItem(LOCAL_VERIFIED_KEY, String(Date.now())); } catch (e) {}
+    }
+    function isLocallyVerifiedRecently() {
+        const at = getLocalVerifiedAt();
+        return at > 0 && Date.now() - at < VERIFY_TTL_MS;
+    }
     const BREAKER_KEY = 'lelele_rc_breaker';
     const BREAKER_LIMIT = 3; // internal/服务端错误累计达到该值即熔断，停止验证
     let googleLoadPromise = null;
@@ -375,6 +388,11 @@
 
     async function getStatus(session, options = {}) {
         if (!session?.user?.id || !session.access_token) throw new Error(text('登录状态无效', 'Invalid session'));
+        // 本地 7 天记忆：验证通过后的 7 天内直接视为已验证，跳过对服务端 due 标志的强依赖
+        if (isLocallyVerifiedRecently()) {
+            const at = getLocalVerifiedAt();
+            return { required: true, due: false, locallyVerified: true, nextDueAt: new Date(at + VERIFY_TTL_MS).toISOString() };
+        }
         const cached = options.force ? null : readStatusCache(session.user.id);
         if (cached) return cached;
 
@@ -430,6 +448,7 @@
             widgetArea.appendChild(inline);
 
             const finishPass = () => {
+                setLocalVerifiedAt(); // 记录本地“已验证”时间，7 天内不再复验
                 overlay.classList.add('leaving');
                 setTimeout(() => overlay.remove(), 220);
                 modalPromise = null;

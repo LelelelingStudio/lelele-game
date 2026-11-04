@@ -1,6 +1,30 @@
 (function() {
     'use strict';
 
+    // ==================== 公共工具函数（统一出口，消除各页重复定义） ====================
+    // 守卫：若页面已自行定义（如 about.html 的 escapeHtml 含 \n→<br> 专用处理），则不覆盖
+    if (typeof window.escapeHtml !== 'function') {
+        window.escapeHtml = function (str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        };
+    }
+    if (typeof window.getFavorites !== 'function') {
+        window.getFavorites = function () {
+            try { return JSON.parse(localStorage.getItem('lelele_favs') || '[]'); } catch (e) { return []; }
+        };
+    }
+    if (typeof window.saveFavorites !== 'function') {
+        window.saveFavorites = function (favs) {
+            try { localStorage.setItem('lelele_favs', JSON.stringify(favs)); } catch (e) {}
+        };
+    }
+
     // ==================== 全局配置 ====================
     const GAME_PATH_KEY = '/game/';
     const isGamePage = window.location.pathname.includes(GAME_PATH_KEY) || window.forceGamePage === true;
@@ -920,7 +944,13 @@
         if (bar.dataset.islandBound) return;
         bar.dataset.islandBound = '1';
 
-        // 岛模式下的搜索聚焦按钮（平时隐藏）
+        // 复位搜索岛按钮图标
+        function resetSearchBtn() {
+            const b = actions.querySelector('.island-search-btn');
+            if (b) { b.textContent = '🔍'; b.setAttribute('aria-label', getLang() === 'en' ? 'Search' : '搜索'); }
+        }
+
+        // 岛模式下的搜索按钮（平时隐藏）：点击在岛内就地展开「搜索岛」，不再跳回页面顶部
         if (!actions.querySelector('.island-search-btn')) {
             const sBtn = document.createElement('button');
             sBtn.type = 'button';
@@ -928,26 +958,99 @@
             sBtn.setAttribute('aria-label', getLang() === 'en' ? 'Search' : '搜索');
             sBtn.textContent = '🔍';
             sBtn.addEventListener('click', () => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                setTimeout(() => { const si = document.getElementById('searchInput'); if (si) si.focus(); }, 450);
+                const on = bar.classList.toggle('island-search-mode');
+                if (on) {
+                    sBtn.textContent = '×';
+                    sBtn.setAttribute('aria-label', getLang() === 'en' ? 'Close search' : '关闭搜索');
+                    // 等 morph 过渡稳定后再聚焦输入框
+                    setTimeout(() => {
+                        const si = document.getElementById('searchInput');
+                        if (si) { si.focus(); si.scrollIntoView({ block: 'nearest' }); }
+                    }, 220);
+                } else {
+                    resetSearchBtn();
+                }
             });
             actions.appendChild(sBtn);
         }
+
+        // Esc 退出搜索岛
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && bar.classList.contains('island-search-mode')) {
+                bar.classList.remove('island-search-mode');
+                resetSearchBtn();
+            }
+        });
+
+        // 迟滞阈值 + 冷却，杜绝「滑到某个区间一阵一阵抽」
+        const ENTER_THRESHOLD = 220;   // 滚过此高度「以上」才变岛
+        const EXIT_THRESHOLD  = 140;   // 滚回此高度「以下」才还原（与进入形成迟滞带）
+        const TOGGLE_COOLDOWN = 500;   // 两次切换之间至少间隔 0.5s
+        let lastToggle = 0;
 
         let ticking = false;
         let islandOn = bar.classList.contains('island-mode');
         const update = () => {
             ticking = false;
             const y = window.scrollY;
-            // 迟滞：进入阈值 80、退出阈值 40，避免滚动到边界时反复横跳（"一阵一阵抽"）
-            if (!islandOn && y > 80) islandOn = true;
-            else if (islandOn && y < 40) islandOn = false;
-            bar.classList.toggle('island-mode', islandOn);
+            let target = islandOn;
+            if (!islandOn && y > ENTER_THRESHOLD) target = true;
+            else if (islandOn && y < EXIT_THRESHOLD) target = false;
+            if (target !== islandOn) {
+                const now = Date.now();
+                if (now - lastToggle < TOGGLE_COOLDOWN) return; // 冷却期内忽略
+                lastToggle = now;
+                islandOn = target;
+                bar.classList.toggle('island-mode', islandOn);
+                // 退出灵动岛时同步收起搜索岛
+                if (!islandOn) { bar.classList.remove('island-search-mode'); resetSearchBtn(); }
+            }
         };
         window.addEventListener('scroll', () => {
             if (!ticking) { ticking = true; requestAnimationFrame(update); }
         }, { passive: true });
         update();
+    }
+
+    // ==================== 「申请认证」按钮门控（仅登录作者可见） ====================
+    // 仅已登录且拥有创作者身份（authorlevel>0）的用户可见，文案改为「为自己申请」；
+    // 已登录但非创作者显示「成为创作者」引导；未登录则隐藏。普通访客无需看到该入口。
+    function initApplyCertGating() {
+        const targets = () => document.querySelectorAll('a[href="apply-certification.html"], #lvApplyBtn');
+        // 鉴权结果：null=尚未决定；hide=隐藏；show=按标签展示
+        let decided = null;
+        const apply = () => {
+            if (!decided) return;
+            targets().forEach((el) => {
+                if (decided.mode === 'hide') { el.style.display = 'none'; return; }
+                el.style.display = '';
+                const z = el.querySelector('.zh-inline');
+                const e = el.querySelector('.en-inline');
+                if (z && decided.zh) z.textContent = decided.zh;
+                if (e && decided.en) e.textContent = decided.en;
+            });
+        };
+        // 先隐藏当前已有入口，避免未登录/非作者看到
+        targets().forEach((el) => { el.style.display = 'none'; });
+        // 监听动态插入（如 dashboard 的「未认证」提示由 JS 注入）
+        if (typeof MutationObserver !== 'undefined') {
+            const mo = new MutationObserver(() => apply());
+            mo.observe(document.body, { childList: true, subtree: true });
+        }
+        if (typeof supabaseClient === 'undefined' || !supabaseClient) return;
+        supabaseClient.auth.getSession().then(({ data }) => {
+            const session = data && data.session;
+            if (!session) { decided = { mode: 'hide' }; apply(); return; } // 未登录 → 隐藏
+            supabaseClient.from('profiles').select('authorlevel, is_author').eq('id', session.user.id).single()
+                .then(({ data: profile }) => {
+                    const isAuthor = !!(profile && (Number(profile.authorlevel) > 0 || profile.is_author));
+                    decided = isAuthor
+                        ? { mode: 'show', zh: '🏅 为自己申请', en: '🏅 For Myself' }
+                        : { mode: 'show', zh: '🏅 成为创作者', en: '🏅 Become Creator' };
+                    apply();
+                })
+                .catch(() => { decided = { mode: 'hide' }; apply(); });
+        }).catch(() => { decided = { mode: 'hide' }; apply(); });
     }
 
     // ==================== 设置面板 / 自定义背景 / 自定义排版（4.0.1） ====================
@@ -1171,6 +1274,7 @@
         // 启动新增功能
         initDirectLinkTracker();
         initMainSiteAuth();
+        initApplyCertGating();
         initIslandNav();
         initCustomBg();
         initSettings();

@@ -1,6 +1,9 @@
-const CACHE_NAME = 'lelele-pwa-v1.1';
+const CACHE_NAME = 'lelele-pwa-v1.2';
 
-// 预缓存清单：覆盖全部页面与核心静态资源（任一 404 不影响整体安装）
+// 预缓存清单：仅覆盖页面与长期静态资源。
+// 注意：易变数据文件（lelegame_data.json / activity_whole.json / announcements.json /
+// special_common.json）以及重型季节性图片（冬季图）不进预缓存——它们由运行时
+// network-first 策略按需拉取并缓存，预缓存只会产生陈旧副本且拖慢安装。
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -28,14 +31,8 @@ const ASSETS_TO_CACHE = [
     '/supabase-client.js',
     '/manifest-zh.json',
     '/manifest-en.json',
-    '/lelegame_data.json',
-    '/activity_whole.json',
-    '/announcements.json',
-    '/special_common.json',
     '/lelelegame.svg',
     '/lelelegame.png',
-    '/lelelegame-winter.png',
-    '/background-winter.png',
     '/favicon.ico',
     '/favicon-winter.ico',
     '/icon-192.png',
