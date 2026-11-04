@@ -679,9 +679,8 @@
             if (typeof authorData === 'number' || /^\d+$/.test(authorData)) {
                 authorBar.innerHTML = `${authorLabel}: <strong>...</strong>`;
                 try {
-                    const res = await fetch('https://authors.surge.sh/authors.json?t=' + Date.now());
-                    if (res.ok) {
-                        const authors = await res.json();
+                    const authors = await window.fetchAuthors();
+                    if (authors) {
                         const matched = authors.find(a => String(a.id) === String(authorData));
                         matchedAuthor = matched;
                         if (matched) {

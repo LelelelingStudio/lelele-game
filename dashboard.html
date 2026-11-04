@@ -788,9 +788,8 @@
 
             let authorId = null;
             try {
-                const authRes = await fetch('https://authors.surge.sh/authors.json?t=' + Date.now());
-                if (authRes.ok) {
-                    const authorsData = await authRes.json();
+                const authorsData = await window.fetchAuthors();
+                if (authorsData) {
                     const myAuthor = authorsData.find(a => a.uuid === currentUser.id);
                     if (myAuthor) { authorId = myAuthor.id; myAuthorData = myAuthor; }
                 }
@@ -1084,8 +1083,8 @@
                 document.getElementById('dashboardControls').style.display = 'none';
                 document.getElementById('analyticsDataView').style.display = 'none';
                 document.getElementById('gameSelectGrid').innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">
-                    <span class="zh-inline">暂无绑定您的游戏，请确认您已在 authors.json 中配置了 UUID。</span>
-                    <span class="en-inline">No games found. Please ensure your UUID is configured in authors.json.</span>
+                    <span class="zh-inline">暂无绑定您的游戏，请确认您已在本站完成创作者认证并关联账号。</span>
+                    <span class="en-inline">No games found. Please make sure you've completed creator certification and linked your account.</span>
                 </div>`;
                 document.getElementById('gameSelectGrid').style.display = 'grid';
                 return;

@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "uuid": "b646df8a-cdad-4c3c-9863-c7aba7680717",
+    "name_zh": "了了了岭工作室",
+    "name_en": "Leleleling Studio",
+    "authorlevel": 6,
+    "official": true,
+    "studio_special": true
+  },
+  {
+    "id": 2,
+    "uuid": "",
+    "name_zh": "Andy Huang",
+    "name_en": "Andy Huang",
+    "authorlevel": 3
+  },
+  {
+    "id": 3,
+    "uuid": "56bffb80-d44a-427e-9014-367a2890e121",
+    "name_zh": "Kevin Liao",
+    "name_en": "Kevin Liao",
+    "authorlevel": 2
+  },
+  {
+    "id": 4,
+    "uuid": "08a3e27a-c811-4ade-b2a9-d0e84529f8bb",
+    "name_zh": "Jonathan",
+    "name_en": "Jonathan",
+    "authorlevel": 2
+  },
+  {
+    "id": 5,
+    "uuid": "36c32469-9b7a-41fc-8180-72437eec5a37",
+    "name_zh": "Wheat",
+    "name_en": "Wheat",
+    "authorlevel": 2
+  },
+  {
+    "id": 6,
+    "uuid": "",
+    "name_zh": "Emolingo games",
+    "name_en": "Emolingo games",
+    "authorlevel": 4
+  },
+  {
+    "id": 7,
+    "uuid": "6fea630d-5691-4017-b74b-1cf7080a1caa",
+    "name_zh": "Zanie",
+    "name_en": "Zanie"
+  },
+  {
+    "id": 8,
+    "uuid": "402b28c8-637e-4bd3-933f-5bfb076b0c06",
+    "name_zh": "Jeremy",
+    "name_en": "Jeremy"
+  }
+]

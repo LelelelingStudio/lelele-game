@@ -1070,6 +1070,22 @@
     const FONT_KEY = 'lelele_font_scale';
     const THEME_KEY = 'lelele_accent';
 
+    // 作者数据：优先同域 authors.json（快/稳），失败再回退外域并设超时（绝不无限挂起）
+    window.fetchAuthors = async function () {
+        const t = Date.now();
+        try {
+            const r = await fetch('authors.json?t=' + t, { cache: 'no-store' });
+            if (r.ok) return await r.json();
+        } catch (e) {}
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 5000);
+        try {
+            const r = await fetch('https://authors.surge.sh/authors.json?t=' + t, { signal: ctrl.signal });
+            if (r.ok) return await r.json();
+        } catch (e) {} finally { clearTimeout(timer); }
+        return null;
+    };
+
     // 换色：同时驱动 --primary 与 --accent（站内两类令牌都在用，只改一个会"看起来没用"）
     function applyAccent(color) {
         if (!color) return;

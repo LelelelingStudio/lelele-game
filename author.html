@@ -341,12 +341,8 @@
 
         // 远程作者映射 + Supabase 资料：非阻塞获取，失败/超时也不影响已渲染的页面
         function loadAuthorMeta(authorId) {
-            const ctrl = new AbortController();
-            const timer = setTimeout(() => ctrl.abort(), 5000);
-            fetch('https://authors.surge.sh/authors.json?t=' + Date.now(), { signal: ctrl.signal })
-                .then(r => (r && r.ok ? r.json() : null))
+            window.fetchAuthors()
                 .then(authors => {
-                    clearTimeout(timer);
                     let uuid = null, defaultNameZh = '', defaultNameEn = '', matchedRaw = null;
                     if (authors) {
                         const matched = authors.find(a => String(a.id) === String(authorId));
@@ -392,7 +388,7 @@
                         applyMeta(null, false);
                     }
                 })
-                .catch(e => { clearTimeout(timer); console.warn('作者映射表拉取失败/超时', e); });
+                .catch(e => { console.warn('作者映射表拉取失败/超时', e); });
         }
 
         // 渲染页面核心逻辑

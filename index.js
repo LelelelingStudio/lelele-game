@@ -119,14 +119,14 @@ async function loadGames() {
         // 游戏主数据走共享缓存（与排行榜复用同一次 fetch），仅作者映射表单独请求
         const [gamesJson, resAuthors] = await Promise.all([
             getCatalog(),
-            fetch('https://authors.surge.sh/authors.json?t=' + Date.now()).catch(() => null)
+            window.fetchAuthors().catch(() => null)
         ]);
 
         gameData = Array.isArray(gamesJson) ? gamesJson : [];
         if (!gameData.length) throw new Error('empty catalog');
 
-        if (resAuthors && resAuthors.ok) {
-            authorsData = await resAuthors.json();
+        if (resAuthors) {
+            authorsData = resAuthors;
         }
 
         // 将作者 ID 转换为真实名字，便于后续搜索和展示
