@@ -295,7 +295,11 @@
             document.getElementById('backBtn').href = 'index.html' + suffix;
         }
 
-        // escapeHtml 已由 common.js 统一挂到 window（本页不再重复定义）
+        // 兜底：本地保留一份 escapeHtml，避免 Cloudflare 缓存旧版 common.js 时本页调用未定义函数而整页崩溃
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
 
         // 初始化逻辑
         async function initAuthorPage() {

@@ -1,5 +1,23 @@
 // ==================== 全局工具函数 ====================
-// escapeHtml / getFavorites / saveFavorites 已由 common.js 统一挂到 window，这里不再重复定义
+// 兜底：本地保留 escapeHtml / getFavorites / saveFavorites，避免 Cloudflare 缓存旧版 common.js 时本页调用未定义函数而整页崩溃
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function getFavorites() {
+    try { return JSON.parse(localStorage.getItem('lelele_favs') || '[]'); } catch (e) { return []; }
+}
+
+function saveFavorites(favs) {
+    try { localStorage.setItem('lelele_favs', JSON.stringify(favs)); } catch (e) {}
+}
+
 window.openModal = function(modalId) {
     const el = document.getElementById(modalId);
     if (el) el.classList.add('active');

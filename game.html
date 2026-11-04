@@ -457,7 +457,13 @@
     <script src="notice.js" defer></script>
 
     <script>
-        // escapeHtml 已由 common.js 统一挂到 window（本页不再重复定义）
+        // 兜底：本地保留 escapeHtml，避免 Cloudflare 缓存旧版 common.js 时本页调用未定义函数而整页崩溃
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
 
         let currentGameId = null;
         let currentGameData = null;
@@ -614,7 +620,10 @@
             btn.textContent = v.muted ? '🔇' : '🔊';
         };
 
-        // getFavorites / saveFavorites 见 common.js（window.getFavorites / window.saveFavorites）
+        // 兜底：本地保留 getFavorites，避免 Cloudflare 缓存旧版 common.js 时调用未定义函数
+        function getFavorites() {
+            try { return JSON.parse(localStorage.getItem('lelele_favs') || '[]'); } catch (e) { return []; }
+        }
         function isFav(id) { return getFavorites().includes(String(id)); }
 
         function updateFavBtn() {
