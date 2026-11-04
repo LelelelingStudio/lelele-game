@@ -1,10 +1,15 @@
-name: Sync authors.json from surge.sh
+name: Sync authors (index + data) from surge.sh
 
-# GitHub Pages 本身不执行代码，所以用 GitHub Actions 定时把 surge.sh 的最新
-# authors.json 拉回仓库并推送，从而触发 Pages 重建，实现“只改 surge.sh 即同步”。
+# 作者源仍由 surge.sh 上的 authors.json 维护（新增/修改作者只改 surge），
+# 本工作流每 30 分钟把最新 authors.json 拉回仓库，拆分为：
+#   - authors/index.json  （轻量清单：id/uuid/name/level/徽标，省略默认与空值）
+#   - authors/data/<id>.json （仅 games_count，由仓库 lelegame_data.json 自动统计；bio/role/头像等可编辑资料走 Supabase，与 dashboard 编辑同源）
+# 并删除旧的 authors.json，从而触发 GitHub Pages 重建。
+# 你新增作者/游戏：只需更新仓库 lelegame_data.json 与 surge 的 authors.json，index.json / data/<id>.json 由本流程自动生成，无需手动维护。
+# 头像不在此流程内：仍由前端按 uuid 从 Supabase 实时拉取，作者换头像无需改任何文件。
 on:
   schedule:
-    - cron: '*/30 * * * *'   # 每 30 分钟同步一次（可改更密，如 */15；注意 GitHub 定时任务可能有几分钟延迟）
+    - cron: '*/30 * * * *'   # 每 30 分钟同步一次
   workflow_dispatch:         # 支持在 Actions 页面手动点 “Run workflow” 立即同步
 
 permissions:
@@ -28,25 +33,66 @@ jobs:
           curl -fsSL --max-time 30 "https://authors.surge.sh/authors.json?t=$(date +%s)" -o authors.remote.json
           node -e "const d=require('./authors.remote.json'); if(!Array.isArray(d)){throw new Error('authors.json 不是数组');} console.log('fetched entries:', d.length)"
 
-      - name: Update repo authors.json only if changed
+      - name: Split into authors/index.json + authors/data/<id>.json
         run: |
           git pull --ff-only origin || true
-          node -e "
-          const fs=require('fs');
-          const canon=o=>JSON.stringify(o,Object.keys(o||{}).sort());
-          const a=JSON.parse(fs.readFileSync('authors.remote.json','utf8'));
-          let b=null; try{b=JSON.parse(fs.readFileSync('authors.json','utf8'));}catch(e){}
-          if(b && canon(a)===canon(b)){console.log('no change'); process.exit(0);}
-          fs.writeFileSync('authors.json', JSON.stringify(a,null,2)+'\n');
-          console.log('authors.json updated');
-          "
+          node -e '
+          const fs=require("fs");
+          const authors=JSON.parse(fs.readFileSync("authors.remote.json","utf8"));
+          const dataDir="authors/data";
+          fs.mkdirSync(dataDir,{recursive:true});
+
+          // 从仓库内的 lelegame_data.json 统计每位作者的游戏数（你只需更新该文件即可）
+          let gameCount=new Map();
+          try{
+            const games=JSON.parse(fs.readFileSync("lelegame_data.json","utf8"));
+            if(Array.isArray(games)){
+              for(const g of games){
+                if(g && g.author!==undefined && g.author!==null){
+                  const k=String(g.author);
+                  gameCount.set(k,(gameCount.get(k)||0)+1);
+                }
+              }
+            }
+          }catch(e){ console.warn("读取 lelegame_data.json 失败，游戏数记为 0:", e.message); }
+
+          const liveIds=new Set();
+          const index=[];
+          for(const a of authors){
+            const id=Number(a.id);
+            if(!Number.isInteger(id)) continue;
+            liveIds.add(id);
+            const entry={id};
+            if(a.uuid) entry.uuid=a.uuid;
+            entry.name_zh=a.name_zh||"";
+            entry.name_en=a.name_en||"";
+            if(a.authorlevel && Number(a.authorlevel)!==1) entry.authorlevel=Number(a.authorlevel);
+            if(a.official) entry.official=true;
+            if(a.studio_special) entry.studio_special=true;
+            index.push(entry);
+
+            // data/<id>.json：仅存 games_count（由 lelegame_data.json 自动统计）；bio/role/头像等可编辑资料走 Supabase，与 dashboard 编辑同源
+            const count=gameCount.get(String(id))||0;
+            const detail={games_count:count};
+            fs.writeFileSync(dataDir+"/"+id+".json", JSON.stringify(detail,null,2)+"\n");
+          }
+          index.sort((x,y)=>x.id-y.id);
+          fs.writeFileSync("authors/index.json", JSON.stringify(index,null,2)+"\n");
+
+          // 删除已不在 surge authors.json 中的作者 data 文件
+          for(const f of fs.readdirSync(dataDir)){
+            const m=f.match(/^(\d+)\.json$/);
+            if(m && !liveIds.has(Number(m[1]))) fs.unlinkSync(dataDir+"/"+m[1]+".json");
+          }
+          if(fs.existsSync("authors.json")) fs.unlinkSync("authors.json");
+          '
           rm -f authors.remote.json
-          if git diff --quiet authors.json; then
+          git add -A authors
+          if git diff --cached --quiet; then
             echo "no effective change, skip commit"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add authors.json
-          git commit -m "chore: auto-sync authors.json from surge.sh"
+          git commit -m "chore: auto-sync authors index+data from surge.sh"
           git push

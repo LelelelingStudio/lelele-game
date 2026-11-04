@@ -29,7 +29,7 @@
 
     <link rel="stylesheet" href="common.css">
     <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         .zh-text, .en-text { display: none; }
@@ -146,6 +146,8 @@
         .author-avatar img {
             width: 100%; height: 100%; object-fit: cover;
         }
+        .author-avatar-wrap { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; position: relative; z-index: 1; }
+        .avatar-error { font-size: 0.78rem; color: #ef4444; margin-top: 8px; font-weight: 600; text-align: center; }
 
         .author-info {
             flex: 1; position: relative; z-index: 1;
@@ -162,6 +164,10 @@
         .author-bio {
             font-size: 1rem; color: var(--text-muted); line-height: 1.6;
             white-space: pre-wrap;
+        }
+        .author-games-count {
+            font-size: 0.9rem; color: var(--primary); font-weight: 600;
+            margin-top: 10px;
         }
         .author-unregistered {
             font-size: 0.9rem; color: #f59e0b; font-weight: 600; font-style: italic;
@@ -241,14 +247,18 @@
         
         <!-- 作者信息展示区 -->
         <div class="author-card" id="authorCard" style="display: none;">
-            <div class="author-avatar" id="authorAvatar">
-                <!-- 头像或默认图 -->
+            <div class="author-avatar-wrap">
+                <div class="author-avatar" id="authorAvatar">👤</div>
+                <div id="avatarError" class="avatar-error" style="display:none;">
+                    <span class="zh-inline">头像加载失败</span><span class="en-inline">Avatar failed to load</span>
+                </div>
             </div>
             <div class="author-info">
                 <div class="author-role" id="authorRole">Developer</div>
                 <h1 class="author-name" id="authorName"></h1>
                 <div class="author-badges" id="authorBadges"></div>
                 <div class="author-bio" id="authorBio"></div>
+                <div class="author-games-count" id="authorGamesCount"></div>
                 <div class="author-unregistered" id="authorUnregistered" style="display: none;">
                     <span class="zh-inline">该作者还未在这里填写自己的资料。</span>
                     <span class="en-inline">This author hasn't set up their profile yet.</span>
@@ -301,32 +311,21 @@
             return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
 
-        // 初始化逻辑
+        // 初始化逻辑：先渲染骨架（避免白屏），再并行异步填充
         async function initAuthorPage() {
             const urlParams = new URLSearchParams(window.location.search);
             const authorId = urlParams.get('id'); // 这里的 ID 现在是数字 1, 2, 3
+
+            // 初始默认头像
+            const avatarEl = document.getElementById('authorAvatar');
+            if (avatarEl) avatarEl.innerHTML = '👤';
 
             if (!authorId) {
                 showEmpty();
                 return;
             }
 
-            // 1. 本地游戏数据先加载并立即渲染（不依赖远程，远程卡住也不会白屏）
-            try {
-                const res = await fetch('lelegame_data.json?t=' + Date.now(), { cache: 'no-store' });
-                if (res.ok) {
-                    allGamesData = await res.json();
-                    // author 统一按字符串比较，兼容 "4" / 4 / "Unept" 等写法
-                    currentGamesList = allGamesData.filter(g => {
-                        if (g.author === undefined || g.author === null) return false;
-                        return String(g.author) === String(authorId);
-                    });
-                }
-            } catch (e) {
-                console.warn('游戏数据拉取失败', e);
-            }
-
-            // 先用本地可得信息渲染（名字暂为“未知作者”，远程拿到后再补充刷新）
+            // 占位数据：先让作者卡 + 游戏区可见，杜绝三个区块永久 display:none
             currentAuthorData = {
                 name_zh: '', name_en: '',
                 avatar_url: null, bio: null,
@@ -335,60 +334,120 @@
             };
             renderAuthorPage();
 
-            // 2. 远程作者信息（非阻塞 + 5s 超时）：拿到 UUID / 名字 / 等级 / 徽标后刷新
+            // 并行：作者信息（基础 + 扩展 + 头像）与本地游戏列表，均非阻塞带超时
             loadAuthorMeta(authorId);
+            loadGames(authorId);
         }
 
-        // 远程作者映射 + Supabase 资料：非阻塞获取，失败/超时也不影响已渲染的页面
+        // 本地游戏列表：8s 超时，去掉 no-store，失败不影响已渲染页面
+        async function loadGames(authorId) {
+            try {
+                const ctrl = new AbortController();
+                const timer = setTimeout(() => ctrl.abort(), 8000);
+                const res = await fetch('lelegame_data.json', { signal: ctrl.signal });
+                clearTimeout(timer);
+                if (res.ok) {
+                    allGamesData = await res.json();
+                    // author 统一按字符串比较，兼容 "4" / 4 / "Unept" 等写法
+                    currentGamesList = allGamesData.filter(g => {
+                        if (g.author === undefined || g.author === null) return false;
+                        return String(g.author) === String(authorId);
+                    });
+                    renderAuthorPage();
+                }
+            } catch (e) {
+                console.warn('游戏数据拉取失败/超时', e);
+            }
+        }
+
+        // 作者信息：基础（index.json）+ 游戏数（data/<id>.json，工作流自动统计）+ 可编辑资料（Supabase profiles，与 dashboard 编辑同源），全部非阻塞
         function loadAuthorMeta(authorId) {
             window.fetchAuthors()
                 .then(authors => {
-                    let uuid = null, defaultNameZh = '', defaultNameEn = '', matchedRaw = null;
+                    let base = null, uuid = null, defaultNameZh = '', defaultNameEn = '';
                     if (authors) {
                         const matched = authors.find(a => String(a.id) === String(authorId));
                         if (matched) {
-                            uuid = matched.uuid;
+                            base = matched;
+                            uuid = matched.uuid || null;
                             defaultNameZh = matched.name_zh || '';
                             defaultNameEn = matched.name_en || '';
-                            matchedRaw = matched;
                         }
                     }
 
-                    const applyMeta = (profile, isRegistered) => {
-                        let finalNameZh = defaultNameZh, finalNameEn = defaultNameEn;
-                        if (profile) {
-                            const emailPrefix = profile.username; // 触发器里 username 存的是邮箱前缀
-                            const currentDisplay = profile.display_name || '';
-                            if (currentDisplay && currentDisplay !== emailPrefix) {
-                                finalNameZh = currentDisplay; finalNameEn = currentDisplay;
-                            } else if (currentDisplay) {
-                                finalNameZh = defaultNameZh || currentDisplay;
-                                finalNameEn = defaultNameEn || currentDisplay;
-                            }
-                        }
-                        currentAuthorData = {
-                            name_zh: finalNameZh, name_en: finalNameEn,
-                            avatar_url: profile ? profile.avatar_url : null,
-                            bio: profile ? profile.bio : null,
-                            role: profile ? profile.role : 'External / Unregistered',
-                            isRegistered: isRegistered,
-                            authorlevel: matchedRaw ? matchedRaw.authorlevel : 1,
-                            official: matchedRaw ? matchedRaw.official : false,
-                            studio_special: matchedRaw ? matchedRaw.studio_special : false
-                        };
-                        renderAuthorPage();
+                    currentAuthorData = {
+                        name_zh: defaultNameZh, name_en: defaultNameEn,
+                        avatar_url: null, bio: null,
+                        role: uuid ? 'developer' : 'External / Unregistered',
+                        isRegistered: !!uuid,
+                        authorlevel: base ? (base.authorlevel || 1) : 1,
+                        official: base ? !!base.official : false,
+                        studio_special: base ? !!base.studio_special : false,
+                        games_count: 0
                     };
+                    renderAuthorPage();
 
-                    if (uuid && typeof supabaseClient !== 'undefined' && supabaseClient) {
-                        supabaseClient
-                            .from('profiles').select('*').eq('id', uuid).single()
-                            .then(({ data }) => applyMeta(data || null, !!data))
-                            .catch(() => applyMeta(null, false));
-                    } else {
-                        applyMeta(null, false);
-                    }
+                    // 游戏数（data/<id>.json，由工作流从 lelegame_data.json 自动统计）
+                    fetchAuthorGamesCount(authorId);
+                    // 作者可编辑资料（bio/role/display_name/头像）来自 Supabase，与 dashboard 编辑同源
+                    loadSupabaseProfile(uuid);
                 })
                 .catch(e => { console.warn('作者映射表拉取失败/超时', e); });
+        }
+
+        // 游戏数（data/<id>.json 中的 games_count），非阻塞 + 8s 超时
+        function fetchAuthorGamesCount(authorId) {
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), 8000);
+            fetch('authors/data/' + authorId + '.json', { signal: ctrl.signal })
+                .then(r => r.ok ? r.json() : null)
+                .then(d => {
+                    if (d && typeof d.games_count === 'number') {
+                        currentAuthorData.games_count = d.games_count;
+                        renderAuthorPage();
+                    }
+                })
+                .catch(() => {})
+                .finally(() => clearTimeout(timer));
+        }
+
+        // 作者可编辑资料（bio/role/display_name/头像）来自 Supabase profiles，与 dashboard 编辑同源；失败/超时/无则默认图 + “头像加载失败”提示
+        function loadSupabaseProfile(uuid) {
+            const avatarEl = document.getElementById('authorAvatar');
+            const fail = () => {
+                if (avatarEl) avatarEl.innerHTML = '👤';
+                const err = document.getElementById('avatarError');
+                if (err) err.style.display = 'block';
+            };
+            if (!uuid || typeof supabaseClient === 'undefined' || !supabaseClient) { fail(); return; }
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), 8000);
+            supabaseClient
+                .from('profiles').select('avatar_url, bio, role, display_name').eq('id', uuid).single()
+                .then(({ data }) => {
+                    clearTimeout(timer);
+                    if (!data) { fail(); return; }
+                    // 名字优先用作者自填的 display_name
+                    if (data.display_name) {
+                        currentAuthorData.name_zh = data.display_name;
+                        currentAuthorData.name_en = data.display_name;
+                    }
+                    if (data.bio) currentAuthorData.bio = data.bio;
+                    if (data.role) currentAuthorData.role = data.role;
+                    renderAuthorPage();
+                    // 头像
+                    const url = data.avatar_url;
+                    if (!url) { fail(); return; }
+                    const img = new Image();
+                    img.onload = () => {
+                        if (avatarEl) avatarEl.innerHTML = `<img src="${escapeHtml(url)}" alt="Avatar">`;
+                        const err = document.getElementById('avatarError');
+                        if (err) err.style.display = 'none';
+                    };
+                    img.onerror = () => fail();
+                    img.src = url;
+                })
+                .catch(() => { clearTimeout(timer); fail(); });
         }
 
         // 渲染页面核心逻辑
@@ -420,13 +479,14 @@
                 bioEl.style.display = 'none';
             }
 
-            // 头像
-            const avatarEl = document.getElementById('authorAvatar');
-            if (currentAuthorData.avatar_url) {
-                avatarEl.innerHTML = `<img src="${escapeHtml(currentAuthorData.avatar_url)}" alt="Avatar">`;
-            } else {
-                avatarEl.innerHTML = '👤';
+            // 游戏数统计（data/<id>.json 由工作流自动统计，与页面实际展示一致）
+            const gcEl = document.getElementById('authorGamesCount');
+            if (gcEl) {
+                const n = currentAuthorData.games_count || 0;
+                gcEl.innerHTML = `<span class="zh-inline">已发布 ${n} 款游戏</span><span class="en-inline">${n} game${n === 1 ? '' : 's'} published</span>`;
             }
+
+            // 头像由 loadSupabaseAvatar() 异步管理，这里不渲染，避免覆盖已加载的头像
 
             // 未注册提示
             document.getElementById('authorUnregistered').style.display = currentAuthorData.isRegistered ? 'none' : 'inline-block';

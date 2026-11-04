@@ -46,6 +46,7 @@ lelele-game/
 ├── index.js / search.js / notice.js / rank-loader.js   # 页面级脚本
 ├── supabase-client.js / recaptcha*.js   # 鉴权与人机验证
 ├── lelegame_data.json / announcements.json / activity_whole.json / special_common.json / changelog.json / manifest-zh.json / manifest-en.json  # 数据/配置
+├── authors/                     # 作者数据（本地分文件）：index.json 轻量清单 + data/<id>.json 仅 bio/role
 ├── lelele-game.code-workspace   # VS Code 工作区
 ├── foraisthings.md       # 本文件（已被 .gitignore 忽略）
 └── .gitignore            # 已忽略 foraisthings.md
@@ -158,7 +159,7 @@ lelele-game/
 - **B（中版本 / Minor）**：功能级升级，AI 可自行决定，但不要太频繁。
 - **C（微版本 / Patch）**：修修补补。
 
-> 当前版本：**3.3.0**（起点）。4.0.0 是本次「超级 UI 大重构（苹果风 + 灵动岛）」的 A 升级，已获用户授权。
+> 当前版本：**4.0.11**（起点 3.3.0）。4.0.0 起为「超级 UI 大重构（苹果风 + 灵动岛）」A 升级，已获用户授权；4.0.2–4.0.10 等中间版本改动详见 `changelog.json`。
 
 每次发版在 `changelog.json` 数组**头部** `unshift` 一条（含 `version`、`date`、`content_zh`、`content_en`）。
 
@@ -227,3 +228,10 @@ lelele-game/
 ### 变更记录补充
 - **2026-11-03 · 4.0.1 修复版**（见第 11 节）：缓存根治（sw.js v1.1 + 自动刷新）/ 灵动岛重做（52px 胶囊 morph）/ 搜索三范围 + 作者卡片 + 25 条分页 / 设置换色双令牌 + 字号 zoom 立即生效 / 雪期延至 2027-01-31 / reCAPTCHA：**后端 500 根因修复（env.js MODES 补 'recaptcha'，与密钥无关）** + 前端取消同 token 重试 + 4xx 友好文案 + 服务端错误≥3次熔断跳过验证 + 后端缺密钥防御性降级 503。
 - _（10.4 OTF 字体 / 10.6 自托管 vendor / 10.7 SEO 在 4.0.0 被 revert 后未重做，当前代码库不含这些功能。）_
+- **2026-11-04 · 4.0.11（Patch）**：性能根治 + 作者数据本地化。
+  - **白屏/卡顿真正根因修复**：6 个公开页 `<head>` 中同步加载的 `supabase-js`（jsdelivr 国内不稳）会阻塞 HTML 解析导致整页白屏，全部改为 `defer`。4.0.8–4.0.10 只修了数据 fetch 的非阻塞，未修脚本阻塞，故仍偶发白屏——本次补齐。
+  - 所有数据 `fetch`（lelegame_data.json / `fetchAuthors` / notice.js / `getCatalog` / 排行榜 analytics）加 **8s AbortController 超时**并去掉 `no-store` 与 `?t=`，改用普通缓存（ETag 重校验，更新即生效）。
+  - **作者数据本地分文件**：新增 `authors/index.json`（轻量清单：id/uuid/名字/等级/徽标，省略默认与空值，保留平台字段）+ `authors/data/<id>.json`（仅 `games_count`，由 lelegame_data.json 自动统计），**删除 `authors.json`**；`fetchAuthors()` 改读 `index.json`，消费者（author / game / index / dashboard / notice）接口契约不变。
+  - **可编辑资料与头像仍走 Supabase**：作者页按 uuid 非阻塞查询 `profiles`（bio/role/display_name/avatar_url），与 dashboard 编辑同源——作者换头像或改简介/名字无需改任何文件，失败降级默认图 + 「头像加载失败」提示。
+  - **同步工作流改造**（`.github/workflows/sync-authors.yml`）：仍以 surge.sh 的 `authors.json` 为唯一编辑入口，每 30 分钟拉回并**拆分为 index.json + data/<id>.json**、删除旧 `authors.json`，触发 Pages 重建。新增作者只改 surge 即自动同步，无需手动碰仓库。
+  - 注：本手册此前漏更，4.0.2–4.0.10 改动未记录（以 `changelog.json` 为准）。

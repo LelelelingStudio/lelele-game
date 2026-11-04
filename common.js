@@ -1070,17 +1070,17 @@
     const FONT_KEY = 'lelele_font_scale';
     const THEME_KEY = 'lelele_accent';
 
-    // 作者数据：优先同域 authors.json（快/稳），失败再回退外域并设超时（绝不无限挂起）
+    // 作者数据：优先同域 authors/index.json（轻量清单，普通缓存 + ETag 重校验，更新即生效），
+    // 失败再回退外域 surge 全量 authors.json 并设超时（绝不无限挂起）。接口契约不变：返回数组（含 uuid）。
     window.fetchAuthors = async function () {
-        const t = Date.now();
         try {
-            const r = await fetch('authors.json?t=' + t, { cache: 'no-store' });
+            const r = await fetch('authors/index.json');
             if (r.ok) return await r.json();
         } catch (e) {}
         const ctrl = new AbortController();
         const timer = setTimeout(() => ctrl.abort(), 5000);
         try {
-            const r = await fetch('https://authors.surge.sh/authors.json?t=' + t, { signal: ctrl.signal });
+            const r = await fetch('https://authors.surge.sh/authors.json', { signal: ctrl.signal });
             if (r.ok) return await r.json();
         } catch (e) {} finally { clearTimeout(timer); }
         return null;

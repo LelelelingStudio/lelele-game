@@ -96,9 +96,11 @@ let searchPage = 1;
 let _catalogPromise = null;
 function getCatalog() {
     if (!_catalogPromise) {
-        _catalogPromise = fetch('lelegame_data.json', { cache: 'no-store' })
-            .then(r => r.ok ? r.json() : [])
-            .catch(() => []);
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 8000);
+        _catalogPromise = fetch('lelegame_data.json', { signal: ctrl.signal })
+            .then(r => { clearTimeout(timer); return r.ok ? r.json() : []; })
+            .catch(() => { clearTimeout(timer); return []; });
     }
     return _catalogPromise;
 }
@@ -622,7 +624,10 @@ window.addEventListener("message", function(event) {
         try {
             let rawList = _analyticsCache;
             if (!rawList || now - _analyticsTime > ANALYTICS_TTL) {
-                const res = await fetch(ANALYTICS_API, { cache: 'no-store' });
+                const ctrl = new AbortController();
+                const timer = setTimeout(() => ctrl.abort(), 8000);
+                const res = await fetch(ANALYTICS_API, { signal: ctrl.signal, cache: 'no-store' });
+                clearTimeout(timer);
                 if (!res.ok) throw new Error('fetch failed');
                 const json = await res.json();
                 const events = json.breakdowns?.event || [];

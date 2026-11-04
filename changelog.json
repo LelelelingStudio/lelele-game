@@ -1,5 +1,11 @@
 [
   {
+    "version": "4.0.11",
+    "date": "2026-11-04",
+    "content_zh": "修复公开页（尤其作者页）上线白屏/卡顿：根因是 <head> 同步加载 supabase-js（jsdelivr 国内不稳）阻塞 HTML 解析，现 6 处脚本全部改为 defer；所有数据 fetch 加 8s 超时并去掉 no-store。作者数据本地分文件：新增 authors/index.json（轻量清单：id/uuid/名字/等级/徽标，省略默认与空值，保留平台字段）+ authors/data/<id>.json（仅 games_count，由 lelegame_data.json 自动统计），删除旧 authors.json。作者可编辑资料（bio/role/display_name/头像）仍从 Supabase profiles 按 uuid 非阻塞拉取，与 dashboard 编辑同源——作者换头像或改简介/名字无需改任何文件，失败降级默认图 + “头像加载失败”提示。同步工作流改为从 surge 的 authors.json 拆分生成 index + data（games_count 自动统计）。",
+    "content_en": "Fixed public pages (esp. author page) white-screen/slowness on deploy: root cause was the synchronous supabase-js script in <head> (jsdelivr unstable in CN) blocking HTML parsing — now deferred on all 6 pages; all data fetches get an 8s timeout and drop no-store. Author data is now local & split: authors/index.json (lightweight list: id/uuid/name/level/badges, defaults/empties omitted) + authors/data/<id>.json (games_count only, auto-counted from lelegame_data.json), old authors.json removed. Author-editable fields (bio/role/display_name/avatar) still load non-blocking from Supabase profiles by uuid, sharing the same source as the dashboard — authors changing avatar or bio/name needs no file edits; falls back to default avatar + 'avatar failed' on error. Sync workflow splits surge authors.json into index + data (games_count auto-counted)."
+  },
+  {
     "version": "4.0.10",
     "date": "2026-11-04",
     "content_zh": "统一作者数据读取为 fetchAuthors()：同域 authors.json 优先，外域 surge.sh 兜底并带 5 秒超时，绝不卡死；在 surge.sh 更新作者（新增作者或未部署快照时）也能生效。修正 dashboard 提示文案，移除泄露给普通用户的内部文件名 'authors.json'。",

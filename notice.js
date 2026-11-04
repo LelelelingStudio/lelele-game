@@ -9,7 +9,7 @@
     'use strict';
 
     const NOTICE_URL = 'noticetodeveloper.json';
-    const AUTHORS_URL = 'authors.json';
+    const AUTHORS_URL = 'authors/index.json';
     const SEEN_PREFIX = 'lelele_notice_seen_';
     const AUTO_OPEN_DELAY = 800;
 
@@ -77,14 +77,14 @@
         try {
             let list = null;
             try {
-                const res = await fetch(AUTHORS_URL + '?t=' + Date.now(), { cache: 'no-store' });
+                const res = await fetch(AUTHORS_URL);
                 if (res.ok) list = await res.json();
             } catch (e) {}
             if (!list) {
                 const ctrl = new AbortController();
                 const timer = setTimeout(() => ctrl.abort(), 5000);
                 try {
-                    const res = await fetch('https://authors.surge.sh/authors.json?t=' + Date.now(), { signal: ctrl.signal, cache: 'no-store' });
+                    const res = await fetch('https://authors.surge.sh/authors.json', { signal: ctrl.signal });
                     if (res.ok) list = await res.json();
                 } catch (e) {} finally { clearTimeout(timer); }
             }
