@@ -323,5 +323,18 @@
     "ageRating_en": "6+",
     "author": "8",
     "url": "https://ramp-monopoly.netlify.app"
+  },
+  {
+    "id": 26,
+    "name_zh": "了了了游小跑酷",
+    "name_en": "LeleleGameminiparkour",
+    "icon": "🏃‍♂️",
+    "category_zh": "休闲 / 跑酷",
+    "category_en": "Casual / Parkour",
+    "type": "internal",
+    "ageRating_zh": "6+",
+    "ageRating_en": "6+",
+    "author": "1",
+    "url": "https://miniparkour.lelelegame.surge.sh/"
   }
 ]

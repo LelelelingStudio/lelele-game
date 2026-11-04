@@ -1,0 +1,35 @@
+{
+  "id": 26,
+  "name_zh": "了了了游小跑酷",
+  "name_en": "LeleleGameminiparkour",
+  "icon": "🏃‍♂️",
+  "category_zh": "休闲 / 跑酷",
+  "category_en": "Casual / Parkour",
+  "type": "internal",
+  "ageRating_zh": "6+",
+  "ageRating_en": "6+",
+  "version": "v1.0.0",
+  "author": "1",
+  "url": "https://miniparkour.lelelegame.surge.sh/",
+  "banner": "https://miniparkour.lelelegame.surge.sh/banner.png",
+  "screenshots": [
+    "https://miniparkour.lelelegame.surge.sh/1.png",
+    "https://miniparkour.lelelegame.surge.sh/2.png"
+  ],
+  "description_zh": "了了了岭工作室出品的 3D 霓虹风跑酷游戏！\n包含两种截然不同的玩法模式：\n1. 经典模式：自动向前奔跑，通过左右换道、跳跃、长按滑铲来躲避障碍，收集金币，冲击更高分数与距离。\n2. 自由世界：全 3D 视角平台跳跃，自由移动探索无尽的浮空世界，踩上绿色方块可记录重生点，穿过高墙传送门前往全新主题世界。此模式不会死亡掉落！\n支持中英文一键切换，支持手机端手势滑动与电脑端键盘鼠标操作。金币可保留，还能在商城中购买“无敌平底锅”等强力道具！",
+  "description_en": "A neon-style 3D parkour game by LeleleLing Studio!\nFeatures two distinct gameplay modes:\n1. Classic Mode: Auto-run forward. Switch lanes, jump, and slide to dodge obstacles. Collect coins and challenge your high score and distance!\n2. Free World: Explore infinite 3D floating platforms freely. Step on green blocks to set your respawn checkpoint, and pass through tall wall portals to enter new themed worlds. No death in this mode!\nSupports Chinese/English switching, mobile swipe gestures, and PC keyboard/mouse controls. Coins are saved, and you can buy powerful items like the \"Invincible Frying Pan\" in the shop!",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-04",
+      "content": "游戏首发上线！ 加入经典跑酷与自由大世界双模式。 支持中英文双语、手机触屏/电脑键鼠操作。 加入金币复活、商城道具、内置打卡点与传送门系统。"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-04",
+      "content": "Initial release! Added both Classic Parkour and Free World modes. Supports Chinese/English, mobile touch, and PC keyboard/mouse. Added coin revival, item shop, in-game checkpoints, and portal systems."
+    }
+  ]
+}
