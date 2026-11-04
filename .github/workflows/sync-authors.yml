@@ -1,0 +1,52 @@
+name: Sync authors.json from surge.sh
+
+# GitHub Pages 本身不执行代码，所以用 GitHub Actions 定时把 surge.sh 的最新
+# authors.json 拉回仓库并推送，从而触发 Pages 重建，实现“只改 surge.sh 即同步”。
+on:
+  schedule:
+    - cron: '*/30 * * * *'   # 每 30 分钟同步一次（可改更密，如 */15；注意 GitHub 定时任务可能有几分钟延迟）
+  workflow_dispatch:         # 支持在 Actions 页面手动点 “Run workflow” 立即同步
+
+permissions:
+  contents: write            # 允许工作流把更新推回仓库
+
+concurrency:
+  group: sync-authors
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0      # 完整历史，便于 pull/rebase 后 push
+
+      - name: Fetch latest authors.json (timeout 30s)
+        run: |
+          curl -fsSL --max-time 30 "https://authors.surge.sh/authors.json?t=$(date +%s)" -o authors.remote.json
+          node -e "const d=require('./authors.remote.json'); if(!Array.isArray(d)){throw new Error('authors.json 不是数组');} console.log('fetched entries:', d.length)"
+
+      - name: Update repo authors.json only if changed
+        run: |
+          git pull --ff-only origin || true
+          node -e "
+          const fs=require('fs');
+          const canon=o=>JSON.stringify(o,Object.keys(o||{}).sort());
+          const a=JSON.parse(fs.readFileSync('authors.remote.json','utf8'));
+          let b=null; try{b=JSON.parse(fs.readFileSync('authors.json','utf8'));}catch(e){}
+          if(b && canon(a)===canon(b)){console.log('no change'); process.exit(0);}
+          fs.writeFileSync('authors.json', JSON.stringify(a,null,2)+'\n');
+          console.log('authors.json updated');
+          "
+          rm -f authors.remote.json
+          if git diff --quiet authors.json; then
+            echo "no effective change, skip commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add authors.json
+          git commit -m "chore: auto-sync authors.json from surge.sh"
+          git push
