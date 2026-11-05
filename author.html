@@ -334,9 +334,10 @@
             };
             renderAuthorPage();
 
-            // 并行：作者信息（基础 + 扩展 + 头像）与本地游戏列表，均非阻塞带超时
+            // 并行：作者信息、游戏列表、游戏数统计，三者互不等待（跨域 surge 慢也不拖累本地内容）
             loadAuthorMeta(authorId);
             loadGames(authorId);
+            fetchAuthorGamesCount(authorId);
         }
 
         // 本地游戏列表：8s 超时，去掉 no-store，失败不影响已渲染页面
@@ -353,6 +354,8 @@
                         if (g.author === undefined || g.author === null) return false;
                         return String(g.author) === String(authorId);
                     });
+                    // 页面已加载的列表就是最权威的即时数据，先填上游戏数，不等 surge / data 文件
+                    currentAuthorData.games_count = currentGamesList.length;
                     renderAuthorPage();
                 }
             } catch (e) {
@@ -375,6 +378,8 @@
                         }
                     }
 
+                    // 保留并行任务已填好的 games_count，避免被覆盖回 0
+                    const gamesCount = currentAuthorData.games_count || 0;
                     currentAuthorData = {
                         name_zh: defaultNameZh, name_en: defaultNameEn,
                         avatar_url: null, bio: null,
@@ -383,12 +388,10 @@
                         authorlevel: base ? (base.authorlevel || 1) : 1,
                         official: base ? !!base.official : false,
                         studio_special: base ? !!base.studio_special : false,
-                        games_count: 0
+                        games_count: gamesCount
                     };
                     renderAuthorPage();
 
-                    // 游戏数（data/<id>.json，由工作流从 lelegame_data.json 自动统计）
-                    fetchAuthorGamesCount(authorId);
                     // 作者可编辑资料（bio/role/display_name/头像）来自 Supabase，与 dashboard 编辑同源
                     loadSupabaseProfile(uuid);
                 })
