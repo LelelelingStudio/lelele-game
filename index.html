@@ -545,9 +545,9 @@
                 started = true;
                 setTimeout(start, 1200);
             };
-            if (document.readyState === 'complete') boot();
-            else window.addEventListener('load', boot);
-            setTimeout(boot, 3500); // 兜底：load 事件被别处拦截时也能启动
+            // 4.0.13：不再挂在 window.load（外部脚本曾把它无限推迟），改用 onReady 立即启动
+            window.onReady(boot);
+            setTimeout(boot, 3500); // 兜底：ready 事件被别处拦截时也能启动
         })();
     </script>
 

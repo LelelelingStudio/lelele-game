@@ -543,6 +543,15 @@
     <script src="supabase-client.js" defer></script>
     <script src="notice.js" defer></script>
     <script>
+        // 4.0.13：统一 fetch 超时。外部域（analytics）或本地数据挂起时不拖死看板，
+        // 8s 后 AbortController 中断，由各调用点的 catch 降级到已有空态/图表错误态。
+        function dashFetch(url, ms) {
+            const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+            const timer = ctrl ? setTimeout(() => ctrl.abort(), ms || 8000) : null;
+            return fetch(url, ctrl ? { signal: ctrl.signal } : {})
+                .finally(() => { if (timer) clearTimeout(timer); });
+        }
+
         // ===== 顶部 Toast 提示 =====
         function showToast(message) {
             const existing = document.querySelector('.auth-toast');
@@ -562,6 +571,8 @@
         let userProfile = null;
         let myGames = [];
         let myAuthorData = null;
+        // 作者映射结果：'ok' 已关联 / 'unlinked' 清单可读但未关联 / 'failed' 清单拉取失败
+        let authorLookupState = 'failed';
         let activeGameId = null;
         let myChart = null;
         let lastSeries = null;
@@ -787,19 +798,48 @@
             applyPasswordProviderState();
             renderIdentities();
 
+            // 4.0.13：本页不引入 common.js（会注入页脚/公告等后台 UI 冲突），
+            // fetchAuthors 由 head 同步加载的 boot.js 统一提供；若因缓存异常缺席，
+            // 直接读同域本地清单兜底，绝不静默当成「没有游戏」。
             let authorId = null;
+            let authorsData = null;
             try {
-                const authorsData = await window.fetchAuthors();
-                if (authorsData) {
-                    const myAuthor = authorsData.find(a => a.uuid === currentUser.id);
-                    if (myAuthor) { authorId = myAuthor.id; myAuthorData = myAuthor; }
-                }
+                authorsData = (typeof window.fetchAuthors === 'function')
+                    ? await window.fetchAuthors()
+                    : await (async () => {
+                        const r = await dashFetch('authors/index.json');
+                        return r.ok ? await r.json() : null;
+                    })();
             } catch (e) {
-                console.warn('作者映射表拉取失败', e);
+                console.warn('作者映射表拉取失败，尝试本地清单兜底', e);
+            }
+            if (!authorsData) {
+                try {
+                    const r = await dashFetch('authors/index.json');
+                    if (r.ok) authorsData = await r.json();
+                } catch (e) {}
             }
 
-            const res = await fetch('lelegame_data.json');
-            const allGames = await res.json();
+            if (authorsData) {
+                const myAuthor = authorsData.find(a => a.uuid === currentUser.id);
+                if (myAuthor) {
+                    authorId = myAuthor.id;
+                    myAuthorData = myAuthor;
+                    authorLookupState = 'ok';
+                } else {
+                    authorLookupState = 'unlinked';
+                }
+            } else {
+                authorLookupState = 'failed';
+            }
+
+            let allGames = [];
+            try {
+                const res = await dashFetch('lelegame_data.json');
+                if (res.ok) allGames = await res.json();
+            } catch (e) {
+                console.warn('游戏数据拉取失败/超时', e);
+            }
 
             if (authorId) {
                 myGames = allGames.filter(g => String(g.author) === String(authorId));
@@ -1018,7 +1058,9 @@
             if (idEl) {
                 idEl.innerHTML = devId != null
                     ? '<span class="zh-inline">开发者 ID：' + devId + '</span><span class="en-inline">Dev ID: ' + devId + '</span>'
-                    : '<span class="zh-inline">未认证</span><span class="en-inline">Not certified</span>';
+                    : (authorLookupState === 'failed'
+                        ? '<span class="zh-inline">档案读取失败，请刷新</span><span class="en-inline">Profile unavailable, refresh</span>'
+                        : '<span class="zh-inline">未关联档案</span><span class="en-inline">Not linked</span>');
             }
             if (pEl) {
                 pEl.innerHTML =
@@ -1031,10 +1073,15 @@
             const wrap = document.getElementById('creatorCardWrap');
             if (!wrap) return;
             if (!myAuthorData) {
+                // 读取失败时不误导用户去重新申请认证
+                const fail = authorLookupState === 'failed';
+                const desc = fail
+                    ? '<span class="zh-inline">创作者档案暂时读取失败，请刷新页面重试。</span><span class="en-inline">Could not load your creator profile. Please refresh and try again.</span>'
+                    : '<span class="zh-inline">当前账号尚未关联创作者档案。提交申请后，这里会展示你的创作者信息与徽标。</span><span class="en-inline">This account is not linked to a creator profile yet. After applying, your info and badges will appear here.</span>';
                 wrap.innerHTML =
                     '<div class="creator-empty">' +
                     '<div class="creator-empty-emoji">🏅</div>' +
-                    '<p><span class="zh-inline">你还没有官方认证身份。提交申请后，这里会展示你的创作者信息与徽标。</span><span class="en-inline">You don’t have a certified creator identity yet. After applying, your info and badges will appear here.</span></p>' +
+                    '<p>' + desc + '</p>' +
                     '<a class="btn btn-primary" href="apply-certification.html"><span class="zh-inline">🏅 申请官方认证</span><span class="en-inline">🏅 Apply for Certification</span></a>' +
                     '</div>';
                 return;
@@ -1081,11 +1128,22 @@
             document.getElementById('deleteSection').style.display = 'block';
 
             if (myGames.length === 0) {
+                // 4.0.13：区分三种情况，不再一律要求用户「重新完成创作者认证」
+                let zh, en;
+                if (authorLookupState === 'failed') {
+                    zh = '作者档案暂时读取失败（网络超时或离线），请刷新重试。你的游戏数据不会丢失。';
+                    en = 'Could not load your creator profile (network timeout or offline). Please refresh — your game data is safe.';
+                } else if (authorLookupState === 'unlinked') {
+                    zh = '当前账号尚未关联创作者档案，请确认已在 author.json 中填入你的 UUID。';
+                    en = 'This account is not linked to a creator profile yet. Make sure your UUID is listed in authors.json.';
+                } else {
+                    zh = '你已关联创作者档案，但名下暂时没有游戏。投稿新游戏后即可在此查看数据。';
+                    en = 'Your creator profile is linked, but you have no games yet. Submit a game to see its stats here.';
+                }
                 document.getElementById('dashboardControls').style.display = 'none';
                 document.getElementById('analyticsDataView').style.display = 'none';
                 document.getElementById('gameSelectGrid').innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">
-                    <span class="zh-inline">暂无绑定您的游戏，请确认您已在本站完成创作者认证并关联账号。</span>
-                    <span class="en-inline">No games found. Please make sure you've completed creator certification and linked your account.</span>
+                    <span class="zh-inline">${zh}</span><span class="en-inline">${en}</span>
                 </div>`;
                 document.getElementById('gameSelectGrid').style.display = 'grid';
                 return;
@@ -1157,7 +1215,7 @@
         async function fetchRanks(range) {
             if (rankCache[range]) return rankCache[range];
             const url = `${ANALYTICS_BASE}/api/breakdown?site=${SITE_ID}&cmp=1&limit=50&dim=event&range=${encodeURIComponent(range)}`;
-            const res = await fetch(url);
+            const res = await dashFetch(url);
             if (!res.ok) throw new Error('breakdown HTTP ' + res.status);
             const json = await res.json();
 
@@ -1183,7 +1241,7 @@
                 event: eventNameOf(game),
                 cmp: '1'
             });
-            const res = await fetch(`${ANALYTICS_BASE}/api/timeseries?${params.toString()}`);
+            const res = await dashFetch(`${ANALYTICS_BASE}/api/timeseries?${params.toString()}`);
             if (!res.ok) throw new Error('timeseries HTTP ' + res.status);
             const json = await res.json();
 

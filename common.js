@@ -2,7 +2,7 @@
 // defer 脚本执行时 DOM 已解析完，readyState 非 loading 即可立即初始化。
 function leleleOnReady(fn) {
     if (document.readyState === 'loading') {
-        leleleOnReady( fn, { once: true });
+        document.addEventListener('DOMContentLoaded', fn, { once: true });
     } else { fn(); }
 }
 (function() {
@@ -1077,22 +1077,44 @@ function leleleOnReady(fn) {
     const FONT_KEY = 'lelele_font_scale';
     const THEME_KEY = 'lelele_accent';
 
-    // 作者数据：恢复十月底以来一直稳定的跨域主源 https://authors.surge.sh/authors.json
-    // （用户确认跨域从无问题）。带 5s 超时绝不无限挂起；surge 不可达/离线时再回退
-    // 本地 authors/index.json（同步工作流生成的轻量清单）。接口契约不变：返回数组（含 uuid）。
-    window.fetchAuthors = async function () {
-        const ctrl = new AbortController();
-        const timer = setTimeout(() => ctrl.abort(), 5000);
-        try {
-            const r = await fetch('https://authors.surge.sh/authors.json', { signal: ctrl.signal });
-            if (r.ok) return await r.json();
-        } catch (e) {} finally { clearTimeout(timer); }
-        try {
-            const r = await fetch('authors/index.json');
-            if (r.ok) return await r.json();
-        } catch (e) {}
-        return null;
-    };
+    // 作者数据：唯一定义处已移到 boot.js（head 同步加载，dashboard 等页也能用）。
+    // 这里只在 boot.js 缺席时提供兼容实现——game/ 子目录页面通过绝对 URL 直接加载
+    // common.js、不加载 boot.js，必须保证它们仍能拿到 fetchAuthors。
+    // 契约不变：surge 权威主源（5s 超时）+ 同域 authors/index.json 兜底，返回数组或 null。
+    if (typeof window.fetchAuthors !== 'function') {
+        window.fetchAuthors = async function () {
+            const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+            const timer = ctrl ? setTimeout(() => ctrl.abort(), 5000) : null;
+            try {
+                const r = await fetch('https://authors.surge.sh/authors.json', ctrl ? { signal: ctrl.signal } : {});
+                if (r.ok) return await r.json();
+            } catch (e) {} finally { if (timer) clearTimeout(timer); }
+            try {
+                const r = await fetch('authors/index.json');
+                if (r.ok) return await r.json();
+            } catch (e) {}
+            return null;
+        };
+    }
+    // 首屏即时渲染 / 异步校正接口：同样只在缺席时补一份等价实现
+    if (typeof window.fetchAuthorsLocal !== 'function') {
+        window.fetchAuthorsLocal = async function () {
+            try {
+                const r = await fetch('authors/index.json');
+                return r.ok ? await r.json() : null;
+            } catch (e) { return null; }
+        };
+    }
+    if (typeof window.fetchAuthorsFresh !== 'function') {
+        window.fetchAuthorsFresh = async function () {
+            const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+            const timer = ctrl ? setTimeout(() => ctrl.abort(), 5000) : null;
+            try {
+                const r = await fetch('https://authors.surge.sh/authors.json', ctrl ? { signal: ctrl.signal } : {});
+                return r.ok ? await r.json() : null;
+            } catch (e) { return null; } finally { if (timer) clearTimeout(timer); }
+        };
+    }
 
     // 换色：同时驱动 --primary 与 --accent（站内两类令牌都在用，只改一个会"看起来没用"）
     function applyAccent(color) {

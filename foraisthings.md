@@ -45,9 +45,9 @@ lelele-game/
 ├── common.js             # ★ 全局脚本（主题/活动/雪花/页脚/浮动工具/公告/登录注入）
 ├── index.js / search.js / notice.js / rank-loader.js   # 页面级脚本
 ├── supabase-client.js / recaptcha*.js   # 鉴权与人机验证
-├── boot.js                   # ★ 首屏引导：onReady 兜底 + 动态异步注入 analytics（不阻塞 DOMContentLoaded）
+├── boot.js                   # ★ head 同步引导：onReady 兜底 + fetchAuthors 唯一定义处（surge 主源/本地兜底/SWR）+ 异步注入 analytics
 ├── vendor/                   # ★ 自托管 UMD 库：supabase-js.js / pinyin-pro.js / echarts.min.js（消除 jsdelivr 依赖）
-├── sw.js                     # ★ Service Worker v1.3：静态 SWR 秒开 + 数据超时回退
+├── sw.js                     # ★ Service Worker v1.4：静态 SWR 秒开 + 数据超时回退
 ├── lelegame_data.json / announcements.json / activity_whole.json / special_common.json / changelog.json / manifest-zh.json / manifest-en.json  # 数据/配置
 ├── authors/                     # 作者数据本地兜底：index.json 轻量清单 + data/<id>.json 仅 games_count（主源为 surge 跨域）
 ├── lelele-game.code-workspace   # VS Code 工作区
@@ -162,7 +162,7 @@ lelele-game/
 - **B（中版本 / Minor）**：功能级升级，AI 可自行决定，但不要太频繁。
 - **C（微版本 / Patch）**：修修补补。
 
-> 当前版本：**4.0.12**（起点 3.3.0）。4.0.0 起为「超级 UI 大重构（苹果风 + 灵动岛）」A 升级，已获用户授权；4.0.2–4.0.10 等中间版本改动详见 `changelog.json`。
+> 当前版本：**4.0.13**（起点 3.3.0）。4.0.0 起为「超级 UI 大重构（苹果风 + 灵动岛）」A 升级，已获用户授权；4.0.2–4.0.10 等中间版本改动详见 `changelog.json`。
 
 每次发版在 `changelog.json` 数组**头部** `unshift` 一条（含 `version`、`date`、`content_zh`、`content_en`）。
 
@@ -245,3 +245,11 @@ lelele-game/
   - **Service Worker 真正生效**：按用户要求**给 `sw.js` 加注释改变文件字节**并升 `CACHE_NAME` 到 `v1.3`，触发浏览器重新 `install` 并清理 v1.0–v1.2 旧缓存（此前 `sw.js` 字节未变，浏览器不会重装；且旧策略纯 network-first，缓存只在断网时兜底，平时完全不加速 = "缓存根本没用"）。新策略：静态资源 **stale-while-revalidate**（命中缓存秒开 + 后台更新）、数据 JSON **network-first 带 1.5s 超时**快速回退缓存、外部域直通。移除升版时自动 `location.reload()`，消除反复刷新。
   - **恢复作者数据主源**：`fetchAuthors()` 与 `notice.js` 主源改回十月底以来一直稳定的跨域 `https://authors.surge.sh/authors.json`（已核实 `access-control-allow-origin: *`），带 5s 超时；本地 `authors/index.json` 仅作离线兜底。`author.html` 游戏数在 `data/` 缺文件时回退到页面已加载的游戏列表长度。
   - **验证**：Chrome headless 阻断 `cdn.jsdelivr.net` / `analytics` / `supabase.co` / `surge.sh` / `tally.so` 全部外部域名后，首页仍渲染 26 个游戏卡片、作者页渲染作者卡 + 13 个游戏；index / author / about / game / login 五页 **0 个 JS 运行时错误**；全部 JS 与内联脚本语法检查通过、lint 0 错误。
+- **2026-11-05 · 4.0.13（Patch）**：后台游戏数修复 + 作者页首屏提速。
+  - **后台「暂无绑定您的游戏 / 未认证」根因**：`dashboard.html` 从未引入 `common.js`，却调用只定义在其中的 `window.fetchAuthors()`；异常被 `:797` 的 `catch` 静默吞掉 → `authorId=null` → `myGames=[]` → 空态；`renderDevId()` 同时误报「未认证」。数据本身完全正常（surge 与本地清单都有 uuid `b646df8a…`、id=1，`lelegame_data.json` 里 12 款游戏）。
+  - **作者清单统一到 `boot.js`**：`window.fetchAuthors` 唯一定义处移到 head 同步加载、无 UI 副作用的 `boot.js`（14 页都引），`dashboard` 无需新增任何 script 标签；`common.js` 改为「仅在未定义时赋值」的守卫，保证 `game/` 子页（通过绝对 URL 直连 `common.js`、不加载 `boot.js`）仍可用。**明确不给 dashboard 引整个 `common.js`**：其初始化会注入页脚/公告/主题/灵动岛，与后台独立 UI 冲突。契约不变：surge 权威主源（5s 超时）+ 本地 `authors/index.json` 兜底。
+  - 另新增 `fetchAuthorsLocal()` / `fetchAuthorsFresh()` 供 stale-while-revalidate 使用；`dashboard` 加本地清单兜底、`dashFetch()` 统一 8s 超时（`lelegame_data.json` / analytics breakdown / timeseries），失败降级不抛错；空态、侧栏、创作者卡文案区分为「档案读取失败」「未关联档案」「已关联但 0 游戏」三种，不再一律要求重新完成创作者认证。
+  - **修掉 4.0.12 引入的无限递归**：批量替换误把 `common.js` / `index.js` 里 `leleleOnReady` 函数体自身也替换成 `leleleOnReady( fn, {once:true})`（递归调用自己）。defer 页面走 `else fn()` 故表面正常，但 `authorlevel.html` / `apply-certification.html` 是**同步**加载 `common.js`，`readyState==='loading'` 时会栈溢出 —— 这正是「有点卡」的来源。已恢复 `document.addEventListener('DOMContentLoaded', fn, { once: true })`。
+  - **作者页首屏提速**：`loadAuthorMeta` 改为先用同域 `authors/index.json` 即时渲染名字/等级/徽标，再由 surge 异步校正（两份清单由工作流同步生成，内容一致不跳变）；`authorSupabaseOverride` 保存 Supabase 可编辑资料，校正重建基础数据时重新套用，不会丢失简介/自定义名字；`authorProfileRequestedUuid` 按 uuid 去重，避免两阶段重复查询。
+  - `sw.js` 加注释并升 `CACHE_NAME` 到 **v1.4**（仅改注释与版本字符串，静态 SWR + 数据超时回退策略完全不变），清理 v1.3 旧缓存以确保新的 `boot.js` / `common.js` 立即到达；首页新手引导 `boot()` 与 `notice.js` 对齐 `window.onReady`。
+  - **验证**（playwright-cli + 系统 Chrome）：模拟登录态打开后台 → `authorLookupState='ok'`、`myGames.length=12`、侧栏「开发者 ID：1」、创作者卡等级 6 与官方徽标、游戏选择网格 12 款；阻断 surge/analytics 后**仍显示 12 款**（本地兜底生效）；`authorlevel.html` / `apply-certification.html` 0 个栈溢出错误；首页 26 卡片、`author.html?id=1` 名字「了了了岭工作室」+ 12 款游戏即时可见；全部 JS 与内联脚本语法通过、lint 0 错误。

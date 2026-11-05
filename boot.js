@@ -50,6 +50,63 @@
         }
     };
 
+    // ----------------------------------------------------------------------
+    // 作者清单：唯一的 window.fetchAuthors 定义处（4.0.13）
+    //
+    // 之前只定义在 common.js，而 dashboard.html 从未引入 common.js，导致后台
+    // 「暂无绑定您的游戏 / 未认证」。boot.js 在 14 个页面的 <head> 同步加载、
+    // 无 UI 副作用，是最合适的共享引导层。
+    //
+    // 契约：fetchAuthors() 返回含 uuid 的作者数组或 null。
+    //   - surge 为权威主源（用户要求恢复，已核实 CORS *），5s 超时；
+    //   - 失败回退同域 authors/index.json（工作流同步生成，SW 缓存）。
+    // 另暴露 fetchAuthorsLocal / fetchAuthorsFresh 供首屏 stale-while-revalidate：
+    // 先用本地清单即时渲染，再由 surge 异步校正，跨域变慢也不拖首屏。
+    // ----------------------------------------------------------------------
+    var AUTHORS_PRIMARY = 'https://authors.surge.sh/authors.json';
+    var AUTHORS_FALLBACK = 'authors/index.json';
+
+    function readAuthorsJson(url, timeoutMs) {
+        return new Promise(function (resolve) {
+            var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+            var settled = false;
+            var timer = setTimeout(function () {
+                if (settled) return;
+                settled = true;
+                if (ctrl) ctrl.abort();
+                resolve(null);
+            }, timeoutMs);
+            fetch(url, ctrl ? { signal: ctrl.signal } : {})
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .then(function (data) {
+                    if (settled) return;
+                    settled = true; clearTimeout(timer);
+                    resolve(Array.isArray(data) && data.length ? data : null);
+                })
+                .catch(function () {
+                    if (settled) return;
+                    settled = true; clearTimeout(timer);
+                    resolve(null);
+                });
+        });
+    }
+
+    // 同域轻量清单：命中 SW 缓存即 0 网络往返，用于首屏即时渲染
+    window.fetchAuthorsLocal = function () {
+        return readAuthorsJson(AUTHORS_FALLBACK, 8000);
+    };
+
+    // 权威主源：仅 surge，失败返回 null（用于无感校正，不阻塞）
+    window.fetchAuthorsFresh = function () {
+        return readAuthorsJson(AUTHORS_PRIMARY, 5000);
+    };
+
+    window.fetchAuthors = async function () {
+        var fresh = await window.fetchAuthorsFresh();
+        if (fresh) return fresh;
+        return await window.fetchAuthorsLocal();
+    };
+
     // 第三方统计：首屏之后异步注入，失败完全无感（统计不属于功能）
     window.onReady(function () {
         setTimeout(function () {

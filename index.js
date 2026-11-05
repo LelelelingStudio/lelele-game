@@ -2,7 +2,7 @@
 // defer 脚本执行时 DOM 已解析完，readyState 非 loading 即可立即初始化。
 function leleleOnReady(fn) {
     if (document.readyState === 'loading') {
-        leleleOnReady( fn, { once: true });
+        document.addEventListener('DOMContentLoaded', fn, { once: true });
     } else { fn(); }
 }
 // ==================== 全局工具函数 ====================

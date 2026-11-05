@@ -363,39 +363,78 @@
             }
         }
 
-        // 作者信息：基础（index.json）+ 游戏数（data/<id>.json，工作流自动统计）+ 可编辑资料（Supabase profiles，与 dashboard 编辑同源），全部非阻塞
+        // 4.0.13：作者清单采用 stale-while-revalidate。
+        // 同域 authors/index.json（SW 缓存命中即 0 网络往返）用于首屏即时出名字/等级/徽标，
+        // surge 权威数据随后无感校正；两份清单由工作流同步生成，内容一致不会跳变。
+        let authorProfileRequestedUuid;   // 已请求过 Supabase 资料的 uuid，避免两阶段重复查询
+        let authorSupabaseOverride = null; // Supabase 可编辑资料，重建基础数据时重新套用
+
+        function applySupabaseOverride() {
+            if (!authorSupabaseOverride || !currentAuthorData) return;
+            const o = authorSupabaseOverride;
+            if (o.display) {
+                currentAuthorData.name_zh = o.display;
+                currentAuthorData.name_en = o.display;
+            }
+            if (o.bio) currentAuthorData.bio = o.bio;
+            if (o.role) currentAuthorData.role = o.role;
+        }
+
+        function applyAuthorList(authors, authorId) {
+            let base = null, uuid = null, defaultNameZh = '', defaultNameEn = '';
+            if (authors) {
+                const matched = authors.find(a => String(a.id) === String(authorId));
+                if (matched) {
+                    base = matched;
+                    uuid = matched.uuid || null;
+                    defaultNameZh = matched.name_zh || '';
+                    defaultNameEn = matched.name_en || '';
+                }
+            }
+
+            // 保留并行任务已填好的 games_count，避免被覆盖回 0
+            const gamesCount = (currentAuthorData && currentAuthorData.games_count) || 0;
+            currentAuthorData = {
+                name_zh: defaultNameZh, name_en: defaultNameEn,
+                avatar_url: null, bio: null,
+                role: uuid ? 'developer' : 'External / Unregistered',
+                isRegistered: !!uuid,
+                authorlevel: base ? (base.authorlevel || 1) : 1,
+                official: base ? !!base.official : false,
+                studio_special: base ? !!base.studio_special : false,
+                games_count: gamesCount
+            };
+            applySupabaseOverride(); // surge 校正发生在 Supabase 之后时，不丢失已拉取的简介/名字
+            renderAuthorPage();
+
+            // 作者可编辑资料（bio/role/display_name/头像）来自 Supabase，与 dashboard 编辑同源；
+            // 按 uuid 去重，本地清单与 surge 两阶段都到来时只查一次
+            if (uuid && authorProfileRequestedUuid !== uuid) {
+                authorProfileRequestedUuid = uuid;
+                loadSupabaseProfile(uuid);
+            }
+        }
+
         function loadAuthorMeta(authorId) {
-            window.fetchAuthors()
-                .then(authors => {
-                    let base = null, uuid = null, defaultNameZh = '', defaultNameEn = '';
-                    if (authors) {
-                        const matched = authors.find(a => String(a.id) === String(authorId));
-                        if (matched) {
-                            base = matched;
-                            uuid = matched.uuid || null;
-                            defaultNameZh = matched.name_zh || '';
-                            defaultNameEn = matched.name_en || '';
-                        }
-                    }
+            const hasLocal = typeof window.fetchAuthorsLocal === 'function';
+            const hasFresh = typeof window.fetchAuthorsFresh === 'function';
+            if (!hasLocal || !hasFresh) {
+                // boot.js 缺席（极端缓存异常）：退回单一契约，行为与 4.0.12 一致
+                Promise.resolve().then(() => window.fetchAuthors())
+                    .then(authors => applyAuthorList(authors, authorId))
+                    .catch(e => { console.warn('作者映射表拉取失败/超时', e); });
+                return;
+            }
 
-                    // 保留并行任务已填好的 games_count，避免被覆盖回 0
-                    const gamesCount = currentAuthorData.games_count || 0;
-                    currentAuthorData = {
-                        name_zh: defaultNameZh, name_en: defaultNameEn,
-                        avatar_url: null, bio: null,
-                        role: uuid ? 'developer' : 'External / Unregistered',
-                        isRegistered: !!uuid,
-                        authorlevel: base ? (base.authorlevel || 1) : 1,
-                        official: base ? !!base.official : false,
-                        studio_special: base ? !!base.studio_special : false,
-                        games_count: gamesCount
-                    };
-                    renderAuthorPage();
+            // 1) 本地清单：立即渲染，跨域 surge 再慢也不拖首屏
+            window.fetchAuthorsLocal()
+                .then(authors => { if (authors) applyAuthorList(authors, authorId); })
+                .catch(() => {});
 
-                    // 作者可编辑资料（bio/role/display_name/头像）来自 Supabase，与 dashboard 编辑同源
-                    loadSupabaseProfile(uuid);
-                })
-                .catch(e => { console.warn('作者映射表拉取失败/超时', e); });
+            // 2) surge 权威主源：异步校正（新增作者 / 改名 / 等级变更）
+            window.fetchAuthorsFresh()
+                .then(authors => { if (authors) applyAuthorList(authors, authorId); })
+                .catch(() => {});
         }
 
         // 游戏数：优先本地 data/<id>.json（工作流自动统计），
@@ -444,13 +483,13 @@
 
                     // 名字：仅当作者真正自定义过（display_name 不等于邮箱前缀 username）才覆盖平台默认名
                     const display = data.display_name || '';
-                    if (display && display !== data.username) {
-                        currentAuthorData.name_zh = display;
-                        currentAuthorData.name_en = display;
-                    }
-                    // bio 里的 <br> 转成换行（.author-bio 已设 white-space: pre-wrap），仍用 textContent 渲染避免 XSS
-                    if (data.bio) currentAuthorData.bio = String(data.bio).replace(/<br\s*\/?>/gi, '\n');
-                    if (data.role) currentAuthorData.role = data.role;
+                    // 保存为 override：surge 清单异步校正时重建基础数据后仍会重新套用这些字段
+                    authorSupabaseOverride = {
+                        display: (display && display !== data.username) ? display : null,
+                        bio: data.bio ? String(data.bio).replace(/<br\s*\/?>/gi, '\n') : null,
+                        role: data.role || null
+                    };
+                    applySupabaseOverride();
                     renderAuthorPage();
 
                     // 没上传头像：只显示默认 👤，不提示“加载失败”

@@ -282,8 +282,11 @@
         setTimeout(() => window.leleleShowNotices(), AUTO_OPEN_DELAY);
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+    // 4.0.13：优先复用 boot.js 的 onReady；game/ 子页面不加载 boot.js 时保留原有 readyState 兜底
+    if (typeof window.onReady === 'function') {
+        window.onReady(init);
+    } else if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init, { once: true });
     } else {
         init();
     }
