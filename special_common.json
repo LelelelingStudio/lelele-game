@@ -1,7 +1,7 @@
 {
   "skip_effects_domains": [
     "levil-evil.surge.sh",
-    "https://levil-evil.lelelegame.surge.sh/lelelegame-levil-download",
+    "https://levil-evil.lelelegame.surge.sh",
     "upclean.lelelegame.surge.sh"
   ],
   "skip_effects_paths": [
