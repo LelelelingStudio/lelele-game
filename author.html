@@ -411,43 +411,52 @@
                 .finally(() => clearTimeout(timer));
         }
 
-        // 作者可编辑资料（bio/role/display_name/头像）来自 Supabase profiles，与 dashboard 编辑同源；失败/超时/无则默认图 + “头像加载失败”提示
+        // 作者可编辑资料（bio/role/display_name/头像）来自 Supabase profiles，与 dashboard 编辑同源
         function loadSupabaseProfile(uuid) {
             const avatarEl = document.getElementById('authorAvatar');
-            const fail = () => {
-                if (avatarEl) avatarEl.innerHTML = '👤';
-                const err = document.getElementById('avatarError');
-                if (err) err.style.display = 'block';
-            };
-            if (!uuid || typeof supabaseClient === 'undefined' || !supabaseClient) { fail(); return; }
-            const ctrl = new AbortController();
-            const timer = setTimeout(() => ctrl.abort(), 8000);
+            const errEl = document.getElementById('avatarError');
+            const showDefault = () => { if (avatarEl) avatarEl.innerHTML = '👤'; };
+            const hideError = () => { if (errEl) errEl.style.display = 'none'; };
+            const showError = () => { showDefault(); if (errEl) errEl.style.display = 'block'; };
+
+            // 无 uuid / 客户端未就绪：只是拿不到资料，不算“加载失败”
+            if (!uuid || typeof supabaseClient === 'undefined' || !supabaseClient) {
+                showDefault(); hideError(); return;
+            }
+
+            let settled = false;
+            const timer = setTimeout(() => { if (!settled) { settled = true; showError(); } }, 8000);
+            const done = () => { settled = true; clearTimeout(timer); };
+
             supabaseClient
-                .from('profiles').select('avatar_url, bio, role, display_name').eq('id', uuid).single()
-                .then(({ data }) => {
-                    clearTimeout(timer);
-                    if (!data) { fail(); return; }
-                    // 名字优先用作者自填的 display_name
-                    if (data.display_name) {
-                        currentAuthorData.name_zh = data.display_name;
-                        currentAuthorData.name_en = data.display_name;
+                .from('profiles').select('avatar_url, bio, role, display_name, username').eq('id', uuid).single()
+                .then(({ data, error }) => {
+                    done();
+                    if (error || !data) { showError(); return; }
+
+                    // 名字：仅当作者真正自定义过（display_name 不等于邮箱前缀 username）才覆盖平台默认名
+                    const display = data.display_name || '';
+                    if (display && display !== data.username) {
+                        currentAuthorData.name_zh = display;
+                        currentAuthorData.name_en = display;
                     }
-                    if (data.bio) currentAuthorData.bio = data.bio;
+                    // bio 里的 <br> 转成换行（.author-bio 已设 white-space: pre-wrap），仍用 textContent 渲染避免 XSS
+                    if (data.bio) currentAuthorData.bio = String(data.bio).replace(/<br\s*\/?>/gi, '\n');
                     if (data.role) currentAuthorData.role = data.role;
                     renderAuthorPage();
-                    // 头像
+
+                    // 没上传头像：只显示默认 👤，不提示“加载失败”
                     const url = data.avatar_url;
-                    if (!url) { fail(); return; }
+                    if (!url) { showDefault(); hideError(); return; }
                     const img = new Image();
                     img.onload = () => {
                         if (avatarEl) avatarEl.innerHTML = `<img src="${escapeHtml(url)}" alt="Avatar">`;
-                        const err = document.getElementById('avatarError');
-                        if (err) err.style.display = 'none';
+                        hideError();
                     };
-                    img.onerror = () => fail();
+                    img.onerror = () => showError();
                     img.src = url;
                 })
-                .catch(() => { clearTimeout(timer); fail(); });
+                .catch(() => { done(); showError(); });
         }
 
         // 渲染页面核心逻辑
