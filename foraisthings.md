@@ -45,8 +45,11 @@ lelele-game/
 ├── common.js             # ★ 全局脚本（主题/活动/雪花/页脚/浮动工具/公告/登录注入）
 ├── index.js / search.js / notice.js / rank-loader.js   # 页面级脚本
 ├── supabase-client.js / recaptcha*.js   # 鉴权与人机验证
+├── boot.js                   # ★ 首屏引导：onReady 兜底 + 动态异步注入 analytics（不阻塞 DOMContentLoaded）
+├── vendor/                   # ★ 自托管 UMD 库：supabase-js.js / pinyin-pro.js / echarts.min.js（消除 jsdelivr 依赖）
+├── sw.js                     # ★ Service Worker v1.3：静态 SWR 秒开 + 数据超时回退
 ├── lelegame_data.json / announcements.json / activity_whole.json / special_common.json / changelog.json / manifest-zh.json / manifest-en.json  # 数据/配置
-├── authors/                     # 作者数据（本地分文件）：index.json 轻量清单 + data/<id>.json 仅 bio/role
+├── authors/                     # 作者数据本地兜底：index.json 轻量清单 + data/<id>.json 仅 games_count（主源为 surge 跨域）
 ├── lelele-game.code-workspace   # VS Code 工作区
 ├── foraisthings.md       # 本文件（已被 .gitignore 忽略）
 └── .gitignore            # 已忽略 foraisthings.md
@@ -159,7 +162,7 @@ lelele-game/
 - **B（中版本 / Minor）**：功能级升级，AI 可自行决定，但不要太频繁。
 - **C（微版本 / Patch）**：修修补补。
 
-> 当前版本：**4.0.11**（起点 3.3.0）。4.0.0 起为「超级 UI 大重构（苹果风 + 灵动岛）」A 升级，已获用户授权；4.0.2–4.0.10 等中间版本改动详见 `changelog.json`。
+> 当前版本：**4.0.12**（起点 3.3.0）。4.0.0 起为「超级 UI 大重构（苹果风 + 灵动岛）」A 升级，已获用户授权；4.0.2–4.0.10 等中间版本改动详见 `changelog.json`。
 
 每次发版在 `changelog.json` 数组**头部** `unshift` 一条（含 `version`、`date`、`content_zh`、`content_en`）。
 
@@ -235,3 +238,10 @@ lelele-game/
   - **可编辑资料与头像仍走 Supabase**：作者页按 uuid 非阻塞查询 `profiles`（bio/role/display_name/avatar_url），与 dashboard 编辑同源——作者换头像或改简介/名字无需改任何文件，失败降级默认图 + 「头像加载失败」提示。
   - **同步工作流改造**（`.github/workflows/sync-authors.yml`）：仍以 surge.sh 的 `authors.json` 为唯一编辑入口，每 30 分钟拉回并**拆分为 index.json + data/<id>.json**、删除旧 `authors.json`，触发 Pages 重建。新增作者只改 surge 即自动同步，无需手动碰仓库。
   - 注：本手册此前漏更，4.0.2–4.0.10 改动未记录（以 `changelog.json` 为准）。
+- **2026-11-05 · 4.0.12（Patch）**：全站访问速度根治，目标**国内外都能快速打开**。
+  - **真正的根因（4.0.11 的 defer 引入的回归）**：`defer` 脚本必须在 `DOMContentLoaded` 之前全部下载并执行完，而全站初始化（`common.js` 主入口、`index.js` 首页游戏列表、各页内联初始化）都挂在 `DOMContentLoaded` / `load` 上。4.0.11 把 jsdelivr 的 `supabase-js` 改成 `defer` 后，`cdn.jsdelivr.net` / `analytics.leleleling.site` 在国内挂起（**浏览器对 script 请求没有默认超时**）→ 这两个事件永不触发 → 一直加载、白屏、刷新无响应、头像与内容全出不来。十月底时 SDK 是 head 同步脚本但 CDN 恰好可达，故"以前可以"。
+  - **移除所有外部 CDN 依赖**：`supabase-js` / `pinyin-pro` / `echarts` 三个 UMD 库自托管到同域 `vendor/`（约 1.5MB，由 SW 缓存），新增 `boot.js` 在首屏之后动态异步注入 analytics 统计脚本（8s 超时、失败静默）。SDK 保持 `defer` 且排在 `supabase-client.js` 之前，保证 `window.supabaseClient` 就绪；`pinyin` / `echarts` 用 `async` 并有 `typeof` 守卫（`dashboard` 加 `whenEchartsReady` 等待）。
+  - **初始化不再死等事件**：新增 `window.onReady` / `leleleOnReady`（`readyState !== 'loading'` 立即执行，`defer` 脚本执行时 DOM 已完整）；14 个页面内联初始化、`common.js`、`index.js` 全部改用它。修 `dashboard.html`/`login.html` 的 `supabase-client.js` 原为同步脚本（早于 defer SDK 执行，client 恒为 null）的旧 bug，并给 `dashboard` 首屏裸 client 调用加空值守卫。
+  - **Service Worker 真正生效**：按用户要求**给 `sw.js` 加注释改变文件字节**并升 `CACHE_NAME` 到 `v1.3`，触发浏览器重新 `install` 并清理 v1.0–v1.2 旧缓存（此前 `sw.js` 字节未变，浏览器不会重装；且旧策略纯 network-first，缓存只在断网时兜底，平时完全不加速 = "缓存根本没用"）。新策略：静态资源 **stale-while-revalidate**（命中缓存秒开 + 后台更新）、数据 JSON **network-first 带 1.5s 超时**快速回退缓存、外部域直通。移除升版时自动 `location.reload()`，消除反复刷新。
+  - **恢复作者数据主源**：`fetchAuthors()` 与 `notice.js` 主源改回十月底以来一直稳定的跨域 `https://authors.surge.sh/authors.json`（已核实 `access-control-allow-origin: *`），带 5s 超时；本地 `authors/index.json` 仅作离线兜底。`author.html` 游戏数在 `data/` 缺文件时回退到页面已加载的游戏列表长度。
+  - **验证**：Chrome headless 阻断 `cdn.jsdelivr.net` / `analytics` / `supabase.co` / `surge.sh` / `tally.so` 全部外部域名后，首页仍渲染 26 个游戏卡片、作者页渲染作者卡 + 13 个游戏；index / author / about / game / login 五页 **0 个 JS 运行时错误**；全部 JS 与内联脚本语法检查通过、lint 0 错误。

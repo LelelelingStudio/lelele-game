@@ -1,3 +1,10 @@
+// 4.0.12：初始化不再死等 DOMContentLoaded（外部 defer 脚本曾把它无限推迟）。
+// defer 脚本执行时 DOM 已解析完，readyState 非 loading 即可立即初始化。
+function leleleOnReady(fn) {
+    if (document.readyState === 'loading') {
+        leleleOnReady( fn, { once: true });
+    } else { fn(); }
+}
 (function() {
     'use strict';
 
@@ -1070,19 +1077,20 @@
     const FONT_KEY = 'lelele_font_scale';
     const THEME_KEY = 'lelele_accent';
 
-    // 作者数据：优先同域 authors/index.json（轻量清单，普通缓存 + ETag 重校验，更新即生效），
-    // 失败再回退外域 surge 全量 authors.json 并设超时（绝不无限挂起）。接口契约不变：返回数组（含 uuid）。
+    // 作者数据：恢复十月底以来一直稳定的跨域主源 https://authors.surge.sh/authors.json
+    // （用户确认跨域从无问题）。带 5s 超时绝不无限挂起；surge 不可达/离线时再回退
+    // 本地 authors/index.json（同步工作流生成的轻量清单）。接口契约不变：返回数组（含 uuid）。
     window.fetchAuthors = async function () {
-        try {
-            const r = await fetch('authors/index.json');
-            if (r.ok) return await r.json();
-        } catch (e) {}
         const ctrl = new AbortController();
         const timer = setTimeout(() => ctrl.abort(), 5000);
         try {
             const r = await fetch('https://authors.surge.sh/authors.json', { signal: ctrl.signal });
             if (r.ok) return await r.json();
         } catch (e) {} finally { clearTimeout(timer); }
+        try {
+            const r = await fetch('authors/index.json');
+            if (r.ok) return await r.json();
+        } catch (e) {}
         return null;
     };
 
@@ -1276,7 +1284,7 @@
     }
 
     // ==================== 初始化调用 ====================
-    document.addEventListener('DOMContentLoaded', () => {
+    leleleOnReady( () => {
         if (isGamePage) {
             document.body.classList.add('is-game-page');
         }
@@ -1300,25 +1308,13 @@
     });
 
     // ==================== 注册 PWA Service Worker ====================
+    // 4.0.12：不再挂在 window.load（外部脚本曾把它无限推迟，导致 SW 迟迟注册不上、
+    // 旧缓存清不掉），改为 DOM 就绪即注册；并移除自动 location.reload() ——
+    // 升版时反复刷新正是"刷新后页面卡住"的元凶之一。新 SW 用 skipWaiting +
+    // clients.claim 立即接管，配合 stale-while-revalidate，无需刷新即可用上新缓存。
     if ('serviceWorker' in navigator && window.location.hostname === 'game.leleleling.site') {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js').then((reg) => {
-                if (!reg) return;
-                // 发现新版本：安装完成后自动刷新一次（用 sessionStorage 防止死循环）
-                const tryReload = () => {
-                    if (sessionStorage.getItem('lelele_sw_reloaded')) return;
-                    sessionStorage.setItem('lelele_sw_reloaded', '1');
-                    window.location.reload();
-                };
-                reg.addEventListener('updatefound', () => {
-                    const installing = reg.installing;
-                    if (!installing) return;
-                    installing.addEventListener('statechange', () => {
-                        if (installing.state === 'installed' && navigator.serviceWorker.controller) tryReload();
-                    });
-                });
-                navigator.serviceWorker.addEventListener('controllerchange', tryReload);
-            }).catch(() => {});
+        leleleOnReady(function () {
+            navigator.serviceWorker.register('/sw.js').catch(function () {});
         });
     }
 

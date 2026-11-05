@@ -27,7 +27,7 @@
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     
     <link rel="stylesheet" href="common.css">
-    <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
+    <script src="/boot.js"></script>
     
     <style>
         .zh-text, .en-text { display: none; }
@@ -186,7 +186,7 @@
             if(lang === 'en') document.getElementById('backHomeBtn').href = 'index.html?lang=en';
             else document.getElementById('backHomeBtn').href = 'index.html';
         }
-        document.addEventListener('DOMContentLoaded', () => {
+        window.onReady( () => {
             const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
             setLang(currentLang);
         });

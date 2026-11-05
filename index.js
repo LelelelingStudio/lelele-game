@@ -1,3 +1,10 @@
+// 4.0.12：初始化不再死等 DOMContentLoaded（外部 defer 脚本曾把它无限推迟）。
+// defer 脚本执行时 DOM 已解析完，readyState 非 loading 即可立即初始化。
+function leleleOnReady(fn) {
+    if (document.readyState === 'loading') {
+        leleleOnReady( fn, { once: true });
+    } else { fn(); }
+}
 // ==================== 全局工具函数 ====================
 // 兜底：本地保留 escapeHtml / getFavorites / saveFavorites，避免 Cloudflare 缓存旧版 common.js 时本页调用未定义函数而整页崩溃
 function escapeHtml(str) {
@@ -677,12 +684,12 @@ window.addEventListener("message", function(event) {
         setInterval(refreshRankings, 10 * 60 * 1000);
     }
 
-    document.addEventListener('DOMContentLoaded', initRanking);
+    leleleOnReady( initRanking);
     window.addEventListener('langChanged', () => { syncTexts(); refreshRankings(); });
 })();
 
 // ==================== 页面初始化 ====================
-document.addEventListener('DOMContentLoaded', () => {
+leleleOnReady( () => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('submitted') === '1') {
         window.history.replaceState({}, document.title, window.location.pathname);

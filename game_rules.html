@@ -28,7 +28,7 @@
     <title>了了了游游戏守则 · lelele Game Rules</title>
     
     <link rel="stylesheet" href="common.css">
-    <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
+    <script src="/boot.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -722,7 +722,7 @@
         if(backHome) backHome.href = lang === 'en' ? 'index.html?lang=en' : 'index.html';
     }
     
-    document.addEventListener('DOMContentLoaded', () => {
+    window.onReady( () => {
         const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
         setLang(currentLang);
     });

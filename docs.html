@@ -26,7 +26,7 @@
     <title>站点导航 · 了了了游</title>
     
     <link rel="stylesheet" href="common.css">
-    <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
+    <script src="/boot.js"></script>
 
     <style>
         .zh-text, .en-text { display: none; }
@@ -347,7 +347,7 @@
             try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
         }
         
-        document.addEventListener('DOMContentLoaded', () => {
+        window.onReady( () => {
             const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
             setLang(currentLang);
         });

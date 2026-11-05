@@ -28,8 +28,8 @@
     <title>作者主页 · 了了了游</title>
 
     <link rel="stylesheet" href="common.css">
-    <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/boot.js"></script>
+    <script defer src="/vendor/supabase-js.js"></script>
 
     <style>
         .zh-text, .en-text { display: none; }
@@ -395,19 +395,24 @@
                 .catch(e => { console.warn('作者映射表拉取失败/超时', e); });
         }
 
-        // 游戏数（data/<id>.json 中的 games_count），非阻塞 + 8s 超时
+        // 游戏数：优先本地 data/<id>.json（工作流自动统计），
+        // 缺文件/超时则直接用页面已加载的游戏列表长度兜底（surge 新增作者也不会显示 0）
+        function applyGamesCount(n) {
+            if (typeof n === 'number' && n >= 0) {
+                currentAuthorData.games_count = n;
+                renderAuthorPage();
+            }
+        }
         function fetchAuthorGamesCount(authorId) {
             const ctrl = new AbortController();
             const timer = setTimeout(() => ctrl.abort(), 8000);
             fetch('authors/data/' + authorId + '.json', { signal: ctrl.signal })
                 .then(r => r.ok ? r.json() : null)
                 .then(d => {
-                    if (d && typeof d.games_count === 'number') {
-                        currentAuthorData.games_count = d.games_count;
-                        renderAuthorPage();
-                    }
+                    if (d && typeof d.games_count === 'number') applyGamesCount(d.games_count);
+                    else if (currentGamesList.length) applyGamesCount(currentGamesList.length);
                 })
-                .catch(() => {})
+                .catch(() => { if (currentGamesList.length) applyGamesCount(currentGamesList.length); })
                 .finally(() => clearTimeout(timer));
         }
 
@@ -529,7 +534,7 @@
             document.getElementById('emptyState').style.display = 'block';
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        window.onReady( () => {
             updateLinks();
             const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
             document.querySelectorAll('.lang-btn').forEach(btn => {

@@ -28,8 +28,9 @@
     <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="effects.css">
     <link rel="stylesheet" href="recaptcha.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <script src="/boot.js"></script>
+    <script defer src="/vendor/supabase-js.js"></script>
+    <script async src="/vendor/echarts.min.js"></script>
 
     <style>
         .zh-text, .en-text { display: none; }
@@ -539,7 +540,7 @@
 
     <script src="recaptcha-config.js"></script>
     <script src="recaptcha.js"></script>
-    <script src="supabase-client.js"></script>
+    <script src="supabase-client.js" defer></script>
     <script src="notice.js" defer></script>
     <script>
         // ===== 顶部 Toast 提示 =====
@@ -1340,7 +1341,15 @@
             textEl.textContent = `${t(textKey)} ${pctStr}`;
         }
 
+        // 4.0.12：echarts 改为同域 async 加载（不再阻塞首屏），可能晚于图表渲染
+        function whenEchartsReady(fn, retry) {
+            if (typeof echarts !== 'undefined') { fn(); return; }
+            if ((retry || 0) >= 40) return; // 最多等 4s，超时放弃，不影响页面其余功能
+            setTimeout(function () { whenEchartsReady(fn, (retry || 0) + 1); }, 100);
+        }
+
         function renderChartError() {
+            if (typeof echarts === 'undefined') { whenEchartsReady(function () { renderChartError(); }); return; }
             if (!myChart) {
                 myChart = echarts.init(document.getElementById('trendChart'));
             }
@@ -1359,6 +1368,7 @@
         }
 
         function renderChart(series) {
+            if (typeof echarts === 'undefined') { whenEchartsReady(function () { renderChart(series); }); return; }
             if (!myChart) {
                 myChart = echarts.init(document.getElementById('trendChart'));
             }
@@ -1663,20 +1673,22 @@
         };
 
         // ==================== 初始化入口 ====================
-        document.addEventListener('DOMContentLoaded', () => {
+        window.onReady( () => {
             // 绑定身份（第三方）的 OAuth 回跳：留在本页完成，避免跳登录页建新号
             handleOAuthLinkReturn().catch(function () {});
 
             // 同步语言按钮状态
             syncLangButtons(getLang());
 
-            // 拦截 PASSWORD_RECOVERY
-            supabaseClient.auth.onAuthStateChange((event, session) => {
-                if (event === 'PASSWORD_RECOVERY') {
-                    document.getElementById('forceResetModal').classList.add('active');
-                    renderPwdRequirements('', document.getElementById('pwdReqForce'));
-                }
-            });
+            // 拦截 PASSWORD_RECOVERY（SDK 未就绪时跳过，避免中断本页其余初始化）
+            if (window.supabaseClient && window.supabaseClient.auth) {
+                window.supabaseClient.auth.onAuthStateChange((event, session) => {
+                    if (event === 'PASSWORD_RECOVERY') {
+                        document.getElementById('forceResetModal').classList.add('active');
+                        renderPwdRequirements('', document.getElementById('pwdReqForce'));
+                    }
+                });
+            }
 
             // URL 直接带参数的场景
             if (window.location.search.includes('type=recovery') || window.location.hash.includes('type=recovery')) {

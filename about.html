@@ -32,7 +32,7 @@
     <link rel="stylesheet" href="common.css">
     
     <!-- 统计代码 -->
-    <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
+    <script src="/boot.js"></script>
     
     <style>
         /* ===== 多语言控制 ===== */
@@ -642,7 +642,7 @@
         }
 
         // ==================== 页面初始化 ====================
-        document.addEventListener('DOMContentLoaded', () => {
+        window.onReady( () => {
             // 先同步 UI 状态（common.js 会接管语言）
             const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
             document.querySelectorAll('.lang-btn').forEach(btn => {

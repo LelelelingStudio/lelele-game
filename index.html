@@ -34,9 +34,9 @@
     <!-- 引入全局样式 -->
     <link rel="stylesheet" href="common.css">
 
-    <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
+    <script src="/boot.js"></script>
     <!-- 引入拼音库（pinyin-pro，提供 window.pinyinPro；defer 不阻塞首屏；search.js 已容错降级） -->
-    <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3/dist/index.js" defer></script>
+    <script async src="/vendor/pinyin-pro.js"></script>
 
     
 </head>
@@ -378,7 +378,7 @@
                 else document.getElementById('recommendModal').classList.remove('active');
             };
 
-            document.addEventListener('DOMContentLoaded', function () {
+            window.onReady( function () {
                 var btn = document.getElementById('openRecommendGame');
                 if (btn) btn.addEventListener('click', function (e) { e.preventDefault(); window.openRecommendModal(); });
                 var closeBtn = document.getElementById('recommendCloseBtn');
@@ -551,7 +551,7 @@
         })();
     </script>
 
-    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="/vendor/supabase-js.js"></script>
     <script src="supabase-client.js" defer></script>
     <script src="notice.js" defer></script>
     <script src="common.js" defer></script>

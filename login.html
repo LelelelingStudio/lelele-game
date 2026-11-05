@@ -27,7 +27,8 @@
 
     <link rel="stylesheet" href="common.css">
     <link rel="stylesheet" href="recaptcha.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/boot.js"></script>
+    <script defer src="/vendor/supabase-js.js"></script>
 
     <style>
         .zh-text, .en-text { display: none; }
@@ -325,7 +326,7 @@
 
     <script src="recaptcha-config.js"></script>
     <script src="recaptcha.js"></script>
-    <script src="supabase-client.js"></script>
+    <script src="supabase-client.js" defer></script>
     <script>
         // ===== setLang 兜底（本页未引 common.js，避免语言切换报错）=====
         if (typeof window.setLang !== 'function') {
@@ -811,7 +812,7 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        window.onReady( () => {
             updateLangBtn();
             window.addEventListener('langChanged', () => updateLangBtn());
             setupAuthListener();

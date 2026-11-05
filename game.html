@@ -28,8 +28,8 @@
     <title>加载中... · 了了了游</title>
 
     <link rel="stylesheet" href="common.css">
-    <script defer src="https://analytics.leleleling.site/em.js" data-domain="game.leleleling.site"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/boot.js"></script>
+    <script defer src="/vendor/supabase-js.js"></script>
 
     <style>
         .zh-text, .en-text { display: none; }
@@ -891,7 +891,7 @@
             document.getElementById('errorMsg').textContent = msg;
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        window.onReady( () => {
             updateLinks();
             const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
             document.querySelectorAll('.lang-btn').forEach(btn => {
