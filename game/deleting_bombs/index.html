@@ -855,7 +855,7 @@
             // 更新UI
             updateUI();
             
-            console.log(`游戏初始化：${config.rows}行 × ${config.cols}列，${config.mines}个地雷`);
+            (window.leleleLog || function(){})(`游戏初始化：${config.rows}行 × ${config.cols}列，${config.mines}个地雷`);
         }
 
         // ========== 初始化游戏板 ==========
@@ -947,7 +947,7 @@
             
             calculateNumbers();
             
-            console.log(`放置了${mines}个地雷，避开了(${firstRow}, ${firstCol})周围的${safeCells.size}个安全单元格`);
+            (window.leleleLog || function(){})(`放置了${mines}个地雷，避开了(${firstRow}, ${firstCol})周围的${safeCells.size}个安全单元格`);
         }
 
         // ========== 获取安全单元格（第一次点击周围） ==========
@@ -1218,7 +1218,7 @@
                 isWin
             );
             
-            console.log(`游戏${isWin ? '胜利' : '失败'}，用时${gameConfig.elapsedSeconds}秒`);
+            (window.leleleLog || function(){})(`游戏${isWin ? '胜利' : '失败'}，用时${gameConfig.elapsedSeconds}秒`);
         }
 
         // ========== 揭示所有地雷 ==========
@@ -1283,7 +1283,7 @@
                 gameConfig.hintsRemaining--;
                 hintCountEl.textContent = gameConfig.hintsRemaining;
                 
-                console.log(`提示使用：(${hint.row}, ${hint.col})，剩余提示：${gameConfig.hintsRemaining}`);
+                (window.leleleLog || function(){})(`提示使用：(${hint.row}, ${hint.col})，剩余提示：${gameConfig.hintsRemaining}`);
             }
         }
 
@@ -1357,7 +1357,7 @@
             
             if (changed) {
                 checkGameState();
-                console.log("自动求解执行了一次逻辑推理");
+                (window.leleleLog || function(){})("自动求解执行了一次逻辑推理");
             } else {
                 alert("当前没有明显的逻辑可推理，需要更多信息。");
             }
@@ -1441,7 +1441,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             initGame();
             setupEventListeners();
-            console.log('高级扫雷游戏已加载完成！');
+            (window.leleleLog || function(){})('高级扫雷游戏已加载完成！');
         });
     </script>
 <!-- 全站统一组件：脚本 -->

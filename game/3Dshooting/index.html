@@ -2447,7 +2447,7 @@
 
 <!-- PWA Service Worker 注册（绝对路径，外网域名会因跨域失败属预期） -->
 <script>
-if('serviceWorker'in navigator){navigator.serviceWorker.register('https://game.leleleling.site/sw.js').then(function(reg){console.log('✅ PWA Service Worker 注册成功');}).catch(function(err){console.log('❌ PWA Service Worker 注册失败:',err);});}
+if('serviceWorker'in navigator){navigator.serviceWorker.register('https://game.leleleling.site/sw.js').then(function(reg){(window.leleleLog || function(){})('✅ PWA Service Worker 注册成功');}).catch(function(err){(window.leleleLog || function(){})('❌ PWA Service Worker 注册失败:',err);});}
 </script>
 </body>
 

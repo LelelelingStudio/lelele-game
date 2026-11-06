@@ -26,6 +26,7 @@
     <meta name="theme-color" content="#4f46e5">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <title>加载中... · 了了了游</title>
+    <meta name="description" content="在了了了游在线游玩免费小游戏，无需下载。Play free browser games instantly on Lelele Game.">
 
     <link rel="stylesheet" href="common.css">
     <script src="/boot.js"></script>
@@ -835,7 +836,7 @@
             }
 
             try {
-                const detailRes = await fetch(`/game/data/${currentGameId}.json`);
+                const detailRes = await window.leleleFetch(`/game/data/${currentGameId}.json`);
                 
                 if (detailRes.ok) {
                     currentGameData = await detailRes.json();
@@ -846,7 +847,7 @@
                 }
                 
                 console.warn(`未找到详细数据，尝试从主列表加载 ID: ${currentGameId}`);
-                const baseRes = await fetch('lelegame_data.json?t=' + Date.now(), { cache: 'no-store' });
+                const baseRes = await window.leleleFetch('lelegame_data.json');
                 if (baseRes.ok) {
                     const baseData = await baseRes.json();
                     const baseGame = baseData.find(g => String(g.id) === String(currentGameId));

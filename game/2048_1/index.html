@@ -879,7 +879,7 @@
             hideMessage();
             updateDifficultyRules();
             
-            console.log(`游戏初始化完成，难度：${gameConfig.difficulty}`);
+            (window.leleleLog || function(){})(`游戏初始化完成，难度：${gameConfig.difficulty}`);
         }
 
         // ========== 更新难度规则说明 ==========
@@ -1325,7 +1325,7 @@
             updateAllCardOptions();
             updateUI();
             
-            console.log(`2048爆炸！产生了${numCards}张小卡牌，获得1000积分`);
+            (window.leleleLog || function(){})(`2048爆炸！产生了${numCards}张小卡牌，获得1000积分`);
         }
 
         // ========== 补充卡牌选项 ==========
@@ -1361,7 +1361,7 @@
                 localStorage.setItem('card2048_highScore', String(gameConfig.highScore));
             }
             
-            console.log(`连续合成 ${comboCount} 次，获得 ${points} 分`);
+            (window.leleleLog || function(){})(`连续合成 ${comboCount} 次，获得 ${points} 分`);
         }
 
         // ========== 刷新卡牌（带扣分，修复重复扣分） ==========
@@ -1392,7 +1392,7 @@
             updateAllCardOptions();
             updateUI();
             
-            console.log(`刷新了卡牌选项（消耗 ${cost} 分）`);
+            (window.leleleLog || function(){})(`刷新了卡牌选项（消耗 ${cost} 分）`);
             return true;
         }
 
@@ -1421,7 +1421,7 @@
             updateAllCardOptions();
             updateUI();
             
-            console.log('撤销了上一步操作');
+            (window.leleleLog || function(){})('撤销了上一步操作');
         }
 
         // ========== 更新 UI ==========
@@ -1489,7 +1489,7 @@
                 `你的卡牌堆触底了！最终得分：${gameConfig.score}分`
             );
             
-            console.log('游戏结束，最终得分：', gameConfig.score);
+            (window.leleleLog || function(){})('游戏结束，最终得分：', gameConfig.score);
         }
 
         // ========== 消息显示 ==========
@@ -1561,7 +1561,7 @@
                 gameConfig.score -= gameConfig.powerups.wild.cost;
                 updateUI();
                 
-                console.log('获得了万能卡');
+                (window.leleleLog || function(){})('获得了万能卡');
             });
             
             // 点击卡牌 → 炸掉（修复：成功后扣分并记录历史）
@@ -1620,7 +1620,7 @@
             
             highScoreEl.textContent = gameConfig.highScore;
             
-            console.log('卡牌2048游戏已加载完成！');
+            (window.leleleLog || function(){})('卡牌2048游戏已加载完成！');
         });
     </script>
 <!-- 了了了岭用户系统-核心逻辑（绝对路径） -->
@@ -1632,8 +1632,8 @@
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('https://game.leleleling.site/sw.js')
-    .then(function(reg){ console.log('✅ PWA Service Worker 注册成功'); })
-    .catch(function(err){ console.log('❌ PWA Service Worker 注册失败:', err); });
+    .then(function(reg){ (window.leleleLog || function(){})('✅ PWA Service Worker 注册成功'); })
+    .catch(function(err){ (window.leleleLog || function(){})('❌ PWA Service Worker 注册失败:', err); });
 }
 </script>
 </body>

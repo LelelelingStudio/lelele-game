@@ -233,7 +233,7 @@
                 <ul style="margin: 1rem 0 1rem 1.5rem; color:#475569; line-height: 1.8;">
                     <li>本平台仅支持纯前端代码（HTML/CSS/JS/JSON）。</li>
                     <li>不接收带后端服务、数据库或需要复杂构建的项目。</li>
-                    <li>游戏需符合 <a href="game_rules.html" target="_blank" style="color:#4f46e5;">《了了了游游戏守则》</a>，并同意 <a href="terms.html" target="_blank" style="color:#4f46e5;">《服务条款》</a>。</li>
+                    <li>游戏需符合 <a href="game_rules.html" target="_blank" rel="noopener noreferrer" style="color:#4f46e5;">《了了了游游戏守则》</a>，并同意 <a href="terms.html" target="_blank" rel="noopener noreferrer" style="color:#4f46e5;">《服务条款》</a>。</li>
                     <li>审核周期为 5 个工作日，结果将以邮件通知。</li>
                 </ul>
                 <label class="agree-row">
@@ -246,7 +246,7 @@
                 <ul style="margin: 1rem 0 1rem 1.5rem; color:#475569; line-height: 1.8;">
                     <li>Pure front-end only (HTML/CSS/JS/JSON).</li>
                     <li>No backend, database, or complex build steps.</li>
-                    <li>Must comply with the <a href="game_rules.html?lang=en" target="_blank" style="color:#4f46e5;">lelele Game Rules</a> and our <a href="terms.html?lang=en" target="_blank" style="color:#4f46e5;">Terms of Service</a>.</li>
+                    <li>Must comply with the <a href="game_rules.html?lang=en" target="_blank" rel="noopener noreferrer" style="color:#4f46e5;">lelele Game Rules</a> and our <a href="terms.html?lang=en" target="_blank" rel="noopener noreferrer" style="color:#4f46e5;">Terms of Service</a>.</li>
                     <li>Review takes 5 business days; results by email.</li>
                 </ul>
                 <label class="agree-row">
@@ -268,14 +268,14 @@
                 <p style="font-size:0.9rem; color:#475569; margin-bottom:1rem;">平台获得非独占、可撤回的展示许可；您保留著作权、署名权及随时撤回权。</p>
                 <label class="agree-row">
                     <input type="checkbox" id="chkAuth">
-                    <span>我同意上述授权条款（详见 <a href="game_rules.html#submit" target="_blank" style="color:#4f46e5;">守则第四章</a>）。</span>
+                    <span>我同意上述授权条款（详见 <a href="game_rules.html#submit" target="_blank" rel="noopener noreferrer" style="color:#4f46e5;">守则第四章</a>）。</span>
                 </label>
             </div>
             <div class="en-text">
                 <p style="font-size:0.9rem; color:#475569; margin-bottom:1rem;">The Platform gets a non-exclusive, revocable display license. You retain copyright and withdrawal rights.</p>
                 <label class="agree-row">
                     <input type="checkbox" id="chkAuthEn">
-                    <span>I agree (See <a href="game_rules.html?lang=en#submit" target="_blank" style="color:#4f46e5;">Chapter 4</a>).</span>
+                    <span>I agree (See <a href="game_rules.html?lang=en#submit" target="_blank" rel="noopener noreferrer" style="color:#4f46e5;">Chapter 4</a>).</span>
                 </label>
             </div>
             <button class="btn btn-block" id="btnToTally" disabled style="margin-top:1rem;">
@@ -299,8 +299,8 @@
                 <span class="zh-inline">🎯 推荐一款游戏</span><span class="en-inline">🎯 Recommend a Game</span>
             </div>
             <div class="recommend-terms">
-                <span class="zh-inline">提交即表示您同意 <a href="terms.html" target="_blank">《服务条款》</a> 与 <a href="privacy.html" target="_blank">《隐私政策》</a>。</span>
-                <span class="en-inline">By submitting, you agree to our <a href="terms.html?lang=en" target="_blank">Terms of Service</a> and <a href="privacy.html?lang=en" target="_blank">Privacy Policy</a>.</span>
+                <span class="zh-inline">提交即表示您同意 <a href="terms.html" target="_blank" rel="noopener noreferrer">《服务条款》</a> 与 <a href="privacy.html" target="_blank" rel="noopener noreferrer">《隐私政策》</a>。</span>
+                <span class="en-inline">By submitting, you agree to our <a href="terms.html?lang=en" target="_blank" rel="noopener noreferrer">Terms of Service</a> and <a href="privacy.html?lang=en" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</span>
             </div>
             <div class="recommend-frame-wrap" id="recommendFrameWrap">
                 <div class="recommend-loading">
@@ -364,9 +364,13 @@
                 if (overlay) overlay.addEventListener('click', function (e) {
                     if (e.target === overlay) window.closeRecommendModal();
                 });
-                document.addEventListener('keydown', function (e) {
-                    if (e.key === 'Escape' && overlay && overlay.classList.contains('active')) window.closeRecommendModal();
-                });
+                // 只注册一次，避免重复初始化造成多个监听器
+                if (!window.__recommendEscBound) {
+                    window.__recommendEscBound = true;
+                    document.addEventListener('keydown', function (e) {
+                        if (e.key === 'Escape' && overlay && overlay.classList.contains('active')) window.closeRecommendModal();
+                    });
+                }
                 // 语言切换时同步表单语言
                 window.addEventListener('langChanged', function () {
                     var ov = document.getElementById('recommendModal');

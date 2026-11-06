@@ -855,7 +855,7 @@ class Game {
     
     showUpgradeEffect() {
         // 在实际游戏中，这里可以添加视觉效果
-        console.log(`升级到 ${this.player.levelData.name}!`);
+        (window.leleleLog || function(){})(`升级到 ${this.player.levelData.name}!`);
     }
     
     showGameOver(message) {

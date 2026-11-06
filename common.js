@@ -1,3 +1,100 @@
+// 4.0.15：统一 fetch 超时（与 boot.js 同款幂等守卫）。本文件可能被 game/ 子页
+// 单独加载（不加载 boot.js），因此必须自带定义；已存在时不覆盖。
+if (typeof window.leleleFetch !== 'function') {
+    window.leleleFetch = function (url, opts, ms) {
+        opts = opts || {};
+        if (opts.signal || typeof AbortController !== 'function') return fetch(url, opts);
+        var ctrl = new AbortController();
+        var timer = setTimeout(function () { ctrl.abort(); }, ms || 8000);
+        var merged = {};
+        Object.keys(opts).forEach(function (k) { merged[k] = opts[k]; });
+        merged.signal = ctrl.signal;
+        return fetch(url, merged).finally(function () { clearTimeout(timer); });
+    };
+}
+
+(function () {
+    'use strict';
+
+    // ----------------------------------------------------------------------
+    // 4.0.15：可调日志 + 内联 onclick 提升器
+    //
+    // 全站曾有 100+ 处 `onclick="..."` 内联属性，结构与行为耦合且无法收紧 CSP。
+    // 逐处改写成 addEventListener 会动到 20+ 个文件、风险极高，因此改为在引导层
+    // 统一「提升」：直接复用浏览器已经编译好的 el.onclick 函数（含 event 形参、
+    // this 绑定与 return false 语义），移除内联属性后挂到 addEventListener。
+    // 行为完全等价，但 DOM 中不再存在内联事件属性。
+    // 动态插入（innerHTML 模板）由 MutationObserver 增量提升，带节流。
+    // ----------------------------------------------------------------------
+    if (typeof window.leleleLog !== 'function') {
+        window.leleleLog = function () {
+            if (window.leleleDebug) {
+                console.log.apply(console, arguments);
+            }
+        };
+    }
+
+    if (typeof window.leleleLiftInlineClicks !== 'function') {
+        window.leleleLiftInlineClicks = function (root) {
+            var scope = root && root.querySelectorAll ? root : document;
+            var nodes = scope.querySelectorAll('[onclick]');
+            for (var i = 0; i < nodes.length; i++) {
+                (function (el) {
+                    var fn = el.onclick;           // 浏览器编译好的处理函数
+                    if (typeof fn !== 'function') { el.removeAttribute('onclick'); return; }
+                    el.removeAttribute('onclick');
+                    el.addEventListener('click', function (e) {
+                        // 内联 return false 会阻止默认行为，addEventListener 需显式还原
+                        if (fn.call(el, e) === false) e.preventDefault();
+                    });
+                })(nodes[i]);
+            }
+            // root 自身若带 onclick 也要提升
+            if (root && root.nodeType === 1 && root.hasAttribute && root.hasAttribute('onclick')) {
+                var selfFn = root.onclick;
+                root.removeAttribute('onclick');
+                if (typeof selfFn === 'function') {
+                    root.addEventListener('click', function (e) {
+                        if (selfFn.call(root, e) === false) e.preventDefault();
+                    });
+                }
+            }
+            return nodes.length;
+        };
+
+        var leleleLiftScheduled = false;
+        function leleleScheduleLift() {
+            if (leleleLiftScheduled) return;
+            leleleLiftScheduled = true;
+            setTimeout(function () {
+                leleleLiftScheduled = false;
+                window.leleleLiftInlineClicks(document);
+            }, 60);
+        }
+
+        function leleleStartLiftWatcher() {
+            window.leleleLiftInlineClicks(document);
+            if (typeof MutationObserver === 'function') {
+                new MutationObserver(function (records) {
+                    for (var i = 0; i < records.length; i++) {
+                        if (records[i].addedNodes && records[i].addedNodes.length) {
+                            leleleScheduleLift();
+                            break;
+                        }
+                    }
+                }).observe(document.documentElement, { childList: true, subtree: true });
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', leleleStartLiftWatcher, { once: true });
+        } else {
+            leleleStartLiftWatcher();
+        }
+    }
+
+})();
+
 // 4.0.12：初始化不再死等 DOMContentLoaded（外部 defer 脚本曾把它无限推迟）。
 // defer 脚本执行时 DOM 已解析完，readyState 非 loading 即可立即初始化。
 function leleleOnReady(fn) {
@@ -103,7 +200,7 @@ function leleleOnReady(fn) {
         if (sessionStorage.getItem(sessionKey)) return;
 
         // 异步去匹配游戏名并统计
-        fetch(`${MAIN_SITE_URL}/lelegame_data.json`)
+        window.leleleFetch(`${MAIN_SITE_URL}/lelegame_data.json`)
             .then(res => res.json())
             .then(games => {
                 const currentPath = window.location.pathname;
@@ -444,7 +541,7 @@ function leleleOnReady(fn) {
         try {
             let skipEffects = false;
             try {
-                const specRes = await fetch(`${MAIN_SITE_URL}/special_common.json?t=${Date.now()}`);
+                const specRes = await window.leleleFetch(`${MAIN_SITE_URL}/special_common.json?t=${Date.now()}`);
                 if (specRes.ok) {
                     const specData = await specRes.json();
                     const host = window.location.hostname;
@@ -454,7 +551,7 @@ function leleleOnReady(fn) {
                 }
             } catch (err) {}
 
-            const res = await fetch(`${MAIN_SITE_URL}/activity_whole.json?t=${Date.now()}`);
+            const res = await window.leleleFetch(`${MAIN_SITE_URL}/activity_whole.json?t=${Date.now()}`);
             if (!res.ok) return;
             const config = await res.json();
 
@@ -722,7 +819,7 @@ function leleleOnReady(fn) {
 
     async function initAnnouncements() {
         try {
-            const res = await fetch(`${MAIN_SITE_URL}/announcements.json`);
+            const res = await window.leleleFetch(`${MAIN_SITE_URL}/announcements.json`);
             if (!res.ok) return;
             let allData = await res.json();
             const now = new Date().setHours(0, 0, 0, 0);
@@ -1090,7 +1187,7 @@ function leleleOnReady(fn) {
                 if (r.ok) return await r.json();
             } catch (e) {} finally { if (timer) clearTimeout(timer); }
             try {
-                const r = await fetch('authors/index.json');
+                const r = await window.leleleFetch('authors/index.json');
                 if (r.ok) return await r.json();
             } catch (e) {}
             return null;
@@ -1100,7 +1197,7 @@ function leleleOnReady(fn) {
     if (typeof window.fetchAuthorsLocal !== 'function') {
         window.fetchAuthorsLocal = async function () {
             try {
-                const r = await fetch('authors/index.json');
+                const r = await window.leleleFetch('authors/index.json');
                 return r.ok ? await r.json() : null;
             } catch (e) { return null; }
         };

@@ -1,3 +1,18 @@
+// 4.0.15：统一 fetch 超时（与 boot.js 同款幂等守卫）。本文件可能被 game/ 子页
+// 单独加载（不加载 boot.js），因此必须自带定义；已存在时不覆盖。
+if (typeof window.leleleFetch !== 'function') {
+    window.leleleFetch = function (url, opts, ms) {
+        opts = opts || {};
+        if (opts.signal || typeof AbortController !== 'function') return fetch(url, opts);
+        var ctrl = new AbortController();
+        var timer = setTimeout(function () { ctrl.abort(); }, ms || 8000);
+        var merged = {};
+        Object.keys(opts).forEach(function (k) { merged[k] = opts[k]; });
+        merged.signal = ctrl.signal;
+        return fetch(url, merged).finally(function () { clearTimeout(timer); });
+    };
+}
+
 (function () {
   const root = document.getElementById('top3RankContainer');
   const modalList = document.getElementById('rankModalList');
@@ -227,7 +242,7 @@
 
     for (let i = 0; i < endpoints.length; i += 1) {
       try {
-        const response = await fetch(endpoints[i], {
+        const response = await window.leleleFetch(endpoints[i], {
           method: 'GET',
           mode: 'cors',
           credentials: 'omit'

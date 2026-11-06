@@ -80,7 +80,15 @@
             if (typeof window.mountTallyIframe === 'function') {
                 window.mountTallyIframe(wrap, url, { title: title, height: 1600 });
             } else {
-                wrap.innerHTML = '<iframe src="' + url + '" loading="eager" width="100%" height="1600" frameborder="0" referrerpolicy="strict-origin-when-cross-origin" title="' + title + '"></iframe>';
+                var f = document.createElement('iframe');
+                f.src = url;
+                f.loading = 'eager';
+                f.width = '100%';
+                f.height = '1600';
+                f.setAttribute('frameborder', '0');
+                f.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+                f.title = title;
+                wrap.replaceChildren(f);
             }
         }
         window.addEventListener('langChanged', renderCertForm);

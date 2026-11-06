@@ -1,3 +1,18 @@
+// 4.0.15：统一 fetch 超时（与 boot.js 同款幂等守卫）。本文件可能被 game/ 子页
+// 单独加载（不加载 boot.js），因此必须自带定义；已存在时不覆盖。
+if (typeof window.leleleFetch !== 'function') {
+    window.leleleFetch = function (url, opts, ms) {
+        opts = opts || {};
+        if (opts.signal || typeof AbortController !== 'function') return fetch(url, opts);
+        var ctrl = new AbortController();
+        var timer = setTimeout(function () { ctrl.abort(); }, ms || 8000);
+        var merged = {};
+        Object.keys(opts).forEach(function (k) { merged[k] = opts[k]; });
+        merged.signal = ctrl.signal;
+        return fetch(url, merged).finally(function () { clearTimeout(timer); });
+    };
+}
+
 /* ==========================================================================
  * 开发者定向告示弹窗  notice.js
  * 数据源：/noticetodeveloper.json
@@ -87,7 +102,7 @@
             // 兜底：本地轻量清单（离线 / surge 不可达）
             if (!list) {
                 try {
-                    const res = await fetch(AUTHORS_FALLBACK_URL);
+                    const res = await window.leleleFetch(AUTHORS_FALLBACK_URL);
                     if (res.ok) list = await res.json();
                 } catch (e) {}
             }
@@ -263,7 +278,7 @@
 
         let payload = null;
         try {
-            const res = await fetch(NOTICE_URL + '?t=' + Date.now(), { cache: 'no-store' });
+            const res = await window.leleleFetch(NOTICE_URL + '?t=' + Date.now(), { cache: 'no-store' });
             if (!res.ok) return;
             payload = await res.json();
         } catch (e) { return; }

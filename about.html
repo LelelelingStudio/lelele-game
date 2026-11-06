@@ -517,9 +517,9 @@
                 <p>「了了了岭工作室」成立于 <strong>2026 年 1 月 26 日</strong>，由一位 14 岁的独立开发者创办。我们坚持“极简即最强”的核心理念——用最少的资源，做最实用的工具。在技术路线上，我们所有的项目都基于纯原生 Web 技术（HTML/CSS/JavaScript），不依赖任何第三方框架或库。</p>
                 <p>我们不仅仅是一个聚合站，更是一个充满创意的产品矩阵。目前，工作室规划了 7 款核心产品，其中 3 款已正式开放：</p>
                 <div class="product-grid">
-                    <a href="https://al.leleleling.site" target="_blank" class="product-item active">✅ 了了了AI (智能助手)</a>
-                    <a href="https://search.leleleling.site" target="_blank" class="product-item active">✅ 了了了搜 (聚合搜索)</a>
-                    <a href="https://game.leleleling.site" target="_blank" class="product-item active">✅ 了了了游 (小游戏平台)</a>
+                    <a href="https://al.leleleling.site" target="_blank" rel="noopener noreferrer" class="product-item active">✅ 了了了AI (智能助手)</a>
+                    <a href="https://search.leleleling.site" target="_blank" rel="noopener noreferrer" class="product-item active">✅ 了了了搜 (聚合搜索)</a>
+                    <a href="https://game.leleleling.site" target="_blank" rel="noopener noreferrer" class="product-item active">✅ 了了了游 (小游戏平台)</a>
                     <span class="product-item disabled">🔧 了了了读 (制作中)</span>
                     <span class="product-item disabled">🔧 了了了助 (制作中)</span>
                     <span class="product-item disabled">🔧 了了了新闻 (制作中)</span>
@@ -532,9 +532,9 @@
                 <p>Founded on <strong>January 26, 2026</strong>, by a 14-year-old indie developer, leleleling Studio adheres to the core philosophy of "Minimalist is the strongest"—doing the most practical things with the fewest resources. On the technical route, all our projects are based on pure native Web technologies (HTML/CSS/JavaScript), without relying on any third-party frameworks or libraries.</p>
                 <p>We are not just an aggregation site, but a creative product matrix. Currently, the studio has planned 7 core products, 3 of which are officially open:</p>
                 <div class="product-grid">
-                    <a href="https://al.leleleling.site" target="_blank" class="product-item active">✅ lelele AI (Assistant)</a>
-                    <a href="https://search.leleleling.site" target="_blank" class="product-item active">✅ lelele Search</a>
-                    <a href="https://game.leleleling.site" target="_blank" class="product-item active">✅ lelele Game</a>
+                    <a href="https://al.leleleling.site" target="_blank" rel="noopener noreferrer" class="product-item active">✅ lelele AI (Assistant)</a>
+                    <a href="https://search.leleleling.site" target="_blank" rel="noopener noreferrer" class="product-item active">✅ lelele Search</a>
+                    <a href="https://game.leleleling.site" target="_blank" rel="noopener noreferrer" class="product-item active">✅ lelele Game</a>
                     <span class="product-item disabled">🔧 lelele Read (WIP)</span>
                     <span class="product-item disabled">🔧 lelele Help (WIP)</span>
                     <span class="product-item disabled">🔧 lelele News (WIP)</span>
@@ -587,17 +587,17 @@
 
         async function loadChangelog() {
             try {
-                const res = await fetch('changelog.json');
+                const res = await window.leleleFetch('changelog.json');
                 if (!res.ok) throw new Error('HTTP ' + res.status);
                 changelogData = await res.json();
                 
                 if (changelogData.length > 0) {
                     renderChangelog();
                 } else {
-                    document.getElementById('changelogList').innerHTML = '<div class="changelog-loading">暂无日志</div>';
+                    document.getElementById('changelogList').textContent = '暂无日志 / No changelog';
                 }
             } catch (e) {
-                document.getElementById('changelogList').innerHTML = '<div class="changelog-loading">日志加载失败</div>';
+                document.getElementById('changelogList').textContent = '日志加载失败 / Failed to load changelog';
                 console.warn('更新日志加载失败:', e);
             }
         }
@@ -612,8 +612,8 @@
                 const activeClass = index === activeVersionIndex ? 'active' : '';
                 return `
                     <div class="changelog-item ${activeClass}" onclick="selectVersion(${index})">
-                        <span class="version-tag">${item.version}</span>
-                        <span class="version-date">${item.date}</span>
+                        <span class="version-tag">${escapeHtml(String(item.version || ''))}</span>
+                        <span class="version-date">${escapeHtml(String(item.date || ''))}</span>
                     </div>
                 `;
             }).join('');
@@ -625,7 +625,7 @@
                 const title = isEn ? 'Update Details' : '更新详情';
                 
                 detailContainer.innerHTML = `
-                    <h4>${activeData.version} <span class="date">${activeData.date}</span></h4>
+                    <h4>${escapeHtml(String(activeData.version || ''))} <span class="date">${escapeHtml(String(activeData.date || ''))}</span></h4>
                     <div class="changelog-text">${escapeHtml(content || '暂无详细说明')}</div>
                 `;
             }

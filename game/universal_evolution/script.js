@@ -55,11 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 添加窗口调整大小事件
     window.addEventListener('resize', () => {
         // 可以在这里添加响应式调整代码
-        console.log('窗口大小已改变，游戏可能需要重新调整');
+        (window.leleleLog || function(){})('窗口大小已改变，游戏可能需要重新调整');
     });
     
     // 输出游戏说明到控制台
-    console.log(`
+    (window.leleleLog || function(){})(`
     ============================================
     宇宙吞噬进化游戏
     ============================================

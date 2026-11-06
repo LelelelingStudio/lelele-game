@@ -45,10 +45,10 @@ lelele-game/
 ├── common.js             # ★ 全局脚本（主题/活动/雪花/页脚/浮动工具/公告/登录注入）
 ├── index.js / search.js / notice.js / rank-loader.js   # 页面级脚本
 ├── supabase-client.js / recaptcha*.js   # 鉴权与人机验证
-├── boot.js                   # ★ head 同步引导：onReady / fetchAuthors / mountTallyIframe / 异步注入 analytics
+├── boot.js                   # ★ head 同步引导：onReady / fetchAuthors / mountTallyIframe / leleleFetch 超时 / leleleLog / leleleLiftInlineClicks / analytics
 ├── vendor/                   # ★ 自托管 UMD 库：supabase-js.js / pinyin-pro.js / echarts.min.js（消除 jsdelivr 依赖）
-├── sw.js                     # ★ Service Worker v1.5：静态 SWR 秒开 + 数据超时回退
-├── plan.md                   # ★ 全站问题清单：大/中/小/迷你四级共 170 项（定位 + 影响 + 建议修法 + 状态）
+├── sw.js                     # ★ Service Worker v1.6：静态 SWR 秒开 + 数据超时回退
+├── plan.md                   # ★ 全站问题清单：大/中/小/迷你四级共 170 项，4.0.15 已全部处理（含定位、影响、建议修法、状态）
 ├── lelegame_data.json / announcements.json / activity_whole.json / special_common.json / changelog.json / manifest-zh.json / manifest-en.json  # 数据/配置
 ├── authors/                     # 作者数据本地兜底：index.json 轻量清单 + data/<id>.json 仅 games_count（主源为 surge 跨域）
 ├── lelele-game.code-workspace   # VS Code 工作区
@@ -163,7 +163,7 @@ lelele-game/
 - **B（中版本 / Minor）**：功能级升级，AI 可自行决定，但不要太频繁。
 - **C（微版本 / Patch）**：修修补补。
 
-> 当前版本：**4.0.14**（起点 3.3.0）。4.0.0 起为「超级 UI 大重构（苹果风 + 灵动岛）」A 升级，已获用户授权；4.0.2–4.0.10 等中间版本改动详见 `changelog.json`。
+> 当前版本：**4.0.15**（起点 3.3.0）。4.0.0 起为「超级 UI 大重构（苹果风 + 灵动岛）」A 升级，已获用户授权；4.0.2–4.0.10 等中间版本改动详见 `changelog.json`。
 
 每次发版在 `changelog.json` 数组**头部** `unshift` 一条（含 `version`、`date`、`content_zh`、`content_en`）。
 
@@ -260,3 +260,11 @@ lelele-game/
   - 三处调用点统一改直连挂载；认证页补引 `/boot.js`，由两个 `height=1600` 隐藏 iframe 改为按 `langChanged` 只挂当前语言一个；`tally-form-submitted` 提交闭环保留并补 `event.origin === 'https://tally.so'` 白名单。
   - 删除 11 处冗余 `embed.js`、首页 `ensureTally` 轮询与认证页内联 loader → **首屏 0 个 Tally 跨境请求**。表单 ID、查询参数与数据收集方式完全不变。
   - `sw.js` 加注释并升 `CACHE_NAME` 到 **v1.5**（策略三分支不动）清理 v1.4 旧缓存；新增 `plan.md` 按大/中/小/迷你四级登记 170 项全站问题（含 `文件:行号`、影响、建议修法、状态），作为后续修复路线图，本轮只修表单链路相关项。
+- **2026-11-06 · 4.0.15（Patch）**：`plan.md` 剩余 161 项全量收尾，累计 170 项全部处理。
+  - **统一 fetch 超时**：`boot.js` 新增 `window.leleleFetch(url, opts, ms)`（8s `AbortController`，调用方自带 `signal` 时不接管），`common.js` / `notice.js` / `rank-loader.js` 带幂等守卫定义（保证 `game/` 子页只加载 `common.js` 也受保护），`gamecheck.html` 补引 `/boot.js`；全站裸 `fetch` 收敛，`dashboard.html` 的 `dashFetch` 复用同一入口。消除弱网/外部域请求无限挂起（M-06~M-15、S-29~S-38、S-49）。
+  - **安全与规范**：26 处 `target="_blank"` 补 `rel="noopener noreferrer"`、12 个页面补中英 `meta description`（残留均为 0）；`about.html` 的 changelog 动态字段统一 `escapeHtml()`、静态空态与 `author.html` 默认头像改 `textContent`；`apply-certification.html` 的 fallback iframe 改 DOM API 创建；`index.html` 的 Escape 监听加一次性守卫。
+  - **100 项迷你**：20 处生产 `console.log` 改为默认静默的 `window.leleleLog`（`leleleDebug = true` 可恢复，`game/` 子页用 `(window.leleleLog || function(){})()` 兜底，永不因日志缺失报错）。95 处内联 `onclick` **不逐点改写**（大量是模板字符串动态生成，如 `unlinkAccount('${identity.id}')`，逐点改风险极高），改由 `boot.js` / `common.js` 的**事件提升器**统一处理：复用浏览器已编译的 `el.onclick` 函数 → 移除内联属性 → 挂到 `addEventListener`，显式还原内联 `return false` 的 `preventDefault()` 语义、`this` 用 `fn.call(el, e)`、`event` 形参照常传入；`MutationObserver` 带 60ms 节流增量提升动态节点。运行时 DOM 中 `[onclick]` **归零**，行为完全等价。
+  - **如实保留的唯一限制**：HTML 源码中仍保留 `onclick` 属性文本（提升器依赖浏览器编译）。若将来启用严格 CSP（`script-src` 不含 `unsafe-inline`）仍需逐处改写为静态绑定，已登记在 `plan.md` 第八节，不属于功能缺陷。
+  - **其余**：`boot.js` 新增 `leleleLastAuthorsError` 区分超时/网络失败原因；`sw.js` 预缓存补齐 5 个此前遗漏页面；`sw.js` 加注释并升 `CACHE_NAME` 到 **v1.6**（策略三分支不变）清理 v1.5 旧缓存；`plan.md` 170 项状态全部更新为「本轮已修」并追加第八节全量修复说明。
+  - **验证**：全部 `.js` 与 HTML 内联脚本语法 0 失败（`type="importmap"` 的 JSON 块已正确排除）；浏览器实测语言切换 `data-lang="en"`、弹窗关闭、`return false` 动态节点点击计数正确且属性已移除、动态插入节点 60ms 内被提升，首页 26 卡片 / 关于页 47 条 changelog / 作者页 / 三类 Tally 表单 / dashboard 12 款游戏均正常，`[onclick]` 归零，0 个站点 JS 运行时错误，lint 0 错误。
+  - **发布检查单**（每次发版必做）：① `sw.js` 加版本注释 + 递增 `CACHE_NAME`；② `changelog.json` 头部加中英条目；③ `foraisthings.md` 版本号与变更记录同步；④ `plan.md` 状态更新；⑤ 本地实测后 commit，push 后提醒用户硬刷新一次。

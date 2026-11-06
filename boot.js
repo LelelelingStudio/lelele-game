@@ -41,6 +41,25 @@
         });
     };
 
+    // ----------------------------------------------------------------------
+    // 统一 fetch 超时（4.0.15）：全站所有数据请求共用，8s 后 AbortController
+    // 中断，绝不无限挂起。调用方仍可传自己的 signal（此时不接管）。
+    // 幂等：common.js / notice.js / rank-loader.js 也带同样的守卫定义，
+    // 保证那些只加载单个 JS、不加载 boot.js 的页面同样受保护。
+    // ----------------------------------------------------------------------
+    if (typeof window.leleleFetch !== 'function') {
+        window.leleleFetch = function (url, opts, ms) {
+            opts = opts || {};
+            if (opts.signal || typeof AbortController !== 'function') return fetch(url, opts);
+            var ctrl = new AbortController();
+            var timer = setTimeout(function () { ctrl.abort(); }, ms || 8000);
+            var merged = {};
+            Object.keys(opts).forEach(function (k) { merged[k] = opts[k]; });
+            merged.signal = ctrl.signal;
+            return fetch(url, merged).finally(function () { clearTimeout(timer); });
+        };
+    }
+
     // 初始化兜底：即使 DOMContentLoaded 被别处拦截/已错过，也能立即执行
     window.onReady = function (fn) {
         if (document.readyState === 'loading') {
@@ -74,6 +93,7 @@
                 if (settled) return;
                 settled = true;
                 if (ctrl) ctrl.abort();
+                window.leleleLastAuthorsError = 'timeout: ' + url;
                 resolve(null);
             }, timeoutMs);
             fetch(url, ctrl ? { signal: ctrl.signal } : {})
@@ -83,9 +103,10 @@
                     settled = true; clearTimeout(timer);
                     resolve(Array.isArray(data) && data.length ? data : null);
                 })
-                .catch(function () {
+                .catch(function (e) {
                     if (settled) return;
                     settled = true; clearTimeout(timer);
+                    window.leleleLastAuthorsError = 'network: ' + url + ' (' + (e && e.message) + ')';
                     resolve(null);
                 });
         });
@@ -251,4 +272,81 @@
             }).catch(function () {});
         }, 0);
     });
+
+    // ----------------------------------------------------------------------
+    // 4.0.15：可调日志 + 内联 onclick 提升器
+    //
+    // 全站曾有 100+ 处 `onclick="..."` 内联属性，结构与行为耦合且无法收紧 CSP。
+    // 逐处改写成 addEventListener 会动到 20+ 个文件、风险极高，因此改为在引导层
+    // 统一「提升」：直接复用浏览器已经编译好的 el.onclick 函数（含 event 形参、
+    // this 绑定与 return false 语义），移除内联属性后挂到 addEventListener。
+    // 行为完全等价，但 DOM 中不再存在内联事件属性。
+    // 动态插入（innerHTML 模板）由 MutationObserver 增量提升，带节流。
+    // ----------------------------------------------------------------------
+    if (typeof window.leleleLog !== 'function') {
+        window.leleleLog = function () {
+            if (window.leleleDebug) {
+                console.log.apply(console, arguments);
+            }
+        };
+    }
+
+    if (typeof window.leleleLiftInlineClicks !== 'function') {
+        window.leleleLiftInlineClicks = function (root) {
+            var scope = root && root.querySelectorAll ? root : document;
+            var nodes = scope.querySelectorAll('[onclick]');
+            for (var i = 0; i < nodes.length; i++) {
+                (function (el) {
+                    var fn = el.onclick;           // 浏览器编译好的处理函数
+                    if (typeof fn !== 'function') { el.removeAttribute('onclick'); return; }
+                    el.removeAttribute('onclick');
+                    el.addEventListener('click', function (e) {
+                        // 内联 return false 会阻止默认行为，addEventListener 需显式还原
+                        if (fn.call(el, e) === false) e.preventDefault();
+                    });
+                })(nodes[i]);
+            }
+            // root 自身若带 onclick 也要提升
+            if (root && root.nodeType === 1 && root.hasAttribute && root.hasAttribute('onclick')) {
+                var selfFn = root.onclick;
+                root.removeAttribute('onclick');
+                if (typeof selfFn === 'function') {
+                    root.addEventListener('click', function (e) {
+                        if (selfFn.call(root, e) === false) e.preventDefault();
+                    });
+                }
+            }
+            return nodes.length;
+        };
+
+        var leleleLiftScheduled = false;
+        function leleleScheduleLift() {
+            if (leleleLiftScheduled) return;
+            leleleLiftScheduled = true;
+            setTimeout(function () {
+                leleleLiftScheduled = false;
+                window.leleleLiftInlineClicks(document);
+            }, 60);
+        }
+
+        function leleleStartLiftWatcher() {
+            window.leleleLiftInlineClicks(document);
+            if (typeof MutationObserver === 'function') {
+                new MutationObserver(function (records) {
+                    for (var i = 0; i < records.length; i++) {
+                        if (records[i].addedNodes && records[i].addedNodes.length) {
+                            leleleScheduleLift();
+                            break;
+                        }
+                    }
+                }).observe(document.documentElement, { childList: true, subtree: true });
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', leleleStartLiftWatcher, { once: true });
+        } else {
+            leleleStartLiftWatcher();
+        }
+    }
 })();
