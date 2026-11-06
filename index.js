@@ -518,18 +518,30 @@ function initSubmitFlow() {
         const baseUrl = isEn ? 'https://tally.so/embed/xVx8XG' : 'https://tally.so/embed/7XlY69';
         const finalUrl = `${baseUrl}?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1`;
         
-        document.getElementById('tallyContainer').innerHTML = `
-            <iframe data-tally-src="${finalUrl}" loading="lazy" width="100%" height="800" frameborder="0"></iframe>
-        `;
-        
-        if (typeof Tally !== 'undefined') Tally.loadEmbeds();
+        // 4.0.14：直接把表单页赋给 iframe.src（原来只有 data-tally-src，
+        // 且仅靠 Tally.loadEmbeds() 赋值，境外脚本挂起时弹窗永远纯白）
+        const container = document.getElementById('tallyContainer');
+        if (typeof window.mountTallyIframe === 'function') {
+            window.mountTallyIframe(container, finalUrl, {
+                title: isEn ? 'Lelele Game · Game Submission Form' : '了了了游 · 投稿表单',
+                height: 800
+            });
+        } else {
+            container.innerHTML = `<iframe src="${finalUrl}" loading="eager" width="100%" height="800" frameborder="0" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+        }
         closeModal('stepAuth');
         openModal('stepTally');
     };
 }
 
 window.addEventListener("message", function(event) {
-    if (event.data && event.data.type === "tally-form-submitted") {
+    // 只接受 Tally 表单页发出的提交成功消息，避免任意来源伪造关闭弹窗。
+    // 兼容 tally.so 及其子域（Tally 的 embed 页可能部署在不同子域）
+    var origin = event.origin || '';
+    var allowed = /^https:\/\/([a-z0-9-]+\.)*tally\.so$/i.test(origin);
+    if (!allowed) return;
+    var d = event.data;
+    if (d && (d === 'tally-form-submitted' || (typeof d === 'object' && d.type === 'tally-form-submitted'))) {
         document.querySelectorAll('.modal-overlay.active').forEach(el => el.classList.remove('active'));
         alert('提交成功！我们将尽快审核.\nSubmitted successfully! We will review it soon.');
         window.location.href = window.location.pathname + "?submitted=1";

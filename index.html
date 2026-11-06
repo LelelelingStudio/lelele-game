@@ -319,8 +319,6 @@
                 zh: 'https://tally.so/embed/5Xb4NP?alignLeft=1&hideTitle=1&transparentBackground=1',
                 en: 'https://tally.so/embed/dbENry?alignLeft=1&hideTitle=1&transparentBackground=1'
             };
-            var TALLY_SRC = 'https://tally.so/widgets/embed.js';
-            var loadedLang = null;
 
             function currentLang() {
                 var l = document.documentElement.getAttribute('data-lang');
@@ -332,44 +330,23 @@
                 return (navigator.language || 'zh').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en';
             }
 
-            function ensureTally(cb) {
-                if (typeof Tally !== 'undefined') { cb(); return; }
-                if (document.querySelector('script[src="' + TALLY_SRC + '"]')) {
-                    var tries = 0;
-                    (function wait() {
-                        if (typeof Tally !== 'undefined') return cb();
-                        if (++tries > 60) return; // 最多等 6 秒
-                        setTimeout(wait, 100);
-                    })();
-                    return;
-                }
-                var s = document.createElement('script');
-                s.src = TALLY_SRC;
-                s.onload = cb;
-                s.onerror = cb;
-                document.body.appendChild(s);
-            }
-
+            // 4.0.14：不再依赖境外 embed.js / 全局 Tally，直接把表单页赋给 iframe.src。
+            // 每次打开或切换语言都全新挂载（token 阻止迟到回调覆盖），消除竞态。
             function renderForm() {
                 var wrap = document.getElementById('recommendFrameWrap');
                 if (!wrap) return;
                 var lang = currentLang();
-                loadedLang = lang;
-                wrap.innerHTML = '<iframe data-tally-src="' + FORMS[lang] + '" loading="lazy" width="100%" height="100%" frameborder="0" marginheight="0" marginwidth="0" title="' +
-                    (lang === 'en' ? 'Lelele Game · Game Recommendation Form' : '了了了游 · 游戏推荐表单') + '"></iframe>';
-                ensureTally(function () {
-                    try {
-                        if (typeof Tally !== 'undefined') Tally.loadEmbeds();
-                        else throw new Error('Tally 未加载');
-                    } catch (e) {
-                        var f = wrap.querySelector('iframe[data-tally-src]');
-                        if (f) f.src = f.getAttribute('data-tally-src');
-                    }
-                });
+                var url = FORMS[lang];
+                var title = lang === 'en' ? 'Lelele Game · Game Recommendation Form' : '了了了游 · 游戏推荐表单';
+                if (typeof window.mountTallyIframe === 'function') {
+                    window.mountTallyIframe(wrap, url, { title: title, height: 640 });
+                } else {
+                    wrap.innerHTML = '<iframe src="' + url + '" loading="eager" width="100%" height="640" frameborder="0" referrerpolicy="strict-origin-when-cross-origin" title="' + title + '"></iframe>';
+                }
             }
 
             window.openRecommendModal = function () {
-                if (loadedLang !== currentLang()) renderForm();
+                renderForm();
                 if (typeof window.openModal === 'function') window.openModal('recommendModal');
                 else document.getElementById('recommendModal').classList.add('active');
             };

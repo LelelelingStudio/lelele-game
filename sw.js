@@ -1,6 +1,12 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.5 (4.0.14) —— 本文件再次改动字节内容，触发浏览器重新 install/activate，
+ *   清理 v1.4 及更早缓存。原因：4.0.14 修改了 boot.js（Tally 表单挂载能力）、
+ *   index.js / index.html / apply-certification.html（表单显示链路）与 11 个游戏页，
+ *   而静态资源走 stale-while-revalidate，部署后首次访问仍可能返回旧缓存。
+ *   fetch 策略三个分支（静态 SWR / 数据超时回退 / 外部域直通）完全未改动。
+ *
  * ★ v1.4 (4.0.13) —— 本文件再次改动字节内容，触发浏览器重新 install/activate，
  *   清理 v1.3 及更早缓存。原因：v1.3 对静态资源使用 stale-while-revalidate，
  *   部署后首次访问仍会返回缓存中的旧 boot.js / common.js / dashboard.html；
@@ -22,7 +28,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.4';
+const CACHE_NAME = 'lelele-pwa-v1.5';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。

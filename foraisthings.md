@@ -45,9 +45,10 @@ lelele-game/
 ├── common.js             # ★ 全局脚本（主题/活动/雪花/页脚/浮动工具/公告/登录注入）
 ├── index.js / search.js / notice.js / rank-loader.js   # 页面级脚本
 ├── supabase-client.js / recaptcha*.js   # 鉴权与人机验证
-├── boot.js                   # ★ head 同步引导：onReady 兜底 + fetchAuthors 唯一定义处（surge 主源/本地兜底/SWR）+ 异步注入 analytics
+├── boot.js                   # ★ head 同步引导：onReady / fetchAuthors / mountTallyIframe / 异步注入 analytics
 ├── vendor/                   # ★ 自托管 UMD 库：supabase-js.js / pinyin-pro.js / echarts.min.js（消除 jsdelivr 依赖）
-├── sw.js                     # ★ Service Worker v1.4：静态 SWR 秒开 + 数据超时回退
+├── sw.js                     # ★ Service Worker v1.5：静态 SWR 秒开 + 数据超时回退
+├── plan.md                   # ★ 全站问题清单：大/中/小/迷你四级共 170 项（定位 + 影响 + 建议修法 + 状态）
 ├── lelegame_data.json / announcements.json / activity_whole.json / special_common.json / changelog.json / manifest-zh.json / manifest-en.json  # 数据/配置
 ├── authors/                     # 作者数据本地兜底：index.json 轻量清单 + data/<id>.json 仅 games_count（主源为 surge 跨域）
 ├── lelele-game.code-workspace   # VS Code 工作区
@@ -162,7 +163,7 @@ lelele-game/
 - **B（中版本 / Minor）**：功能级升级，AI 可自行决定，但不要太频繁。
 - **C（微版本 / Patch）**：修修补补。
 
-> 当前版本：**4.0.13**（起点 3.3.0）。4.0.0 起为「超级 UI 大重构（苹果风 + 灵动岛）」A 升级，已获用户授权；4.0.2–4.0.10 等中间版本改动详见 `changelog.json`。
+> 当前版本：**4.0.14**（起点 3.3.0）。4.0.0 起为「超级 UI 大重构（苹果风 + 灵动岛）」A 升级，已获用户授权；4.0.2–4.0.10 等中间版本改动详见 `changelog.json`。
 
 每次发版在 `changelog.json` 数组**头部** `unshift` 一条（含 `version`、`date`、`content_zh`、`content_en`）。
 
@@ -253,3 +254,9 @@ lelele-game/
   - **作者页首屏提速**：`loadAuthorMeta` 改为先用同域 `authors/index.json` 即时渲染名字/等级/徽标，再由 surge 异步校正（两份清单由工作流同步生成，内容一致不跳变）；`authorSupabaseOverride` 保存 Supabase 可编辑资料，校正重建基础数据时重新套用，不会丢失简介/自定义名字；`authorProfileRequestedUuid` 按 uuid 去重，避免两阶段重复查询。
   - `sw.js` 加注释并升 `CACHE_NAME` 到 **v1.4**（仅改注释与版本字符串，静态 SWR + 数据超时回退策略完全不变），清理 v1.3 旧缓存以确保新的 `boot.js` / `common.js` 立即到达；首页新手引导 `boot()` 与 `notice.js` 对齐 `window.onReady`。
   - **验证**（playwright-cli + 系统 Chrome）：模拟登录态打开后台 → `authorLookupState='ok'`、`myGames.length=12`、侧栏「开发者 ID：1」、创作者卡等级 6 与官方徽标、游戏选择网格 12 款；阻断 surge/analytics 后**仍显示 12 款**（本地兜底生效）；`authorlevel.html` / `apply-certification.html` 0 个栈溢出错误；首页 26 卡片、`author.html?id=1` 名字「了了了岭工作室」+ 12 款游戏即时可见；全部 JS 与内联脚本语法通过、lint 0 错误。
+- **2026-11-06 · 4.0.14（Patch）**：Tally 表单内嵌根治 + 全站问题清单。
+  - **根因**：投稿（`index.js`）/ 推荐（`index.html`）/ 认证申请（`apply-certification.html`）三处 iframe 只写 `data-tally-src`、从不设 `src`，把「有没有内容」押在境外 `tally.so/widgets/embed.js` 能否执行 `Tally.loadEmbeds()` 上。该脚本在国内常**静默挂起**（既不 `onload` 也不 `onerror`），回调永不触发 → 弹窗纯白（用户截图）。首页 `ensureTally` 只覆盖推荐表单，投稿弹窗在 4.0.12 重构后**根本没接入**；全局 `Tally` 就绪状态 + `loadedLang` 缓存造成「刷新后本来能用又不能用」；认证页内联 loader 同样无超时；11 个游戏子页还加载了毫无 iframe 对应的 `embed.js`，白占跨境连接。
+  - **`boot.js` 新增 `window.mountTallyIframe(container, url, opts)`**：`https://tally.so/embed/<id>` 本身就是完整可嵌入页面，直接赋 `iframe.src` 即可渲染，`embed.js` 降级为可选增强。打开弹窗才惰性挂载；带可见加载态、8s 超时、`onerror` 降级卡片（中英说明 + 重新加载 + `target="_blank" rel="noopener noreferrer"` 新窗口直链）；另常驻一条不遮挡表单的备用入口，防跨域 iframe 加载错误页误触发 `onload` 再度白屏。用挂载 token 让迟到的回调不能覆盖新一次挂载，消除竞态。
+  - 三处调用点统一改直连挂载；认证页补引 `/boot.js`，由两个 `height=1600` 隐藏 iframe 改为按 `langChanged` 只挂当前语言一个；`tally-form-submitted` 提交闭环保留并补 `event.origin === 'https://tally.so'` 白名单。
+  - 删除 11 处冗余 `embed.js`、首页 `ensureTally` 轮询与认证页内联 loader → **首屏 0 个 Tally 跨境请求**。表单 ID、查询参数与数据收集方式完全不变。
+  - `sw.js` 加注释并升 `CACHE_NAME` 到 **v1.5**（策略三分支不动）清理 v1.4 旧缓存；新增 `plan.md` 按大/中/小/迷你四级登记 170 项全站问题（含 `文件:行号`、影响、建议修法、状态），作为后续修复路线图，本轮只修表单链路相关项。
