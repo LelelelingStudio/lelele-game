@@ -1,0 +1,35 @@
+{
+  "id": 27,
+  "name_zh": "荒野生存3D",
+  "name_en": "Wilds Survival 3D",
+  "icon": "🔥",
+  "category_zh": "冒险",
+  "category_en": "Adventure",
+  "type": "external",
+  "ageRating_zh": "12+",
+  "ageRating_en": "12+",
+  "version": "v2.0.0",
+  "author": "4",
+  "url": "https://wilds-survival.pages.dev/",
+  "banner": "https://gamepic.surge.sh/winternothing1.PNG",
+  "screenshots": [
+    "https://gamepic.surge.sh/winternothing1.PNG"
+  ],
+  "videos": [],
+  "description_zh": "没有怪物，但要真实地活下去：吃饱、喝足、保暖、打猎，撑过 3 天！答题赚「知识点」，买装备、学知识，让你活得更轻松。\n\n【详细玩法】\n游戏目标：活 3 天\n游戏开始：开始时可以带 5 样东西\n游戏模式：常规荒野 / 凛冬荒野 / 炙热沙漠\n游戏操作：鼠标转视角 · WASD 移动 · E 砍树 / 采集 / 钓鱼 / 捕猎 / 喝水 / 添柴 · 重燃 · F 吃东西 · G 喝水 · C 合成建造 · B 营地商店 · Q 答题赚知识点 · T 扎营（需帐篷） · 右下角是地图，暴风雪时会变模糊",
+  "description_en": "No monsters, but you still need to survive for real: eat, drink, stay warm, hunt, and make it through 3 days! Answer quiz questions to earn Knowledge Points — buy gear, learn knowledge, and make survival easier.\n\n[Detailed Gameplay]\nObjective: Survive for 3 days\nStart: Choose 5 items to bring at the beginning\nGame modes: Regular Wilderness / Winter Wilderness / Scorching Desert\nControls: Mouse to look around · WASD to move · E to chop trees / gather / fish / hunt / drink water / add firewood · F to eat · G to drink · C to craft and build · B for the camp shop · Q to answer questions and earn Knowledge Points · T to set up camp (requires a tent) · Map at the bottom right, which blurs during blizzards",
+  "updateLog_zh": [
+    {
+      "version": "v2.0.0",
+      "date": "2026-11-06",
+      "content": "更新至 v2.0.0：全新链接；新增常规荒野 / 凛冬荒野 / 炙热沙漠三种模式；新增答题赚知识点、营地商店与合成建造。"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v2.0.0",
+      "date": "2026-11-06",
+      "content": "Updated to v2.0.0: new URL; added Regular Wilderness / Winter Wilderness / Scorching Desert modes; added quiz for Knowledge Points, camp shop, and crafting/building."
+    }
+  ]
+}

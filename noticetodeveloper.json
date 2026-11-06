@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-31T12:00:00+08:00",
+  "updatedAt": "2026-11-06T12:00:00+08:00",
 
   "_readme": {
     "说明": "本文件是「开发者定向告示」数据源，由 notice.js 读取。JSON 标准不支持 // 注释，所以字段说明都写在 _readme 里，程序会忽略它。",
@@ -85,7 +85,44 @@
         {
           "text_zh": "查看更新日志",
           "text_en": "View Changelog",
-          "url": "https://game.leleleling.site/about.html",
+          "url": "https://game.leleleling.site/changelog.html",
+          "style": "primary",
+          "target": "_blank"
+        },
+        {
+          "text_zh": "开发者面板",
+          "text_en": "Dashboard",
+          "url": "https://game.leleleling.site/dashboard.html",
+          "style": "ghost",
+          "target": "_self"
+        }
+      ],
+      "dismissible": true,
+      "oncePerUser": true
+    },
+    {
+      "id": "notice-2026-11-06-wilds-survival-v200",
+      "enabled": true,
+      "author": "4",
+      "priority": 100,
+      "startAt": "2026-11-06T00:00:00+08:00",
+      "endAt": "2026-11-09T12:00:00+08:00",
+      "title_zh": "你的游戏《荒野生存3D》v2.0.0 已上线！",
+      "title_en": "Your game \"Wilds Survival 3D\" v2.0.0 is now live!",
+      "body_zh": "感谢投稿！《荒野生存3D》v2.0.0 已经更新到「了了了游」，玩家现在可以体验全新的三种模式：常规荒野 / 凛冬荒野 / 炙热沙漠。\n\n新增答题赚知识点、营地商店与合成建造玩法，欢迎随时在开发者面板查看数据。\n\n本告示有效至 2026 年 11 月 9 日 12:00。",
+      "body_en": "Thanks for submitting! \"Wilds Survival 3D\" v2.0.0 is now live on lelele Game, and players can experience three new modes: Regular Wilderness / Winter Wilderness / Scorching Desert.\n\nNew features include the quiz for Knowledge Points, the camp shop, and crafting/building. You can check stats anytime in your Dashboard.\n\nThis notice is valid until Nov 9, 2026, 12:00 (UTC+8).",
+      "media": [
+        {
+          "type": "image",
+          "src": "https://gamepic.surge.sh/winternothing1.PNG",
+          "alt": "Wilds Survival 3D"
+        }
+      ],
+      "buttons": [
+        {
+          "text_zh": "立即试玩",
+          "text_en": "Play now",
+          "url": "https://game.leleleling.site/game.html?id=27",
           "style": "primary",
           "target": "_blank"
         },

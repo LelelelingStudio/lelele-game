@@ -336,5 +336,18 @@
     "ageRating_en": "6+",
     "author": "1",
     "url": "https://miniparkour.lelelegame.surge.sh/"
+  },
+  {
+  "id": 27,
+  "name_zh": "荒野生存3D",
+  "name_en": "Wilds Survival 3D",
+  "icon": "🔥",
+  "category_zh": "冒险",
+  "category_en": "Adventure",
+  "type": "external",
+  "ageRating_zh": "12+",
+  "ageRating_en": "12+",
+  "author": "4",
+  "url": "https://wilds-survival.pages.dev/"
   }
 ]
