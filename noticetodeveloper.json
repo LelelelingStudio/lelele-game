@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-06T12:00:00+08:00",
+  "updatedAt": "2026-11-07T12:00:00+08:00",
 
   "_readme": {
     "说明": "本文件是「开发者定向告示」数据源，由 notice.js 读取。JSON 标准不支持 // 注释，所以字段说明都写在 _readme 里，程序会忽略它。",
@@ -132,6 +132,36 @@
           "url": "https://game.leleleling.site/dashboard.html",
           "style": "ghost",
           "target": "_self"
+        }
+      ],
+      "dismissible": true,
+      "oncePerUser": true
+    },
+    {
+      "id": "notice-2026-11-07-cleaning-battle-resubmit",
+      "enabled": false,
+      "author": "3",
+      "priority": 120,
+      "startAt": "2026-11-07T00:00:00+08:00",
+      "endAt": "2026-11-14T23:59:59+08:00",
+      "title_zh": "《清洁大作战》投稿需要更正代码提交方式",
+      "title_en": "\"Cleaning Battle\" submission needs a corrected code upload",
+      "body_zh": "感谢投稿《清洁大作战》！我们发现您提交的代码位置是一个本地文件路径，平台无法访问。\n\n请通过以下任一方式重新提交：\n1. 将游戏文件打包成 .zip 或 .rar 上传；\n2. 或将完整 HTML 代码直接粘贴到「代码内容」文本框。\n\n详情请查看我们发送到您邮箱的说明邮件。\n\n本告示有效至 2026 年 11 月 14 日 23:59。",
+      "body_en": "Thanks for submitting \"Cleaning Battle\"! We noticed that the code location you provided is a local file path that our platform cannot access.\n\nPlease resubmit using either method:\n1. Package the game files into a .zip or .rar and upload it;\n2. Or paste the complete HTML code directly into the \"Code Content\" field.\n\nFor details, please check the explanation email sent to your inbox.\n\nThis notice is valid until Nov 14, 2026, 23:59 (UTC+8).",
+      "buttons": [
+        {
+          "text_zh": "前往投稿表单",
+          "text_en": "Submit again",
+          "url": "https://game.leleleling.site/submit.html",
+          "style": "primary",
+          "target": "_blank"
+        },
+        {
+          "text_zh": "游戏守则",
+          "text_en": "Game Rules",
+          "url": "https://game.leleleling.site/game_rules.html",
+          "style": "ghost",
+          "target": "_blank"
         }
       ],
       "dismissible": true,
