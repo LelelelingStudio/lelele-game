@@ -7,15 +7,23 @@
   "category_en": "Adventure",
   "ageRating_zh": "全年龄",
   "ageRating_en": "All Ages",
-  "version": "v.2.0.0",
+  "version": "v2.1.0",
   "author": "3",
   "url": "https://levil-evil.lelelegame.surge.sh/",
   "screenshots": [
-    "https://levil-evil.lelelegame.surge.sh//levil.png"
+    "https://levil-evil.lelelegame.surge.sh//levil.png",
+    "https://gamepic.surge.sh/levil-offline-title.png"
   ],
-  "description_zh": "跑酷并闯关，通过重重障碍。\n一句话，红温游戏。",
-  "description_en": "Parkour and clear levels, overcoming various obstacles.\nA one-liner, rage-inducing game.",
+  "summary": "闯关拿钥匙",
+  "summary_en": "Clear levels, collect keys",
+  "description_zh": "闯关拿钥匙\n\n《levil evil》是一款单屏平台跳跃游戏。左右键移动、空格或上键起跳，按住跳更高、松手收力；R 重来、P 暂停、Esc 选关。关卡题目都写在地形里：坑、地刺、浮台、消失桥、炮台弹幕、激光、双向风与摆臂，越往后越看起跳时机和落点，不是一味按得快。\n\n主线四关一单元，机制同源、难度递增；二阶段「逆界」把整关水平镜像并注入时序机关。数百列长的 FINAL 关配卷轴相机与中继旗，跑累了有旗子接住你。节日世界按日历开放十五天，通关直发满炼奖励皮肤；常驻世界「长夜」不查日历，打通第四阶段 FINAL 即解锁。\n\n通关掉钥匙，去更衣室开宝箱抽皮肤。普通、稀有、史诗三档各有配色与装饰，重复的当材料合成升到二、三级。皮肤带轻微手感加成，但绝不替你解关——能走到终点的，始终是那双脚。",
+  "description_en": "Clear levels, collect keys\n\nLevil Evil is a single-screen platformer. Use Left/Right to move and Space or Up to jump — hold for a higher jump, release early to cut it short. R restarts, P pauses, Esc opens level select. Each level's challenge is built into the terrain: pits, spikes, floating platforms, vanishing bridges, turret barrages, lasers, two-way wind and swinging arms. Later stages test when you jump and where you land, not how fast you mash the buttons.\n\nThe main campaign groups four levels per unit, sharing mechanics with steadily rising difficulty. Phase two, the Inverse World, mirrors each level horizontally and adds timing-based hazards. The FINAL stage runs hundreds of columns with a scrolling camera and checkpoint flags — there is always a flag to catch you when you tire out. Festival worlds open for fifteen days by calendar and grant a fully-forged reward skin on clear; the permanent Long Night world ignores the calendar — clear its fourth-phase FINAL to unlock it.\n\nClearing levels drops keys; spend them in the dressing room to open chests and roll for skins. Common, Rare and Epic tiers each have their own palette and trims, and duplicates become materials to synthesize tier-two and tier-three versions. Skins give a slight feel bonus but never solve a level for you — the only thing that reaches the finish line is those two feet.",
   "updateLog_zh": [
+    {
+      "version": "v2.1.0",
+      "date": "2026-11-08",
+      "content": "更新至 v2.1.0：新增钥匙与宝箱系统——通关掉落钥匙，可在更衣室开宝箱抽取普通 / 稀有 / 史诗皮肤，重复皮肤作材料合成升至二、三级，皮肤仅提供轻微手感加成；新增二阶段「逆界」水平镜像关与时序机关；FINAL 长关加入卷轴相机与中继旗；新增按日历开放十五天的节日世界，以及不查日历、打通第四阶段 FINAL 即解锁的常驻「长夜」世界；操作新增按住跳更高 / 松手收力、R 重来、P 暂停、Esc 选关；补充离线标题截图。"
+    },
     {
       "version": "v.2.0.0",
       "date": "2026-10-20",
@@ -23,6 +31,11 @@
     }
   ],
   "updateLog_en": [
+    {
+      "version": "v2.1.0",
+      "date": "2026-11-08",
+      "content": "Updated to v2.1.0: added keys and chests — clearing levels drops keys, spend them in the dressing room to roll for Common / Rare / Epic skins; duplicates become materials for tier-two and tier-three synthesis, and skins only give a slight feel bonus. Added the phase-two Inverse World (horizontally mirrored levels with timing-based hazards), a scrolling camera and checkpoint flags for the long FINAL stage, festival worlds open for fifteen days by calendar, and the permanent Long Night world unlocked by clearing its fourth-phase FINAL. Controls now support hold-to-jump-higher / release-to-cut, R restart, P pause and Esc level select. Added an offline title screenshot."
+    },
     {
       "version": "v.2.0.0",
       "date": "2026-10-20",
