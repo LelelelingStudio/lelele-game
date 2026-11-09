@@ -241,6 +241,21 @@
             text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 1px solid var(--card-border);
         }
         .modal-box.wide { max-width: 460px; }
+        /* 4.0.16「更新游戏」表单弹窗 */
+        .modal-box.form-modal { max-width: 760px; padding: 22px; text-align: left; }
+        .modal-box.form-modal .fm-head {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; margin-bottom: 12px;
+        }
+        .modal-box.form-modal h3 { margin: 0; font-size: 1.2rem; }
+        .modal-box.form-modal .fm-close {
+            border: 0; background: transparent; color: var(--text-muted, #64748b);
+            font-size: 1.5rem; line-height: 1; cursor: pointer; padding: 2px 8px;
+        }
+        .modal-box.form-modal .fm-tip {
+            font-size: 0.82rem; color: var(--text-muted, #64748b); margin: 0 0 10px;
+        }
+        #updateGameFrameWrap { max-height: 70vh; overflow-y: auto; border-radius: 14px; }
         .modal-box h3 { font-size: 1.4rem; font-weight: 800; margin-bottom: 12px; color: var(--text-main); }
         .modal-box p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; }
         .modal-box input {
@@ -318,6 +333,10 @@
                 </button>
                 <button class="nav-item nav-jump" onclick="goHomeWith('submit')">
                     ✉️ <span class="zh-inline">投稿新游戏</span><span class="en-inline">Submit a Game</span>
+                </button>
+                <!-- 4.0.16：仅名下至少有 1 款游戏的登录开发者可见，默认隐藏 -->
+                <button class="nav-item nav-jump" id="navUpdateGame" style="display:none;" onclick="openUpdateGameModal()">
+                    🔄 <span class="zh-inline">更新游戏</span><span class="en-inline">Update a Game</span>
                 </button>
                 <button class="nav-item nav-jump" onclick="goHomeWith('recommend')">
                     🎯 <span class="zh-inline">推荐游戏</span><span class="en-inline">Recommend a Game</span>
@@ -495,6 +514,24 @@
     </div>
 
     <!-- 注销弹窗 1 -->
+    <!-- 4.0.16 更新游戏：按语言内嵌对应 Tally 表单，iframe 直连挂载 -->
+    <div class="modal-overlay" id="updateGameModal">
+        <div class="modal-box form-modal">
+            <div class="fm-head">
+                <h3>
+                    <span class="zh-inline">🔄 更新游戏信息</span>
+                    <span class="en-inline">🔄 Update Your Game</span>
+                </h3>
+                <button class="fm-close" type="button" aria-label="Close" onclick="closeUpdateGameModal()">×</button>
+            </div>
+            <p class="fm-tip">
+                <span class="zh-inline">提交后由管理员核对并同步到游戏详情页，通常 1–2 个工作日内生效。</span>
+                <span class="en-inline">Submissions are reviewed and synced to your game page, usually within 1–2 business days.</span>
+            </p>
+            <div id="updateGameFrameWrap"></div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="modalStep1">
         <div class="modal-box">
             <h3><span class="zh-inline">确认注销？</span><span class="en-inline">Confirm Deletion?</span></h3>
@@ -1116,12 +1153,19 @@
         }
         // 语言切换时重渲染创作者卡片（徽标文案随语言变化）
         if (window.MutationObserver) {
-            new MutationObserver(() => { renderDevId(); renderCreatorCard(); })
-                .observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
+            new MutationObserver(() => {
+                renderDevId(); renderCreatorCard();
+                // 4.0.16：语言切换时若更新游戏弹窗开着，重挂对应语言的表单
+                if (typeof window.reMountUpdateGameForm === 'function') window.reMountUpdateGameForm();
+            }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
         }
 
         // 看板初始化
         function initDashboard() {
+            // 4.0.16：只有名下至少有 1 款游戏才给「更新游戏」入口
+            var navUpdate = document.getElementById('navUpdateGame');
+            if (navUpdate) navUpdate.style.display = myGames.length > 0 ? '' : 'none';
+
             document.getElementById('panel-profile').querySelector('.form-card').appendChild(document.getElementById('deleteSection'));
             document.getElementById('deleteSection').style.display = 'block';
 
@@ -1771,6 +1815,77 @@
             init();
             window.addEventListener('resize', () => { if (myChart) myChart.resize(); });
         });
-    </script>
+    
+        // ==================== 4.0.16 更新游戏表单 ====================
+        // 用户提供的两个 Tally 表单 ID；只取 URL，绝不引入官方的
+        // 官方默认嵌入片段（惰性 src 属性 + 境外 widget 脚本）—— 那正是 4.0.14
+        // 根治的白框根因（境外脚本挂起时 iframe 永远没有 src）。
+        var UPDATE_GAME_FORMS = {
+            zh: {
+                url: 'https://tally.so/embed/gbe1kl?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1',
+                title: '更新游戏信息 · 了了了游'
+            },
+            en: {
+                url: 'https://tally.so/embed/gbe1zd?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1',
+                title: 'Update Game Information · Lelele Game'
+            }
+        };
+
+        function mountUpdateGameForm() {
+            var wrap = document.getElementById('updateGameFrameWrap');
+            if (!wrap || !document.getElementById('updateGameModal').classList.contains('active')) return;
+            var cfg = UPDATE_GAME_FORMS[getLang() === 'en' ? 'en' : 'zh'];
+            if (typeof window.mountTallyIframe === 'function') {
+                window.mountTallyIframe(wrap, cfg.url, { title: cfg.title, height: 620 });
+            } else {
+                // 引导层缺席时的最小兜底：仍是直连 src，不依赖 embed.js
+                wrap.innerHTML = '';
+                var f = document.createElement('iframe');
+                f.src = cfg.url;
+                f.title = cfg.title;
+                f.loading = 'eager';
+                f.width = '100%';
+                f.height = '620';
+                f.setAttribute('frameborder', '0');
+                f.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+                wrap.appendChild(f);
+                var a = document.createElement('a');
+                a.href = cfg.url;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                a.textContent = getLang() === 'en' ? 'Open in a new tab ↗' : '在新窗口打开填写 ↗';
+                wrap.appendChild(a);
+            }
+        }
+
+        // 语言切换时只在弹窗打开期间重挂（观察器调用）
+        window.reMountUpdateGameForm = function () {
+            if (document.getElementById('updateGameModal').classList.contains('active')) mountUpdateGameForm();
+        };
+
+        window.openUpdateGameModal = function () {
+            document.getElementById('updateGameModal').classList.add('active');
+            mountUpdateGameForm();
+        };
+
+        window.closeUpdateGameModal = function () {
+            var modal = document.getElementById('updateGameModal');
+            if (modal) modal.classList.remove('active');
+            // 关闭即清空，避免后台持续对 Tally 发起请求
+            var wrap = document.getElementById('updateGameFrameWrap');
+            if (wrap) wrap.innerHTML = '';
+        };
+
+        // 提交成功闭环：dashboard 原本没有这个监听（只在首页 index.js）。
+        // 校验来源域，兼容字符串与对象两种消息体，防止任意来源伪造关闭弹窗。
+        window.addEventListener('message', function (event) {
+            var origin = event.origin || '';
+            if (!/^https:\/\/([a-z0-9-]+\.)*tally\.so$/i.test(origin)) return;
+            var d = event.data;
+            if (d && (d === 'tally-form-submitted' || (typeof d === 'object' && d.type === 'tally-form-submitted'))) {
+                window.closeUpdateGameModal();
+            }
+        });
+</script>
 </body>
 </html>

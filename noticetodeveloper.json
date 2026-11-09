@@ -1,7 +1,6 @@
 {
-  "version": 1,
-  "updatedAt": "2026-11-07T12:00:00+08:00",
-
+  "version": 2,
+  "updatedAt": "2026-11-09T00:00:00+08:00",
   "_readme": {
     "说明": "本文件是「开发者定向告示」数据源，由 notice.js 读取。JSON 标准不支持 // 注释，所以字段说明都写在 _readme 里，程序会忽略它。",
     "文件结构": "{ version, updatedAt, _readme, notices: [告示对象, ...] }。真正生效的只有 notices 数组。",
@@ -31,8 +30,38 @@
     "生效范围": "index.html、game.html、author.html、dashboard.html。游戏本体目录 /game/xxx/ 内不显示。",
     "新增告示": "在 notices 数组末尾追加对象，复制现有示例改字段即可，注意 id 不要重复。"
   },
-
   "notices": [
+    {
+      "id": "notice-2026-11-09-update-game-form",
+      "enabled": true,
+      "author": "all",
+      "priority": 200,
+      "startAt": "2026-11-09T00:00:00+08:00",
+      "endAt": "2026-11-22T23:59:59+08:00",
+      "title_zh": "🛠️ 现在可以在后台自助「更新游戏」了",
+      "title_en": "🛠️ You can now update your game from the Dashboard",
+      "body_zh": "以前更新版本、简介、玩法说明或截图都要线下沟通；现在登录开发者后台，左侧栏点「🔄 更新游戏」即可自助提交。\n\n• 可见条件：已登录，且名下至少有 1 款游戏（没有游戏的账号看不到该入口）。\n• 可提交：新版本号、本次更新内容、一句话简介、新的详细玩法说明、新增截图链接、新的游戏链接或名称变更。\n• 表单按站点语言自动切换中英文；填写图片请提供 https 直链，一行一个。\n• 提交后由管理员核对，通常 1–2 个工作日内同步到游戏详情页与首页列表。\n\n同时《游戏守则》已更新至 4.0.2：链接形式提交并审核通过的游戏归为「外网游戏」；代码形式提交的游戏在作者无特别说明时默认归为「本站游戏」。如有不同需求，请在表单中特别说明。",
+      "body_en": "Updating a version, summary, gameplay description or screenshots used to require manual contact. Now sign in to the developer dashboard and click \"🔄 Update a Game\" in the left sidebar.\n\n• Visibility: signed in AND at least one game under your account (accounts with no games won't see it).\n• You can submit: a new version number, what's new, a one-line summary, a new detailed gameplay description, new screenshot URLs, a new game URL, or name changes.\n• The form switches between Chinese and English automatically with the site language. Provide https direct image links, one per line.\n• Submissions are reviewed and synced to the game detail page and homepage, usually within 1–2 business days.\n\nThe Game Rules have also been updated to v4.0.2: link-based approved games are listed as \"External\", and code-based games are listed as \"Local\" by default unless the author states otherwise. If you need a different category, please say so explicitly in the form.",
+      "media": [],
+      "buttons": [
+        {
+          "text_zh": "前往开发者后台",
+          "text_en": "Go to Dashboard",
+          "url": "https://game.leleleling.site/dashboard.html",
+          "style": "primary",
+          "target": "_self"
+        },
+        {
+          "text_zh": "查看游戏守则 4.0.2",
+          "text_en": "Read Game Rules v4.0.2",
+          "url": "https://game.leleleling.site/game_rules.html",
+          "style": "ghost",
+          "target": "_blank"
+        }
+      ],
+      "dismissible": true,
+      "oncePerUser": true
+    },
     {
       "id": "notice-2026-10-30-science-quest",
       "enabled": true,

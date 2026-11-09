@@ -47,7 +47,7 @@ lelele-game/
 ├── supabase-client.js / recaptcha*.js   # 鉴权与人机验证
 ├── boot.js                   # ★ head 同步引导：onReady / fetchAuthors / mountTallyIframe / leleleFetch 超时 / leleleLog / leleleLiftInlineClicks / analytics
 ├── vendor/                   # ★ 自托管 UMD 库：supabase-js.js / pinyin-pro.js / echarts.min.js（消除 jsdelivr 依赖）
-├── sw.js                     # ★ Service Worker v1.6：静态 SWR 秒开 + 数据超时回退
+├── sw.js                     # ★ Service Worker v1.7：静态 SWR 秒开 + 数据超时回退
 ├── plan.md                   # ★ 全站问题清单：大/中/小/迷你四级共 170 项，4.0.15 已全部处理（含定位、影响、建议修法、状态）
 ├── lelegame_data.json / announcements.json / activity_whole.json / special_common.json / changelog.json / manifest-zh.json / manifest-en.json  # 数据/配置
 ├── authors/                     # 作者数据本地兜底：index.json 轻量清单 + data/<id>.json 仅 games_count（主源为 surge 跨域）
@@ -163,7 +163,7 @@ lelele-game/
 - **B（中版本 / Minor）**：功能级升级，AI 可自行决定，但不要太频繁。
 - **C（微版本 / Patch）**：修修补补。
 
-> 当前版本：**4.0.15**（起点 3.3.0）。4.0.0 起为「超级 UI 大重构（苹果风 + 灵动岛）」A 升级，已获用户授权；4.0.2–4.0.10 等中间版本改动详见 `changelog.json`。
+> 当前版本：**4.0.16**（起点 3.3.0）。4.0.0 起为「超级 UI 大重构（苹果风 + 灵动岛）」A 升级，已获用户授权；4.0.2–4.0.10 等中间版本改动详见 `changelog.json`。
 
 每次发版在 `changelog.json` 数组**头部** `unshift` 一条（含 `version`、`date`、`content_zh`、`content_en`）。
 
@@ -268,3 +268,11 @@ lelele-game/
   - **其余**：`boot.js` 新增 `leleleLastAuthorsError` 区分超时/网络失败原因；`sw.js` 预缓存补齐 5 个此前遗漏页面；`sw.js` 加注释并升 `CACHE_NAME` 到 **v1.6**（策略三分支不变）清理 v1.5 旧缓存；`plan.md` 170 项状态全部更新为「本轮已修」并追加第八节全量修复说明。
   - **验证**：全部 `.js` 与 HTML 内联脚本语法 0 失败（`type="importmap"` 的 JSON 块已正确排除）；浏览器实测语言切换 `data-lang="en"`、弹窗关闭、`return false` 动态节点点击计数正确且属性已移除、动态插入节点 60ms 内被提升，首页 26 卡片 / 关于页 47 条 changelog / 作者页 / 三类 Tally 表单 / dashboard 12 款游戏均正常，`[onclick]` 归零，0 个站点 JS 运行时错误，lint 0 错误。
   - **发布检查单**（每次发版必做）：① `sw.js` 加版本注释 + 递增 `CACHE_NAME`；② `changelog.json` 头部加中英条目；③ `foraisthings.md` 版本号与变更记录同步；④ `plan.md` 状态更新；⑤ 本地实测后 commit，push 后提醒用户硬刷新一次。
+
+- **2026-11-09 · 4.0.16（Minor）**：开发者自助「更新游戏」+ 游戏守则 4.0.2 + 两类公告。
+  - **后台按钮**：`dashboard.html` 侧栏新增「🔄 更新游戏 / Update a Game」，默认隐藏，仅 `myGames.length > 0` 时显示。点击按 `data-lang` 打开中文 `gbe1kl` / 英文 `gbe1zd` 表单弹窗，语言切换时重挂；iframe **直连 `src`**（复用 `boot.js` 的 `mountTallyIframe`），严禁出现 `data-tally-src`、`embed.js`、`loadEmbeds`；关闭即清空容器；`tally-form-submitted` 监听带 Tally 域白名单，提交成功后自动关弹窗。用户提供的官方嵌入代码只作为「表单地址素材」，未照抄。
+  - **游戏守则 4.0.2**：中英两处版本头与生效提示更新（最后更新 2026-11-09，生效 2026-11-16）；新增中英「4.5 收录形式与分类」——链接形式提交并审核通过一律归「外网游戏」（External），代码形式提交在作者无特别说明时默认归「本站游戏」（Local，因代码经过平台检验），作者可特别说明申请不同归类，最终以审核结果为准；原 4.5 顺延为 4.6；`game_rules_old.html` 保持 4.0.0。
+  - **公告**：`announcements.json` 置顶 1 条全站公告（2026-11-09 ~ 2026-11-23）讲新功能与规则变更；`noticetodeveloper.json` 新增 1 条 `author=all`、`priority=200` 的开发者专用告示（2026-11-09 ~ 2026-11-22）讲按钮位置、可见条件、可提交字段与审核时限，均中英双语。
+  - **`sw.js` 加注释并升 `CACHE_NAME` 到 v1.7**（策略三分支不动）清理 v1.6 旧缓存；`changelog` / 手册同步到 4.0.16。
+  - **范围说明**：本轮曾评估并写入一轮国内外缓存加速改造（双层缓存 / 全入口注册 / 数据兜底），用户决定暂不做，已全部撤销，4.0.16 不含任何缓存策略改动。
+  - **验证**：dashboard 中英表单按语言直连挂载、按钮显隐、语言切换重挂、提交闭环；规则页中英 4.0.2 与归类条款可见；两类公告 JSON 通过 `common.js` 日期过滤与 `notice.js` 的 `author` / `inTimeWindow` 判定；全部 JS 与 HTML 内联脚本语法 0 失败、lint 0 错误、0 个站点 JS 运行时错误。

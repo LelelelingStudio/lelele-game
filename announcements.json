@@ -1,5 +1,14 @@
 [
   {
+    "id": "20261109-update-game-rules-402",
+    "title_zh": "🔄 后台「更新游戏」上线 · 游戏守则更新至 4.0.2",
+    "title_en": "🔄 Update Your Game is live · Game Rules v4.0.2",
+    "content_zh": "本次带来两项更新：\n\n🔄 开发者后台新增「更新游戏」：已登录且名下至少有 1 款游戏的开发者，可在侧栏直接提交新版本号、更新内容、一句话简介、详细玩法说明、新截图或新的游戏链接，中英文各有独立表单，提交后通常 1–2 个工作日内完成核对并同步到游戏详情页。\n\n📜 《了了了游游戏守则》更新至 4.0.2（2026 年 11 月 16 日生效），新增「4.5 收录形式与分类」：凡以链接形式提交并审核通过的游戏一律归为「外网游戏」；以代码形式提交的游戏，在作者无特别说明时默认归为「本站游戏」，因为代码已经过平台检验。作者可特别说明申请不同归类，最终以审核结果为准。旧版 4.0.0 仍可在「游戏守则」页内查看。\n\n感谢各位创作者与玩家的支持！",
+    "content_en": "Two updates in this release:\n\n🔄 \"Update a Game\" is now available in the developer dashboard: signed-in creators with at least one published game can submit a new version number, changelog, one-line summary, detailed gameplay description, new screenshots or a new game URL from the sidebar. Separate Chinese and English forms are provided; submissions are reviewed and synced to the game detail page usually within 1–2 business days.\n\n📜 The Game Rules have been updated to v4.0.2 (effective November 16, 2026) with a new clause \"4.5 Submission Format and Category\": games submitted as a link and approved are always listed as \"External\"; games submitted as code are listed as \"Local\" by default unless the author states otherwise, because the code has been reviewed by the Platform. Authors may explicitly request a different category, and the review outcome is final. The previous v4.0.0 remains available on the Game Rules page.\n\nThank you to all creators and players!",
+    "publishDate": "2026-11-09",
+    "expireDate": "2026-11-23"
+  },
+  {
     "id": "20261102-oauth-terms-layout",
     "title_zh": "🎉 一键登录、服务条款与首页新布局上线！",
     "title_en": "🎉 One-tap Sign-in, Terms of Service & New Homepage Layout!",
