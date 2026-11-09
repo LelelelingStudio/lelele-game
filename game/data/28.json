@@ -1,0 +1,35 @@
+{
+  "id": 28,
+  "name_zh": "堡垒突围",
+  "name_en": "Fortress Breakout",
+  "icon": "🏰",
+  "category_zh": "射击",
+  "category_en": "Shooter",
+  "type": "external",
+  "ageRating_zh": "12+",
+  "ageRating_en": "12+",
+  "version": "v1.0.0",
+  "author": "4",
+  "url": "https://fortress-gqznmnck.manus.game",
+  "banner": "https://gamepic.surge.sh/screenshot1234lelelelingning.PNG",
+  "screenshots": [
+    "https://gamepic.surge.sh/screenshot1234lelelelingning.PNG"
+  ],
+  "videos": [],
+  "description_zh": "这是一款第一人称射击小游戏，你需要在堡垒地图里搜集补给、击杀 5 名敌军完成突围，最后根据击杀、命中率和用时获得得分评价。\n\n【操作】WASD 移动 · 鼠标瞄准 · 左键开火 · R 换弹 · E 拾取/使用物品 · Q 切换枪械\n\n【核心机制】目标为击败 5 名敌军（进度 0/5），同时搜集地图补给。生命值初始 100%，护甲需拾取补给获得；手枪弹药无限，其他武器有弹容量限制。对局带作战计时，结束后统计击杀数、命中率、用时与总得分并给出评价，可输入玩家名字查看排行榜、支持再来一局。\n\n【设置与暂停】暂停菜单可继续或重开本局；设置可开关音乐与音效、调整视角灵敏度、反转垂直视角、调整画质、开关镜头震动。\n\n作者表示后续还会更新。",
+  "description_en": "A first-person shooter mini-game: gather supplies inside a fortress map, take down 5 enemies to break out, and receive a score rating based on kills, accuracy, and time.\n\n[Controls] WASD to move · mouse to aim · left click to fire · R to reload · E to pick up/use items · Q to switch weapons\n\n[Core mechanics] Defeat 5 enemies (progress 0/5) while collecting supplies across the map. Health starts at 100%; armor must be picked up as a supply. The pistol has unlimited ammo, while other weapons have magazine limits. Each run is timed, and at the end your kills, accuracy, time, and total score are tallied into a rating. Enter your name to view the leaderboard and replay instantly.\n\n[Settings & Pause] The pause menu lets you resume or restart the run; settings toggle music and sound effects, adjust look sensitivity, invert vertical look, change graphics quality, and toggle camera shake.\n\nThe developer notes that more updates are planned.",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-09",
+      "content": "游戏首发上线！"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-09",
+      "content": "Initial release!"
+    }
+  ]
+}

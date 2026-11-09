@@ -350,5 +350,18 @@
   "ageRating_en": "12+",
   "author": "4",
   "url": "https://wilds-survival.pages.dev/"
+  },
+  {
+  "id": 28,
+  "name_zh": "堡垒突围",
+  "name_en": "Fortress Breakout",
+  "icon": "🏰",
+  "category_zh": "射击",
+  "category_en": "Shooter",
+  "type": "external",
+  "ageRating_zh": "12+",
+  "ageRating_en": "12+",
+  "author": "4",
+  "url": "https://fortress-gqznmnck.manus.game"
   }
 ]

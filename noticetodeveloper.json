@@ -195,6 +195,43 @@
       ],
       "dismissible": true,
       "oncePerUser": true
+    },
+    {
+  "id": "notice-2026-11-09-fortress-breakout",
+  "enabled": true,
+  "author": "4",
+  "priority": 100,
+  "startAt": "2026-11-09T00:00:00+08:00",
+  "endAt": "2026-11-12T12:00:00+08:00",
+  "title_zh": "你的游戏《堡垒突围》已上线！",
+  "title_en": "Your game \"Fortress Breakout\" is now live!",
+  "body_zh": "感谢投稿！《堡垒突围》已经收录到「了了了游」，玩家现在可以直接在平台上玩到了。\n\n你可以随时在开发者面板查看数据和更新游戏信息。\n\n本告示有效至 2026 年 11 月 12 日 12:00。",
+  "body_en": "Thanks for submitting! \"Fortress Breakout\" is now listed on lelele Game, and players can jump in right away.\n\nYou can check stats and update the game info anytime from your Dashboard.\n\nThis notice is valid until Nov 12, 2026, 12:00 (UTC+8).",
+  "media": [
+    {
+      "type": "image",
+      "src": "https://gamepic.surge.sh/screenshot1234lelelelingning.PNG",
+      "alt": "Fortress Breakout"
+    }
+  ],
+  "buttons": [
+    {
+      "text_zh": "立即试玩",
+      "text_en": "Play now",
+      "url": "https://game.leleleling.site/game.html?id=28",
+      "style": "primary",
+      "target": "_blank"
+    },
+    {
+      "text_zh": "开发者面板",
+      "text_en": "Dashboard",
+      "url": "https://game.leleleling.site/dashboard.html",
+      "style": "ghost",
+      "target": "_self"
+    }
+  ],
+  "dismissible": true,
+  "oncePerUser": true
     }
   ]
 }
