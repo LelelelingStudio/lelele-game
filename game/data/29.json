@@ -1,0 +1,35 @@
+{
+  "id": 29,
+  "name_zh": "老六小游戏",
+  "name_en": "Sneaky Little Game",
+  "icon": "😠",
+  "category_zh": "动作",
+  "category_en": "Action",
+  "type": "local",
+  "ageRating_zh": "全年龄",
+  "ageRating_en": "All Ages",
+  "version": "v1.1.1.1",
+  "author": "9",
+  "url": "https://mr6sgamebyjoy-games.leleleling.site/",
+  "banner": "https://gamepic.surge.sh/mr6sgamebyjoy-games1.png",
+  "screenshots": [
+    "https://gamepic.surge.sh/mr6sgamebyjoy-games1.png"
+  ],
+  "videos": [],
+  "description_zh": "一款画风不太好，但是非常好玩的游戏，可以试试。\n\n简简单单地跳过尖刺，真的有这么简单吗？\n\n共 10 个单元、50 个关卡，支持二段跳。",
+  "description_en": "A game with rough graphics but genuinely fun gameplay — give it a try.\n\nJust jump over the spikes. Simple, right? Is it really that simple?\n\n10 units, 50 levels, with double jump.",
+  "updateLog_zh": [
+    {
+      "version": "v1.1.1.1",
+      "date": "2026-11-11",
+      "content": "游戏首发上线！"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.1.1.1",
+      "date": "2026-11-11",
+      "content": "Initial release!"
+    }
+  ]
+}

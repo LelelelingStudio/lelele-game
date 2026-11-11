@@ -363,5 +363,18 @@
   "ageRating_en": "12+",
   "author": "4",
   "url": "https://fortress-gqznmnck.manus.game"
+  },
+  {
+  "id": 29,
+  "name_zh": "老六小游戏",
+  "name_en": "Sneaky Little Game",
+  "icon": "😠",
+  "category_zh": "动作",
+  "category_en": "Action",
+  "type": "local",
+  "ageRating_zh": "全年龄",
+  "ageRating_en": "All Ages",
+  "author": "9",
+  "url": "https://mr6sgamebyjoy-games.leleleling.site/"
   }
 ]
