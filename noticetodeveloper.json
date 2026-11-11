@@ -1,6 +1,6 @@
 {
-  "version": 3,
-  "updatedAt": "2026-11-11T00:00:00+08:00",
+  "version": 4,
+  "updatedAt": "2026-11-11T14:00:00+08:00",
   "_readme": {
     "说明": "本文件是「开发者定向告示」数据源，由 notice.js 读取。JSON 标准不支持 // 注释，所以字段说明都写在 _readme 里，程序会忽略它。",
     "文件结构": "{ version, updatedAt, _readme, notices: [告示对象, ...] }。真正生效的只有 notices 数组。",
@@ -294,6 +294,36 @@
           "text_zh": "立即试玩",
           "text_en": "Play now",
           "url": "https://game.leleleling.site/game.html?id=29",
+          "style": "primary",
+          "target": "_blank"
+        },
+        {
+          "text_zh": "开发者面板",
+          "text_en": "Dashboard",
+          "url": "https://game.leleleling.site/dashboard.html",
+          "style": "ghost",
+          "target": "_self"
+        }
+      ],
+      "dismissible": true,
+      "oncePerUser": true
+    },
+    {
+      "id": "notice-2026-11-11-jonathan-developer-certified",
+      "enabled": true,
+      "author": "4",
+      "priority": 400,
+      "startAt": "2026-11-11T00:00:00+08:00",
+      "endAt": "2026-11-25T23:59:59+08:00",
+      "title_zh": "🎉 认证申请已通过：你已升级为「开发者」",
+      "title_en": "🎉 Application approved: you are now a Developer",
+      "body_zh": "Jonathan，你好！你的官方认证申请已通过人工审核。\n\n依据《创作者认证规则》中「开发者」的要求（累计发布 ≥3 款且至少 1 款上架 ≥30 天、通过内容合规复审、保持持续更新、无严重违规），结合你名下已发布的 5 款作品（荒野生存3D v1.0.0 / v2.0.0、钢铁军团、科学大冒险、堡垒突围），你的认证等级已由「制作人 Lv.2」提升为「开发者 Lv.4 / Developer」，作者页与开发者后台的徽章会同步更新。\n\n说明：等级徽章与红色【官方】徽章相互独立，本次升级不涉及【官方】标记。若后续希望申请「金牌开发者 Lv.5」（需累计 ≥5 款、持续稳定更新且经官方评定），可再到开发者后台提交申请。\n\n感谢你持续为平台带来新作品，期待你的下一款游戏！",
+      "body_en": "Hi Jonathan, your certification application has been approved after manual review.\n\nUnder the \"Developer\" criteria in the Creator Certification Rules (≥3 published games with at least one live for ≥30 days, content compliance review passed, continued updates, no serious violations), and based on your 5 published titles (Wilds Survival 3D v1.0.0 / v2.0.0, Iron Legion, Science Quest, Fortress Breakout), your level has been raised from Producer (Lv.2) to Developer (Lv.4). The badge on your author page and in the developer dashboard will update accordingly.\n\nNote: level badges and the red [Official] badge are independent; this upgrade does not add an [Official] mark. You may apply for Gold Developer (Lv.5) later from the dashboard once you meet the criteria (≥5 titles, stable updates, official evaluation).\n\nThanks for continuing to build games for the platform — looking forward to your next release!",
+      "buttons": [
+        {
+          "text_zh": "查看开发者等级",
+          "text_en": "View Developer level",
+          "url": "https://game.leleleling.site/authorlevel.html?level=4",
           "style": "primary",
           "target": "_blank"
         },
