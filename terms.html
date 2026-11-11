@@ -25,9 +25,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>服务条款 · Terms of Service</title>
     <meta name="description" content="了了了游服务条款。Terms of Service of Lelele Game.">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
-    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="/common.css">
     <script src="/boot.js"></script>
 
     <style>
@@ -117,7 +117,7 @@
     </div>
 
     <div class="container">
-        <a href="index.html" class="back-home" id="backHomeBtn">
+        <a href="/index.html" class="back-home" id="backHomeBtn">
             <span class="zh-inline">← 返回首页</span><span class="en-inline">← Back to Home</span>
         </a>
 
@@ -264,7 +264,7 @@
         </div>
     </div>
 
-    <script src="common.js" defer></script>
+    <script src="/common.js" defer></script>
     <script>
         window.onReady( () => {
             const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
@@ -272,7 +272,7 @@
                 btn.classList.toggle('active', btn.dataset.langBtn === currentLang);
             });
             const backHome = document.getElementById('backHomeBtn');
-            if (backHome) backHome.href = currentLang === 'en' ? 'index.html?lang=en' : 'index.html';
+            if (backHome) backHome.href = currentLang === 'en' ? '/index.html?lang=en' : '/index.html';
         });
     </script>
 </body>

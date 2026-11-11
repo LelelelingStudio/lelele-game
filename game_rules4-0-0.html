@@ -24,7 +24,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="了了了游游戏守则 · 内容规范、投稿授权、未成年人保护与免责声明">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <title>了了了游游戏守则 · lelele Game Rules</title>
     <script src="/boot.js"></script>
     <style>
@@ -326,7 +326,7 @@
 
 <div class="container">
 
-    <a class="back-home" href="index.html" id="backHomeBtn">
+    <a class="back-home" href="/index.html" id="backHomeBtn">
         <span class="zh-inline">← 返回了了了游首页</span>
         <span class="en-inline">← Back to lelele Home</span>
     </a>
@@ -695,8 +695,8 @@
         try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
         
         const backHome = document.getElementById('backHomeBtn');
-        if(lang === 'en') backHome.href = 'index.html?lang=en';
-        else backHome.href = 'index.html';
+        if(lang === 'en') backHome.href = '/index.html?lang=en';
+        else backHome.href = '/index.html';
     }
     
     const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';

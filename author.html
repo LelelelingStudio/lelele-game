@@ -24,11 +24,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#4f46e5">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <title>作者主页 · 了了了游</title>
     <meta name="description" content="了了了游创作者主页：查看开发者资料、认证徽标与其发布的全部小游戏。Lelele Game creator profile, badges and published games.">
 
-    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="/common.css">
     <script src="/boot.js"></script>
     <script defer src="/vendor/supabase-js.js"></script>
 
@@ -228,11 +228,11 @@
 <body>
 
     <div class="top-bar">
-        <a href="index.html" class="back-btn" id="backBtn">
+        <a href="/index.html" class="back-btn" id="backBtn">
             ← <span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span>
         </a>
         
-        <div class="site-title" onclick="window.location.href='index.html'">
+        <div class="site-title" onclick="window.location.href='/index.html'">
             <img src="lelelegame.svg" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
             <span class="logo-fallback" style="display:none;">🎮</span>
             <span class="zh-inline">了了了游</span><span class="en-inline">lelele Game</span>
@@ -288,9 +288,9 @@
 
     </div>
 
-    <script src="common.js" defer></script>
+    <script src="/common.js" defer></script>
     <script src="supabase-client.js" defer></script>
-    <script src="notice.js" defer></script>
+    <script src="/notice.js" defer></script>
 
     <script>
         let currentAuthorData = null;
@@ -303,7 +303,7 @@
 
         function updateLinks() {
             const suffix = isEn() ? '?lang=en' : '';
-            document.getElementById('backBtn').href = 'index.html' + suffix;
+            document.getElementById('backBtn').href = '/index.html' + suffix;
         }
 
         // 兜底：本地保留一份 escapeHtml，避免 Cloudflare 缓存旧版 common.js 时本页调用未定义函数而整页崩溃

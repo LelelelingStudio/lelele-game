@@ -26,8 +26,8 @@
     <title>开发者后台 · 了了了游</title>
     <meta name="description" content="了了了游开发者后台：查看自己游戏的数据、资料与认证状态。Lelele Game developer dashboard for game stats and profile.">
 
-    <link rel="stylesheet" href="common.css">
-    <link rel="stylesheet" href="effects.css">
+    <link rel="stylesheet" href="/common.css">
+    <link rel="stylesheet" href="/effects.css">
     <link rel="stylesheet" href="recaptcha.css">
     <script src="/boot.js"></script>
     <script defer src="/vendor/supabase-js.js"></script>
@@ -301,7 +301,7 @@
 
     <!-- 顶部导航 -->
     <div class="top-bar">
-        <a href="index.html" class="site-title">
+        <a href="/index.html" class="site-title">
             <img src="lelelegame.svg" alt="Logo" onerror="this.style.display='none'">
             <span class="zh-inline">了了了游</span><span class="en-inline">lelele Game</span>
         </a>
@@ -579,7 +579,7 @@
     <script src="recaptcha-config.js"></script>
     <script src="recaptcha.js"></script>
     <script src="supabase-client.js" defer></script>
-    <script src="notice.js" defer></script>
+    <script src="/notice.js" defer></script>
     <script>
         // 4.0.13：统一 fetch 超时。外部域（analytics）或本地数据挂起时不拖死看板，
         // 8s 后 AbortController 中断，由各调用点的 catch 降级到已有空态/图表错误态。
@@ -1714,12 +1714,12 @@
 
             await supabaseClient.auth.signOut();
             alert('账号已注销 / Account deleted');
-            window.location.href = 'index.html';
+            window.location.href = '/index.html';
         };
 
         window.logout = async function() {
             await supabaseClient.auth.signOut();
-            window.location.href = 'index.html';
+            window.location.href = '/index.html';
         };
 
         // 跳回首页并携带参数，由首页自动唤起对应弹窗
@@ -1729,7 +1729,7 @@
             const params = new URLSearchParams();
             params.set(mode, '1');
             if (lang === 'en') params.set('lang', 'en');
-            window.location.href = 'index.html?' + params.toString();
+            window.location.href = '/index.html?' + params.toString();
         };
 
         // 语言按钮激活态同步

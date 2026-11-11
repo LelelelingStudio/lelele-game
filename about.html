@@ -25,11 +25,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="关于了了了游 · 发现独立游戏的魅力">
     <meta name="theme-color" content="#4f46e5">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <title>关于我们 · 了了了游</title>
     
     <!-- 引入全局样式 -->
-    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="/common.css">
     
     <!-- 统计代码 -->
     <script src="/boot.js"></script>
@@ -415,12 +415,12 @@
 
     <!-- 顶部导航 -->
     <div class="top-bar">
-        <a href="index.html" class="back-btn" id="backBtn">
+        <a href="/index.html" class="back-btn" id="backBtn">
             ← <span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span>
         </a>
         
         <!-- 顶部 Logo + 兜底 -->
-        <div class="logo-container" onclick="window.location.href='index.html'">
+        <div class="logo-container" onclick="window.location.href='/index.html'">
             <img src="lelelegame.svg" alt="了了了游" class="site-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
             <span class="logo-fallback" style="display:none;">🎮</span>
         </div>
@@ -578,7 +578,7 @@
     </div>
 
     <!-- 引入全局脚本 -->
-    <script src="common.js" defer></script>
+    <script src="/common.js" defer></script>
 
     <script>
         // ==================== 更新日志逻辑 ====================
@@ -649,9 +649,9 @@
                 btn.classList.toggle('active', btn.dataset.langBtn === currentLang);
             });
             if(currentLang === 'en') {
-                document.getElementById('backBtn').href = 'index.html?lang=en';
+                document.getElementById('backBtn').href = '/index.html?lang=en';
             } else {
-                document.getElementById('backBtn').href = 'index.html';
+                document.getElementById('backBtn').href = '/index.html';
             }
 
             loadChangelog(); // 初始化加载日志
@@ -660,9 +660,9 @@
             window.addEventListener('langChanged', () => {
                 const lang = document.documentElement.getAttribute('data-lang');
                 if(lang === 'en') {
-                    document.getElementById('backBtn').href = 'index.html?lang=en';
+                    document.getElementById('backBtn').href = '/index.html?lang=en';
                 } else {
-                    document.getElementById('backBtn').href = 'index.html';
+                    document.getElementById('backBtn').href = '/index.html';
                 }
                 if (changelogData.length > 0) renderChangelog();
             });

@@ -25,9 +25,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>用户协议 · User Agreement | 了了了游</title>
     <meta name="description" content="了了了游用户协议，说明平台与用户的关系、第三方游戏责任边界与 5.0.0 法律协议新规。User Agreement of lelele Game.">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
-    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="/common.css">
     <script src="/boot.js"></script>
 
     <style>
@@ -119,7 +119,7 @@
     </div>
 
     <div class="container">
-        <a href="index.html" class="back-home" id="backHomeBtn">
+        <a href="/index.html" class="back-home" id="backHomeBtn">
             <span class="zh-inline">← 返回首页</span><span class="en-inline">← Back to Home</span>
         </a>
 
@@ -228,7 +228,7 @@
         </div>
 
     </div>
-    <script src="common.js" defer></script>
+    <script src="/common.js" defer></script>
     <script src="legal_generic.js" defer></script>
     <script>
         window.onReady(function () {
@@ -237,7 +237,7 @@
                 btn.classList.toggle('active', btn.dataset.langBtn === lang);
             });
             var back = document.getElementById('backHomeBtn');
-            if (back) back.href = lang === 'en' ? 'index.html?lang=en' : 'index.html';
+            if (back) back.href = lang === 'en' ? '/index.html?lang=en' : '/index.html';
         });
     </script>
 </body>

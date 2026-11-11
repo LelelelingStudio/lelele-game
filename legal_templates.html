@@ -25,8 +25,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>协议模板中心 · Legal Template Center | 了了了游</title>
     <meta name="description" content="了了了游协议模板中心：免费获取用户协议、隐私政策、服务条款中英双语模板，支持 Markdown / TXT / HTML / PDF / Word 导出。Free bilingual legal agreement templates for game developers.">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="common.css">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/common.css">
     <script src="/boot.js"></script>
     <style>
         .zh-text, .en-text { display: none; }
@@ -180,7 +180,7 @@
     </div>
 
     <div class="container">
-        <a href="index.html" class="back-home" id="backHomeBtn">
+        <a href="/index.html" class="back-home" id="backHomeBtn">
             <span class="zh-inline">← 返回首页</span><span class="en-inline">← Back to Home</span>
         </a>
 
@@ -281,7 +281,7 @@
         </div>
     </div>
 
-    <script src="common.js" defer></script>
+    <script src="/common.js" defer></script>
     <script src="legal_generic.js" defer></script>
     <script>
     (function () {
@@ -571,7 +571,7 @@
                 a.href = a.getAttribute('data-page') + suffix;
             });
             var back = document.getElementById('backHomeBtn');
-            if (back) back.href = 'index.html' + suffix;
+            if (back) back.href = '/index.html' + suffix;
         }
         function boot() {
             renderPreview(); bind(); syncLangLinks();

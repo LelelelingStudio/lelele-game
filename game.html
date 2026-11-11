@@ -24,11 +24,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#4f46e5">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <title>加载中... · 了了了游</title>
     <meta name="description" content="在了了了游在线游玩免费小游戏，无需下载。Play free browser games instantly on Lelele Game.">
 
-    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="/common.css">
     <script src="/boot.js"></script>
     <script defer src="/vendor/supabase-js.js"></script>
 
@@ -445,11 +445,11 @@
 <body>
 
     <div class="top-bar">
-        <a href="index.html" class="back-btn" id="backBtn">
+        <a href="/index.html" class="back-btn" id="backBtn">
             ← <span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span>
         </a>
         
-        <div class="site-title" onclick="window.location.href='index.html'">
+        <div class="site-title" onclick="window.location.href='/index.html'">
             <img src="lelelegame.svg" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
             <span class="logo-fallback" style="display:none;">🎮</span>
             <span class="zh-inline">了了了游</span><span class="en-inline">lelele Game</span>
@@ -471,7 +471,7 @@
         <div class="error-state" id="errorState">
             <div style="font-size: 3rem; margin-bottom: 10px;">😢</div>
             <div id="errorMsg"></div>
-            <a href="index.html" class="btn btn-play" id="errorBackBtn">
+            <a href="/index.html" class="btn btn-play" id="errorBackBtn">
                 <span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span>
             </a>
         </div>
@@ -557,9 +557,9 @@
                onclick="event.stopPropagation()" style="display:none;"></video>
     </div>
 
-    <script src="common.js" defer></script>
+    <script src="/common.js" defer></script>
     <script src="supabase-client.js" defer></script>
-    <script src="notice.js" defer></script>
+    <script src="/notice.js" defer></script>
     <script src="legal_generic.js" defer></script>
 
     <script>
@@ -580,8 +580,8 @@
 
         function updateLinks() {
             const suffix = isEn() ? '?lang=en' : '';
-            document.getElementById('backBtn').href = 'index.html' + suffix;
-            document.getElementById('errorBackBtn').href = 'index.html' + suffix;
+            document.getElementById('backBtn').href = '/index.html' + suffix;
+            document.getElementById('errorBackBtn').href = '/index.html' + suffix;
         }
 
         // ---------- 媒体工具：区分图片 / 视频 ----------

@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN" data-lang="zh">
 <head>
+    <!-- GitHub Pages 会用本文件响应任意层级的 404 URL；
+         把所有相对 URL 锚定到站点根目录，避免 /about/sdf/common.css 之类的解析。 -->
+    <base href="/">
     <script>
         (function() {
             try {
@@ -24,11 +27,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#4f46e5">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <title>404 · 了了了游</title>
     <meta name="description" content="页面未找到 · 了了了游小游戏平台。The page you requested was not found on Lelele Game.">
     
-    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="/common.css">
     <script src="/boot.js"></script>
     
     <style>
@@ -47,9 +50,9 @@
         html, body { min-height: 100%; }
 
         body {
-            background: var(--bg-gradient);
+            background: var(--bg-gradient, linear-gradient(145deg, #f0f4f9 0%, #e8ecf5 100%));
             font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", sans-serif;
-            color: var(--text-main);
+            color: var(--text-main, #1e293b);
             min-height: 100vh;
             margin: 0;
             padding: 0;
@@ -70,7 +73,7 @@
         }
 
         .error-card {
-            background: var(--card-bg);
+            background: var(--card-bg, rgba(255, 255, 255, 0.88));
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-radius: 32px;
@@ -81,7 +84,7 @@
             margin: 0 auto;          /* 双保险 */
             flex-shrink: 0;          /* 防止被 flex 容器压缩 */
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05), 0 4px 16px rgba(0, 0, 0, 0.02);
-            border: 1px solid var(--card-border);
+            border: 1px solid var(--card-border, rgba(148, 163, 184, 0.2));
             animation: floatIn 0.6s ease-out;
         }
 
@@ -105,11 +108,11 @@
         .error-code {
             font-size: 5rem;
             font-weight: 900;
-            color: var(--primary);
+            color: var(--primary, #4f46e5);
             line-height: 1;
             margin-bottom: 1rem;
             letter-spacing: -2px;
-            background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, var(--primary, #4f46e5) 0%, #7c3aed 100%);
             background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -117,13 +120,13 @@
         .error-title {
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--text-main);
+            color: var(--text-main, #1e293b);
             margin-bottom: 1rem;
         }
 
         .error-desc {
             font-size: 1rem;
-            color: var(--text-muted);
+            color: var(--text-muted, #64748b);
             line-height: 1.6;
             margin-bottom: 2.5rem;
         }
@@ -133,7 +136,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            background: var(--primary);
+            background: var(--primary, #4f46e5);
             color: #fff;
             text-decoration: none;
             padding: 14px 32px;
@@ -146,10 +149,18 @@
         }
 
         .btn-back:hover {
-            background: var(--primary-hover);
+            background: var(--primary-hover, #4338ca);
             transform: translateY(-2px);
             box-shadow: 0 12px 24px rgba(79, 70, 229, 0.4);
         }
+
+        .error-foot {
+            margin-top: 1.6rem;
+            font-size: 0.82rem;
+            color: var(--text-muted, #64748b);
+        }
+        .error-foot a { color: var(--primary, #4f46e5); text-decoration: none; font-weight: 600; }
+        .error-foot a:hover { text-decoration: underline; }
 
         @media (max-width: 600px) {
             .error-card { padding: 3rem 1.5rem; border-radius: 24px; }
@@ -169,17 +180,22 @@
             <div class="zh-text">
                 <div class="error-title">页面走丢了</div>
                 <div class="error-desc">你访问的页面不存在、已被移动，或者链接出错了。</div>
-                <a href="index.html" class="btn-back" id="homeBtnZh">🏠 返回了了了游首页</a>
+                <a href="/index.html" class="btn-back" id="homeBtnZh">🏠 返回了了了游首页</a>
             </div>
 
             <div class="en-text">
                 <div class="error-title">Page Not Found</div>
                 <div class="error-desc">The page you are looking for doesn't exist, has been moved, or the link is broken.</div>
-                <a href="index.html?lang=en" class="btn-back" id="homeBtnEn">🏠 Back to lelele Home</a>
+                <a href="/index.html?lang=en" class="btn-back" id="homeBtnEn">🏠 Back to lelele Home</a>
+            </div>
+
+            <div class="error-foot">
+                <span class="zh-inline">或者查看 <a href="/sitemap.html">站点地图</a> 找到正确入口</span>
+                <span class="en-inline">Or browse the <a href="/sitemap.html">sitemap</a> to find your way</span>
             </div>
         </div>
     </div>
 
-    <script src="common.js" defer></script>
+    <script src="/common.js" defer></script>
 </body>
 </html>

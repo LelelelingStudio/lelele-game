@@ -26,13 +26,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="了了了游 · 独立游戏聚合导航站，发现好玩的小游戏">
     <meta name="theme-color" content="#4f46e5">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="lelelegame.png">
     <link rel="manifest" href="/manifest-zh.json">
     <title>了了了游</title>
 
     <!-- 引入全局样式 -->
-    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="/common.css">
 
     <script src="/boot.js"></script>
     <!-- 引入拼音库（pinyin-pro，提供 window.pinyinPro；defer 不阻塞首屏；search.js 已容错降级） -->
@@ -162,6 +162,12 @@
 
         <!-- 游戏列表 -->
         <div class="games-container">
+            <div class="games-section-head">
+                <div class="games-section-title">
+                    <span class="games-chip"><span class="zh-inline">🎮 游戏库</span><span class="en-inline">🎮 Game Library</span></span>
+                </div>
+                <span class="games-section-hint"><span class="zh-inline">点击卡片即可开始游戏</span><span class="en-inline">Tap a card to play</span></span>
+            </div>
             <div class="search-scope-bar" id="searchScopeBar" style="display:none;">
                 <button type="button" class="scope-btn active" data-scope="all"><span class="zh-inline">全部</span><span class="en-inline">All</span></button>
                 <button type="button" class="scope-btn" data-scope="game"><span class="zh-inline">游戏</span><span class="en-inline">Games</span></button>
@@ -534,9 +540,9 @@
 
     <script defer src="/vendor/supabase-js.js"></script>
     <script src="supabase-client.js" defer></script>
-    <script src="notice.js" defer></script>
-    <script src="common.js" defer></script>
-    <script src="search.js" defer></script>
-    <script src="index.js" defer></script>
+    <script src="/notice.js" defer></script>
+    <script src="/common.js" defer></script>
+    <script src="/search.js" defer></script>
+    <script src="/index.js" defer></script>
 </body>
 </html>

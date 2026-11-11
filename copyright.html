@@ -25,9 +25,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>版权与侵权投诉 · Copyright Policy</title>
     <meta name="description" content="了了了游版权与侵权投诉政策。Copyright and infringement policy of Lelele Game.">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     
-    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="/common.css">
     <script src="/boot.js"></script>
     
     <style>
@@ -106,7 +106,7 @@
     </div>
 
     <div class="container">
-        <a href="index.html" class="back-home" id="backHomeBtn">
+        <a href="/index.html" class="back-home" id="backHomeBtn">
             <span class="zh-inline">← 返回首页</span><span class="en-inline">← Back to Home</span>
         </a>
 
@@ -183,7 +183,7 @@
         </div>
     </div>
 
-    <script src="common.js" defer></script>
+    <script src="/common.js" defer></script>
     <script>
         function setLang(lang) {
             document.documentElement.setAttribute('data-lang', lang);
@@ -193,8 +193,8 @@
             });
             try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
             
-            if(lang === 'en') document.getElementById('backHomeBtn').href = 'index.html?lang=en';
-            else document.getElementById('backHomeBtn').href = 'index.html';
+            if(lang === 'en') document.getElementById('backHomeBtn').href = '/index.html?lang=en';
+            else document.getElementById('backHomeBtn').href = '/index.html';
         }
         window.onReady( () => {
             const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
