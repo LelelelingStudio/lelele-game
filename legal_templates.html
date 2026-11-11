@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>协议模板中心 · Legal Template Center | 了了了游</title>
+    <meta name="description" content="了了了游协议模板中心：免费获取用户协议、隐私政策、服务条款中英双语模板，支持 Markdown / TXT / HTML / PDF / Word 导出。Free bilingual legal agreement templates for game developers.">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="common.css">
+    <script src="/boot.js"></script>
+    <style>
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text { display: block; }
+        html[data-lang="zh"] .zh-inline { display: inline; }
+        html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="en"] .en-inline { display: inline; }
+        html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+        html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            line-height: 1.8;
+            padding: 0 1.5rem 2.5rem;
+            display: flex; flex-direction: column; min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 880px; width: 100%; margin: 2rem auto 0;
+            background: var(--card-bg); border-radius: 36px; padding: 3.5rem 4rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.04); flex: 1;
+            border: 1px solid var(--card-border);
+        }
+        .back-home {
+            display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.9rem;
+            color: var(--primary); text-decoration: none; font-weight: 600;
+            margin-bottom: 1.2rem; padding: 0.4rem 1rem; border-radius: 30px;
+            background: rgba(79,70,229,0.06); border: 1px solid rgba(79,70,229,0.12);
+        }
+        .back-home:hover { background: rgba(79,70,229,0.14); }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; color: var(--text-main); }
+        .subhead { color: var(--text-muted); margin-bottom: 1.6rem; padding-bottom: 1rem; border-bottom: 1px solid var(--card-border); }
+        p { margin: 0.8rem 0; }
+        a { color: var(--primary); text-decoration: none; }
+
+        .callout {
+            margin: 1.2rem 0 1.6rem; padding: 1rem 1.2rem; border-radius: 18px;
+            background: rgba(79,70,229,0.07); border: 1px solid rgba(79,70,229,0.18); font-size: 0.94rem;
+        }
+        .callout strong { color: var(--primary); }
+
+        .form-block {
+            padding: 1.4rem 1.5rem 1.1rem; border-radius: 22px;
+            background: rgba(148,163,184,0.07); border: 1px solid var(--card-border);
+            margin-bottom: 1.6rem;
+        }
+        .form-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.9rem; color: var(--text-main); }
+        .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem 1.1rem; }
+        .field label { display: block; font-size: 0.83rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.3rem; }
+        .field input {
+            width: 100%; padding: 0.62rem 0.9rem; border-radius: 12px;
+            border: 1px solid var(--card-border); background: rgba(255,255,255,0.6);
+            color: var(--text-main); font-size: 0.92rem; font-family: inherit; outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        html.dark-mode .field input { background: rgba(0,0,0,0.2); }
+        .field input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.12); }
+        .form-hint { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.85rem; }
+
+        .tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+        .tab-btn {
+            padding: 0.45rem 1.1rem; border-radius: 30px; border: 1px solid var(--card-border);
+            background: transparent; color: var(--text-muted); font-size: 0.88rem;
+            font-weight: 600; cursor: pointer; font-family: inherit;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { color: var(--primary); border-color: rgba(79,70,229,0.4); }
+        .tab-btn.active { background: #4f46e5; color: #fff; border-color: #4f46e5; box-shadow: 0 3px 10px rgba(79,70,229,0.22); }
+
+        .preview-card {
+            border-radius: 22px; border: 1px solid var(--card-border);
+            background: rgba(255,255,255,0.55); padding: 2rem 2.2rem;
+            max-height: 620px; overflow-y: auto;
+        }
+        html.dark-mode .preview-card { background: rgba(0,0,0,0.16); }
+        .preview-card h2 { font-size: 1.35rem; margin-bottom: 0.4rem; color: var(--text-main); }
+        .preview-sub { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.3rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--card-border); }
+        .preview-card h3 { font-size: 1.02rem; margin: 1.4rem 0 0.5rem; color: var(--text-main); }
+        .preview-card p { font-size: 0.92rem; line-height: 1.9; margin: 0.6rem 0; }
+        .ph {
+            background: linear-gradient(180deg, transparent 58%, rgba(250,204,21,0.55) 58%);
+            color: #b45309; font-weight: 700; padding: 0 2px; border-radius: 3px;
+        }
+        html.dark-mode .ph { color: #fcd34d; }
+        .attribution {
+            margin-top: 1.8rem; padding-top: 1rem; border-top: 1px dashed var(--card-border);
+            font-size: 0.86rem; color: var(--text-muted); font-weight: 600;
+        }
+
+        .export-bar { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.4rem 0 0.5rem; }
+        .export-btn {
+            padding: 0.55rem 1.15rem; border-radius: 14px; font-size: 0.88rem; font-weight: 700;
+            font-family: inherit; cursor: pointer; border: 1px solid rgba(79,70,229,0.35);
+            background: transparent; color: var(--primary); transition: all 0.2s;
+        }
+        .export-btn:hover { background: rgba(79,70,229,0.1); transform: translateY(-1px); }
+        .export-btn:active { transform: translateY(0); }
+        .export-btn.primary { background: #4f46e5; color: #fff; border-color: #4f46e5; box-shadow: 0 4px 14px rgba(79,70,229,0.25); }
+        .export-btn.primary:hover { background: #4338ca; }
+        .export-hint { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+        .license-block {
+            margin-top: 2rem; padding: 1.4rem 1.5rem; border-radius: 22px;
+            background: rgba(217,119,6,0.08); border: 1px solid rgba(217,119,6,0.24);
+            font-size: 0.9rem;
+        }
+        .license-block h2 { font-size: 1.05rem; margin: 0 0 0.7rem; color: var(--text-main); border: none; padding: 0; }
+        .license-block p { margin: 0.5rem 0; }
+        .license-block strong { color: #b45309; }
+        .quick-links { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.2rem; }
+        .quick-links a { font-size: 0.85rem; font-weight: 600; padding: 0.35rem 0.9rem; border-radius: 30px; background: rgba(79,70,229,0.06); border: 1px solid rgba(79,70,229,0.14); }
+        .quick-links a:hover { background: rgba(79,70,229,0.14); }
+
+        .lang-bar { width: 100%; max-width: 880px; margin: 0 auto; display: flex; justify-content: flex-end; padding: 0.8rem 0 0; }
+        .lang-switch { display: inline-flex; background: rgba(148,163,184,0.15); border-radius: 30px; padding: 3px; }
+        .lang-btn { padding: 6px 16px; border: none; border-radius: 24px; background: transparent; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s; font-family: inherit; outline: none; -webkit-appearance: none; }
+        .lang-btn.active { background: #4f46e5; color: #fff !important; box-shadow: 0 2px 8px rgba(79,70,229,0.25); }
+        .lang-btn:hover:not(.active) { color: var(--text-main); }
+
+        @media (max-width: 640px) {
+            .container { padding: 2rem 1.2rem; border-radius: 24px; }
+            .field-grid { grid-template-columns: 1fr; }
+            .preview-card { padding: 1.4rem 1.2rem; }
+        }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+        /* PDF：浏览器打印，只保留协议正文与来源声明 */
+        @media print {
+            @page { size: A4; margin: 18mm 16mm; }
+            body { background: #fff !important; color: #111 !important; padding: 0 !important; display: block !important; }
+            .lang-bar, .back-home, .callout, .form-block, .tabs, .export-bar,
+            .export-hint, .license-block, .quick-links, .no-print { display: none !important; }
+            .container { max-width: none; margin: 0; padding: 0; border: 0; border-radius: 0; box-shadow: none; background: #fff !important; }
+            .preview-card { border: 0; background: #fff !important; padding: 0; max-height: none; overflow: visible; border-radius: 0; }
+            .preview-card h2, .preview-card h3, .preview-card p { color: #111 !important; }
+            .preview-card h3 { break-after: avoid; page-break-after: avoid; }
+            .ph { background: none; color: #b45309; }
+            .attribution { color: #333 !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lang-bar">
+        <div class="lang-switch" role="group" aria-label="语言 / Language">
+            <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+            <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <a href="index.html" class="back-home" id="backHomeBtn">
+            <span class="zh-inline">← 返回首页</span><span class="en-inline">← Back to Home</span>
+        </a>
+
+        <div class="zh-text">
+            <h1>📄 协议模板中心</h1>
+            <div class="subhead">最后更新：2026 年 11 月 11 日 ｜ 适用于平台 5.0.0 合规新规</div>
+        </div>
+        <div class="en-text">
+            <h1>📄 Legal Template Center</h1>
+            <div class="subhead">Last updated: November 11, 2026 ｜ For Platform v5.0.0 compliance</div>
+        </div>
+
+        <div class="callout zh-text">
+            <strong>⚠️ 5.0.0 新规：</strong>自 2026 年 11 月 15 日起，所有提交到平台的游戏（无论外链还是代码形式）都必须具备「用户协议」「隐私政策」「服务条款」。缺少法律协议的游戏将无法通过审核。请填写下方信息、选择模板并导出，将成品协议部署到您的游戏中，再把链接通过投稿或「更新游戏」表单提交给平台。
+        </div>
+        <div class="callout en-text">
+            <strong>⚠️ Platform v5.0.0:</strong> Effective November 15, 2026, every game submitted to the Platform — whether as a link or as source code — must provide an EULA, a Privacy Policy and Terms of Service. Games without legal agreements cannot pass review. Fill in the fields below, choose a template, export it, host it with your game, and submit the links via the submission or "Update a Game" form.
+        </div>
+
+        <div class="form-block no-print">
+            <div class="form-title">
+                <span class="zh-inline">✏️ 填写信息（内容会实时替换下方预览与导出文件）</span>
+                <span class="en-inline">✏️ Your details (preview and exports update instantly)</span>
+            </div>
+            <div class="field-grid">
+                <div class="field">
+                    <label for="fGame"><span class="zh-inline">游戏名称</span><span class="en-inline">Game name</span></label>
+                    <input type="text" id="fGame" autocomplete="off" placeholder="【在此填写游戏名称 / Enter Game Name】">
+                </div>
+                <div class="field">
+                    <label for="fDev"><span class="zh-inline">开发者名称</span><span class="en-inline">Developer name</span></label>
+                    <input type="text" id="fDev" autocomplete="off" placeholder="【在此填写开发者名称 / Enter Developer Name】">
+                </div>
+                <div class="field">
+                    <label for="fContact"><span class="zh-inline">联系方式</span><span class="en-inline">Contact</span></label>
+                    <input type="text" id="fContact" autocomplete="off" placeholder="【在此填写联系方式 / Enter Contact】">
+                </div>
+                <div class="field">
+                    <label for="fDate"><span class="zh-inline">生效日期</span><span class="en-inline">Effective date</span></label>
+                    <input type="text" id="fDate" autocomplete="off" placeholder="【在此填写生效日期 / Enter Effective Date】">
+                </div>
+            </div>
+            <div class="form-hint">
+                <span class="zh-inline">留空的字段会在预览与导出文件中保留醒目的黄色占位符，方便您后续补齐。</span>
+                <span class="en-inline">Empty fields keep the highlighted yellow placeholders in the preview and exported files.</span>
+            </div>
+        </div>
+
+        <div class="tabs no-print" role="tablist" aria-label="Legal template type">
+            <button class="tab-btn active" type="button" data-tpl="eula" role="tab" aria-selected="true">
+                <span class="zh-inline">📜 用户协议</span><span class="en-inline">📜 EULA</span>
+            </button>
+            <button class="tab-btn" type="button" data-tpl="privacy" role="tab" aria-selected="false">
+                <span class="zh-inline">🛡️ 隐私政策</span><span class="en-inline">🛡️ Privacy Policy</span>
+            </button>
+            <button class="tab-btn" type="button" data-tpl="terms" role="tab" aria-selected="false">
+                <span class="zh-inline">⚖️ 服务条款</span><span class="en-inline">⚖️ Terms of Service</span>
+            </button>
+        </div>
+
+        <div class="preview-card" id="previewCard" aria-live="polite">
+            <div id="previewBody"></div>
+        </div>
+
+        <div class="export-bar no-print">
+            <button class="export-btn" type="button" data-export="md">⬇ Markdown</button>
+            <button class="export-btn" type="button" data-export="txt">⬇ TXT</button>
+            <button class="export-btn" type="button" data-export="html">⬇ HTML</button>
+            <button class="export-btn" type="button" data-export="word">⬇ Word (.doc)</button>
+            <button class="export-btn primary" type="button" data-export="pdf">🖨️ PDF</button>
+        </div>
+        <div class="export-hint no-print">
+            <span class="zh-inline">PDF 会打开浏览器打印窗口，请在目标打印机中选择「另存为 PDF / Save as PDF」。全部导出文件末尾都会自动附带来源声明。</span>
+            <span class="en-inline">PDF opens your browser's print dialog — choose "Save as PDF" as the destination. Every exported file automatically includes the attribution notice at the end.</span>
+        </div>
+
+        <div class="license-block">
+            <div class="zh-text">
+                <h2>⚖️ 开源授权与法律声明</h2>
+                <p><strong>本模板由了了了游（Leleleling Studio）基于 Apache License 2.0 协议开源提供。您可免费使用，但必须在游戏内保留并展示「本法律条款由了了了游提供」的声明。</strong></p>
+                <p>该授权范围<strong>仅适用于本页面提供的协议模板文本</strong>，不延伸至本平台站点源码、设计、游戏内容或第三方素材；本平台整体代码同样依 Apache License 2.0 开源，详见仓库根目录 <code>LICENSE</code>。您使用模板时须保留上述版权与授权声明，不得以本平台名义为您的游戏背书。</p>
+                <p>本模板仅作为通用参考范本提供，<strong>不构成法律意见，也不保证满足任何特定司法辖区、分发渠道或业务场景的全部合规要求</strong>。请结合您的游戏实际情况（数据收集范围、收费、未成年人保护、第三方 SDK 等）自行审阅、修改并在必要时咨询专业律师；因使用或依赖本模板产生的合规责任由您自行承担。</p>
+                <p>需要为未提交专属协议的游戏提供兜底说明时，可查看平台<a href="generic_eula.html">通用用户协议</a>、<a href="generic_privacy.html">通用隐私政策</a>与<a href="generic_tos.html">通用服务条款</a>。</p>
+            </div>
+            <div class="en-text">
+                <h2>⚖️ Open-Source Licence and Legal Notice</h2>
+                <p><strong>These templates are provided by lelele Game (Leleleling Studio) as open source under the Apache License 2.0. You may use them free of charge, provided that you retain and display the notice "本法律条款由了了了游提供 / These legal terms are provided by lelele Game" within your game.</strong></p>
+                <p>This licence applies <strong>only to the agreement template text on this page</strong>. It does not extend to the Platform's site source code, design, game content or third-party assets (the Platform's codebase is likewise released under Apache License 2.0; see the <code>LICENSE</code> file at the repository root). You must retain the copyright and licence notices above, and must not present the Platform as endorsing your game.</p>
+                <p>The templates are provided as general reference drafts and <strong>do not constitute legal advice, nor do they guarantee full compliance with any particular jurisdiction, distribution channel or business scenario</strong>. Please review and adapt them to your own circumstances (data collection, payments, protection of minors, third-party SDKs, etc.) and consult a qualified lawyer where necessary. Responsibility for compliance arising from use of or reliance on these templates rests with you.</p>
+                <p>For games without dedicated agreements, see the Platform's <a href="generic_eula.html?lang=en">generic EULA</a>, <a href="generic_privacy.html?lang=en">generic Privacy Policy</a> and <a href="generic_tos.html?lang=en">generic Terms of Service</a>.</p>
+            </div>
+        </div>
+
+        <div class="quick-links no-print">
+            <a href="user_agreement.html"><span class="zh-inline">用户协议</span><span class="en-inline">User Agreement</span></a>
+            <a href="game_rules.html"><span class="zh-inline">游戏守则 5.0.0</span><span class="en-inline">Game Rules 5.0.0</span></a>
+            <a href="docs.html"><span class="zh-inline">文档中心</span><span class="en-inline">Docs</span></a>
+        </div>
+    </div>
+
+    <script src="common.js" defer></script>
+    <script src="legal_generic.js" defer></script>
+    <script>
+    (function () {
+        'use strict';
+
+        var PH = {
+            GAME:    '【在此填写游戏名称 / Enter Game Name】',
+            DEV:     '【在此填写开发者名称 / Enter Developer Name】',
+            CONTACT: '【在此填写联系方式 / Enter Contact】',
+            DATE:    '【在此填写生效日期 / Enter Effective Date】'
+        };
+        var TOKEN_RE = /\{\{(GAME|DEV|CONTACT|DATE)\}\}/g;
+
+        // 三套模板 × 中英双语。段落用 \n\n 分隔，首行是分节标题（以 ### 开头）。
+        var TEMPLATES = {
+            zh: {
+                eula: {
+                    title: '{{GAME}} 用户协议',
+                    sub: '生效日期：{{DATE}} ｜ 开发者：{{DEV}}',
+                    body: [
+                        '### 第一条 · 协议范围',
+                        '本《用户协议》（以下简称「本协议」）由您与 {{DEV}}（以下简称「我们」）就游戏《{{GAME}}》（以下简称「本游戏」）订立。您下载、安装、注册或开始使用本游戏，即表示已阅读并同意本协议全部条款。如您不同意，请立即停止使用并卸载本游戏。',
+                        '### 第二条 · 账号与数据',
+                        '为提供服务，我们可能收集必要的设备信息、游戏进度与账号标识，具体范围与用途以本游戏《隐私政策》为准。您应妥善保管账号凭证，因保管不当造成的损失由您自行承担。',
+                        '### 第三条 · 使用规范',
+                        '您承诺不以作弊、外挂、脚本、逆向工程、批量注册或其他不当方式使用本游戏，不利用本游戏从事违法、侵权、欺诈或传播恶意代码的行为，不干扰其他玩家的正常体验。',
+                        '### 第四条 · 知识产权',
+                        '本游戏及其名称、美术、音乐、关卡设计、代码与文字内容的知识产权归 {{DEV}} 或相应权利人所有。未经书面许可，不得复制、修改、反编译、出租、分发或用于商业用途。',
+                        '### 第五条 · 服务变更与责任限制',
+                        '我们可因版本更新、安全维护或合规要求调整、暂停或终止本游戏的部分功能，并将在合理范围内提前告知。在法律允许的最大范围内，我们对因不可抗力、第三方服务中断或您自身操作导致的间接损失不承担责任。',
+                        '### 第六条 · 协议变更与联系',
+                        '本协议可随版本更新而修订，修订后于游戏内公布即生效；继续使用视为接受。如对本协议有疑问、意见或投诉，请通过 {{CONTACT}} 与我们联系，我们将在合理期限内回复。'
+                    ]
+                },
+                privacy: {
+                    title: '{{GAME}} 隐私政策',
+                    sub: '生效日期：{{DATE}} ｜ 开发者：{{DEV}}',
+                    body: [
+                        '### 第一条 · 适用范围',
+                        '本《隐私政策》说明 {{DEV}} 在游戏《{{GAME}}》中如何收集、使用、存储与保护您的个人信息。使用本游戏即表示您已了解并同意本政策。若本游戏通过第三方平台分发，该平台自身的隐私规则另受其政策约束。',
+                        '### 第二条 · 我们收集的信息',
+                        '我们仅收集实现游戏功能所必需的信息，可能包括：设备型号与系统版本、语言与地区设置、游戏进度与成就、崩溃与性能日志，以及（如涉及账号功能）您主动提供的昵称或邮箱。我们不会收集与本游戏功能无关的敏感个人信息。',
+                        '### 第三条 · 使用目的与法律依据',
+                        '上述信息用于提供与维护游戏服务、保存进度、排查故障、防范作弊与滥用、履行法定义务以及在取得您同意的前提下发送必要通知。我们不会将个人信息用于与本游戏无关的商业营销，亦不会出售您的个人信息。',
+                        '### 第四条 · 存储、安全与第三方',
+                        '信息在提供服务所必需的期限内保存，并采取加密传输、访问控制等措施保护。若本游戏接入分析、广告、支付或云存储等第三方服务，相关处理以该第三方的政策为准；我们会在接入前进行必要评估。除法律法规要求或为保护合法权益所必需外，我们不会向无关第三方披露您的个人信息。',
+                        '### 第五条 · 您的权利',
+                        '您有权查询、更正、导出或删除您的个人信息，撤回此前给予的同意，或注销账号。请通过 {{CONTACT}} 提出申请，我们将在核实身份后的合理期限内处理。部分信息因法定留存义务可能无法立即删除，我们会向您说明。',
+                        '### 第六条 · 未成年人保护',
+                        '若您为未成年人，请在监护人陪同下阅读本政策并在其同意后使用本游戏。我们不会故意收集超出必要范围的未成年人信息；如发现误收集，将及时删除。',
+                        '### 第七条 · 更新与联系',
+                        '本政策可能因功能调整或合规要求更新，更新后于游戏内公布。有关个人信息处理的任何问题，请通过 {{CONTACT}} 联系 {{DEV}}。'
+                    ]
+                },
+                terms: {
+                    title: '{{GAME}} 服务条款',
+                    sub: '生效日期：{{DATE}} ｜ 开发者：{{DEV}}',
+                    body: [
+                        '### 第一条 · 服务说明',
+                        '本《服务条款》由您与 {{DEV}} 就游戏《{{GAME}}》的服务订立。本游戏按「现状」提供，我们不对特定设备、网络环境或持续可用性作出绝对保证。',
+                        '### 第二条 · 使用许可',
+                        '在您遵守本协议的前提下，我们授予您一项有限的、非独占的、不可转让的、可撤销的个人使用许可，仅供您在个人设备上非商业性地游玩本游戏。',
+                        '### 第三条 · 禁止行为',
+                        '您不得：使用作弊工具、外挂、脚本或利用漏洞获利；倒卖账号、虚拟物品或进行未授权交易；逆向工程、反编译或篡改客户端；发布违法、侵权、骚扰或误导性内容；攻击服务器、抓取数据或干扰他人使用。违反者可能被限制或终止服务。',
+                        '### 第四条 · 收费与虚拟内容',
+                        '若本游戏提供付费内容或虚拟物品，具体价格、交付与退款规则将在购买页面另行说明并适用相关法律法规。虚拟物品不具有法定货币价值，除法律另有规定外不予兑付或退款。',
+                        '### 第五条 · 服务变更与终止',
+                        '我们可因更新、维护、安全或合规原因变更、暂停或终止部分或全部服务，并在合理范围内提前通知。因您违约或法律法规要求终止服务的，未使用的付费权益按适用规则处理。',
+                        '### 第六条 · 免责与责任限制',
+                        '在法律允许的最大范围内，对于因不可抗力、网络或第三方服务故障、设备兼容性、您自身操作或未经授权的修改所导致的损失，我们不承担间接、附带或后果性责任。本条不影响法律赋予您的强制性权利。',
+                        '### 第七条 · 适用法律与争议',
+                        '本条款的订立、履行与解释适用相关法律法规。争议应先友好协商；协商不成的，依法向有管辖权的人民法院提起诉讼。意见与投诉请联系 {{CONTACT}}。'
+                    ]
+                }
+            },
+            en: {
+                eula: {
+                    title: '{{GAME}} End User License Agreement',
+                    sub: 'Effective: {{DATE}} ｜ Developer: {{DEV}}',
+                    body: [
+                        '### 1. Scope',
+                        'This End User License Agreement (the "Agreement") is concluded between you and {{DEV}} ("we", "us") regarding the game {{GAME}} (the "Game"). By downloading, installing, registering for or playing the Game, you confirm that you have read and accepted this Agreement in full. If you do not agree, please stop using and uninstall the Game.',
+                        '### 2. Accounts and Data',
+                        'To provide the service we may collect device information, game progress and account identifiers necessary for operation; the scope and purposes are described in the Game\'s Privacy Policy. You are responsible for safeguarding your credentials, and bear losses caused by your own failure to do so.',
+                        '### 3. Acceptable Use',
+                        'You agree not to use cheats, bots, scripts, reverse engineering or bulk registration, not to use the Game for unlawful, infringing, fraudulent or malicious-code activity, and not to interfere with other players\' enjoyment.',
+                        '### 4. Intellectual Property',
+                        'The Game and its name, artwork, music, level design, code and text are owned by {{DEV}} or the respective rights holders. You may not copy, modify, decompile, rent, distribute or use them commercially without written permission.',
+                        '### 5. Changes and Limitation of Liability',
+                        'We may adjust, suspend or discontinue parts of the Game for updates, security maintenance or compliance reasons, with reasonable advance notice where practicable. To the maximum extent permitted by law, we are not liable for indirect losses caused by force majeure, third-party outages or your own actions.',
+                        '### 6. Amendments and Contact',
+                        'This Agreement may be revised with new versions; revisions take effect upon publication in the Game and continued use constitutes acceptance. For questions, comments or complaints, contact us at {{CONTACT}}; we will respond within a reasonable period.'
+                    ]
+                },
+                privacy: {
+                    title: '{{GAME}} Privacy Policy',
+                    sub: 'Effective: {{DATE}} ｜ Developer: {{DEV}}',
+                    body: [
+                        '### 1. Scope',
+                        'This Privacy Policy explains how {{DEV}} collects, uses, stores and protects your personal information in {{GAME}}. By using the Game you acknowledge this Policy. If the Game is distributed via a third-party platform, that platform\'s own privacy rules apply separately.',
+                        '### 2. Information We Collect',
+                        'We collect only what is necessary to operate the Game, which may include device model and OS version, language and region settings, progress and achievements, crash and performance logs, and (where accounts are used) a nickname or email you provide voluntarily. We do not collect sensitive personal information unrelated to the Game.',
+                        '### 3. Purposes and Legal Basis',
+                        'Such information is used to provide and maintain the Game, save progress, diagnose faults, prevent cheating and abuse, comply with legal obligations, and — with your consent — send necessary notices. We do not sell your personal information or use it for unrelated marketing.',
+                        '### 4. Storage, Security and Third Parties',
+                        'Information is retained only as long as necessary and protected with encrypted transport and access controls. Where analytics, advertising, payment or cloud services are integrated, their processing is governed by their own policies and we assess them before integration. We do not disclose your information to unrelated third parties except where required by law or to protect legitimate rights.',
+                        '### 5. Your Rights',
+                        'You may request access to, correction of, export of or deletion of your personal information, withdraw consent, or delete your account. Please contact {{CONTACT}}; we will respond within a reasonable period after verifying your identity. Some data may be retained where legally required, and we will explain this to you.',
+                        '### 6. Protection of Minors',
+                        'If you are a minor, please read this Policy with a guardian and use the Game only with their consent. We do not knowingly collect unnecessary information from minors and will delete any such data promptly upon discovery.',
+                        '### 7. Updates and Contact',
+                        'This Policy may be updated for feature changes or compliance reasons; updates are published in the Game. For any question about personal data handling, contact {{DEV}} at {{CONTACT}}.'
+                    ]
+                },
+                terms: {
+                    title: '{{GAME}} Terms of Service',
+                    sub: 'Effective: {{DATE}} ｜ Developer: {{DEV}}',
+                    body: [
+                        '### 1. The Service',
+                        'These Terms of Service are concluded between you and {{DEV}} regarding {{GAME}}. The Game is provided "as is" and we do not give an absolute warranty of compatibility with any specific device, network or of uninterrupted availability.',
+                        '### 2. Licence',
+                        'Subject to your compliance, we grant you a limited, non-exclusive, non-transferable, revocable personal licence to play the Game on your own device for non-commercial purposes.',
+                        '### 3. Prohibited Conduct',
+                        'You must not: use cheats, bots, scripts or exploits for gain; trade accounts or virtual items without authorisation; reverse engineer, decompile or tamper with the client; publish unlawful, infringing, harassing or misleading content; attack servers, scrape data or disrupt other users. Breaches may result in restriction or termination of service.',
+                        '### 4. Payments and Virtual Items',
+                        'Where paid content or virtual items are offered, prices, delivery and refund rules are stated at the point of purchase and are subject to applicable law. Virtual items have no legal-tender value and, unless required by law, are not redeemable or refundable.',
+                        '### 5. Changes and Termination',
+                        'We may change, suspend or terminate part or all of the service for updates, maintenance, security or compliance reasons, with reasonable advance notice where practicable. Unused paid entitlements following termination for breach or legal reasons are handled under the applicable rules.',
+                        '### 6. Disclaimers and Limitation',
+                        'To the maximum extent permitted by law, we are not liable for indirect, incidental or consequential loss arising from force majeure, network or third-party failures, device incompatibility, your own actions or unauthorised modifications. This clause does not affect mandatory rights granted to you by law.',
+                        '### 7. Governing Law and Disputes',
+                        'These Terms are governed by applicable law. Disputes should first be resolved amicably; failing that, they shall be submitted to a court of competent jurisdiction. Comments and complaints may be sent to {{CONTACT}}.'
+                    ]
+                }
+            }
+        };
+
+        var ATTR = {
+            zh: '本法律条款由了了了游提供（基于 Apache License 2.0 开源，使用时须在游戏内保留并展示本声明）',
+            en: 'These legal terms are provided by lelele Game (open source under the Apache License 2.0; you must retain and display this notice within your game)'
+        };
+
+        var state = { type: 'eula' };
+
+        function esc(s) {
+            return String(s === null || s === undefined ? '' : s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+        function lang() { return document.documentElement.getAttribute('data-lang') === 'en' ? 'en' : 'zh'; }
+        function vals() {
+            return {
+                GAME: document.getElementById('fGame').value.trim(),
+                DEV: document.getElementById('fDev').value.trim(),
+                CONTACT: document.getElementById('fContact').value.trim(),
+                DATE: document.getElementById('fDate').value.trim()
+            };
+        }
+        function fill(text, v, forExport) {
+            return text.replace(TOKEN_RE, function (_, k) {
+                return v[k] || PH[k];
+            });
+        }
+        function docParts() {
+            var l = lang(), v = vals(), t = TEMPLATES[l][state.type];
+            var lines = [];
+            lines.push({ kind: 'title', text: fill(t.title, v) });
+            lines.push({ kind: 'sub', text: fill(t.sub, v) });
+            t.body.forEach(function (line) {
+                if (line.indexOf('### ') === 0) lines.push({ kind: 'h', text: fill(line.slice(4), v) });
+                else lines.push({ kind: 'p', text: fill(line, v) });
+            });
+            return { lang: l, type: state.type, items: lines, attribution: ATTR[l] };
+        }
+
+        function renderPreview() {
+            var d = docParts(), out = [];
+            d.items.forEach(function (it) {
+                var raw = esc(it.text);
+                // 高亮未填写的占位符（先转义再高亮，避免注入）
+                raw = raw.replace(/【在此填写[^】]*】/g, function (m) { return '<mark class="ph">' + m + '</mark>'; });
+                if (it.kind === 'title') out.push('<h2>' + raw + '</h2>');
+                else if (it.kind === 'sub') out.push('<div class="preview-sub">' + raw + '</div>');
+                else if (it.kind === 'h') out.push('<h3>' + raw + '</h3>');
+                else out.push('<p>' + raw + '</p>');
+            });
+            out.push('<div class="attribution">© ' + esc(d.attribution) + '</div>');
+            document.getElementById('previewBody').innerHTML = out.join('');
+        }
+
+        function toPlain(d, asMarkdown) {
+            var out = [];
+            d.items.forEach(function (it) {
+                if (it.kind === 'title') out.push((asMarkdown ? '# ' : '') + it.text);
+                else if (it.kind === 'sub') out.push(it.text);
+                else if (it.kind === 'h') out.push((asMarkdown ? '## ' : '') + it.text);
+                else out.push(it.text);
+                out.push('');
+            });
+            out.push('— ' + d.attribution);
+            return out.join('\n');
+        }
+        function toHtmlDoc(d, forWord) {
+            var parts = [];
+            parts.push('<!DOCTYPE html><html lang="' + d.lang + '"><head><meta charset="UTF-8">');
+            parts.push('<title>' + esc(d.items[0].text) + '</title>');
+            if (forWord) {
+                parts.push('<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->');
+                parts.push('<style>@page { size: A4; margin: 2cm; } body { font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif; line-height: 1.8; color: #111; } h1 { font-size: 20pt; } h2 { font-size: 13pt; margin-top: 18pt; } p { font-size: 10.5pt; margin: 7pt 0; }</style>');
+            } else {
+                parts.push('<style>@page{size:A4;margin:18mm 16mm}body{max-width:760px;margin:0 auto;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.9;color:#1e293b}h1{font-size:26px;border-bottom:2px solid #4f46e5;padding-bottom:10px}h2{font-size:17px;margin-top:26px;color:#4f46e5}p{font-size:14px;margin:9px 0}.sub{color:#64748b;font-size:13px;margin-bottom:24px}.attr{margin-top:32px;padding-top:14px;border-top:1px dashed #cbd5e1;color:#64748b;font-size:12px}@media print{body{max-width:none;padding:0}}</style>');
+            }
+            parts.push('</head><body>');
+            d.items.forEach(function (it, i) {
+                if (i === 0) parts.push('<h1>' + esc(it.text) + '</h1>');
+                else if (it.kind === 'sub') parts.push('<div class="sub">' + esc(it.text) + '</div>');
+                else if (it.kind === 'h') parts.push('<h2>' + esc(it.text) + '</h2>');
+                else parts.push('<p>' + esc(it.text) + '</p>');
+            });
+            parts.push('<div class="attr">© ' + esc(d.attribution) + '</div>');
+            parts.push('</body></html>');
+            return parts.join('\n');
+        }
+        function fileStem(d) {
+            var now = new Date();
+            var stamp = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0');
+            return 'lelele-legal-' + d.type + '-' + d.lang + '-' + stamp;
+        }
+        function download(content, mime, filename, bom) {
+            var payload = (bom ? '\ufeff' : '') + content;
+            var blob = new Blob([payload], { type: mime });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url; a.download = filename;
+            document.body.appendChild(a); a.click();
+            document.body.removeChild(a);
+            setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        }
+        function doExport(kind) {
+            var d = docParts(), stem = fileStem(d);
+            if (kind === 'md') download(toPlain(d, true), 'text/markdown;charset=utf-8', stem + '.md', true);
+            else if (kind === 'txt') download(toPlain(d, false), 'text/plain;charset=utf-8', stem + '.txt', true);
+            else if (kind === 'html') download(toHtmlDoc(d, false), 'text/html;charset=utf-8', stem + '.html', true);
+            else if (kind === 'word') download(toHtmlDoc(d, true), 'application/msword;charset=utf-8', stem + '.doc', true);
+            else if (kind === 'pdf') window.print();
+        }
+
+        function bind() {
+            ['fGame', 'fDev', 'fContact', 'fDate'].forEach(function (id) {
+                document.getElementById(id).addEventListener('input', renderPreview);
+            });
+            document.querySelectorAll('.tab-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    state.type = btn.dataset.tpl;
+                    document.querySelectorAll('.tab-btn').forEach(function (b) {
+                        var active = b === btn;
+                        b.classList.toggle('active', active);
+                        b.setAttribute('aria-selected', active ? 'true' : 'false');
+                    });
+                    renderPreview();
+                });
+            });
+            document.querySelectorAll('.export-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () { doExport(btn.dataset.export); });
+            });
+            if (window.MutationObserver) {
+                new MutationObserver(function () { renderPreview(); })
+                    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
+            }
+        }
+
+        function boot() {
+            renderPreview(); bind();
+            window.onReady(function () {
+                var l = lang();
+                document.querySelectorAll('.lang-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.langBtn === l); });
+                var back = document.getElementById('backHomeBtn');
+                if (back) back.href = l === 'en' ? 'index.html?lang=en' : 'index.html';
+            });
+        }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+        else boot();
+        window.leleleLegalTemplates = { state: state, parts: docParts, export: doExport, render: renderPreview };
+    })();
+    </script>
+</body>
+</html>

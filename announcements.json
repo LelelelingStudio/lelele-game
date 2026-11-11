@@ -1,5 +1,14 @@
 [
   {
+    "id": "20261111-legal-agreements-500",
+    "title_zh": "📜 合规新规：游戏守则 5.0.0 · 所有游戏须具备法律协议",
+    "title_en": "📜 Compliance Update: Game Rules v5.0.0 · Legal Agreements Required",
+    "content_zh": "《了了了游游戏守则》已更新至 **5.0.0**，自 **2026 年 11 月 15 日** 起正式生效。\n\n⚠️ **新规核心**：所有提交到平台的游戏——无论以链接还是代码形式，也无论是新投稿、推荐、收录还是后续更新——都必须具备「用户协议」「隐私政策」「服务条款」三类法律协议。缺少任一协议的游戏将无法通过审核。\n\n🔗 **外链游戏**：投稿时须分别填写三类协议的 https 可公开访问直链；链接失效或指向无关内容视为未提供。\n\n💾 **代码游戏**：可在游戏内自带协议页面并说明入口；未自带的默认使用平台提供的「万能协议」，由平台在游戏详情页自动挂载，无需开发者额外操作。\n\n📄 **免费模板**：全新上线「协议模板中心」，提供三套中英双语模板，填入游戏名称等信息即可实时预览，一键导出 Markdown / TXT / HTML / PDF / Word 五种格式（基于 Apache License 2.0 开源，须在游戏内保留「本法律条款由了了了游提供」声明）。\n\n🛟 **过渡安排**：新规生效前已收录、尚未提交专属协议的存量游戏，统一自动挂载平台万能协议，不作下架处理；开发者可随时通过后台「更新游戏」表单补齐专属链接。玩家在游戏详情页右侧的三个协议图标，即可查看该游戏适用的协议内容。\n\n📚 历史版本 4.0.0 / 4.0.1 / 4.0.2 均已在「游戏守则」页尾的历史版本索引中留存，可随时查阅。",
+    "content_en": "The lelele Game Rules have been updated to **v5.0.0**, effective **November 15, 2026**.\n\n⚠️ **What changes**: every game submitted to the Platform — whether as a link or as source code, whether a new submission, a recommendation, a listing or a later update — must provide an EULA, a Privacy Policy and Terms of Service. A game missing any of them cannot pass review.\n\n🔗 **Link-based games**: provide three separate, publicly accessible https direct URLs in the submission form. Broken or unrelated links are treated as missing.\n\n💾 **Code-based games**: you may include legal pages in-game and state where to find them; otherwise the Platform's generic agreements are mounted automatically on the game detail page, with no extra work required.\n\n📄 **Free templates**: the new Legal Template Center offers three bilingual templates. Fill in your game's details to preview instantly, then export to Markdown / TXT / HTML / PDF / Word (open source under the Apache License 2.0; retain the notice \"These legal terms are provided by lelele Game\" in-game).\n\n🛟 **Transition**: games already listed before the effective date that have not submitted dedicated agreements automatically use the Platform's generic agreements and will **not** be delisted. Developers may supply dedicated links at any time via \"Update a Game\" in the dashboard. Players can review the applicable agreements via the three icons on the right edge of each game detail page.\n\n📚 Previous versions 4.0.0 / 4.0.1 / 4.0.2 remain available via the version-history index on the Game Rules page.",
+    "publishDate": "2026-11-11",
+    "expireDate": "2026-11-25"
+  },
+  {
     "id": "20261109-update-game-rules-402",
     "title_zh": "🔄 后台「更新游戏」上线 · 游戏守则更新至 4.0.2",
     "title_en": "🔄 Update Your Game is live · Game Rules v4.0.2",

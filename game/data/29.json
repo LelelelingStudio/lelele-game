@@ -31,5 +31,10 @@
       "date": "2026-11-11",
       "content": "Initial release!"
     }
-  ]
+  ], 
+  "legal_urls": {
+    "eula": "",
+    "privacy": "",
+    "terms": ""
+  }
 }

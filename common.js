@@ -710,6 +710,7 @@ function leleleOnReady(fn) {
         footer.innerHTML = `
             © 2026 <span class="${lang === 'zh' ? 'zh-inline' : 'en-inline'}">了了了岭工作室 · 了了了游</span><span class="${lang === 'zh' ? 'en-inline' : 'zh-inline'}">Leleleling Studio · lelele Game</span> ｜
             <a href="${MAIN_SITE_URL}/game_rules.html${suffix}">${lang === 'zh' ? '游戏守则' : 'Rules'}</a> ｜
+            <a href="${MAIN_SITE_URL}/user_agreement.html${suffix}">${lang === 'zh' ? '用户协议' : 'User Agreement'}</a> ｜
             <a href="${MAIN_SITE_URL}/privacy.html${suffix}">${lang === 'zh' ? '隐私政策' : 'Privacy'}</a> ｜
             <a href="${MAIN_SITE_URL}/terms.html${suffix}">${lang === 'zh' ? '服务条款' : 'Terms'}</a> ｜
             <a href="${MAIN_SITE_URL}/copyright.html${suffix}">${lang === 'zh' ? '版权投诉' : 'Copyright'}</a>

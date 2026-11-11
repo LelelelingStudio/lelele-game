@@ -339,9 +339,9 @@
                 var url = FORMS[lang];
                 var title = lang === 'en' ? 'Lelele Game · Game Recommendation Form' : '了了了游 · 游戏推荐表单';
                 if (typeof window.mountTallyIframe === 'function') {
-                    window.mountTallyIframe(wrap, url, { title: title, height: 640 });
+                    window.mountTallyIframe(wrap, url, { title: title, height: 900 });
                 } else {
-                    wrap.innerHTML = '<iframe src="' + url + '" loading="eager" width="100%" height="640" frameborder="0" referrerpolicy="strict-origin-when-cross-origin" title="' + title + '"></iframe>';
+                    wrap.innerHTML = '<iframe src="' + url + '" loading="eager" width="100%" height="900" frameborder="0" referrerpolicy="strict-origin-when-cross-origin" title="' + title + '"></iframe>';
                 }
             }
 

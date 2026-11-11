@@ -363,6 +363,83 @@
             .top-bar { padding: 10px 16px; }
             .screenshots-grid { grid-template-columns: 1fr; }
         }
+
+        /* 4.1.0 / 规则 5.0.0：详情页法律协议入口（挂在卡片外层，避免 overflow:hidden 裁切气泡） */
+        .legal-rail {
+            position: fixed;
+            right: max(10px, calc((100vw - 900px) / 2 - 52px));
+            top: 50%; transform: translateY(-50%);
+            display: none; flex-direction: column; gap: 10px;
+            z-index: 60; opacity: 0.45;
+            transition: opacity 0.2s ease;
+        }
+        .legal-rail.is-visible { display: flex; }
+        .legal-rail:hover, .legal-rail:focus-within { opacity: 1; }
+        .legal-rail-btn {
+            position: relative; width: 38px; height: 38px; border-radius: 50%;
+            border: 1px solid var(--card-border); background: var(--card-bg);
+            color: var(--text-main); font-size: 1.05rem; line-height: 1;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+        .legal-rail-btn:hover, .legal-rail-btn:focus-visible {
+            transform: translateY(-2px); border-color: var(--primary);
+            box-shadow: 0 6px 18px rgba(79,70,229,0.22); outline: none;
+        }
+        .legal-rail-btn .legal-tip {
+            position: absolute; right: 48px; top: 50%; transform: translateY(-50%) translateX(6px);
+            white-space: nowrap; padding: 0.32rem 0.72rem; border-radius: 10px;
+            background: rgba(30,41,59,0.92); color: #fff; font-size: 0.76rem; font-weight: 600;
+            opacity: 0; pointer-events: none; transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+        .legal-rail-btn:hover .legal-tip, .legal-rail-btn:focus-visible .legal-tip {
+            opacity: 1; transform: translateY(-50%) translateX(0);
+        }
+        .legal-rail-btn .zh-inline, .legal-rail-btn .en-inline { white-space: nowrap; }
+
+        .legal-modal {
+            position: fixed; inset: 0; z-index: 1200; display: none;
+            align-items: center; justify-content: center; padding: 20px;
+            background: rgba(15,23,42,0.55); backdrop-filter: blur(6px);
+        }
+        .legal-modal.active { display: flex; }
+        .legal-modal-box {
+            background: var(--card-bg); color: var(--text-main);
+            border: 1px solid var(--card-border); border-radius: 24px;
+            width: 100%; max-width: 720px; max-height: 84vh; overflow-y: auto;
+            padding: 2rem 2.2rem; box-shadow: 0 24px 70px rgba(0,0,0,0.22);
+        }
+        .legal-modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.6rem; }
+        .legal-modal-head h3 { font-size: 1.2rem; margin: 0; }
+        .legal-modal-close {
+            border: 0; background: transparent; color: var(--text-muted);
+            font-size: 1.6rem; line-height: 1; cursor: pointer; padding: 0 0.3rem;
+        }
+        .legal-modal-close:hover { color: var(--text-main); }
+        .legal-modal-sub { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--card-border); }
+        .legal-modal-box h4 { font-size: 1rem; margin: 1.3rem 0 0.4rem; }
+        .legal-modal-box p { font-size: 0.9rem; line-height: 1.85; margin: 0.55rem 0; }
+        .legal-modal-note {
+            margin: 0 0 1.1rem; padding: 0.75rem 1rem; border-radius: 14px;
+            background: rgba(217,119,6,0.09); border: 1px solid rgba(217,119,6,0.22); font-size: 0.86rem;
+        }
+        .legal-modal-foot { margin-top: 1.6rem; padding-top: 0.9rem; border-top: 1px dashed var(--card-border); font-size: 0.8rem; color: var(--text-muted); }
+        .legal-modal-foot a { color: var(--primary); }
+
+        @media (max-width: 1080px) {
+            .legal-rail {
+                position: static; transform: none;
+                flex-direction: row; justify-content: center; flex-wrap: wrap;
+                margin: 14px auto 0; opacity: 0.72;
+            }
+            .legal-rail-btn .legal-tip { right: auto; left: 50%; top: auto; bottom: 46px; transform: translateX(-50%) translateY(6px); }
+            .legal-rail-btn:hover .legal-tip, .legal-rail-btn:focus-visible .legal-tip { transform: translateX(-50%) translateY(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .legal-rail, .legal-rail-btn, .legal-tip { transition: none !important; }
+        }
+
     </style>
 </head>
 <body>
@@ -446,6 +523,33 @@
 
     </div>
 
+
+        <!-- 4.1.0：法律协议入口（放在 .main-container 之外，卡片 overflow:hidden 不会裁切气泡） -->
+        <div class="legal-rail" id="legalRail" role="group" aria-label="Legal agreements">
+            <button class="legal-rail-btn" type="button" data-legal="eula" aria-label="用户协议 / EULA">
+                <span aria-hidden="true">📜</span>
+                <span class="legal-tip"><span class="zh-inline">用户协议</span><span class="en-inline">EULA</span></span>
+            </button>
+            <button class="legal-rail-btn" type="button" data-legal="privacy" aria-label="隐私政策 / Privacy Policy">
+                <span aria-hidden="true">🛡️</span>
+                <span class="legal-tip"><span class="zh-inline">隐私政策</span><span class="en-inline">Privacy Policy</span></span>
+            </button>
+            <button class="legal-rail-btn" type="button" data-legal="terms" aria-label="服务条款 / Terms of Service">
+                <span aria-hidden="true">⚖️</span>
+                <span class="legal-tip"><span class="zh-inline">服务条款</span><span class="en-inline">Terms of Service</span></span>
+            </button>
+        </div>
+
+        <div class="legal-modal" id="legalModal" role="dialog" aria-modal="true" aria-labelledby="legalModalTitle">
+            <div class="legal-modal-box">
+                <div class="legal-modal-head">
+                    <h3 id="legalModalTitle"></h3>
+                    <button class="legal-modal-close" type="button" id="legalModalClose" aria-label="Close">×</button>
+                </div>
+                <div id="legalModalBody"></div>
+            </div>
+        </div>
+
     <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
         <span class="lightbox-close">&times;</span>
         <img id="lightboxImg" src="" alt="Preview" onclick="event.stopPropagation()">
@@ -456,6 +560,7 @@
     <script src="common.js" defer></script>
     <script src="supabase-client.js" defer></script>
     <script src="notice.js" defer></script>
+    <script src="legal_generic.js" defer></script>
 
     <script>
         // 兜底：本地保留 escapeHtml，避免 Cloudflare 缓存旧版 common.js 时本页调用未定义函数而整页崩溃
@@ -826,6 +931,131 @@
             updateFavBtn();
         }
 
+
+        // ---------- 4.1.0 / 规则 5.0.0：法律协议入口与逐字段降级 ----------
+        var LEGAL_KINDS = ['eula', 'privacy', 'terms'];
+        var legalModalKind = 'eula';
+
+        function setLegalRailVisible(visible) {
+            var rail = document.getElementById('legalRail');
+            if (rail) rail.classList.toggle('is-visible', !!visible);
+        }
+
+        // 只接受 https 直链；字段缺失 / 空串 / 非字符串 / 非法 URL 一律降级到平台万能协议
+        function safeLegalUrl(value) {
+            if (typeof value !== 'string') return null;
+            var s = value.trim();
+            // 拒绝内嵌空白与控制字符；new URL() 会把空格静默编码为 %20，需提前拦截
+            if (!s || /[\s\u0000-\u001f\u007f]/.test(s)) return null;
+            // https:// 之后必须紧跟主机名（不接受 https:///path 这类被解析器补全的地址）
+            if (!/^https:\/\/[^\/?#\s]+/i.test(s)) return null;
+            try {
+                var u = new URL(s);
+                return (u.protocol === 'https:' && u.hostname) ? u.href : null;
+            } catch (e) { return null; }
+        }
+
+        function currentLegalUrls() {
+            var d = (typeof currentGameData !== 'undefined' && currentGameData) ? currentGameData : null;
+            return (d && d.legal_urls && typeof d.legal_urls === 'object') ? d.legal_urls : {};
+        }
+
+        function closeLegalModal() {
+            var modal = document.getElementById('legalModal');
+            if (modal) modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function renderLegalModal(kind) {
+            var body = document.getElementById('legalModalBody');
+            var title = document.getElementById('legalModalTitle');
+            if (!body || !title) return;
+            var lang = isEn() ? 'en' : 'zh';
+            var data = window.LELELE_GENERIC_AGREEMENTS;
+            if (!data || !data[lang] || !data[lang][kind]) {
+                title.textContent = isEn() ? 'Agreement' : '协议';
+                body.textContent = isEn()
+                    ? 'Unable to load the agreement at the moment. Please refresh and try again.'
+                    : '协议正文暂时无法载入，请刷新后重试。';
+                return;
+            }
+            var doc = data[lang][kind];
+            title.textContent = doc.title;
+            body.textContent = '';
+
+            var sub = document.createElement('div');
+            sub.className = 'legal-modal-sub';
+            sub.textContent = doc.subtitle;
+            body.appendChild(sub);
+
+            var note = document.createElement('div');
+            note.className = 'legal-modal-note';
+            note.textContent = doc.notice;
+            body.appendChild(note);
+
+            doc.sections.forEach(function (sec) {
+                var h = document.createElement('h4');
+                h.textContent = sec.heading;
+                body.appendChild(h);
+                sec.paragraphs.forEach(function (text) {
+                    var para = document.createElement('p');
+                    para.textContent = text;
+                    body.appendChild(para);
+                });
+            });
+
+            var foot = document.createElement('div');
+            foot.className = 'legal-modal-foot';
+            var link = document.createElement('a');
+            var pageMap = { eula: 'generic_eula.html', privacy: 'generic_privacy.html', terms: 'generic_tos.html' };
+            link.href = pageMap[kind] + (isEn() ? '?lang=en' : '');
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = isEn() ? 'Open the full agreement in a new tab ↗' : '在新标签查看完整协议 ↗';
+            foot.appendChild(link);
+            body.appendChild(foot);
+        }
+
+        function openLegal(kind) {
+            if (LEGAL_KINDS.indexOf(kind) < 0) return;
+            var url = safeLegalUrl(currentLegalUrls()[kind]);
+            if (url) {
+                var a = document.createElement('a');
+                a.href = url;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                if (a.parentNode) a.parentNode.removeChild(a);
+                return;
+            }
+            legalModalKind = kind;
+            renderLegalModal(kind);
+            var modal = document.getElementById('legalModal');
+            if (modal) modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest ? e.target.closest('[data-legal]') : null;
+            if (btn) { openLegal(btn.getAttribute('data-legal')); return; }
+            if (e.target && e.target.id === 'legalModalClose') { closeLegalModal(); return; }
+            if (e.target && e.target.id === 'legalModal') { closeLegalModal(); }
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeLegalModal();
+        });
+        function onLegalLangChange() {
+            var modal = document.getElementById('legalModal');
+            if (modal && modal.classList.contains('active')) renderLegalModal(legalModalKind);
+        }
+        window.addEventListener('langChanged', onLegalLangChange);
+        if (window.MutationObserver) {
+            new MutationObserver(onLegalLangChange)
+                .observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
+        }
+
         async function init() {
             const urlParams = new URLSearchParams(window.location.search);
             currentGameId = urlParams.get('id');
@@ -843,6 +1073,7 @@
                     renderGamePage(currentGameData);
                     document.getElementById('loadingState').style.display = 'none';
                     document.getElementById('gameCard').style.display = 'block';
+                    setLegalRailVisible(true);
                     return;
                 }
                 
@@ -874,6 +1105,7 @@
                         renderGamePage(currentGameData);
                         document.getElementById('loadingState').style.display = 'none';
                         document.getElementById('gameCard').style.display = 'block';
+                        setLegalRailVisible(true);
                         return;
                     }
                 }
@@ -888,6 +1120,7 @@
         function showError(msg) {
             document.getElementById('loadingState').style.display = 'none';
             document.getElementById('gameCard').style.display = 'none';
+            setLegalRailVisible(false);
             document.getElementById('errorState').style.display = 'block';
             document.getElementById('errorMsg').textContent = msg;
         }

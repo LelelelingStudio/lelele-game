@@ -39,7 +39,13 @@ lelele-game/
 ├── login.html            # 开发者登录/注册
 ├── dashboard.html        # 开发者后台
 ├── developer_docs.html   # 开发者文档
-├── privacy.html / terms.html / copyright.html   # 合规页
+├── privacy.html / terms.html / copyright.html   # 合规页（平台自身）
+├── user_agreement.html       # 用户协议（平台与用户）
+├── legal_templates.html      # 协议模板中心（三套中英模板 + 五种导出）
+├── generic_eula.html / generic_privacy.html / generic_tos.html  # 平台万能协议（存量兜底）
+├── legal_generic.js          # ★ 万能协议公共常量，三页与 game.html 弹窗共用
+├── game_rules.html           # 游戏守则当前版（5.0.0）
+├── game_rules4-0-0.html / game_rules4-0-1.html / game_rules4-0-2.html  # 规则历史留存（每版一份）
 ├── 404.html / sitemap.html / sitemap.xml / robots.txt
 ├── common.css            # ★ 全局样式（设计令牌、导航、灵动岛、卡片、弹窗…）
 ├── common.js             # ★ 全局脚本（主题/活动/雪花/页脚/浮动工具/公告/登录注入）
@@ -163,7 +169,9 @@ lelele-game/
 - **B（中版本 / Minor）**：功能级升级，AI 可自行决定，但不要太频繁。
 - **C（微版本 / Patch）**：修修补补。
 
-> 当前版本：**4.0.16**（起点 3.3.0）。4.0.0 起为「超级 UI 大重构（苹果风 + 灵动岛）」A 升级，已获用户授权；4.0.2–4.0.10 等中间版本改动详见 `changelog.json`。
+> 当前版本：**4.1.0**（B 中版本，起点 3.3.0）。4.0.0 起为「超级 UI 大重构（苹果风 + 灵动岛）」A 升级，已获用户授权；4.0.2–4.0.16 等中间版本改动详见 `changelog.json`。
+>
+> ⚠️ **版本号双轨，切勿混淆**：`5.0.0` 是《游戏守则》`game_rules.html` 的**规则版本号**，不是站点版本号；站点版本号与 `changelog.json` 走独立的三段式（4.1.0 为 B 中版本）。规则升大版本不受「A 升级须经 David 同意」约束，站点 A 升级仍需授权。
 
 每次发版在 `changelog.json` 数组**头部** `unshift` 一条（含 `version`、`date`、`content_zh`、`content_en`）。
 
@@ -276,3 +284,16 @@ lelele-game/
   - **`sw.js` 加注释并升 `CACHE_NAME` 到 v1.7**（策略三分支不动）清理 v1.6 旧缓存；`changelog` / 手册同步到 4.0.16。
   - **范围说明**：本轮曾评估并写入一轮国内外缓存加速改造（双层缓存 / 全入口注册 / 数据兜底），用户决定暂不做，已全部撤销，4.0.16 不含任何缓存策略改动。
   - **验证**：dashboard 中英表单按语言直连挂载、按钮显隐、语言切换重挂、提交闭环；规则页中英 4.0.2 与归类条款可见；两类公告 JSON 通过 `common.js` 日期过滤与 `notice.js` 的 `author` / `inTimeWindow` 判定；全部 JS 与 HTML 内联脚本语法 0 失败、lint 0 错误、0 个站点 JS 运行时错误。
+
+
+- **2026-11-11 · 4.1.0（Minor）/ 游戏守则 5.0.0（规则 A 版本）**：合规与协议升级，2026-11-15 生效。
+  - **版本双轨（重要）**：`5.0.0` 只属于《游戏守则》`game_rules.html`；站点更新日志只新增一条 **4.1.0**（B 中版本，由 4.0.16 递进，次位 +1 / 微归零）。`changelog.json` 头部不得写成 5.0.0。规则每个版本都要留存：4.0.2 复制为 `game_rules4-0-2.html`，页尾历史索引补该版本、回退口径与链接改为 4.0.2；4.0.0 / 4.0.1 快照正文不动。
+  - **新页面**：`user_agreement.html`（平台用户协议）、`legal_templates.html`（三套中英双语模板 + 醒目占位符实时替换 + Markdown/TXT/HTML/PDF/Word 五种导出 + Apache-2.0 强声明与范围限定）、`generic_eula.html` / `generic_privacy.html` / `generic_tos.html`（存量兜底万能协议）。
+  - **公共数据源**：`legal_generic.js` 暴露 `window.LELELE_GENERIC_AGREEMENTS`，按语言 × 协议类型组织；三份静态页与 `game.html` 弹窗共用，零网络请求、离线可读、绝不双份不同步。渲染统一 DOM API + `textContent`。
+  - **导出方案（零依赖）**：MD/TXT/HTML 用 Blob + `URL.createObjectURL`；PDF 用 `window.print()` + 页内 `@media print`（隐藏导航/输入/按钮，A4 分页）；Word 用 `application/msword` 的 HTML Blob 导出 `.doc`。**不引入 html2pdf.js / html-docx-js 境外 CDN**——canvas 不嵌入中文字体会出方块乱码，境外 CDN 加载慢且曾导致白框；导出文件尾部强制附「本法律条款由了了了游提供」声明。
+  - **详情页**：`game.html` 卡片外层新增三枚竖排协议按钮（卡片本身 `overflow:hidden`，气泡放内部会被裁切；窄屏改底部横排）与独立 modal（Esc / 点遮罩关闭、语言切换重渲染）。`legal_urls` 逐字段独立降级：缺失 / `null` / 空串 / 非字符串 / 非 `https:` / 非法 URL 一律用万能协议；合法值经 `new URL()` 白名单校验后新标签打开并带 `noopener noreferrer`（拒绝 `javascript:` / `data:` / `http:` 混合内容）。**必须覆盖 `id.json` 404 后由 `lelegame_data.json` 兜底构造数据的分支**。
+  - **数据规范**：只在 `/game/data/{id}.json` 增加 `"legal_urls": {"eula": "", "privacy": "", "terms": ""}`（用 `29.json` 作接入示范，值为空串即走万能协议，不伪造链接）；**`lelegame_data.json` 绝对不动**；其余 28 个存量 `id.json` 零改动，靠运行时降级自动挂载万能协议。站点没有 Tally → `id.json` 的自动同步，专属链接由管理员按表单提交的 game_id 人工写入。
+  - **全站入口**：页脚由 `common.js:injectFooter()` 统一注入，改 1 处覆盖 34 个页面；`docs.html` 新增 3 张协议卡片；`sitemap.html` / `sitemap.xml` 补齐 7 个新页面/快照的中英条目与计数；不引 `common.js` 的 `game_rules4-0-0.html`、`gamecheck.html`、`sitemap.html` 单独补静态链接；`apply-certification.html` / `authorlevel.html` 静态条款区补用户协议。四处表单挂载高度适配云端新增字段（投稿 800→1120、推荐 640→900、更新游戏 620→900），8 个 Tally 表单 ID 与 URL 一律不动。
+  - **告知与发布**：`announcements.json` 置顶 1 条全站公告（11-11 ~ 11-25）；`noticetodeveloper.json` 新增 1 条 `author=all`、`priority=300`、14 天窗口的开发者专用告示（`version` 递增、`updatedAt` 同步），讲清 6 张表单怎么填、模板中心用法与存量补链接通道；`sw.js` 加注释升 `CACHE_NAME` 到 **v1.8** 并把全部新页面加入 `ASSETS_TO_CACHE`（三分支策略不动、不引入自动刷新）。
+  - **过渡期**：11-15 生效只剩数日，存量游戏一律走万能协议、不下架；开发者可随时通过「更新游戏」补齐专属链接。
+  - **发布检查单**（沿用）：① `sw.js` 加版本注释 + 递增 `CACHE_NAME`；② `changelog.json` 头部加中英条目；③ 本文件版本号与变更记录同步；④ 本地实测后 commit 不 push，push 后提醒用户硬刷新一次。

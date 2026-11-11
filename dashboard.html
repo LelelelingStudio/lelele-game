@@ -1836,7 +1836,7 @@
             if (!wrap || !document.getElementById('updateGameModal').classList.contains('active')) return;
             var cfg = UPDATE_GAME_FORMS[getLang() === 'en' ? 'en' : 'zh'];
             if (typeof window.mountTallyIframe === 'function') {
-                window.mountTallyIframe(wrap, cfg.url, { title: cfg.title, height: 620 });
+                window.mountTallyIframe(wrap, cfg.url, { title: cfg.title, height: 900 });
             } else {
                 // 引导层缺席时的最小兜底：仍是直连 src，不依赖 embed.js
                 wrap.innerHTML = '';
@@ -1845,7 +1845,7 @@
                 f.title = cfg.title;
                 f.loading = 'eager';
                 f.width = '100%';
-                f.height = '620';
+                f.height = '900';
                 f.setAttribute('frameborder', '0');
                 f.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
                 wrap.appendChild(f);

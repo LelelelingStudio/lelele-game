@@ -524,10 +524,10 @@ function initSubmitFlow() {
         if (typeof window.mountTallyIframe === 'function') {
             window.mountTallyIframe(container, finalUrl, {
                 title: isEn ? 'Lelele Game · Game Submission Form' : '了了了游 · 投稿表单',
-                height: 800
+                height: 1120
             });
         } else {
-            container.innerHTML = `<iframe src="${finalUrl}" loading="eager" width="100%" height="800" frameborder="0" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+            container.innerHTML = `<iframe src="${finalUrl}" loading="eager" width="100%" height="1120" frameborder="0" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
         }
         closeModal('stepAuth');
         openModal('stepTally');

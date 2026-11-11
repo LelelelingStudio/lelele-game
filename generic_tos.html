@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务条款（平台通用版） · Generic Terms of Service</title>
+    <meta name="description" content="了了了游平台通用服务条款，适用于未提交专属协议的游戏。Generic Terms of Service for games without dedicated terms.">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="common.css">
+    <script src="/boot.js"></script>
+
+    <style>
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text { display: block; }
+        html[data-lang="zh"] .zh-inline { display: inline; }
+        html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="en"] .en-inline { display: inline; }
+        html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+        html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            line-height: 1.8;
+            padding: 0 1.5rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 2rem auto 0;
+            background: var(--card-bg);
+            border-radius: 36px;
+            padding: 3.5rem 4rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.04);
+            flex: 1;
+            border: 1px solid var(--card-border);
+        }
+        .back-home {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-size: 0.9rem; color: var(--primary); text-decoration: none;
+            font-weight: 600; margin-bottom: 1.2rem; padding: 0.4rem 1rem;
+            border-radius: 30px; background: rgba(79,70,229,0.06);
+            border: 1px solid rgba(79,70,229,0.12);
+        }
+        .back-home:hover { background: rgba(79,70,229,0.14); }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; color: var(--text-main); }
+        .subhead { color: var(--text-muted); margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--card-border); }
+        h2 { font-size: 1.22rem; margin: 2rem 0 0.9rem; color: var(--text-main); padding-left: 0.7rem; border-left: 4px solid var(--primary); }
+        h3 { font-size: 1.04rem; margin: 1.4rem 0 0.5rem; color: var(--text-main); }
+        p { margin: 0.8rem 0; color: var(--text-main); }
+        ul { margin: 0.8rem 0 1rem 1.5rem; color: var(--text-main); }
+        a { color: var(--primary); text-decoration: none; }
+        .legal-link { font-weight: 600; }
+        .callout {
+            margin: 1.4rem 0; padding: 1rem 1.2rem; border-radius: 18px;
+            background: rgba(79,70,229,0.07); border: 1px solid rgba(79,70,229,0.18);
+            font-size: 0.94rem;
+        }
+        .callout strong { color: var(--primary); }
+        .notice-card {
+            margin: 0 0 1.8rem; padding: 1rem 1.2rem; border-radius: 18px;
+            background: rgba(217,119,6,0.08); border: 1px solid rgba(217,119,6,0.22);
+            font-size: 0.92rem;
+        }
+        .quick-links { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.8rem; }
+        .quick-links a {
+            font-size: 0.85rem; font-weight: 600; padding: 0.35rem 0.9rem;
+            border-radius: 30px; background: rgba(79,70,229,0.06);
+            border: 1px solid rgba(79,70,229,0.14);
+        }
+        .quick-links a:hover { background: rgba(79,70,229,0.14); }
+        .lang-bar { width: 100%; max-width: 800px; margin: 0 auto; display: flex; justify-content: flex-end; padding: 0.8rem 0 0; }
+        .lang-switch { display: inline-flex; background: rgba(148, 163, 184, 0.15); border-radius: 30px; padding: 3px; border: none; }
+        .lang-btn {
+            padding: 6px 16px; border: none; border-radius: 24px; background: transparent;
+            font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer;
+            transition: all 0.2s; font-family: inherit; outline: none; -webkit-appearance: none;
+        }
+        .lang-btn.active { background: #4f46e5; color: #fff !important; box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25); }
+        .lang-btn:hover:not(.active) { color: var(--text-main); }
+        @media (max-width: 640px) { .container { padding: 2rem 1.2rem; border-radius: 24px; } }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+        
+        .gen-loading { color: var(--text-muted); padding: 2rem 0; }
+        .gen-section h2 { margin-top: 1.8rem; }
+
+    </style>
+</head>
+<body>
+    <div class="lang-bar">
+        <div class="lang-switch" role="group" aria-label="语言 / Language">
+            <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+            <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <a href="index.html" class="back-home" id="backHomeBtn">
+            <span class="zh-inline">← 返回首页</span><span class="en-inline">← Back to Home</span>
+        </a>
+
+        <div class="notice-card zh-text">
+            ℹ️ <strong>平台通用兜底协议：</strong>本页面适用于尚未提交专属法律协议的游戏。若该游戏已在详情页提供专属协议链接，请以该链接为准。自 2026 年 11 月 15 日起，未提交专属协议的游戏将自动使用本协议。
+        </div>
+        <div class="notice-card en-text">
+            ℹ️ <strong>Platform generic fallback:</strong> This page applies to games that have not yet submitted dedicated legal agreements. If a dedicated link is provided on the game detail page, that link takes precedence. From November 15, 2026, games without dedicated agreements automatically use this version.
+        </div>
+        <div id="genRoot" class="gen-section" aria-live="polite"><p class="gen-loading">正在载入协议正文… / Loading…</p></div>
+        <div id="genScript"></div>
+        <script>
+            (function () {
+                var KEY = 'terms';
+                function esc(s) {
+                    return String(s === null || s === undefined ? '' : s)
+                        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                }
+                function render() {
+                    var root = document.getElementById('genRoot');
+                    var data = window.LELELE_GENERIC_AGREEMENTS;
+                    var lang = document.documentElement.getAttribute('data-lang') === 'en' ? 'en' : 'zh';
+                    if (!root) return;
+                    if (!data || !data[lang] || !data[lang][KEY]) {
+                        root.textContent = lang === 'zh' ? '协议正文暂时无法载入，请刷新重试。' : 'Unable to load the agreement. Please refresh.';
+                        return;
+                    }
+                    var doc = data[lang][KEY];
+                    var parts = [];
+                    // 只渲染当前语言的一份纯内容；语言切换由 MutationObserver 触发重渲染，
+                    // 因此容器内不再嵌套 .zh-text/.en-text，避免英文模式下标题被 CSS 隐藏。
+                    parts.push('<h1>' + esc(doc.title) + '</h1>' +
+                               '<div class="subhead">' + esc(doc.subtitle) + '</div>');
+                    parts.push('<div class="callout"><strong>' + (lang === 'zh' ? '⚖️ 责任声明' : '⚖️ Liability statement') + '</strong><br>' +
+                               esc(lang === 'zh'
+                                   ? '本游戏由第三方开发者提供，了了了游仅提供展示与导航，不承担运营及数据纠纷的连带责任。'
+                                   : 'This game is provided by a third-party developer. lelele Game only provides display and navigation services and assumes no joint liability for its operation or for any data-related disputes.') + '</div>');
+                    parts.push('<p>' + esc(doc.notice) + '</p>');
+                    doc.sections.forEach(function (sec) {
+                        parts.push('<h2>' + esc(sec.heading) + '</h2>');
+                        sec.paragraphs.forEach(function (para) { parts.push('<p>' + esc(para) + '</p>'); });
+                    });
+                    parts.push('<div class="quick-links">' +
+                        '<a href="generic_eula.html' + (lang === 'en' ? '?lang=en' : '') + '">' + (lang === 'zh' ? '📜 用户协议' : '📜 EULA') + '</a>' +
+                        '<a href="generic_privacy.html' + (lang === 'en' ? '?lang=en' : '') + '">' + (lang === 'zh' ? '🛡️ 隐私政策' : '🛡️ Privacy') + '</a>' +
+                        '<a href="generic_tos.html' + (lang === 'en' ? '?lang=en' : '') + '">' + (lang === 'zh' ? '⚖️ 服务条款' : '⚖️ Terms') + '</a>' +
+                        '<a href="legal_templates.html' + (lang === 'en' ? '?lang=en' : '') + '">' + (lang === 'zh' ? '📄 协议模板中心' : '📄 Template Center') + '</a>' +
+                        '</div>');
+                    root.innerHTML = parts.join('');
+                    root.className = 'gen-section';
+                }
+                function boot() {
+                    render();
+                    if (window.MutationObserver) {
+                        new MutationObserver(function () { render(); })
+                            .observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
+                    }
+                }
+                if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+                else boot();
+                window.leleleRenderGeneric = render;
+            })();
+        </script>
+
+    </div>
+    <script src="common.js" defer></script>
+    <script src="legal_generic.js" defer></script>
+    <script>
+        window.onReady(function () {
+            var lang = document.documentElement.getAttribute('data-lang') || 'zh';
+            document.querySelectorAll('.lang-btn').forEach(function (btn) {
+                btn.classList.toggle('active', btn.dataset.langBtn === lang);
+            });
+            var back = document.getElementById('backHomeBtn');
+            if (back) back.href = lang === 'en' ? 'index.html?lang=en' : 'index.html';
+        });
+    </script>
+</body>
+</html>

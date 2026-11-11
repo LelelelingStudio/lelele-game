@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户协议 · User Agreement | 了了了游</title>
+    <meta name="description" content="了了了游用户协议，说明平台与用户的关系、第三方游戏责任边界与 5.0.0 法律协议新规。User Agreement of lelele Game.">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="common.css">
+    <script src="/boot.js"></script>
+
+    <style>
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text { display: block; }
+        html[data-lang="zh"] .zh-inline { display: inline; }
+        html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="en"] .en-inline { display: inline; }
+        html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+        html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            line-height: 1.8;
+            padding: 0 1.5rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 2rem auto 0;
+            background: var(--card-bg);
+            border-radius: 36px;
+            padding: 3.5rem 4rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.04);
+            flex: 1;
+            border: 1px solid var(--card-border);
+        }
+        .back-home {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-size: 0.9rem; color: var(--primary); text-decoration: none;
+            font-weight: 600; margin-bottom: 1.2rem; padding: 0.4rem 1rem;
+            border-radius: 30px; background: rgba(79,70,229,0.06);
+            border: 1px solid rgba(79,70,229,0.12);
+        }
+        .back-home:hover { background: rgba(79,70,229,0.14); }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; color: var(--text-main); }
+        .subhead { color: var(--text-muted); margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--card-border); }
+        h2 { font-size: 1.22rem; margin: 2rem 0 0.9rem; color: var(--text-main); padding-left: 0.7rem; border-left: 4px solid var(--primary); }
+        h3 { font-size: 1.04rem; margin: 1.4rem 0 0.5rem; color: var(--text-main); }
+        p { margin: 0.8rem 0; color: var(--text-main); }
+        ul { margin: 0.8rem 0 1rem 1.5rem; color: var(--text-main); }
+        a { color: var(--primary); text-decoration: none; }
+        .legal-link { font-weight: 600; }
+        .callout {
+            margin: 1.4rem 0; padding: 1rem 1.2rem; border-radius: 18px;
+            background: rgba(79,70,229,0.07); border: 1px solid rgba(79,70,229,0.18);
+            font-size: 0.94rem;
+        }
+        .callout strong { color: var(--primary); }
+        .notice-card {
+            margin: 0 0 1.8rem; padding: 1rem 1.2rem; border-radius: 18px;
+            background: rgba(217,119,6,0.08); border: 1px solid rgba(217,119,6,0.22);
+            font-size: 0.92rem;
+        }
+        .quick-links { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.8rem; }
+        .quick-links a {
+            font-size: 0.85rem; font-weight: 600; padding: 0.35rem 0.9rem;
+            border-radius: 30px; background: rgba(79,70,229,0.06);
+            border: 1px solid rgba(79,70,229,0.14);
+        }
+        .quick-links a:hover { background: rgba(79,70,229,0.14); }
+        .lang-bar { width: 100%; max-width: 800px; margin: 0 auto; display: flex; justify-content: flex-end; padding: 0.8rem 0 0; }
+        .lang-switch { display: inline-flex; background: rgba(148, 163, 184, 0.15); border-radius: 30px; padding: 3px; border: none; }
+        .lang-btn {
+            padding: 6px 16px; border: none; border-radius: 24px; background: transparent;
+            font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer;
+            transition: all 0.2s; font-family: inherit; outline: none; -webkit-appearance: none;
+        }
+        .lang-btn.active { background: #4f46e5; color: #fff !important; box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25); }
+        .lang-btn:hover:not(.active) { color: var(--text-main); }
+        @media (max-width: 640px) { .container { padding: 2rem 1.2rem; border-radius: 24px; } }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+        
+    </style>
+</head>
+<body>
+    <div class="lang-bar">
+        <div class="lang-switch" role="group" aria-label="语言 / Language">
+            <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+            <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <a href="index.html" class="back-home" id="backHomeBtn">
+            <span class="zh-inline">← 返回首页</span><span class="en-inline">← Back to Home</span>
+        </a>
+
+        <div class="zh-text">
+            <h1>用户协议</h1>
+            <div class="subhead">最后更新：2026 年 11 月 11 日 ｜ 生效日期：2026 年 11 月 15 日</div>
+            <div class="callout">
+                <strong>📌 5.0.0 新规提示：</strong>自 2026 年 11 月 15 日起，所有提交到平台的游戏（无论是外链还是代码形式）都必须具备「用户协议」「隐私政策」「服务条款」。玩家可在<a href="legal_templates.html">协议模板中心</a>了解模板，或在游戏详情页右侧直接查看该游戏的协议。
+            </div>
+            <p>欢迎使用「了了了游」（以下简称「本平台」）。本协议是您与了了了岭工作室之间，就访问、浏览本平台以及使用本平台服务所订立的约定。您在注册账号、投稿、推荐、认证或以其他方式使用本平台时，即表示已阅读、理解并同意本协议全部内容。如不同意，请停止使用本平台。</p>
+
+            <h2>第一条 · 服务性质与责任边界</h2>
+            <ul>
+                <li>本平台是<strong>游戏导航与展示服务</strong>，为玩家提供发现入口，为独立开发者、小团队与个人创作者提供展示机会。</li>
+                <li><strong>本游戏由第三方开发者提供，了了了游仅提供展示与导航，不承担运营及数据纠纷的连带责任。</strong>具体游戏的运营、账号、充值、客服与数据处理由其开发者独立负责。</li>
+                <li>本平台与<a href="terms.html" class="legal-link">《服务条款》</a>、<a href="privacy.html" class="legal-link">《隐私政策》</a>、<a href="game_rules.html" class="legal-link">《游戏守则》</a>共同构成平台规则体系；本协议侧重说明<strong>您与本平台之间</strong>的用户关系，游戏自身的协议则由该游戏开发者提供。</li>
+            </ul>
+
+            <h2>第二条 · 账号与身份</h2>
+            <ul>
+                <li>注册与登录需通过平台支持的认证方式完成，您应保证所提交信息真实、准确，并妥善保管账号凭证。</li>
+                <li>开发者账号经核对后可投稿、推荐、更新游戏与申请创作者认证；账号不得出借、转让或用于冒充他人。</li>
+                <li>因您自身保管不当造成的账号风险与损失，由您自行承担；发现异常请及时联系平台。</li>
+            </ul>
+
+            <h2>第三条 · 平台上的游戏与其协议</h2>
+            <ul>
+                <li>每款游戏详情页右侧提供三个协议入口（📜 用户协议、🛡️ 隐私政策、⚖️ 服务条款）。若该游戏已提交专属协议，点击后将在新标签打开其链接；若尚未提交，则显示平台提供的<a href="generic_eula.html">通用兜底协议</a>。</li>
+                <li>凡以<strong>链接形式</strong>提交并审核通过的游戏收录为「外网游戏」，须提供三类协议的可公开访问直链；以<strong>代码形式</strong>提交的游戏在作者无特别说明时收录为「本站游戏」，可自带协议页面或使用平台万能协议（详见《游戏守则》5.0.0）。</li>
+                <li>点击开始游戏后可能离开本站进入第三方页面，该页面的内容、安全与隐私实践由其运营方负责，请自行查阅其协议。</li>
+            </ul>
+
+            <h2>第四条 · 使用规范</h2>
+            <ul>
+                <li>您承诺不利用本平台从事违法、侵权、欺诈、传播恶意代码、批量抓取或干扰他人正常使用的行为。</li>
+                <li>投稿、推荐与更新内容须真实、合法且不侵犯第三方权益，并配合平台审核；缺少法律协议的内容不予通过审核。</li>
+                <li>不得绕过平台展示逻辑、篡改页面或伪造他人身份与授权。</li>
+            </ul>
+
+            <h2>第五条 · 知识产权</h2>
+            <p>平台页面、设计、文档及自有素材的著作权归本平台所有；各游戏及其名称、美术、音乐、代码的权利归其开发者或原权利人所有。未经许可不得复制、镜像或作商业使用。开发者通过模板中心取用的协议模板，按该页的开源授权声明使用。</p>
+
+            <h2>第六条 · 协议变更、终止与争议</h2>
+            <ul>
+                <li>本平台可因合规要求、规则调整或安全原因更新本协议，更新后于本页面公布；涉及重大变更时会通过站内公告告知。</li>
+                <li>违反本协议的，本平台可限制或终止向您提供部分服务，并保留依法追究的权利。</li>
+                <li>争议应先友好协商解决；意见与申诉可发送至 <a href="mailto:leleleling@2980.com" class="legal-link">leleleling@2980.com</a>。</li>
+            </ul>
+
+            <div class="quick-links">
+                <a href="privacy.html">隐私政策</a><a href="terms.html">服务条款</a>
+                <a href="game_rules.html">游戏守则 5.0.0</a><a href="legal_templates.html">协议模板中心</a>
+            </div>
+        </div>
+
+        <div class="en-text">
+            <h1>User Agreement</h1>
+            <div class="subhead">Last updated: November 11, 2026 ｜ Effective: November 15, 2026</div>
+            <div class="callout">
+                <strong>📌 Platform v5.0.0:</strong> Effective November 15, 2026, every game submitted to the Platform — whether as a link or as source code — must provide an EULA, a Privacy Policy and Terms of Service. Players can review them via the <a href="legal_templates.html?lang=en">Legal Template Center</a> or directly on the right edge of each game detail page.
+            </div>
+            <p>Welcome to lelele Game (the "Platform"). This Agreement is concluded between you and Leleleling Studio regarding your access to and use of the Platform. By registering, submitting, recommending, applying for verification or otherwise using the Platform, you confirm that you have read, understood and accepted this Agreement in full. If you do not agree, please stop using the Platform.</p>
+
+            <h2>1. Nature of Service and Liability Boundaries</h2>
+            <ul>
+                <li>The Platform is a <strong>game discovery and listing service</strong>: an entry point for players and a showcase for independent developers, small teams and individual creators.</li>
+                <li><strong>This game is provided by a third-party developer. lelele Game only provides display and navigation services and assumes no joint liability for its operation or for any data-related disputes.</strong> Each game's operation, accounts, payments, support and data handling remain the sole responsibility of its developer.</li>
+                <li>Together with our <a href="terms.html?lang=en" class="legal-link">Terms of Service</a>, <a href="privacy.html?lang=en" class="legal-link">Privacy Policy</a> and <a href="game_rules.html?lang=en" class="legal-link">Game Rules</a>, this Agreement forms the Platform's rule set. It focuses on <strong>the relationship between you and the Platform</strong>; each game's own agreements are supplied by its developer.</li>
+            </ul>
+
+            <h2>2. Accounts and Identity</h2>
+            <ul>
+                <li>Registration and sign-in use the authentication methods supported by the Platform. You warrant that the information you provide is accurate and that you keep your credentials safe.</li>
+                <li>A verified creator account may submit, recommend and update games and apply for creator verification. Accounts may not be lent, transferred or used to impersonate others.</li>
+                <li>Risks arising from your own failure to safeguard credentials are borne by you; please contact us promptly if you notice unusual activity.</li>
+            </ul>
+
+            <h2>3. Games and Their Agreements</h2>
+            <ul>
+                <li>Three legal links (📜 EULA, 🛡️ Privacy, ⚖️ Terms) appear on the right edge of each game detail page. If a game has submitted dedicated agreements, they open in a new tab; otherwise the Platform's <a href="generic_eula.html?lang=en">generic fallback agreement</a> is shown in a dialog.</li>
+                <li>Games <strong>submitted as a link</strong> and approved are listed as "External" and must provide publicly accessible URLs for all three agreements. Games <strong>submitted as code</strong> are listed as "Local" by default unless the author states otherwise, and may include their own legal pages or use the Platform's generic agreements (see Game Rules v5.0.0).</li>
+                <li>Launching a game may take you to a third-party site. Its content, security and privacy practices are the responsibility of its operator; please review its agreements.</li>
+            </ul>
+
+            <h2>4. Acceptable Use</h2>
+            <ul>
+                <li>You agree not to use the Platform for unlawful, infringing, fraudulent or malicious-code activity, bulk scraping, or interference with other users.</li>
+                <li>Submissions, recommendations and updates must be truthful, lawful and non-infringing, and subject to review. Content lacking the required legal agreements cannot pass review.</li>
+                <li>You may not bypass display logic, alter pages, or forge another person's identity or authorisation.</li>
+            </ul>
+
+            <h2>5. Intellectual Property</h2>
+            <p>The Platform's pages, design, documents and original assets belong to the Platform; each game and its name, artwork, music and code belong to its developer or original rights holder. Do not reproduce, mirror or use them commercially without permission. Agreement templates obtained from the Template Center are governed by the open-source licence statement on that page.</p>
+
+            <h2>6. Changes, Termination and Disputes</h2>
+            <ul>
+                <li>The Platform may update this Agreement for compliance, rule changes or security reasons. Updates are published on this page; material changes are announced via site notices.</li>
+                <li>Breaches may result in restricted or terminated access, and the Platform reserves its legal remedies.</li>
+                <li>Disputes should first be resolved amicably; comments and appeals may be sent to <a href="mailto:leleleling@2980.com" class="legal-link">leleleling@2980.com</a>.</li>
+            </ul>
+
+            <div class="quick-links">
+                <a href="privacy.html?lang=en">Privacy Policy</a><a href="terms.html?lang=en">Terms of Service</a>
+                <a href="game_rules.html?lang=en">Game Rules 5.0.0</a><a href="legal_templates.html?lang=en">Legal Template Center</a>
+            </div>
+        </div>
+
+    </div>
+    <script src="common.js" defer></script>
+    <script src="legal_generic.js" defer></script>
+    <script>
+        window.onReady(function () {
+            var lang = document.documentElement.getAttribute('data-lang') || 'zh';
+            document.querySelectorAll('.lang-btn').forEach(function (btn) {
+                btn.classList.toggle('active', btn.dataset.langBtn === lang);
+            });
+            var back = document.getElementById('backHomeBtn');
+            if (back) back.href = lang === 'en' ? 'index.html?lang=en' : 'index.html';
+        });
+    </script>
+</body>
+</html>

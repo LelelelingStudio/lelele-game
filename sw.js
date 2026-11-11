@@ -1,6 +1,13 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.8 (4.1.0 / 规则 5.0.0) —— 本文件改动字节内容，触发浏览器重新 install/activate，
+ *   清理 v1.7 及更早缓存。原因：4.1.0 合规升级新增 7 个页面/文件（用户协议、协议模板中心、
+ *   三份万能协议、万能协议公共常量、游戏守则 4.0.2 历史快照），必须让新页面
+ *   立即进入预缓存，保证清缓存首访与离线状态下协议内容可读。
+ *   fetch 策略三个分支（静态 SWR / 数据超时回退 / 外部域直通）完全未改动。
+ *   不重新引入自动 reload（历史上曾导致反复刷新）。
+ *
  * ★ v1.7 (4.0.16) —— 本文件再次改动字节内容，触发浏览器重新 install/activate，
  *   清理 v1.6 及更早缓存。原因：4.0.16 新增了 dashboard 的「更新游戏」表单链路、
  *   游戏守则 4.0.2 归类条款与两类公告数据；静态资源走 stale-while-revalidate，
@@ -42,7 +49,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.7';
+const CACHE_NAME = 'lelele-pwa-v1.8';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。
@@ -62,6 +69,13 @@ const ASSETS_TO_CACHE = [
     '/sitemap.html',
     '/game_rules4-0-0.html',
     '/game_rules4-0-1.html',
+    '/game_rules4-0-2.html',
+    '/user_agreement.html',
+    '/legal_templates.html',
+    '/generic_eula.html',
+    '/generic_privacy.html',
+    '/generic_tos.html',
+    '/legal_generic.js',
     '/privacy.html',
     '/terms.html',
     '/copyright.html',
