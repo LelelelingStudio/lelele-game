@@ -458,6 +458,66 @@ function leleleOnReady(fn) {
         if (str === null || str === undefined) return '';
         return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     };
+
+    // YYYY-M-D 必须按本地时间解析：new Date('2026-11-11') 会被当成 UTC 00:00，
+    // 在 UTC+8 是当天 08:00，导致发布日 00:00-08:00 的公告/活动被判为「未开始」。
+    // 同时兼容仓库里已有的非补零写法（如 2026-11-6）。
+    const parseLocalDate = (value) => {
+        if (value instanceof Date) return value;
+        const m = /^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s].*)?$/.exec(String(value || '').trim());
+        if (!m) {
+            const d = new Date(value);
+            return isNaN(d.getTime()) ? null : d;
+        }
+        return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    };
+    const endOfLocalDay = (d) => {
+        if (!d) return null;
+        const x = new Date(d.getTime());
+        x.setHours(23, 59, 59, 999);
+        return x;
+    };
+
+    // 公告正文允许少量富文本（换行、链接、视频、基础排版）。直接把 JSON 内容
+    // innerHTML 拼接会把 <img onerror> / <script> 带进页面；这里用标签白名单
+    // 消毒，非白名单标签只保留文字，并过滤事件属性与危险协议。
+    const sanitizeAnnouncementHtml = (raw) => {
+        const ALLOWED_TAGS = ['BR', 'A', 'DIV', 'P', 'SPAN', 'B', 'STRONG', 'I', 'EM', 'U', 'VIDEO'];
+        const ALLOWED_ATTRS = ['href', 'src', 'target', 'rel', 'controls', 'playsinline',
+                               'muted', 'loop', 'poster', 'style', 'class', 'width', 'height'];
+        const outDoc = new DOMParser().parseFromString('<div></div>', 'text/html');
+        const root = outDoc.body.firstElementChild;
+        const inDoc = new DOMParser().parseFromString(String(raw || ''), 'text/html');
+        const walk = (from, to) => {
+            Array.from(from.childNodes).forEach((child) => {
+                if (child.nodeType === 3) {
+                    to.appendChild(outDoc.createTextNode(child.nodeValue));
+                    return;
+                }
+                if (child.nodeType !== 1) return;
+                const tag = child.tagName.toUpperCase();
+                if (!ALLOWED_TAGS.includes(tag)) {
+                    to.appendChild(outDoc.createTextNode(child.textContent || ''));
+                    return;
+                }
+                const el = outDoc.createElement(tag.toLowerCase());
+                Array.from(child.attributes).forEach((attr) => {
+                    const name = attr.name.toLowerCase();
+                    const value = attr.value || '';
+                    if (!ALLOWED_ATTRS.includes(name)) return;
+                    if ((name === 'href' || name === 'src') &&
+                        !/^(https:\/\/|mailto:|\/|#)/i.test(value.trim())) return;
+                    if (name === 'style' && /(javascript\s*:|expression\s*\(|@import)/i.test(value)) return;
+                    el.setAttribute(name, value);
+                });
+                if (el.hasAttribute('target')) el.setAttribute('rel', 'noopener noreferrer');
+                walk(child, el);
+                to.appendChild(el);
+            });
+        };
+        walk(inDoc.body, root);
+        return root.innerHTML;
+    };
     const getLang = () => document.documentElement.getAttribute('data-lang') || 'zh';
 
     // ==================== 全局多语言切换 ====================
@@ -559,19 +619,21 @@ function leleleOnReady(fn) {
             let isActive = config.forceEnable || false;
 
             if (!isActive && config.specialPeriod) {
-                const start = new Date(config.specialPeriod.start);
-                const end = new Date(config.specialPeriod.end);
-                if (now >= start && now <= end) isActive = true;
+                const start = parseLocalDate(config.specialPeriod.start);
+                const end = endOfLocalDay(parseLocalDate(config.specialPeriod.end));
+                if (start && end && now >= start && now <= end) isActive = true;
             }
 
             if (!isActive && config.yearlyPeriod) {
                 const currentYear = now.getFullYear();
                 const startStr = `${currentYear}-${config.yearlyPeriod.start}`;
                 let endStr = `${currentYear}-${config.yearlyPeriod.end}`;
-                const start = new Date(startStr);
-                let end = new Date(endStr);
-                if (end < start) end = new Date(`${currentYear + 1}-${config.yearlyPeriod.end}`);
-                if (now >= start && now <= end) isActive = true;
+                const start = parseLocalDate(startStr);
+                let end = endOfLocalDay(parseLocalDate(endStr));
+                if (start && end && end < start) {
+                    end = endOfLocalDay(parseLocalDate(`${currentYear + 1}-${config.yearlyPeriod.end}`));
+                }
+                if (start && end && now >= start && now <= end) isActive = true;
             }
 
             if (!isActive) return;
@@ -826,11 +888,15 @@ function leleleOnReady(fn) {
             const now = new Date().setHours(0, 0, 0, 0);
             
             allValidAnnouncements = allData.filter(item => {
-                const pub = new Date(item.publishDate).getTime();
-                const exp = new Date(item.expireDate).getTime();
-                if (isNaN(pub) || isNaN(exp)) return false;
-                return pub <= now && exp >= now;
-            }).sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
+                const pub = parseLocalDate(item.publishDate);
+                const exp = parseLocalDate(item.expireDate);
+                if (!pub || !exp) return false;
+                return pub.getTime() <= now && exp.getTime() >= now;
+            }).sort((a, b) => {
+                const pa = parseLocalDate(a.publishDate);
+                const pb = parseLocalDate(b.publishDate);
+                return (pb ? pb.getTime() : 0) - (pa ? pa.getTime() : 0);
+            });
 
             const top3Data = allValidAnnouncements.slice(0, 3);
             const readList = getStorage('lelele_read_announcements', []);
@@ -888,14 +954,17 @@ function leleleOnReady(fn) {
                 const titleZh = item.title_zh || item.title || '';
                 const titleEn = item.title_en || item.title || titleZh;
                 const title = lang === 'en' ? titleEn : titleZh;
+                // id 会进入内联 onclick 的 JS 字符串字面量，HTML 转义挡不住引号闭合，
+                // 这里只保留 [A-Za-z0-9_-]（真实 id 本就只有这些字符）。
+                const safeId = String(item.id || '').replace(/[^A-Za-z0-9_-]/g, '');
                 return `
-                    <div class="announce-card" data-id="${item.id}">
-                        <button class="announce-close" onclick="window.closeGlobalAnnounce('${item.id}', this)">×</button>
+                    <div class="announce-card" data-id="${escapeHtml(String(item.id))}">
+                        <button class="announce-close" onclick="window.closeGlobalAnnounce('${safeId}', this)">×</button>
                         <div class="announce-top">
                             <div class="announce-name">${escapeHtml(title)}</div>
                             <div class="announce-date">${escapeHtml(item.publishDate)}</div>
                         </div>
-                        <button class="announce-detail-btn" onclick="window.openAnnounceDetail('${item.id}')">${lang === 'en' ? 'View Details ➔' : '查看详情 ➔'}</button>
+                        <button class="announce-detail-btn" onclick="window.openAnnounceDetail('${safeId}')">${lang === 'en' ? 'View Details ➔' : '查看详情 ➔'}</button>
                     </div>
                 `;
             }).join('');
@@ -934,7 +1003,7 @@ function leleleOnReady(fn) {
         const isEn = getLang() === 'en';
         const title = isEn ? (item.title_en || item.title) : (item.title_zh || item.title);
         const rawContent = isEn ? (item.content_en || item.content) : (item.content_zh || item.content);
-        const formattedContent = rawContent ? rawContent.replace(/\n/g, '<br>') : '';
+        const formattedContent = sanitizeAnnouncementHtml((rawContent || '').replace(/\n/g, '<br>'));
 
         let overlay = document.getElementById('commonAnnounceDetailModal');
         if (overlay) overlay.remove();
@@ -1021,14 +1090,14 @@ function leleleOnReady(fn) {
 
         sidebar.innerHTML = allData.map((item, index) => {
             const title = isEn ? (item.title_en || item.title) : (item.title_zh || item.title);
-            return `<div class="common-announce-menu-item ${index === 0 ? 'active' : ''}" data-index="${index}"><div class="common-announce-menu-title">${escapeHtml(title)}</div><div class="common-announce-menu-date">${item.publishDate}</div></div>`;
+            return `<div class="common-announce-menu-item ${index === 0 ? 'active' : ''}" data-index="${index}"><div class="common-announce-menu-title">${escapeHtml(title)}</div><div class="common-announce-menu-date">${escapeHtml(item.publishDate)}</div></div>`;
         }).join('');
 
         const renderDetail = (index) => {
             const item = allData[index];
             const title = isEn ? (item.title_en || item.title) : (item.title_zh || item.title);
             const rawContent = isEn ? (item.content_en || item.content) : (item.content_zh || item.content);
-            const formattedContent = rawContent ? rawContent.replace(/\n/g, '<br>') : '';
+            const formattedContent = sanitizeAnnouncementHtml((rawContent || '').replace(/\n/g, '<br>'));
             detail.innerHTML = `<h3>${escapeHtml(title)}</h3><div class="common-announce-detail-content">${formattedContent}</div>`;
         };
         renderDetail(0);
@@ -1124,15 +1193,22 @@ function leleleOnReady(fn) {
         const targets = () => document.querySelectorAll('a[href="apply-certification.html"], #lvApplyBtn');
         // 鉴权结果：null=尚未决定；hide=隐藏；show=按标签展示
         let decided = null;
+        // 幂等写入：下方 MutationObserver 监听 childList，而 textContent 赋值会替换
+        // 全部子节点并产生新的 mutation。若值相同仍无条件重写，回调会不断触发自身，
+        // microtask 队列永不排空，页面 CPU 100% 卡死。
+        const setText = (node, value) => {
+            if (node && value && node.textContent !== value) node.textContent = value;
+        };
+        const setDisplay = (el, value) => {
+            if (el.style.display !== value) el.style.display = value;
+        };
         const apply = () => {
             if (!decided) return;
             targets().forEach((el) => {
-                if (decided.mode === 'hide') { el.style.display = 'none'; return; }
-                el.style.display = '';
-                const z = el.querySelector('.zh-inline');
-                const e = el.querySelector('.en-inline');
-                if (z && decided.zh) z.textContent = decided.zh;
-                if (e && decided.en) e.textContent = decided.en;
+                if (decided.mode === 'hide') { setDisplay(el, 'none'); return; }
+                setDisplay(el, '');
+                setText(el.querySelector('.zh-inline'), decided.zh);
+                setText(el.querySelector('.en-inline'), decided.en);
             });
         };
         // 先隐藏当前已有入口，避免未登录/非作者看到

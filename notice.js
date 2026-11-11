@@ -241,7 +241,13 @@ if (typeof window.leleleFetch !== 'function') {
         document.body.appendChild(mask);
         requestAnimationFrame(() => mask.classList.add('show'));
 
+        let closed = false;
+        let onKey = null;
         const close = () => {
+            if (closed) return;  // 幂等：Esc 与按钮/遮罩可能在同一轮内同时触发
+            closed = true;
+            // 任何关闭路径都要解绑，否则队列里多条告示会累积 keydown 监听。
+            if (onKey) document.removeEventListener('keydown', onKey);
             markSeen(notice);
             mask.classList.remove('show');
             setTimeout(() => {
@@ -254,9 +260,8 @@ if (typeof window.leleleFetch !== 'function') {
             mask.addEventListener('click', (e) => { if (e.target === mask) close(); });
             const btn = mask.querySelector('.llnotice-close');
             if (btn) btn.addEventListener('click', close);
-            document.addEventListener('keydown', function onKey(e) {
-                if (e.key === 'Escape') { document.removeEventListener('keydown', onKey); close(); }
-            });
+            onKey = (e) => { if (e.key === 'Escape') close(); };
+            document.addEventListener('keydown', onKey);
         }
     }
 

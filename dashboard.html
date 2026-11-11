@@ -344,7 +344,7 @@
                 <a class="nav-item nav-jump" href="about.html" target="_blank" rel="noopener">
                     📖 <span class="zh-inline">关于本站</span><span class="en-inline">About</span>
                 </a>
-                <a class="nav-item nav-jump" href="AUTHOR_CERTIFICATION.html" target="_blank" rel="noopener">
+                <a class="nav-item nav-jump" href="apply-certification.html" target="_blank" rel="noopener">
                     📚 <span class="zh-inline">认证文档</span><span class="en-inline">Docs</span>
                 </a>
                 <button class="nav-item" onclick="switchTab('creator')" id="navCreator">
@@ -1078,8 +1078,8 @@
             const en = getLang() === 'en';
             const wrap = (href, inner) => '<a href="' + href + '" class="lelele-badge-link" title="' + (en ? 'View certification details' : '查看认证详情') + '">' + inner + '</a>';
             const out = [];
-            if (a.studio_special) out.push(wrap('AUTHOR_CERTIFICATION.html', '<span class="lelele-badge lelele-badge-special">★ ' + (en ? 'Official Studio' : '本站原创团队') + '</span>'));
-            if (a.official) out.push(wrap('AUTHOR_CERTIFICATION.html', '<span class="lelele-badge lelele-badge-official">【' + (en ? 'Official' : '官方') + '】</span>'));
+            if (a.studio_special) out.push(wrap('apply-certification.html', '<span class="lelele-badge lelele-badge-special">★ ' + (en ? 'Official Studio' : '本站原创团队') + '</span>'));
+            if (a.official) out.push(wrap('apply-certification.html', '<span class="lelele-badge lelele-badge-official">【' + (en ? 'Official' : '官方') + '】</span>'));
             const lvl = Number(a.authorlevel) || 1;
             const def = DASH_LEVELS.find(x => x.level === lvl) || DASH_LEVELS[0];
             out.push(wrap('authorlevel.html?level=' + def.level, '<span class="lelele-badge lelele-badge-level" style="--badge-color:' + def.color + ';--badge-bg:' + def.bg + '">' + (en ? def.en : def.zh) + '</span>'));
@@ -1877,10 +1877,22 @@
         };
 
         // 提交成功闭环：dashboard 原本没有这个监听（只在首页 index.js）。
-        // 校验来源域，兼容字符串与对象两种消息体，防止任意来源伪造关闭弹窗。
+        // 校验来源域并确认消息来自本弹窗内的 Tally iframe，
+        // 防止其他窗口通过 window.opener 伪造「提交成功」强制关闭弹窗。
+        function isOurTallyEmbedSource(source) {
+            if (!source) return false;
+            var frames = document.querySelectorAll('iframe[src*="tally.so/embed/"]');
+            for (var i = 0; i < frames.length; i++) {
+                if (frames[i].contentWindow === source) return true;
+            }
+            return false;
+        }
         window.addEventListener('message', function (event) {
             var origin = event.origin || '';
-            if (!/^https:\/\/([a-z0-9-]+\.)*tally\.so$/i.test(origin)) return;
+            var host = '';
+            try { host = new URL(origin).hostname.toLowerCase(); } catch (e) { return; }
+            if (host !== 'tally.so' && host.slice(-9) !== '.tally.so') return;
+            if (!isOurTallyEmbedSource(event.source)) return;
             var d = event.data;
             if (d && (d === 'tally-form-submitted' || (typeof d === 'object' && d.type === 'tally-form-submitted'))) {
                 window.closeUpdateGameModal();

@@ -962,7 +962,9 @@
 
         function closeLegalModal() {
             var modal = document.getElementById('legalModal');
-            if (modal) modal.classList.remove('active');
+            // 弹窗未打开时不要动 body.overflow：其它弹窗可能正用它锁滚动。
+            if (!modal || !modal.classList.contains('active')) return;
+            modal.classList.remove('active');
             document.body.style.overflow = '';
         }
 
@@ -1046,9 +1048,15 @@
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') closeLegalModal();
         });
+        var lastLegalRender = 0;
         function onLegalLangChange() {
             var modal = document.getElementById('legalModal');
-            if (modal && modal.classList.contains('active')) renderLegalModal(legalModalKind);
+            if (!modal || !modal.classList.contains('active')) return;
+            // setLang 同时触发 langChanged 与 data-lang 属性变化，去重避免重建两次。
+            var now = Date.now();
+            if (now - lastLegalRender < 60) return;
+            lastLegalRender = now;
+            renderLegalModal(legalModalKind);
         }
         window.addEventListener('langChanged', onLegalLangChange);
         if (window.MutationObserver) {

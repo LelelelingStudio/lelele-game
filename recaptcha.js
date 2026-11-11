@@ -476,10 +476,20 @@
                         ? text('安全验证服务暂时不可用，已为你跳过验证', 'Verification service is temporarily unavailable; this check was skipped.')
                         : (error.message || text('验证失败，请重试', 'Verification failed. Please retry.'));
                     retry.hidden = false;
+                    // 「重试」只重启本地流程，不能让本次 Promise 一直挂起：
+                    // 调用方 common.js 用 await 等待本弹窗，若永不 settle，其 finally
+                    // 不会执行，投稿按钮将永久保持 disabled。这里以失败结束本次复验，
+                    // 保留 1.8s 错误提示后清理遮罩；用户点「重试」会重新走完整流程。
+                    modalPromise = null;
+                    reject(error);
+                    setTimeout(() => overlay.remove(), 1800);
                 }
             };
 
-            retry.addEventListener('click', run);
+            retry.addEventListener('click', () => {
+                overlay.remove();
+                showReverificationModal(session);
+            });
             run().catch((error) => {
                 overlay.remove();
                 modalPromise = null;

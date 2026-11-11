@@ -272,7 +272,7 @@ function renderGameCard(item, isEn, showAuthor) {
     card.className = 'game-card';
     card.setAttribute('tabindex', '0');
     card.innerHTML = `
-        <div class="game-icon">${g.icon || '🎮'}</div>
+        <div class="game-icon">${escapeHtml(g.icon || '🎮')}</div>
         <div class="game-name">${finalHtmlName}</div>
         ${authorHtml}
     `;
@@ -534,12 +534,24 @@ function initSubmitFlow() {
     };
 }
 
+// 仅校验 origin 不够：另一个标签页可以拿到本站 window 引用并伪造消息。
+// 必须确认消息来自本页实际嵌入的 Tally iframe。
+function isOurTallyEmbedSource(source) {
+    if (!source) return false;
+    var frames = document.querySelectorAll('iframe[src*="tally.so/embed/"]');
+    for (var i = 0; i < frames.length; i++) {
+        if (frames[i].contentWindow === source) return true;
+    }
+    return false;
+}
+
 window.addEventListener("message", function(event) {
-    // 只接受 Tally 表单页发出的提交成功消息，避免任意来源伪造关闭弹窗。
-    // 兼容 tally.so 及其子域（Tally 的 embed 页可能部署在不同子域）
     var origin = event.origin || '';
-    var allowed = /^https:\/\/([a-z0-9-]+\.)*tally\.so$/i.test(origin);
-    if (!allowed) return;
+    var host = '';
+    try { host = new URL(origin).hostname.toLowerCase(); } catch (e) { return; }
+    // 精确域：tally.so 或其子域；tally.so.evil.com 之类不算命中
+    if (host !== 'tally.so' && host.slice(-9) !== '.tally.so') return;
+    if (!isOurTallyEmbedSource(event.source)) return;
     var d = event.data;
     if (d && (d === 'tally-form-submitted' || (typeof d === 'object' && d.type === 'tally-form-submitted'))) {
         document.querySelectorAll('.modal-overlay.active').forEach(el => el.classList.remove('active'));

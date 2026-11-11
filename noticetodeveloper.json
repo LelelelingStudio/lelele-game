@@ -92,7 +92,7 @@
         {
           "text_zh": "查看游戏守则 4.0.2",
           "text_en": "Read Game Rules v4.0.2",
-          "url": "https://game.leleleling.site/game_rules.html",
+          "url": "https://game.leleleling.site/game_rules4-0-2.html",
           "style": "ghost",
           "target": "_blank"
         }
@@ -152,7 +152,7 @@
         {
           "text_zh": "查看更新日志",
           "text_en": "View Changelog",
-          "url": "https://game.leleleling.site/changelog.html",
+          "url": "https://game.leleleling.site/about.html#changelog",
           "style": "primary",
           "target": "_blank"
         },
@@ -219,7 +219,7 @@
         {
           "text_zh": "前往投稿表单",
           "text_en": "Submit again",
-          "url": "https://game.leleleling.site/submit.html",
+          "url": "https://game.leleleling.site/index.html?submit=1",
           "style": "primary",
           "target": "_blank"
         },

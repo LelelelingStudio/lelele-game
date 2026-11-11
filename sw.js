@@ -1,6 +1,10 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.9 (bugfix) —— 修复缓存键与离线链路：规范化 ?t= 时间戳缓存键、
+ *   用 URL.origin 判断同源、await cache.put、带参导航不再返回首页 HTML、
+ *   数据策略补 game/data/*.json。缓存结构变化，必须升 CACHE_NAME 清旧缓存。
+ *
  * ★ v1.8 (4.1.0 / 规则 5.0.0) —— 本文件改动字节内容，触发浏览器重新 install/activate，
  *   清理 v1.7 及更早缓存。原因：4.1.0 合规升级新增 7 个页面/文件（用户协议、协议模板中心、
  *   三份万能协议、万能协议公共常量、游戏守则 4.0.2 历史快照），必须让新页面
@@ -49,7 +53,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.8';
+const CACHE_NAME = 'lelele-pwa-v1.9';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。
@@ -104,7 +108,7 @@ const ASSETS_TO_CACHE = [
 ];
 
 // 易变数据：必须尽快拿到新版本，但网络慢时要快速回退缓存
-const DATA_PATH_RE = /(?:\/|^)(lelegame_data\.json|authors\/index\.json|authors\/data\/\d+\.json|announcements\.json|noticetodeveloper\.json|activity_whole\.json|special_common\.json|changelog\.json|manifest-(?:zh|en)\.json)$/;
+const DATA_PATH_RE = /(?:\/|^)(lelegame_data\.json|authors\/index\.json|authors\/data\/\d+\.json|game\/data\/\d+\.json|announcements\.json|noticetodeveloper\.json|activity_whole\.json|special_common\.json|changelog\.json|manifest-(?:zh|en)\.json)$/;
 
 self.addEventListener('install', (e) => {
     e.waitUntil(
@@ -129,18 +133,36 @@ function isBasicOk(res) {
     return res && res.status === 200 && res.type === 'basic';
 }
 
+// 规范化缓存键。common.js / notice.js 用 ?t=Date.now() 击穿 CDN，若直接拿原始
+// Request 当键，每次都是新 key：缓存无限膨胀，且 1.5s 超时/离线回退永远 match 不到。
+// HTML 导航的 ?lang= / ?id= 只是运行时参数，同一 pathname 复用同一份 HTML 缓存。
+function cacheKeyFor(req) {
+    try {
+        const u = new URL(req.url);
+        if (req.mode === 'navigate' || u.pathname === '/' || /\.html?$/i.test(u.pathname)) {
+            return u.origin + u.pathname;
+        }
+        if (u.search) {
+            ['t', '_', 'ts', 'cb', 'nocache', 'cacheBust'].forEach((k) => u.searchParams.delete(k));
+        }
+        return u.origin + u.pathname + (u.search || '');
+    } catch (e) { return req.url; }
+}
+
 // 静态资源：缓存优先 + 后台更新（SWR）
 async function staleWhileRevalidate(e) {
     const req = e.request;
     const cache = await caches.open(CACHE_NAME);
-    const cached = await cache.match(req);
+    const key = cacheKeyFor(req);
+    const cached = await cache.match(key);
 
-    const network = fetch(req).then((res) => {
-        if (isBasicOk(res)) cache.put(req, res.clone()).catch(() => {});
+    // 必须 await 缓存写入：否则 waitUntil(network) 在 fetch 一完成就 resolve，
+    // SW 被浏览器回收后「后台更新」静默丢失。
+    const network = fetch(req).then(async (res) => {
+        if (isBasicOk(res)) await cache.put(key, res.clone()).catch(() => {});
         return res;
     }).catch(() => null);
 
-    // 后台更新不阻塞本次响应，但用 waitUntil 尽量让它在 SW 存活期内完成
     if (cached) {
         e.waitUntil(network);
         return cached;
@@ -148,7 +170,19 @@ async function staleWhileRevalidate(e) {
     const res = await network;
     if (res) return res;
     if (req.mode === 'navigate') {
-        return (await cache.match('/index.html')) || Response.error();
+        // 不能把 /index.html 的 HTML 返回给 /game.html?id=N：URL 与内容不符，
+        // 用户会在详情页地址下看到首页。仅首页自身回退首页缓存。
+        let path = '';
+        try { path = new URL(req.url).pathname; } catch (err) {}
+        if (path === '/' || path === '/index.html') {
+            const home = await cache.match(self.location.origin + '/index.html');
+            if (home) return home;
+        }
+        return new Response(
+            '<!doctype html><meta charset="utf-8"><title>Offline</title>' +
+            '<p style="font:16px/1.7 system-ui;padding:24px">Network unavailable. Please retry.</p>',
+            { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+        );
     }
     return Response.error();
 }
@@ -164,11 +198,11 @@ async function networkFirstWithTimeout(req, ms) {
         });
         const res = await Promise.race([fetch(req, { signal: ctrl.signal }), timed]);
         clearTimeout(timer);
-        if (isBasicOk(res)) cache.put(req, res.clone()).catch(() => {});
+        if (isBasicOk(res)) await cache.put(cacheKeyFor(req), res.clone()).catch(() => {});
         return res;
     } catch (err) {
         clearTimeout(timer);
-        const cached = await cache.match(req);
+        const cached = await cache.match(cacheKeyFor(req));
         // 无缓存时返回不可用的响应：前端各处都用 r.ok 判断并降级，不会抛错/白屏
         return cached || Response.error();
     }
@@ -176,10 +210,14 @@ async function networkFirstWithTimeout(req, ms) {
 
 self.addEventListener('fetch', (e) => {
     if (e.request.method !== 'GET') return;
-    if (!e.request.url.startsWith(self.location.origin)) return; // 外部直通
-
+    // startsWith(origin) 会把 https://origin.evil.com / https://origin@evil.com
+    // 误判为同源；必须用 URL.origin 精确比较。
     let pathname;
-    try { pathname = new URL(e.request.url).pathname; } catch (err) { pathname = ''; }
+    try {
+        const u = new URL(e.request.url);
+        if (u.origin !== self.location.origin) return; // 外部直通
+        pathname = u.pathname;
+    } catch (err) { return; }
 
     if (DATA_PATH_RE.test(pathname)) {
         e.respondWith(networkFirstWithTimeout(e.request, 1500));

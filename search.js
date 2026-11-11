@@ -157,14 +157,20 @@ window.leleleSearchAuthors = function(query, authors, games) {
 // 高亮处理函数
 function highlightText(text, query, qPinyin) {
     if (!text) return '';
-    let res = text;
+    // 本函数返回值会被 index.js 直接拼进 innerHTML，必须先转义再插入 <mark>，
+    // 否则游戏名里的 <img onerror=...> 会在搜索命中时执行。
+    const esc = (s) => String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    const safe = esc(text);
 
     if (/[\u4e00-\u9fa5]/.test(query)) {
-        const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-        res = res.replace(regex, '<mark class="search-highlight">$1</mark>');
+        const safeQuery = esc(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(${safeQuery})`, 'gi');
+        return safe.replace(regex, '<mark class="search-highlight">$1</mark>');
     }
     else if (qPinyin && typeof pinyinPro !== 'undefined') {
-        res = `<mark class="search-highlight">${text}</mark>`;
+        return `<mark class="search-highlight">${safe}</mark>`;
     }
-    return res;
+    return safe;
 }

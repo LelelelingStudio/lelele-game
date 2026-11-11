@@ -161,7 +161,7 @@
             @page { size: A4; margin: 18mm 16mm; }
             body { background: #fff !important; color: #111 !important; padding: 0 !important; display: block !important; }
             .lang-bar, .back-home, .callout, .form-block, .tabs, .export-bar,
-            .export-hint, .license-block, .quick-links, .no-print { display: none !important; }
+            .export-hint, .license-block, .quick-links, .page-head, .no-print { display: none !important; }
             .container { max-width: none; margin: 0; padding: 0; border: 0; border-radius: 0; box-shadow: none; background: #fff !important; }
             .preview-card { border: 0; background: #fff !important; padding: 0; max-height: none; overflow: visible; border-radius: 0; }
             .preview-card h2, .preview-card h3, .preview-card p { color: #111 !important; }
@@ -184,20 +184,20 @@
             <span class="zh-inline">← 返回首页</span><span class="en-inline">← Back to Home</span>
         </a>
 
-        <div class="zh-text">
+        <div class="zh-text page-head">
             <h1>📄 协议模板中心</h1>
-            <div class="subhead">最后更新：2026 年 11 月 11 日 ｜ 适用于平台 5.0.0 合规新规</div>
+            <div class="subhead">最后更新：2026 年 11 月 11 日 ｜ 适用于《游戏守则》5.0.0 合规新规</div>
         </div>
-        <div class="en-text">
+        <div class="en-text page-head">
             <h1>📄 Legal Template Center</h1>
-            <div class="subhead">Last updated: November 11, 2026 ｜ For Platform v5.0.0 compliance</div>
+            <div class="subhead">Last updated: November 11, 2026 ｜ For Game Rules v5.0.0 compliance</div>
         </div>
 
         <div class="callout zh-text">
-            <strong>⚠️ 5.0.0 新规：</strong>自 2026 年 11 月 15 日起，所有提交到平台的游戏（无论外链还是代码形式）都必须具备「用户协议」「隐私政策」「服务条款」。缺少法律协议的游戏将无法通过审核。请填写下方信息、选择模板并导出，将成品协议部署到您的游戏中，再把链接通过投稿或「更新游戏」表单提交给平台。
+            <strong>⚠️ 《游戏守则》5.0.0 新规：</strong>自 2026 年 11 月 15 日起，所有提交到平台的游戏（无论外链还是代码形式）都必须具备「用户协议」「隐私政策」「服务条款」。缺少法律协议的游戏将无法通过审核。请填写下方信息、选择模板并导出，将成品协议部署到您的游戏中，再把链接通过投稿或「更新游戏」表单提交给平台。
         </div>
         <div class="callout en-text">
-            <strong>⚠️ Platform v5.0.0:</strong> Effective November 15, 2026, every game submitted to the Platform — whether as a link or as source code — must provide an EULA, a Privacy Policy and Terms of Service. Games without legal agreements cannot pass review. Fill in the fields below, choose a template, export it, host it with your game, and submit the links via the submission or "Update a Game" form.
+            <strong>⚠️ Game Rules v5.0.0:</strong> Effective November 15, 2026, every game submitted to the Platform — whether as a link or as source code — must provide an EULA, a Privacy Policy and Terms of Service. Games without legal agreements cannot pass review. Fill in the fields below, choose a template, export it, host it with your game, and submit the links via the submission or "Update a Game" form.
         </div>
 
         <div class="form-block no-print">
@@ -275,9 +275,9 @@
         </div>
 
         <div class="quick-links no-print">
-            <a href="user_agreement.html"><span class="zh-inline">用户协议</span><span class="en-inline">User Agreement</span></a>
-            <a href="game_rules.html"><span class="zh-inline">游戏守则 5.0.0</span><span class="en-inline">Game Rules 5.0.0</span></a>
-            <a href="docs.html"><span class="zh-inline">文档中心</span><span class="en-inline">Docs</span></a>
+            <a href="user_agreement.html" data-page="user_agreement.html"><span class="zh-inline">用户协议</span><span class="en-inline">User Agreement</span></a>
+            <a href="game_rules.html" data-page="game_rules.html"><span class="zh-inline">游戏守则 5.0.0</span><span class="en-inline">Game Rules 5.0.0</span></a>
+            <a href="docs.html" data-page="docs.html"><span class="zh-inline">文档中心</span><span class="en-inline">Docs</span></a>
         </div>
     </div>
 
@@ -472,21 +472,31 @@
             document.getElementById('previewBody').innerHTML = out.join('');
         }
 
+        function mdSafe(s) {
+            // Markdown 预览器会解析内联 HTML，用户输入必须先转义；
+            // 再转义 Markdown 元字符，避免输入里的 * / [ 破坏文档结构。
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/([\\`*_\[\]])/g, '\\$1');
+        }
         function toPlain(d, asMarkdown) {
             var out = [];
             d.items.forEach(function (it) {
-                if (it.kind === 'title') out.push((asMarkdown ? '# ' : '') + it.text);
-                else if (it.kind === 'sub') out.push(it.text);
-                else if (it.kind === 'h') out.push((asMarkdown ? '## ' : '') + it.text);
-                else out.push(it.text);
+                var line = asMarkdown ? mdSafe(it.text) : it.text;
+                if (asMarkdown && it.kind === 'title') line = '# ' + line;
+                else if (asMarkdown && it.kind === 'h') line = '## ' + line;
+                out.push(line);
                 out.push('');
             });
-            out.push('— ' + d.attribution);
+            out.push('— ' + (asMarkdown ? mdSafe(d.attribution) : d.attribution));
             return out.join('\n');
         }
         function toHtmlDoc(d, forWord) {
             var parts = [];
-            parts.push('<!DOCTYPE html><html lang="' + d.lang + '"><head><meta charset="UTF-8">');
+            parts.push('<!DOCTYPE html><html lang="' + d.lang + '"' +
+                       (forWord ? ' xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"' : '') +
+                       '><head><meta charset="UTF-8">');
+            if (forWord) parts.push('<meta name="ProgId" content="Word.Document">');
             parts.push('<title>' + esc(d.items[0].text) + '</title>');
             if (forWord) {
                 parts.push('<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->');
@@ -522,10 +532,12 @@
         }
         function doExport(kind) {
             var d = docParts(), stem = fileStem(d);
+            // BOM 只给纯文本（Windows 记事本识别中文用）；HTML/Word 的 BOM 会落在
+            // <!DOCTYPE> 之前导致怪异模式，或在 Word 正文开头显示 ï»¿。
             if (kind === 'md') download(toPlain(d, true), 'text/markdown;charset=utf-8', stem + '.md', true);
             else if (kind === 'txt') download(toPlain(d, false), 'text/plain;charset=utf-8', stem + '.txt', true);
-            else if (kind === 'html') download(toHtmlDoc(d, false), 'text/html;charset=utf-8', stem + '.html', true);
-            else if (kind === 'word') download(toHtmlDoc(d, true), 'application/msword;charset=utf-8', stem + '.doc', true);
+            else if (kind === 'html') download(toHtmlDoc(d, false), 'text/html;charset=utf-8', stem + '.html', false);
+            else if (kind === 'word') download(toHtmlDoc(d, true), 'application/msword;charset=utf-8', stem + '.doc', false);
             else if (kind === 'pdf') window.print();
         }
 
@@ -548,18 +560,25 @@
                 btn.addEventListener('click', function () { doExport(btn.dataset.export); });
             });
             if (window.MutationObserver) {
-                new MutationObserver(function () { renderPreview(); })
+                new MutationObserver(function () { renderPreview(); syncLangLinks(); })
                     .observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
             }
         }
 
+        function syncLangLinks() {
+            var suffix = lang() === 'en' ? '?lang=en' : '';
+            document.querySelectorAll('.quick-links a[data-page]').forEach(function (a) {
+                a.href = a.getAttribute('data-page') + suffix;
+            });
+            var back = document.getElementById('backHomeBtn');
+            if (back) back.href = 'index.html' + suffix;
+        }
         function boot() {
-            renderPreview(); bind();
+            renderPreview(); bind(); syncLangLinks();
             window.onReady(function () {
                 var l = lang();
                 document.querySelectorAll('.lang-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.langBtn === l); });
-                var back = document.getElementById('backHomeBtn');
-                if (back) back.href = l === 'en' ? 'index.html?lang=en' : 'index.html';
+                syncLangLinks();
             });
         }
         if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
