@@ -1,0 +1,43 @@
+{
+  "id": 30,
+  "name_zh": "枪火突围3D",
+  "name_en": "Gunfire Breakout 3D",
+  "icon": "🖤",
+  "category_zh": "射击",
+  "category_en": "Shooter",
+  "type": "local",
+  "ageRating_zh": "12+",
+  "ageRating_en": "12+",
+  "version": "v1.0.0",
+  "author": "3",
+  "url": "",
+  "banner": "https://gamepic.surge.sh/QQ_1794450303347.lsfp",
+  "screenshots": [
+    "https://gamepic.surge.sh/QQ_1794450303347.lsfp"
+  ],
+  "videos": [],
+  "description_zh": "存活获得金币。\n\n击败敌人获得金币，在枪火中撑到最后。",
+  "description_en": "Survive to earn coins.\n\nDefeat enemies for coins and outlast the gunfire.",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-12",
+      "content": "游戏首发上线！"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-12",
+      "content": "Initial release!"
+    }
+  ],
+  "summary": "存活获得金币",
+  "summary_en": "Survive to earn coins",
+  "authorName": "廖宸翰(Kevil Liao)",
+  "legal_urls": {
+    "eula": "",
+    "privacy": "",
+    "terms": ""
+  }
+}

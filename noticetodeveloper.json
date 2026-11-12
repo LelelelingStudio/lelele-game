@@ -1,6 +1,6 @@
 {
-  "version": 4,
-  "updatedAt": "2026-11-11T14:00:00+08:00",
+  "version": 5,
+  "updatedAt": "2026-11-12T00:00:00+08:00",
   "_readme": {
     "说明": "本文件是「开发者定向告示」数据源，由 notice.js 读取。JSON 标准不支持 // 注释，所以字段说明都写在 _readme 里，程序会忽略它。",
     "文件结构": "{ version, updatedAt, _readme, notices: [告示对象, ...] }。真正生效的只有 notices 数组。",
@@ -40,8 +40,8 @@
       "endAt": "2026-11-24T23:59:59+08:00",
       "title_zh": "⚠️ 11 月 15 日起：游戏必须具备三类法律协议",
       "title_en": "⚠️ From Nov 15: three legal agreements are required for every game",
-      "body_zh": "《游戏守则》升级到 **5.0.0**，**2026 年 11 月 15 日生效**。届时缺少「用户协议 / 隐私政策 / 服务条款」任一协议的游戏将无法通过审核。投稿、推荐与「更新游戏」三类中英表单都已加入对应字段，请按以下方式填写：\n\n• **投稿（外链 / 链接）**：在「投稿方式 = 链接」时展开的三个必填 URL 字段中，分别填入三类协议的 https 可公开访问直链。仅支持直链，不要填网盘、短链或需登录的页面。\n\n• **投稿（代码 / 粘贴代码）**：在「补充材料」区回答「您的游戏是否已自带法律协议页面？」——选「已自带」请说明游戏内入口；选「未自带，请使用平台提供的万能协议」则无需再做任何事，平台会在详情页自动挂载通用协议。\n\n• **推荐游戏**：在「游戏链接」下方补齐该游戏的三条协议链接；若该游戏尚未提供，请先告知其开发者补充，否则无法通过审核。\n\n• **更新已有游戏**：在「本次更新类型」勾选「补充/更新法律协议」，并在「新的游戏链接」下方填写新的三条协议链接（选填）。代码提交的游戏无需填写，平台已自动接入万能协议。\n\n📄 还没有协议？用「协议模板中心」免费生成：三套中英双语模板、填写即预览、支持 Markdown / TXT / HTML / PDF / Word 导出，部署到自己的游戏里再把链接提交给我们即可。\n\n🛟 **存量游戏过渡**：11 月 15 日前已收录的游戏不会被下架，未提交专属协议的统一自动使用平台万能协议；你随时可以通过「更新游戏」补齐专属链接，经核对后生效。\n\n📚 规则全文与 4.0.2 及更早版本的历史留存，见「游戏守则」页尾的历史版本索引。",
-      "body_en": "The Game Rules are now **v5.0.0**, effective **November 15, 2026**. From that date, a game missing any of an EULA / Privacy Policy / Terms of Service cannot pass review. The Chinese and English submission, recommendation and \"Update a Game\" forms have all been updated — here is how to fill them in:\n\n• **Submission (Link)**: when \"Submission Method = Link\" is selected, three required URL fields appear. Provide publicly accessible https direct links — no cloud drives, short links or pages behind a login.\n\n• **Submission (Source Code / Paste code)**: answer \"Does your game already include legal pages?\" under supplementary materials. Choose \"Yes\" and state where to find them in-game, or choose \"No, use the Platform's generic agreements\" — in the latter case nothing else is needed, the Platform mounts the generic agreements on the detail page automatically.\n\n• **Recommend a game**: supply the three agreement URLs below \"Game Link\". If the game has none yet, ask its developer to add them first, otherwise it cannot pass review.\n\n• **Update an existing game**: tick \"Update Legal Agreements\" under \"Update Type\" and fill in the new three URLs below \"New Game Link\" (optional). Code-based games need not fill these in — the generic agreements are already connected.\n\n📄 No agreements yet? Use the free Legal Template Center: three bilingual templates, live preview, and Markdown / TXT / HTML / PDF / Word export. Host them with your game, then submit the links.\n\n🛟 **Transition for existing games**: games listed before November 15 will **not** be delisted. Those without dedicated agreements use the Platform's generic agreements automatically, and you can supply dedicated links at any time via \"Update a Game\"; they take effect once verified.\n\n📚 Full rules and historical versions (4.0.2 and earlier) are linked in the version-history index at the foot of the Game Rules page.",
+      "body_zh": "《游戏守则》升级到 5.0.0，2026 年 11 月 15 日生效。届时缺少「用户协议 / 隐私政策 / 服务条款」任一协议的游戏将无法通过审核。投稿、推荐与「更新游戏」三类中英表单都已加入对应字段，请按以下方式填写：\n\n• 投稿（外链 / 链接）：在「投稿方式 = 链接」时展开的三个必填 URL 字段中，分别填入三类协议的 https 可公开访问直链。仅支持直链，不要填网盘、短链或需登录的页面。\n\n• 投稿（代码 / 粘贴代码）：在「补充材料」区回答「您的游戏是否已自带法律协议页面？」——选「已自带」请说明游戏内入口；选「未自带，请使用平台提供的万能协议」则无需再做任何事，平台会在详情页自动挂载通用协议。\n\n• 推荐游戏：在「游戏链接」下方补齐该游戏的三条协议链接；若该游戏尚未提供，请先告知其开发者补充，否则无法通过审核。\n\n• 更新已有游戏：在「本次更新类型」勾选「补充/更新法律协议」，并在「新的游戏链接」下方填写新的三条协议链接（选填）。代码提交的游戏无需填写，平台已自动接入万能协议。\n\n📄 还没有协议？用「协议模板中心」免费生成：三套中英双语模板、填写即预览、支持 Markdown / TXT / HTML / PDF / Word 导出，部署到自己的游戏里再把链接提交给我们即可。\n\n🛟 存量游戏过渡：11 月 15 日前已收录的游戏不会被下架，未提交专属协议的统一自动使用平台万能协议；你随时可以通过「更新游戏」补齐专属链接，经核对后生效。\n\n📚 规则全文与 4.0.2 及更早版本的历史留存，见「游戏守则」页尾的历史版本索引。",
+      "body_en": "The Game Rules are now v5.0.0, effective November 15, 2026. From that date, a game missing any of an EULA / Privacy Policy / Terms of Service cannot pass review. The Chinese and English submission, recommendation and \"Update a Game\" forms have all been updated — here is how to fill them in:\n\n• Submission (Link): when \"Submission Method = Link\" is selected, three required URL fields appear. Provide publicly accessible https direct links — no cloud drives, short links or pages behind a login.\n\n• Submission (Source Code / Paste code): answer \"Does your game already include legal pages?\" under supplementary materials. Choose \"Yes\" and state where to find them in-game, or choose \"No, use the Platform's generic agreements\" — in the latter case nothing else is needed, the Platform mounts the generic agreements on the detail page automatically.\n\n• Recommend a game: supply the three agreement URLs below \"Game Link\". If the game has none yet, ask its developer to add them first, otherwise it cannot pass review.\n\n• Update an existing game: tick \"Update Legal Agreements\" under \"Update Type\" and fill in the new three URLs below \"New Game Link\" (optional). Code-based games need not fill these in — the generic agreements are already connected.\n\n📄 No agreements yet? Use the free Legal Template Center: three bilingual templates, live preview, and Markdown / TXT / HTML / PDF / Word export. Host them with your game, then submit the links.\n\n🛟 Transition for existing games: games listed before November 15 will not be delisted. Those without dedicated agreements use the Platform's generic agreements automatically, and you can supply dedicated links at any time via \"Update a Game\"; they take effect once verified.\n\n📚 Full rules and historical versions (4.0.2 and earlier) are linked in the version-history index at the foot of the Game Rules page.",
       "media": [],
       "buttons": [
         {
@@ -330,6 +330,36 @@
         {
           "text_zh": "开发者面板",
           "text_en": "Dashboard",
+          "url": "https://game.leleleling.site/dashboard.html",
+          "style": "ghost",
+          "target": "_self"
+        }
+      ],
+      "dismissible": true,
+      "oncePerUser": true
+    },
+    {
+      "id": "notice-2026-11-12-gunfire-breakout-approved",
+      "enabled": true,
+      "author": "3",
+      "priority": 400,
+      "startAt": "2026-11-12T00:00:00+08:00",
+      "endAt": "2026-11-26T23:59:59+08:00",
+      "title_zh": "✅ 投稿通过：《枪火突围3D》已收录",
+      "title_en": "✅ Approved: Gunfire Breakout 3D is now live",
+      "body_zh": "你的投稿《枪火突围3D》已通过审核并收录，游戏 ID 30，版本 v1.0.0，分类「射击」，适龄 12+，已关联到作者 ID 3。\n\n📄 法律协议：按表单中选择的「未自带，请使用平台提供的万能协议」，详情页已自动挂载平台通用的用户协议 / 隐私政策 / 服务条款。以后游戏内若自带协议页，可通过「更新游戏」提交三条 https 直链替换。\n\n⚠️ 还差一步：本次只收到代码包 `枪火突围3D.zip`，没有可访问的游戏地址，所以详情页「开始游戏」暂时会提示「该游戏暂无可用链接」。请把部署后的 https 地址通过「更新游戏」发给我们，补上即可正常游玩。\n\n🖼️ 截图提醒：目前只上传了 `QQ_1794450303347.lsfp`，没有同名的旧 PNG/JPG。新格式解码失败时将没有可回退的旧图，建议补一份旧图，或改用 `QQ_1794450303347.png.lsfp` 这类保留原后缀的命名。",
+      "body_en": "Your submission Gunfire Breakout 3D has been approved and listed as Game ID 30, v1.0.0, category Shooter, rating 12+, linked to Author ID 3.\n\n📄 Legal agreements: as you selected \"No built-in pages, use the platform's universal agreements\", the detail page now automatically mounts the platform EULA / Privacy Policy / Terms of Service. If your game later ships its own pages, submit three https direct links via \"Update a Game\".\n\n⚠️ One thing left: we only received the code package `枪火突围3D.zip`, with no playable URL, so the Play button currently says no link is available. Send us the deployed https address via \"Update a Game\" and we will enable it.\n\n🖼️ Screenshot note: only `QQ_1794450303347.lsfp` was uploaded, with no matching legacy PNG/JPG. If decoding fails there is no image to fall back to — please add a legacy copy, or use a suffix-preserving name such as `QQ_1794450303347.png.lsfp`.",
+      "buttons": [
+        {
+          "text_zh": "查看游戏详情",
+          "text_en": "View Game Page",
+          "url": "https://game.leleleling.site/game.html?id=30",
+          "style": "primary",
+          "target": "_blank"
+        },
+        {
+          "text_zh": "去后台更新游戏",
+          "text_en": "Update a Game",
           "url": "https://game.leleleling.site/dashboard.html",
           "style": "ghost",
           "target": "_self"
