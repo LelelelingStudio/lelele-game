@@ -1261,3 +1261,93 @@ html.dark-mode .lelele-settings-card { background: rgba(30,41,59,0.92); }
             .recommend-modal { width: 100%; height: 90vh; max-height: 90vh; padding: 0.7rem; }
             .recommend-head { font-size: 1rem; }
         }
+
+/* ==========================================================================
+   详情页 / 作者页：「上一个 · 下一个」循环导航（pager-nav.js）
+   贴屏幕左右边缘垂直居中；z-index 低于 .legal-rail(60) 与各类 modal(1200+)。
+   基础规则在前、窄屏覆盖在后，避免被同优先级规则反向覆盖。
+   ========================================================================== */
+.pager-nav {
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    pointer-events: none;      /* 只有两枚圆钮可点，整层不拦截正文交互 */
+    display: none;
+}
+.pager-nav.is-visible { display: block; }
+.pager-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    color: var(--text-main);
+    font-size: 1.5rem;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    pointer-events: auto;
+    opacity: 0.45;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    transition: opacity 0.2s ease, transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.pager-prev { left: max(10px, calc((100vw - 900px) / 2 - 52px)); }
+.pager-next { right: max(10px, calc((100vw - 900px) / 2 - 52px)); }
+.pager-nav-btn:hover, .pager-nav-btn:focus-visible {
+    opacity: 1;
+    border-color: var(--primary);
+    box-shadow: 0 6px 18px rgba(79,70,229,0.22);
+    outline: none;
+}
+.pager-prev:hover, .pager-prev:focus-visible { transform: translateY(-50%) translateX(-2px); }
+.pager-next:hover, .pager-next:focus-visible { transform: translateY(-50%) translateX(2px); }
+.pager-tip {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) translateX(6px);
+    white-space: nowrap;
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0.32rem 0.72rem;
+    border-radius: 10px;
+    background: rgba(30,41,59,0.92);
+    color: #fff;
+    font-size: 0.76rem;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.pager-prev .pager-tip { left: 48px; }
+.pager-next .pager-tip { right: 48px; transform: translateY(-50%) translateX(-6px); }
+.pager-nav-btn:hover .pager-tip, .pager-nav-btn:focus-visible .pager-tip {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+}
+.pager-tip .zh-inline, .pager-tip .en-inline { white-space: nowrap; }
+
+/* 窄屏：底部居中横排，不遮挡正文与已改为 static 的协议侧栏 */
+@media (max-width: 768px) {
+    .pager-nav { inset: auto 0 12px 0; display: none; }
+    .pager-nav.is-visible { display: flex; justify-content: center; gap: 14px; }
+    .pager-nav-btn { position: static; transform: none; opacity: 0.78; }
+    .pager-prev:hover, .pager-prev:focus-visible,
+    .pager-next:hover, .pager-next:focus-visible { transform: translateY(-2px); }
+    .pager-tip, .pager-prev .pager-tip, .pager-next .pager-tip {
+        left: 50%; right: auto; top: auto; bottom: 46px;
+        transform: translateX(-50%) translateY(6px);
+    }
+    .pager-nav-btn:hover .pager-tip, .pager-nav-btn:focus-visible .pager-tip {
+        transform: translateX(-50%) translateY(0);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .pager-nav-btn, .pager-tip { transition: none !important; }
+}

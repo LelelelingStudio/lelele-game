@@ -368,7 +368,8 @@
         .legal-rail {
             position: fixed;
             right: max(10px, calc((100vw - 900px) / 2 - 52px));
-            top: 50%; transform: translateY(-50%);
+            /* 与右侧「下一个」圆钮错开：协议栏整体上移，避免三枚按钮压住导航钮 */
+            top: 50%; transform: translateY(calc(-50% - 100px));
             display: none; flex-direction: column; gap: 10px;
             z-index: 60; opacity: 0.45;
             transition: opacity 0.2s ease;
@@ -562,6 +563,7 @@
     <script src="/lsfp-adapter.js" defer></script>
     <script src="/notice.js" defer></script>
     <script src="legal_generic.js" defer></script>
+    <script src="/pager-nav.js" defer></script>
 
     <script>
         // 兜底：本地保留 escapeHtml，避免 Cloudflare 缓存旧版 common.js 时本页调用未定义函数而整页崩溃
@@ -1094,6 +1096,26 @@
                 .observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
         }
 
+        // 导航需要 id 全集：缓存一份主列表，语言切换时直接复用，不重新请求
+        let gameCatalogCache = [];
+
+        function mountGamePager() {
+            if (!window.LelelePager || !gameCatalogCache.length) return;
+            const byId = {};
+            gameCatalogCache.forEach(g => { byId[String(g.id)] = g; });
+            window.LelelePager.mount({
+                ids: gameCatalogCache.map(g => g.id),
+                currentId: currentGameId,
+                urlFor: id => '/game.html?id=' + Number(id) + (isEn() ? '&lang=en' : ''),
+                nameFor: id => {
+                    const g = byId[String(id)];
+                    if (!g) return null;
+                    const zh = g.name_zh || g.name || String(id);
+                    return { zh: zh, en: g.name_en || zh };
+                }
+            });
+        }
+
         async function init() {
             const urlParams = new URLSearchParams(window.location.search);
             currentGameId = urlParams.get('id');
@@ -1102,6 +1124,12 @@
                 showError(isEn() ? 'Missing game ID parameter.' : '缺少游戏 ID 参数，无法加载。');
                 return;
             }
+
+            // 与详情请求并行发出，不串行等待；SW 已缓存主列表，开销近乎为零
+            window.leleleFetch('lelegame_data.json')
+                .then(r => r.ok ? r.json() : [])
+                .then(list => { if (Array.isArray(list)) { gameCatalogCache = list; mountGamePager(); } })
+                .catch(() => {});
 
             try {
                 const detailRes = await window.leleleFetch(`/game/data/${currentGameId}.json`);
@@ -1156,6 +1184,7 @@
         }
 
         function showError(msg) {
+            if (window.LelelePager) window.LelelePager.unmount();
             document.getElementById('loadingState').style.display = 'none';
             document.getElementById('gameCard').style.display = 'none';
             setLegalRailVisible(false);
@@ -1174,6 +1203,7 @@
 
             window.addEventListener('langChanged', () => {
                 updateLinks();
+                mountGamePager();
                 if (typeof currentGameData !== 'undefined' && currentGameData) {
                     renderGamePage(currentGameData);
                 }

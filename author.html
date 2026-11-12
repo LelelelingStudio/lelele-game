@@ -292,6 +292,7 @@
     <script src="supabase-client.js" defer></script>
     <script src="/lsfp-adapter.js" defer></script>
     <script src="/notice.js" defer></script>
+    <script src="/pager-nav.js" defer></script>
 
     <script>
         let currentAuthorData = null;
@@ -382,7 +383,33 @@
             if (o.role) currentAuthorData.role = o.role;
         }
 
+        // 作者清单本地 + surge 两阶段到达，缓存最后一份用于语言切换重挂载
+        let authorListCache = [];
+
+        function mountAuthorPager(authors) {
+            if (!window.LelelePager || !Array.isArray(authors) || !authors.length) return;
+            const currentId = new URLSearchParams(window.location.search).get('id');
+            if (!currentId) return;
+            const byId = {};
+            authors.forEach(a => { byId[String(a.id)] = a; });
+            window.LelelePager.mount({
+                ids: authors.map(a => a.id),
+                currentId: currentId,
+                urlFor: id => '/author.html?id=' + Number(id) + (isEn() ? '&lang=en' : ''),
+                nameFor: id => {
+                    const a = byId[String(id)];
+                    if (!a) return null;
+                    const zh = a.name_zh || String(id);
+                    return { zh: zh, en: a.name_en || zh };
+                }
+            });
+        }
+
         function applyAuthorList(authors, authorId) {
+            if (Array.isArray(authors) && authors.length) {
+                authorListCache = authors;
+                mountAuthorPager(authorListCache);
+            }
             let base = null, uuid = null, defaultNameZh = '', defaultNameEn = '';
             if (authors) {
                 const matched = authors.find(a => String(a.id) === String(authorId));
@@ -573,6 +600,7 @@
         }
 
         function showEmpty() {
+            if (window.LelelePager) window.LelelePager.unmount();
             document.getElementById('authorCard').style.display = 'none';
             document.getElementById('gamesSection').style.display = 'none';
             document.getElementById('emptyState').style.display = 'block';
@@ -589,6 +617,7 @@
 
             window.addEventListener('langChanged', () => {
                 updateLinks();
+                mountAuthorPager(authorListCache);
                 renderAuthorPage();
             });
         });
