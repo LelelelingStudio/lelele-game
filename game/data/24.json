@@ -11,9 +11,9 @@
   "version": "v1.0.0",
   "author": "4",
   "url": "https://jonathanxu-games.netlify.app/games/science-quest/",
-  "banner": "https://gamepic.surge.sh/supersciencesmallplayinggamebanner-1.jpeg",
+  "banner": "https://gamepic.surge.sh/supersciencesmallplayinggamebanner-1.jpeg.lsfp",
   "screenshots": [
-    "https://gamepic.surge.sh/supersciencesmallplayinggamebanner-1.jpeg"
+    "https://gamepic.surge.sh/supersciencesmallplayinggamebanner-1.jpeg.lsfp"
   ],
   "videos": [],
   "description_zh": "物理 · 化学 · 生物，闯关答题 + 趣味小游戏！\n\n一个科学答题网站，分简单、中等、困难三个模式，覆盖物理、化学、生物三个科目，每科十个单元，每单元三道题（选择题与填空题）。每单元结束后附带一个相关的小游戏。",

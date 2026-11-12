@@ -10,9 +10,9 @@
   "version": "v1.0.0",
   "author": "5",
   "url": "/game/MCpointygame/index.html",
-  "banner": "http://gamepic.surge.sh/screenshot-mcpointygame.png",
+  "banner": "https://gamepic.surge.sh/screenshot-mcpointygame.png.lsfp",
   "screenshots": [
-    "http://gamepic.surge.sh/screenshot-mcpointygame.png"
+    "https://gamepic.surge.sh/screenshot-mcpointygame.png.lsfp"
   ],
   "description_zh": "一款 MC 主题的点击游戏。\n\n【详细玩法】\n疯狂点击！\n\n【温馨提示】\n请不要使用连点器，保持游戏原本的乐趣哦。",
   "description_en": "An MC-themed clicker game.\n\n[Gameplay]\nClick like crazy!\n\n[Note]\nPlease do not use auto-clickers, keep the original fun of the game.",

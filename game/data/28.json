@@ -11,9 +11,9 @@
   "version": "v1.0.0",
   "author": "4",
   "url": "https://fortress-gqznmnck.manus.game",
-  "banner": "https://gamepic.surge.sh/screenshot1234lelelelingning.PNG",
+  "banner": "https://gamepic.surge.sh/screenshot1234lelelelingning.PNG.lsfp",
   "screenshots": [
-    "https://gamepic.surge.sh/screenshot1234lelelelingning.PNG"
+    "https://gamepic.surge.sh/screenshot1234lelelelingning.PNG.lsfp"
   ],
   "videos": [],
   "description_zh": "这是一款第一人称射击小游戏，你需要在堡垒地图里搜集补给、击杀 5 名敌军完成突围，最后根据击杀、命中率和用时获得得分评价。\n\n【操作】WASD 移动 · 鼠标瞄准 · 左键开火 · R 换弹 · E 拾取/使用物品 · Q 切换枪械\n\n【核心机制】目标为击败 5 名敌军（进度 0/5），同时搜集地图补给。生命值初始 100%，护甲需拾取补给获得；手枪弹药无限，其他武器有弹容量限制。对局带作战计时，结束后统计击杀数、命中率、用时与总得分并给出评价，可输入玩家名字查看排行榜、支持再来一局。\n\n【设置与暂停】暂停菜单可继续或重开本局；设置可开关音乐与音效、调整视角灵敏度、反转垂直视角、调整画质、开关镜头震动。\n\n作者表示后续还会更新。",

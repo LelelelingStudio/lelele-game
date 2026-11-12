@@ -1,6 +1,11 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.10 (LSFP 图片) —— 内置 /lsfp.js 解码库与 /lsfp-adapter.js 适配层，
+ *   两者加入预缓存，保证离线与首访即可解码；升 CACHE_NAME 清 v1.9 旧缓存。
+ *   fetch 三分支策略（静态 SWR / 数据超时回退 / 外部域直通）一字未改；
+ *   gamepic.surge.sh 的 .lsfp 跨域请求仍走外部域直通，不新增缓存分支。
+ *
  * ★ v1.9 (bugfix) —— 修复缓存键与离线链路：规范化 ?t= 时间戳缓存键、
  *   用 URL.origin 判断同源、await cache.put、带参导航不再返回首页 HTML、
  *   数据策略补 game/data/*.json。缓存结构变化，必须升 CACHE_NAME 清旧缓存。
@@ -53,7 +58,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.9';
+const CACHE_NAME = 'lelele-pwa-v1.10';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。
@@ -93,6 +98,8 @@ const ASSETS_TO_CACHE = [
     '/rank-loader.js',
     '/notice.js',
     '/boot.js',
+    '/lsfp.js',
+    '/lsfp-adapter.js',
     '/supabase-client.js',
     '/recaptcha.js',
     '/recaptcha.css',

@@ -205,8 +205,16 @@ if (typeof window.leleleFetch !== 'function') {
                 const emb = toEmbedUrl(m.src) || m.src;
                 return '<iframe src="' + esc(emb) + '" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
             }
-            // 默认视为图片
-            return '<img src="' + src + '" alt="' + esc(m.alt || '') + '" loading="lazy">';
+            // 默认视为图片：LSFP 走适配层（含失败回退），普通图片保持原样
+            const isLsfp = /\.lsfp(?=[?#]|$)/i.test(m.src);
+            if (isLsfp && window.LeleleLsfp) {
+                const fb = window.LeleleLsfp.fallbackOf(m.src) || '';
+                return '<img data-lsfp-src="' + src + '"' +
+                    (fb ? ' data-lsfp-fallback="' + esc(fb) + '"' : '') +
+                    ' alt="' + esc(m.alt || '') + '" loading="lazy">';
+            }
+            const fallbackSrc = isLsfp ? m.src.replace(/\.lsfp(?=[?#]|$)/i, '') : m.src;
+            return '<img src="' + esc(fallbackSrc) + '" alt="' + esc(m.alt || '') + '" loading="lazy">';
         }).join('');
     }
 
@@ -239,6 +247,7 @@ if (typeof window.leleleFetch !== 'function') {
             '</div>';
 
         document.body.appendChild(mask);
+        if (window.LeleleLsfp) window.LeleleLsfp.hydrate(mask);
         requestAnimationFrame(() => mask.classList.add('show'));
 
         let closed = false;

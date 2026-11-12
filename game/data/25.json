@@ -11,9 +11,9 @@
   "version": "v0.0.1a",
   "author": "8",
   "url": "https://ramp-monopoly.netlify.app",
-  "banner": "https://gamepic.surge.sh/ramp-monopoly-1.jpg",
+  "banner": "https://gamepic.surge.sh/ramp-monopoly-1.jpg.lsfp",
   "screenshots": [
-    "https://gamepic.surge.sh/ramp-monopoly-1.jpg"
+    "https://gamepic.surge.sh/ramp-monopoly-1.jpg.lsfp"
   ],
   "description_zh": "一个简易的双人大富翁游戏，二人轮流点击自己那一边的“roll dice”并购买地盘、交税等，根据弹窗操作。",
   "description_en": "A simple two-player Monopoly game: two players take turns clicking the 'roll dice' button on their side to buy properties, pay taxes, etc., following the on-screen prompts.",

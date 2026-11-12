@@ -1020,6 +1020,7 @@ function leleleOnReady(fn) {
         `;
         overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
         document.body.appendChild(overlay);
+        if (window.LeleleLsfp) window.LeleleLsfp.hydrate(overlay);
 
         const readList = getStorage('lelele_read_announcements', []);
         if (!readList.includes(id)) {
@@ -1099,6 +1100,7 @@ function leleleOnReady(fn) {
             const rawContent = isEn ? (item.content_en || item.content) : (item.content_zh || item.content);
             const formattedContent = sanitizeAnnouncementHtml((rawContent || '').replace(/\n/g, '<br>'));
             detail.innerHTML = `<h3>${escapeHtml(title)}</h3><div class="common-announce-detail-content">${formattedContent}</div>`;
+            if (window.LeleleLsfp) window.LeleleLsfp.hydrate(detail);
         };
         renderDetail(0);
         sidebar.addEventListener('click', (e) => {

@@ -559,6 +559,7 @@
 
     <script src="/common.js" defer></script>
     <script src="supabase-client.js" defer></script>
+    <script src="/lsfp-adapter.js" defer></script>
     <script src="/notice.js" defer></script>
     <script src="legal_generic.js" defer></script>
 
@@ -713,8 +714,10 @@
         window.onBannerClick = function() {
             const banner = currentGameData && currentGameData.banner;
             if (!banner) return;
-            if (isVideoUrl(banner)) openVideoLightbox(banner);
-            else openLightbox(banner);
+            if (isVideoUrl(banner)) { openVideoLightbox(banner); return; }
+            const area = document.getElementById('bannerArea');
+            const resolved = area && area.getAttribute('data-lsfp-resolved');
+            openLightbox(resolved || banner.replace(/\.lsfp(?=[?#]|$)/i, ''));
         };
 
         // 横幅静音切换
@@ -848,8 +851,27 @@
                     bannerIcon.textContent = game.icon || '🎮';
                     bannerArea.setAttribute('title', en ? 'Click to watch video' : '点击观看视频');
                 } else {
-                    // ③ 普通图片横幅
-                    bannerArea.style.backgroundImage = `url('${escapeHtml(game.banner)}')`;
+                    // ③ 普通图片横幅：LSFP 必须先经适配层解析再赋值
+                    // （CSS background-image 没有 onerror，直接写 .lsfp 会永远空白）
+                    const lsfpApi = window.LeleleLsfp;
+                    const isLsfpBanner = /\.lsfp(?=[?#]|$)/i.test(game.banner || '');
+                    bannerArea.removeAttribute('data-lsfp-hydrated');
+                    bannerArea.removeAttribute('data-lsfp-resolved');
+                    if (isLsfpBanner && lsfpApi) {
+                        bannerArea.style.backgroundImage = DEFAULT_BANNER_BG;
+                        bannerArea.setAttribute('data-lsfp-src', game.banner);
+                        bannerArea.setAttribute('data-lsfp-fallback', lsfpApi.fallbackOf(game.banner) || '');
+                        bannerArea.setAttribute('data-lsfp-bg', '');
+                        lsfpApi.hydrate(bannerArea);
+                    } else {
+                        // 适配层缺席时直接退到旧图，绝不把 .lsfp 塞进 CSS 背景
+                        const fallbackBanner = isLsfpBanner
+                            ? game.banner.replace(/\.lsfp(?=[?#]|$)/i, '') : game.banner;
+                        bannerArea.style.backgroundImage = `url('${escapeHtml(fallbackBanner)}')`;
+                        bannerArea.removeAttribute('data-lsfp-src');
+                        bannerArea.removeAttribute('data-lsfp-bg');
+                        bannerArea.removeAttribute('data-lsfp-fallback');
+                    }
                     bannerArea.setAttribute('title', en ? 'Click to enlarge' : '点击查看大图');
                 }
             } else {
@@ -909,8 +931,16 @@
                             <span class="video-play-icon">▶</span>
                         </div>`;
                     }
-                    return `<img class="screenshot-img" src="${safe}" alt="Screenshot" onclick="openLightbox('${safe}')">`;
+                    const isLsfpShot = /\.lsfp(?=[?#]|$)/i.test(src);
+                    if (isLsfpShot && window.LeleleLsfp) {
+                        const fb = window.LeleleLsfp.fallbackOf(src) || '';
+                        return `<img class="screenshot-img" data-lsfp-lazy data-lsfp-src="${safe}" data-lsfp-fallback="${escapeHtml(fb)}" alt="Screenshot" onclick="openLightbox(this.getAttribute('data-lsfp-resolved') || this.getAttribute('data-lsfp-fallback') || this.getAttribute('data-lsfp-src'))">`;
+                    }
+                    // 适配层缺席时直接退到旧图，避免破图
+                    const safeFallback = escapeHtml(isLsfpShot ? src.replace(/\.lsfp(?=[?#]|$)/i, '') : src);
+                    return `<img class="screenshot-img" src="${safeFallback}" alt="Screenshot" onclick="openLightbox(this.src)">`;
                 }).join('');
+                if (window.LeleleLsfp) window.LeleleLsfp.hydrate(grid);
             }
 
             const logs = en ? (game.updateLog_en || game.updateLog_zh || game.updateLog) : (game.updateLog_zh || game.updateLog_en || game.updateLog);
