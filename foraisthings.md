@@ -28,6 +28,9 @@
 | `README.md` | 面向访客的项目简介 | ✅ |
 | `LSFP-NOTICE.txt` | 内置 `lsfp.js` 的上游 NOTICE + Apache-2.0 全文，合规留存 | ✅ |
 | `github/vertified-application-form.md` | 认证申请表相关留档 | ✅ |
+| `github/admin.html` | 站长**内部**管理控制台（可公开部署，但仅站长持 PAT 可用）：选动作 → 填空/选题 → 预览 → 触发 Action 落库；文件零密钥、PAT 只存浏览器 | ✅ |
+| `.github/workflows/admin-apply.yml` | 监听 `repository_dispatch` 的 `admin-apply` 事件，校验并生成静态 JSON，默认开草稿 PR 或直接推送 | ✅ |
+| `.github/scripts/admin-apply.mjs`（+`.test.mjs`） | 按动作分派：字段校验 + 最小差异写入；Node 单测覆盖 | ✅ |
 
 > ⚠️ **历史纠错**：旧版本文曾写「`foraisthings.md` 已被 `.gitignore` 忽略、不会推送」以及「仓库没有 `.gitignore`」。**这两条现在都不成立**：`foraisthings.md` 已被 git 跟踪并会随 push 同步；仓库根目录现有 `.gitignore`，内容只忽略 `historymd/` 与 `.DS_Store`。**不要把 `foraisthings.md` 加进忽略规则**，否则零上下文的远端 AI 就看不到这本手册。
 
@@ -214,8 +217,9 @@ flowchart TB
 - `game/<slug>/` — 12 个本地游戏本体目录，各含 `index.html`（+ 同目录 `style.css` / `game.js` 等）：`2048_1`、`3Dshooting`、`MCpointygame`、`deleting_bombs`、`eat_planet`、`happycorn`、`leveleating`、`old_happyfarmer`、`popping_banana`、`space_shooting`、`universal_evolution`、`others/2026_7_7/point_the_button`。这些页面通过 `https://game.leleleling.site/common.js` 引全站脚本。
 - `authors/` — `index.json`（9 条）+ `data/1.json`–`data/9.json`（各 `{"games_count": n}`）。**由 GitHub Actions 生成，不要手改**。
 - `vendor/` — 自托管 UMD：`supabase-js.js`、`pinyin-pro.js`、`echarts.min.js`（4.0.12 起，当前**在用**，旧手册说「已 revert」是错的）。
-- `.github/workflows/sync-authors.yml` — 唯一的工作流，见 5.8 / 6.2。
-- `github/` — `vertified-application-form.md` 留档。
+- `.github/workflows/` — 工作流：`sync-authors.yml`（每 30 分钟从 surge 同步作者，见 5.8 / 6.2）、`admin-apply.yml`（监听 `repository_dispatch`，由 `github/admin.html` 触发，校验并落库静态 JSON，见 4.14）。
+- `.github/scripts/admin-apply.mjs`（+`.test.mjs`）— `admin-apply.yml` 调用的校验/生成脚本，纯 Node 内置模块，不依赖第三方包。
+- `github/` — `vertified-application-form.md` 留档；`admin.html` 是站长内部管理控制台（见 4.14），可公开部署，不进玩家导航。
 - `historymd/` — 里程碑记录，被忽略，见 0.3。
 
 ### 2.5 脚本引入矩阵
@@ -453,6 +457,17 @@ fetchAuthors()       → 先 Fresh，失败才 Local
 - **`404.html`**：GitHub Pages 会用根 `404.html` 响应**任意层级**的不存在 URL，所以 `<head>` 最前面有 `<base href="/">`，所有关键资源与首页链接都是根绝对路径，且所有 `var(--x)` 都带 fallback —— 即使 `common.css` 和 `common.js` 全挂也能完整渲染。另有不依赖 JS 的 `/sitemap.html` 备用出口。
 - **`legal_templates.html`**：见 4.8。
 
+### 4.14 管理控制台（admin 页面 + admin-apply Action）— 2026-11-12 新增
+
+站长**内部**工具，把「手工改 4 个 JSON」变成「选按钮 → 填空/选题 → 预览 → 一键校验落库」。可公开部署，但仅站长持 PAT 可用；不进玩家导航。
+
+- **`github/admin.html`**（单文件、零依赖、零硬编码密钥）：顶栏粘贴细粒度 PAT（只存浏览器 `localStorage`）；六动作卡 —— **➕ 新增游戏 / ✏️ 更新游戏 / 📢 发全站公告 / 🔔 发开发者专用告示** 四个可用，**👤 添加作者 / 🛠 修改作者信息** 两个**禁用占位**（作者权威源在站外 surge，本期不动）；表单按选题字段（分类/适龄/`type`/作者下拉/协议方式/告示对象/优先级/媒体类型/日期）与填空字段（中英成对）组织；富文本工具条生成 `<strong>`/`<video>`/`<img>`（**不含 `**` 语法**），所有图片/媒体允许 `.lsfp` 并提供回退提示；提交前展示「将改动哪些文件 + 字段 diff」；hostname 非 `127.0.0.1`/`localhost` 时禁用提交；`robots.txt` 已 `Disallow: /github/admin.html`。
+- **`.github/workflows/admin-apply.yml`**：监听 `repository_dispatch` 的 `admin-apply` 事件；`permissions: contents:write, pull-requests:write`；checkout → `git pull --ff-only`（与 `sync-authors.yml` 并发协调）→ 调 `admin-apply.mjs` → 默认开**草稿 PR**（页面「直接推送 main」开关可切直推）。
+- **`.github/scripts/admin-apply.mjs`**（+`.test.mjs`）：按 `client_payload.action` 分派四类生成器；**信任前端不可信**——先校验（JSON 合法、id 唯一不冲突、作者 id 存在于 `authors/index.json`、中英成对、日期 `YYYY-MM-DD`、告示 `version+1`、按钮 URL 站内可达、`legal_urls` 合法、隐私字段拒绝邮箱/官网/资质截图、拦截 `**` 与危险 HTML、`.lsfp` 格式）再写盘，校验失败不写任何文件；主列表 `lelegame_data.json` 纯文本追加、详情 `game/data/<id>.json` 新建/更新（`url` 两处同步）、公告追加 `announcements.json`、告示追加 `noticetodeveloper.json`。
+- **密钥红线**：PAT **绝不硬编码**进 `github/admin.html`（该文件会被 Pages 公开 + 进公开仓库，硬编码=泄露）；只在运行时粘贴、仅存浏览器。Action 侧用仓库自带 `secrets.GITHUB_TOKEN` 落地，无需额外密钥。所需 PAT：Fine-grained，仅 `LelelelingStudio/lelele-game` 的 `Contents: Read and write` + `Pull requests: Read and write`。
+- **事件契约**：`POST /repos/LelelelingStudio/lelele-game/dispatches`，`{event_type:"admin-apply", client_payload:{action, direct_push, data}}`，`data` 字段名严格复用现有 JSON 字段名（见 3.2–3.6）。
+- **边界**：外部投稿仍人工看 Tally；作者数据本期不写回（占位）；本工具是 `thoughts.md` #8「投稿审核工作流」的**收窄内部版**（不含 Tally API、不含外部投稿自动入库、不含作者写回），不等于原 #8 全自动方案。
+
 ---
 
 ## 5. 后端与外部服务（⚠️ 源码不在本仓库）
@@ -602,6 +617,8 @@ fetchAuthorsFresh() 优先读 surge（5s），失败才 fetchAuthorsLocal()（8s
 
 ### 7.1 新增一款游戏（完整步骤）
 
+> 💡 不想手改 JSON？用 `github/admin.html` 管理控制台「➕ 新增游戏」动作（见 4.14）：填空/选题后由 Action 校验并落库，主列表与详情两处自动同步。下面步骤是手动等价的底层 SOP。
+
 1. **定 id**：`max(id in lelegame_data.json) + 1`（当前最大 **30**，下一个用 31）。确认 `game/data/` 里该 id 文件不存在。
 2. **定作者**：在 `authors/index.json` 按署名找 `id`。名字拼写可能不完全一致（例「廖宸翰(Kevil Liao)」→ Kevin Liao = id 3），全库搜一遍再定，别新建作者。
 3. **改 `lelegame_data.json`**：在数组末尾**纯文本追加**一条 11 字段记录（用 `json.dumps` 重排整个文件会产生大 diff）。`type`：代码投稿 → `local`，外链 → `external`；`url` 暂无部署地址时可留空串。
@@ -614,6 +631,8 @@ fetchAuthorsFresh() 优先读 surge（5s），失败才 fetchAuthorsLocal()（8s
 9. 提交但不 push；告知用户还需在 surge 上传图片 / 部署游戏代码等站外事项。
 
 ### 7.2 更新游戏 URL / 补部署地址
+
+> 💡 用 `github/admin.html`「✏️ 更新游戏」动作（见 4.14）改，`url` 两处由 Action 自动同步，无需手动双改。
 
 `lelegame_data.json` 与 `game/data/<id>.json` 的 `url` **必须同时改**（两处独立存储）。用 `https://`（主站是 https，http 会触发混合内容/浏览器警告）。若告示里写过「暂无链接」也要同步改文案。
 
@@ -628,7 +647,9 @@ fetchAuthorsFresh() 优先读 surge（5s），失败才 fetchAuthorsLocal()（8s
 
 ### 7.4 加公告 / 开发者告示
 
-- 全站公告 → `announcements.json`：数组追加 `{id,title_zh,title_en,content_zh,content_en,publishDate,expireDate}`；富文本只能用消毒白名单标签（**无 IMG**）；`common.js` 只显示有效期内的前 3 条。
+> 💡 用 `github/admin.html`「📢 发全站公告」/「🔔 发开发者专用告示」动作（见 4.14）：富文本工具条生成合法标签，Action 替你校验并写入。下面步骤是手动等价 SOP。
+
+- 全站公告 → `announcements.json`：数组追加 `{id,title_zh,title_en,content_zh,content_en,publishDate,expireDate}`；富文本只能用消毒白名单标签（**2026-11-12 起已支持 `IMG`/`alt`，可加图片**；但仍**不支持 `**` 星号语法**，加粗用 `<strong>`）；`common.js` 只显示有效期内的前 3 条。
 - 定向告示 → `noticetodeveloper.json`：`version` +1、`updatedAt`、id 唯一、`author`（`'all'` 或具体 id/数组）、`priority` 降序、`startAt`/`endAt`、中英正文（**纯文本**）、`buttons` URL 站内存在、`media` 图片用复合 `.lsfp` 后缀。
 - 两者都要 `JSON` 合法校验 + 按钮/链接可达性校验；告示要模拟登录后验证弹出顺序。
 
@@ -774,6 +795,7 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 | 2026-11-12 | `7222bd2` / `6835ccf` / `6468c09` | 收录《枪火突围3D》id=30（作者 3、v1.0.0、万能协议、纯 `.lsfp` 截图无旧图）+ 定向告示；补 `https://gunfire3d-games.leleleling.site/` |
 | 2026-11-12 | `6f813e9` | 详情页/作者页循环导航（`pager-nav.js`）+ SW v1.11 + `.gitignore` + `historymd/` 机制 + 本手册全量重构 |
 | 2026-11-12 | 本次 | 三份法律文件升级为「了了了游官方版」（官方游戏 / 第三方游戏责任区隔，`liability` 单一数据源）+ 新增 `thoughts.md` 185 条分级升级点子库 |
+| 2026-11-12 | 本次（admin 控制台） | 内部管理控制台 `github/admin.html`（六动作四可用两占位）+ `admin-apply` Action（校验+最小差异写入，默认草稿 PR）；公告消毒白名单补 `IMG`/`alt` 支持图片、`.lsfp` 图片接 LSFP 水合；SW v1.12；`thoughts.md` 落盘批准状态（181/185） |
 
 ---
 
@@ -791,7 +813,9 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 | 权威源 | `authors.surge.sh/authors.json`，仓库内 `authors/index.json` 只是产物 |
 | 三段式 / 双轨 | 站点版本 `4.1.0` 与规则版本 `5.0.0` 各自独立 |
 | `?t=` | 破浏览器缓存的时间戳参数，SW `cacheKeyFor()` 会剔除 |
+| 管理控制台 / admin-apply | 站长内部工具（`github/admin.html`）+ Action（`admin-apply.yml`/`admin-apply.mjs`）。选动作、填空/选题、预览后触发 `repository_dispatch`，远端校验并落库；只限本地使用，密钥只存浏览器、绝不硬编码 |
+| 草稿 PR 模式 | `admin-apply` 默认不开直接推送，而是开草稿 PR 等人工合并；页面「直接推送 main」开关可切直推 |
 
-**遇到问题先查**：改数据 → 第 3 章；改页面 → 2.1 / 4.13；改脚本 → 4.1–4.12；外部服务 → 第 5 章；线上没生效 → 6.2 / 6.3 / 8.6；要做某个任务 → 第 7 章；像是 bug → 第 8 章先看是不是已知坑；想找下一步做什么 → `thoughts.md`。
+**遇到问题先查**：改数据 → 第 3 章；改页面 → 2.1 / 4.13；改脚本 → 4.1–4.14；外部服务 → 第 5 章；线上没生效 → 6.2 / 6.3 / 8.6；要做某个任务 → 第 7 章（新增/更新游戏、加公告/告示优先看 `github/admin.html` 管理控制台，见 4.14）；像是 bug → 第 8 章先看是不是已知坑；想找下一步做什么 → `thoughts.md`。
 
 **联系/权限**：站点所有者 David（Surge 部署账号由用户自己持有，不写入公开仓库）；官方公开邮箱 `leleleling@2980.com`（认证结果与规则申诉，见 `AUTHOR_CERTIFICATION.md` / `game_rules.html`）。A 大版本升级必须先征得 David 同意。

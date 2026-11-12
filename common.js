@@ -482,9 +482,9 @@ function leleleOnReady(fn) {
     // innerHTML 拼接会把 <img onerror> / <script> 带进页面；这里用标签白名单
     // 消毒，非白名单标签只保留文字，并过滤事件属性与危险协议。
     const sanitizeAnnouncementHtml = (raw) => {
-        const ALLOWED_TAGS = ['BR', 'A', 'DIV', 'P', 'SPAN', 'B', 'STRONG', 'I', 'EM', 'U', 'VIDEO'];
+        const ALLOWED_TAGS = ['BR', 'A', 'DIV', 'P', 'SPAN', 'B', 'STRONG', 'I', 'EM', 'U', 'VIDEO', 'IMG'];
         const ALLOWED_ATTRS = ['href', 'src', 'target', 'rel', 'controls', 'playsinline',
-                               'muted', 'loop', 'poster', 'style', 'class', 'width', 'height'];
+                               'muted', 'loop', 'poster', 'style', 'class', 'width', 'height', 'alt'];
         const outDoc = new DOMParser().parseFromString('<div></div>', 'text/html');
         const root = outDoc.body.firstElementChild;
         const inDoc = new DOMParser().parseFromString(String(raw || ''), 'text/html');
@@ -517,6 +517,20 @@ function leleleOnReady(fn) {
         };
         walk(inDoc.body, root);
         return root.innerHTML;
+    };
+    // 公告正文里的 .lsfp 图片需交给 LSFP 适配层水合（<img src> 浏览器无法直解）。
+    // 把消毒后仍带 src 的 .lsfp 图片抬升为适配层约定的 data-lsfp-src 并移除原 src，
+    // 避免浏览器直取 .lsfp 产生破图；普通图片不受此函数影响。
+    const promoteLsfpImages = (container) => {
+        if (!container || !container.querySelectorAll) return;
+        Array.from(container.querySelectorAll('img[src]')).forEach((img) => {
+            const src = (img.getAttribute('src') || '').trim();
+            if (!/\.lsfp(?=[?#]|$)/i.test(src)) return;
+            img.setAttribute('data-lsfp-src', src);
+            const fb = (window.LeleleLsfp && window.LeleleLsfp.fallbackOf) ? window.LeleleLsfp.fallbackOf(src) : '';
+            if (fb) img.setAttribute('data-lsfp-fallback', fb);
+            img.removeAttribute('src');
+        });
     };
     const getLang = () => document.documentElement.getAttribute('data-lang') || 'zh';
 
@@ -1020,6 +1034,7 @@ function leleleOnReady(fn) {
         `;
         overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
         document.body.appendChild(overlay);
+        promoteLsfpImages(overlay);
         if (window.LeleleLsfp) window.LeleleLsfp.hydrate(overlay);
 
         const readList = getStorage('lelele_read_announcements', []);
@@ -1100,6 +1115,7 @@ function leleleOnReady(fn) {
             const rawContent = isEn ? (item.content_en || item.content) : (item.content_zh || item.content);
             const formattedContent = sanitizeAnnouncementHtml((rawContent || '').replace(/\n/g, '<br>'));
             detail.innerHTML = `<h3>${escapeHtml(title)}</h3><div class="common-announce-detail-content">${formattedContent}</div>`;
+            promoteLsfpImages(detail);
             if (window.LeleleLsfp) window.LeleleLsfp.hydrate(detail);
         };
         renderDetail(0);

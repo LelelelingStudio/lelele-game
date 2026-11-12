@@ -1,0 +1,59 @@
+name: Apply admin changes
+
+on:
+  repository_dispatch:
+    types: [admin-apply]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# 与 sync-authors 用不同并发组：两者都会向 main 推送，但本工作流默认走草稿 PR，
+# 仅在站长勾选「直接推送」时才直推 main；与每 30 分钟的同步工作流尽量错峰。
+concurrency:
+  group: admin-apply
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      # 生成前先快进拉取，降低与同步工作流冲突的概率
+      - name: Fast-forward to latest
+        run: git pull --ff-only origin "${GITHUB_REF_NAME}" || true
+
+      - name: Validate & generate
+        id: apply
+        env:
+          PAYLOAD: ${{ toJSON(github.event.client_payload) }}
+        run: node .github/scripts/admin-apply.mjs
+
+      - name: Commit and open draft PR (or push directly)
+        env:
+          DIRECT: ${{ github.event.client_payload.direct_push }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "无改动，跳过提交"
+            exit 0
+          fi
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          if [ "$DIRECT" = "true" ]; then
+            git add -A
+            git commit -m "chore(admin): apply changes via admin console"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          else
+            BR="admin-apply-$(date +%s)"
+            git checkout -b "$BR"
+            git add -A
+            git commit -m "chore(admin): apply changes via admin console"
+            git push origin "$BR"
+            gh pr create --draft --title "Admin 控制台改动（草稿，待复核）" --body "由 admin 控制台自动生成，经校验后写入，待人工复核合并。"
+          fi

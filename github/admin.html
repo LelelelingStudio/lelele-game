@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="zh" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>了了了游 · 站内管理控制台</title>
+<script src="../lsfp-adapter.js" defer></script>
+<style>
+  :root{
+    --bg:#f5f7fb; --card:#ffffff; --card2:#f8fafc; --primary:#4f46e5; --primary-d:#4338ca;
+    --text:#1e293b; --muted:#64748b; --line:#e2e8f0; --line-d:#334155;
+    --ok:#16a34a; --warn:#f59e0b; --err:#ef4444; --radius:14px; --shadow:0 1px 3px rgba(15,23,42,.08),0 8px 24px rgba(15,23,42,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#0f172a; --card:#162033; --card2:#1e293b; --text:#e2e8f0; --muted:#94a3b8; --line:#334155; --shadow:0 1px 3px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.3); }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--primary)}
+  .topbar{position:sticky;top:0;z-index:50;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;padding:12px 18px;background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .brand{font-weight:700;font-size:15px;letter-spacing:.2px}
+  .badge{font-size:11px;padding:3px 9px;border-radius:999px;background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);font-weight:600}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field-row{display:flex;flex-wrap:wrap;gap:10px}
+  .grow{flex:1 1 200px}
+  label{font-size:12px;color:var(--muted);font-weight:600}
+  input,select,textarea{padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);font:inherit;width:100%}
+  textarea{resize:vertical;min-height:70px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.5}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 22%,transparent)}
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .duo .field label::after{content:""}
+  .pill{font-size:11px;color:var(--muted)}
+  .hint{font-size:11px;color:var(--muted);margin-top:2px}
+  .warn-host{background:color-mix(in srgb,var(--err) 14%,transparent);color:var(--err);border:1px solid color-mix(in srgb,var(--err) 40%,transparent);padding:8px 12px;border-radius:10px;font-size:12px;display:none}
+  main{max-width:1180px;margin:0 auto;padding:20px 18px 120px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-bottom:20px}
+  .card{border:1px solid var(--line);background:var(--card);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:.15s;box-shadow:var(--shadow)}
+  .card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--primary) 50%,var(--line))}
+  .card.active{border-color:var(--primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 22%,transparent)}
+  .card.disabled{opacity:.55;cursor:not-allowed;filter:grayscale(.3)}
+  .card .ico{font-size:22px}
+  .card .t{font-weight:700;margin-top:6px}
+  .card .d{font-size:12px;color:var(--muted);margin-top:3px}
+  .cta{font-size:11px;color:var(--primary);font-weight:600;margin-top:8px;display:inline-block}
+  .work{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
+  @media (max-width:860px){ .work{grid-template-columns:1fr} }
+  .pane{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+  .pane h2{margin:0 0 14px;font-size:16px}
+  .groupline{display:flex;align-items:center;gap:8px;margin:18px 0 10px;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .groupline::after{content:"";flex:1;height:1px;background:var(--line)}
+  .toolbar{display:flex;gap:6px;margin:6px 0 8px;flex-wrap:wrap}
+  .tbtn{font-size:12px;padding:6px 10px;border:1px solid var(--line);background:var(--card2);border-radius:8px;cursor:pointer;color:var(--text)}
+  .tbtn:hover{border-color:var(--primary);color:var(--primary)}
+  .media-row,.btn-row{display:grid;gap:8px;align-items:center;margin-bottom:8px;grid-template-columns:90px 1fr 1fr 32px}
+  .media-row.head,.btn-row.head{grid-template-columns:90px 1fr 1fr 32px;font-size:11px;color:var(--muted);font-weight:600}
+  .rm{background:color-mix(in srgb,var(--err) 12%,transparent);color:var(--err);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px}
+  .addrow{font-size:12px;color:var(--primary);background:none;border:1px dashed var(--line);border-radius:8px;padding:7px;width:100%;cursor:pointer}
+  .addrow:hover{border-color:var(--primary)}
+  .preview pre{white-space:pre-wrap;word-break:break-word;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12px;max-height:340px;overflow:auto}
+  .files{font-size:12px;margin:0 0 10px;padding:0;list-style:none}
+  .files li{padding:4px 0;border-bottom:1px dashed var(--line)}
+  .files b{color:var(--ok)}
+  .rfc{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--card2)}
+  .rfc h4{margin:0 0 8px;font-size:13px}
+  .submitbar{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;gap:12px;align-items:center;justify-content:flex-end;padding:12px 18px;background:color-mix(in srgb,var(--card) 90%,transparent);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+  .submitbar .status{margin-right:auto;font-size:12px;color:var(--muted);max-width:60vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .switch{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+  button.primary{background:var(--primary);color:#fff;border:none;padding:11px 22px;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:var(--shadow)}
+  button.primary:disabled{opacity:.5;cursor:not-allowed}
+  button.ghost{background:var(--card);border:1px solid var(--line);color:var(--text);padding:8px 14px;border-radius:10px;cursor:pointer}
+  .toast{position:fixed;top:70px;right:18px;z-index:99;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow);font-size:13px;max-width:320px;display:none}
+  .toast.err{border-color:var(--err);color:var(--err)}
+  .toast.ok{border-color:var(--ok);color:var(--ok)}
+  [hidden]{display:none!important}
+  .placeholder-note{color:var(--muted);font-size:13px;line-height:1.7}
+  .placeholder-note code{background:var(--card2);padding:2px 6px;border-radius:6px;font-size:12px}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <span class="brand">了了了游 · 管理控制台</span>
+  <span class="badge">内部工具 · 需令牌</span>
+  <div class="field grow" style="max-width:340px">
+    <label>GitHub 令牌（细粒度 PAT，仅 Contents 写权限；只存本机浏览器）</label>
+    <input id="pat" type="password" placeholder="ghp_… 或 github_pat_…" autocomplete="off">
+  </div>
+  <button class="ghost" id="testBtn">测试连接</button>
+  <button class="ghost" id="pullBtn">拉取最新数据</button>
+  <span id="connState" class="pill"></span>
+</header>
+
+<div class="warn-host" id="hostWarn" style="display:none">⚠ 此页面已公开可访问，仅站长本人应在此输入 PAT。切勿向他人分享本地址；令牌仅保存在你本机浏览器，不会进入代码或仓库。</div>
+
+<main>
+  <section class="cards" id="cards"></section>
+
+  <section class="work" id="work" hidden>
+    <div class="pane" id="formPane">
+      <h2 id="formTitle"></h2>
+      <div id="formBody"></div>
+    </div>
+    <div class="pane preview">
+      <h2>改动预览</h2>
+      <ul class="files" id="fileList"></ul>
+      <div id="bodyPreview"></div>
+      <div class="rfc" id="rfcPreview" hidden>
+        <h4>公告 / 告示富媒体预览</h4>
+        <div id="rfcRender" style="font-size:13px"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<footer class="submitbar">
+  <span class="status" id="status">请选择上方一个动作开始。</span>
+  <label class="switch"><input type="checkbox" id="directPush"> 直接推送到 main（跳过草稿 PR）</label>
+  <button class="ghost" id="resetBtn">清空</button>
+  <button class="primary" id="submitBtn" disabled>提交</button>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  const REPO = "LelelelingStudio/lelele-game";
+  const BRANCH = "main";
+  const API = "https://api.github.com";
+  const RAW = "https://raw.githubusercontent.com/" + REPO + "/" + BRANCH;
+  const PAT_KEY = "lelele_admin_pat_v1";
+
+  const $ = (id) => document.getElementById(id);
+  const state = { action:null, authors:[], maxId:30, fetched:false };
+
+  /* ---------- 工具 ---------- */
+  function escapeHtml(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+  function toast(msg, kind){ const t=$("toast"); t.textContent=msg; t.className="toast"+(kind?" "+kind:""); t.style.display="block"; clearTimeout(t._t); t._t=setTimeout(()=>t.style.display="none",4200); }
+  const LSFP_RE = /\.lsfp(?=[?#]|$)/i;
+  const httpRe = /^(https:\/\/|mailto:|\/|#)/i;
+
+  /* ---------- hostname 守卫 ---------- */
+  (function guard(){
+    const h = location.hostname;
+    const local = h==='127.0.0.1'||h==='localhost'||h===''||location.protocol==='file:';
+    if (!local){ $("hostWarn").style.display="block"; }
+  })();
+
+  /* ---------- PAT ---------- */
+  const patInput = $("pat");
+  patInput.value = localStorage.getItem(PAT_KEY) || "";
+  patInput.addEventListener("input", ()=>{ localStorage.setItem(PAT_KEY, patInput.value.trim()); });
+
+  async function ghFetch(path, opts){
+    opts = opts || {};
+    const headers = Object.assign({"Accept":"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"}, opts.headers||{});
+    const pat = patInput.value.trim();
+    if (pat) headers["Authorization"] = "Bearer " + pat;
+    return fetch(API + path, Object.assign({headers}, opts));
+  }
+  async function rawJSON(path){
+    const r = await fetch(RAW + path, {cache:"no-store"});
+    if (!r.ok) throw new Error("拉取 "+path+" 失败 HTTP "+r.status);
+    return r.json();
+  }
+
+  $("testBtn").addEventListener("click", async ()=>{
+    if (!patInput.value.trim()){ $("connState").textContent="请先填写令牌"; return; }
+    try{
+      const r = await ghFetch("/repos/"+REPO);
+      if (r.status===401){ $("connState").textContent="令牌无效（401）"; return; }
+      if (r.status===403){ $("connState").textContent="令牌无权限或超限（403）"; return; }
+      if (!r.ok){ $("connState").textContent="HTTP "+r.status; return; }
+      const d = await r.json();
+      $("connState").textContent="已连接："+ (d.full_name||REPO) + " · 默认分支 " + (d.default_branch||BRANCH);
+    }catch(e){ $("connState").textContent="网络错误："+e.message; }
+  });
+
+  /* ---------- 数据拉取（raw，公开 CORS） ---------- */
+  async function pullData(){
+    $("pullBtn").textContent="拉取中…";
+    try{
+      const [games, authors] = await Promise.all([
+        rawJSON("/lelegame_data.json"),
+        rawJSON("/authors/index.json").catch(()=>([]))
+      ]);
+      state.maxId = Math.max(0, ...games.map(g=>g.id||0));
+      state.authors = authors.map(a=>({id:a.id, zh:a.name_zh||"", en:a.name_en||"", official:!!a.official}));
+      state.fetched = true;
+      toast("已拉取最新数据：最大游戏 id = "+state.maxId+"，作者 "+state.authors.length+" 位","ok");
+      if (state.action) renderForm(state.action); // 重渲染以预填 id 建议
+    }catch(e){
+      toast("拉取失败："+e.message,"err");
+    }finally{
+      $("pullBtn").textContent="拉取最新数据";
+    }
+  }
+  $("pullBtn").addEventListener("click", pullData);
+
+  /* ---------- 作者下拉 ---------- */
+  function authorOptions(selected){
+    const list = state.authors.length ? state.authors : [
+      {id:1,zh:"了了了岭工作室",en:"Leleleling Studio",official:true},
+      {id:2,zh:"Andy Huang",en:"Andy Huang"},{id:3,zh:"Kevin Liao",en:"Kevin Liao"},
+      {id:4,zh:"Jonathan",en:"Jonathan"},{id:5,zh:"Wheat",en:"Wheat"},
+      {id:6,zh:"Emolingo games",en:"Emolingo games"},{id:7,zh:"Zanie",en:"Zanie"},
+      {id:8,zh:"Jeremy",en:"Jeremy"},{id:9,zh:"元成爱",en:"Roy Jin"}
+    ];
+    return list.map(a=>{
+      const label = `id ${a.id} · ${a.zh||a.en}` + (a.official?" · 官方":"");
+      return `<option value="${a.id}" ${String(a.id)===String(selected)?"selected":""}>${escapeHtml(label)}</option>`;
+    }).join("");
+  }
+
+  /* ---------- 分类 / 适龄 / 类型 选题 ---------- */
+  const CATEGORIES = [
+    ["休闲","Casual"],["冒险","Adventure"],["射击","Shooter"],["动作","Action"],
+    ["益智","Puzzle"],["模拟经营","Simulation"],["休闲 / 跑酷","Casual / Parkour"]
+  ];
+  const AGES = [["全年龄","All Ages"],["12+","12+"],["6+","6+"]];
+  const TYPES = [["本地游戏","local"],["站外链接","external"],["站内页面","internal"]];
+  const PRIORITIES = [["审批结果 (400)","400"],["全体重要 (300)","300"],["常规 (200)","200"],["低 (100)","100"]];
+
+  function optGroup(arr, sel){
+    return arr.map(([zh,en])=>`<option value="${escapeHtml(en)}" ${en===sel?"selected":""}>${escapeHtml(zh+" / "+en)}</option>`).join("");
+  }
+
+  /* ---------- 富文本工具条 ---------- */
+  function wrapSelection(taId, before, after){
+    const ta = $(taId); if(!ta) return;
+    const s = ta.selectionStart, e = ta.selectionEnd;
+    const v = ta.value, sel = v.slice(s,e) || "在此输入";
+    ta.value = v.slice(0,s) + before + sel + after + v.slice(e);
+    ta.focus(); ta.selectionStart=s+before.length; ta.selectionEnd=s+before.length+sel.length;
+    refreshPreview();
+  }
+  function insertAtCursor(taId, html){
+    const ta = $(taId); if(!ta) return;
+    const s = ta.selectionStart, e = ta.selectionEnd, v = ta.value;
+    ta.value = v.slice(0,s) + html + v.slice(e);
+    ta.focus(); ta.selectionStart = ta.selectionEnd = s + html.length;
+    refreshPreview();
+  }
+  function mediaToolbar(taId){
+    return `<div class="toolbar">
+      <button type="button" class="tbtn" data-act="strong">B 加粗</button>
+      <button type="button" class="tbtn" data-act="video">🎬 视频链接</button>
+      <button type="button" class="tbtn" data-act="img">🖼 图片链接</button>
+    </div>`;
+  }
+  document.addEventListener("click",(e)=>{
+    const b = e.target.closest(".tbtn"); if(!b) return;
+    const act = b.dataset.act; const taId = b.closest(".rt").dataset.ta;
+    if (act==="strong") wrapSelection(taId,"<strong>","</strong>");
+    else if (act==="video"){ const u=prompt("视频直链（.mp4/.webm 等，支持 https）："); if(u) insertAtCursor(taId,`<video src="${escapeHtml(u)}" controls playsinline></video>`); }
+    else if (act==="img"){ const u=prompt("图片链接（支持 .png/.jpg/.lsfp，.lsfp 会自动回退旧图）："); const alt=prompt("图片替代文字（alt，可空）：","")||""; if(u) insertAtCursor(taId,`<img src="${escapeHtml(u)}" alt="${escapeHtml(alt)}">`); }
+  });
+
+  /* ---------- 表单渲染 ---------- */
+  function field(id,label,opts){
+    opts=opts||{};
+    const ph=opts.ph||"", type=opts.type||"text", val=opts.val!=null?opts.val:"";
+    const hint=opts.hint?`<div class="hint">${escapeHtml(opts.hint)}</div>`:"";
+    return `<div class="field"><label>${escapeHtml(label)}</label><input id="${id}" type="${type}" value="${escapeHtml(val)}" placeholder="${escapeHtml(ph)}">${hint}</div>`;
+  }
+  function duo(zhId,enId,zhLabel,enLabel,zhVal,enVal,ph){
+    return `<div class="duo">
+      <div class="field"><label>${escapeHtml(zhLabel)}</label><input id="${zhId}" value="${escapeHtml(zhVal||"")}" placeholder="${escapeHtml(ph||"")}"></div>
+      <div class="field"><label>${escapeHtml(enLabel)}</label><input id="${enId}" value="${escapeHtml(enVal||"")}" placeholder="${escapeHtml(ph||"")}"></div>
+    </div>`;
+  }
+  function select(id,label,optsHtml,val,hint){
+    return `<div class="field"><label>${escapeHtml(label)}</label><select id="${id}">${optsHtml}</select>${hint?`<div class="hint">${escapeHtml(hint)}</div>`:""}</div>`;
+  }
+  function textarea(id,label,val,hint,rt){
+    const tb = rt?`<div class="rt" data-ta="${id}">${mediaToolbar(id)}</div>`:"";
+    return `<div class="field"><label>${escapeHtml(label)}</label>${tb}<textarea id="${id}">${escapeHtml(val||"")}</textarea>${hint?`<div class="hint">${escapeHtml(hint)}</div>`:""}</div>`;
+  }
+
+  function mediaBlock(){
+    return `<div class="groupline">媒体链接（图片 / 视频 / 嵌入，支持 .lsfp）</div>
+      <div id="mediaList"></div>
+      <button type="button" class="addrow" data-add="media">+ 添加一条媒体</button>
+      <div class="hint">图片 / 视频 src 支持 <code>.lsfp</code> 复合后缀（如 <code>pic.png.lsfp</code>），站点会自动解码并回退旧图。</div>`;
+  }
+  function btnBlock(){
+    return `<div class="groupline">按钮（站内可达链接）</div>
+      <div id="btnList"></div>
+      <button type="button" class="addrow" data-add="btn">+ 添加一条按钮</button>`;
+  }
+
+  function renderForm(action){
+    state.action = action;
+    $("work").hidden = false;
+    const body = $("formBody");
+    if (action==="add-game"){
+      $("formTitle").textContent="➕ 新增游戏";
+      const sug = state.maxId + 1;
+      body.innerHTML =
+        duo("g-name-zh","g-name-en","名称（中文）","名称（英文）","","") +
+        field("g-icon","图标 Emoji",{val:"🎮",ph:"🎮"}) +
+        `<div class="field-row">
+          ${select("g-cat-zh","分类", CATEGORIES.map(([z,e])=>`<option value="${escapeHtml(e)}">${escapeHtml(z+" / "+e)}</option>`).join(""),"Casual")}
+          ${select("g-age-zh","适龄", AGES.map(([z,e])=>`<option value="${escapeHtml(e)}">${escapeHtml(z+" / "+e)}</option>`).join(""),"All Ages")}
+          ${select("g-type","类型", optGroup(TYPES,"local"),"local")}
+          ${select("g-author","作者", authorOptions(),"1")}
+        </div>` +
+        `<div class="groupline">链接与版本</div>` +
+        field("g-url","游戏地址 URL",{ph:"https://… 或站内页 path"}) +
+        field("g-version","版本号",{val:"v1.0.0"}) +
+        duo("g-sum-zh","g-sum-en","一句话简介（中文）","一句话简介（英文）","","") +
+        `<div class="groupline">图文与媒体</div>` +
+        field("g-banner","横幅图 URL",{ph:"支持 .lsfp",hint:"支持 .lsfp（自动回退旧图）"}) +
+        textarea("g-shots","截图（每行一个 URL）","","每行一条，支持 .lsfp") +
+        textarea("g-videos","视频（每行一个直链）","","每行一条 .mp4/.webm 等") +
+        `<div class="groupline">详情</div>` +
+        duo("g-desc-zh","g-desc-en","玩法说明（中文）","玩法说明（英文）","","") +
+        textarea("g-log-zh","更新日志（中文，每行：版本 | 日期 | 内容）","","例：v1.0.0 | 2026-11-12 | 游戏首发上线") +
+        textarea("g-log-en","更新日志（英文，每行：版本 | 日期 | 内容）","","例：v1.0.0 | 2026-11-12 | Initial release") +
+        `<div class="groupline">法律协议</div>` +
+        select("g-legal","协议方式",`<option value="official">使用平台官方版协议（留空，自动挂载）</option><option value="custom">自定义三条直链</option>`,"official") +
+        `<div id="customLegal" hidden>` + trio("g-eula","g-privacy","g-terms","用户协议","隐私政策","服务条款") + `</div>` +
+        `<div class="hint">新增后 id 默认 = 当前最大 id + 1（建议 ${sug}）；可在「拉取最新数据」后确认。</div>`;
+      $("g-legal").addEventListener("change",(e)=>{ $("customLegal").hidden = e.target.value!=="custom"; refreshPreview(); });
+    }
+    else if (action==="update-game"){
+      $("formTitle").textContent="✏️ 更新游戏";
+      const opts = Array.from({length:state.maxId},(_,i)=>i+1).map(id=>`<option value="${id}">id ${id}</option>`).join("");
+      body.innerHTML =
+        select("u-id","选择要更新的游戏", opts, "1", "选 id 后自动拉取并预填现有内容") +
+        `<div id="u-form" hidden></div>`;
+      $("u-id").addEventListener("change", async (e)=>{ await prefillGame(e.target.value); });
+    }
+    else if (action==="add-announcement"){
+      $("formTitle").textContent="📢 发全站公告";
+      body.innerHTML =
+        field("a-id","公告 id",{ph:"如 20261112-xxx-300 或任意唯一串",hint:"需唯一；建议 日期-主题-优先级"}) +
+        duo("a-title-zh","a-title-en","标题（中文）","标题（英文）","","") +
+        `<div class="groupline">正文（富文本：加粗 / 视频 / 图片，支持 .lsfp）</div>` +
+        textarea("a-content-zh","正文（中文）","","<strong>加粗</strong> 用工具条；禁止手写 **；视频用直链；图片支持 .lsfp",true) +
+        textarea("a-content-en","正文（英文）","","Rich text: bold / video / image, supports .lsfp",true) +
+        `<div class="field-row">` +
+          field("a-pub","发布日期",{type:"date",val:new Date().toISOString().slice(0,10)}) +
+          field("a-exp","过期日期",{type:"date",val:new Date(Date.now()+180*864e5).toISOString().slice(0,10)}) +
+        `</div>`;
+    }
+    else if (action==="add-notice"){
+      $("formTitle").textContent="🔔 发开发者专用告示";
+      const authorOpts = `<option value="all">全体开发者</option><option value="multi">按 id 多选</option>` + state.authors.map(a=>`<option value="${a.id}">id ${a.id} · ${escapeHtml(a.zh||a.en)}</option>`).join("");
+      body.innerHTML =
+        field("n-id","告示 id",{ph:"唯一串，如 dev-2026-001"}) +
+        select("n-author","对象", authorOpts, "all", "选「按 id 多选」后下方出现复选框") +
+        `<div id="n-multi" hidden><div class="hint">勾选目标作者 id：</div><div id="n-multi-box" class="field-row"></div></div>` +
+        select("n-priority","优先级", PRIORITIES.map(([z,v])=>`<option value="${v}">${escapeHtml(z)}</option>`).join(""),"200") +
+        `<div class="field-row">` +
+          field("n-start","开始时间",{type:"datetime-local"}) +
+          field("n-end","结束时间",{type:"datetime-local"}) +
+        `</div>` +
+        duo("n-title-zh","n-title-en","标题（中文）","标题（英文）","","") +
+        `<div class="groupline">正文（纯文本，换行即换行；不支持 HTML / 加粗）</div>` +
+        textarea("n-body-zh","正文（中文）","","纯文本，禁用 &lt;strong&gt; 等标签，会被原样显示") +
+        textarea("n-body-en","正文（英文）","","Plain text only") +
+        mediaBlock() + btnBlock() +
+        `<div class="duo" style="margin-top:12px">
+          <label class="switch"><input type="checkbox" id="n-dismiss" checked> 用户可关闭</label>
+          <label class="switch"><input type="checkbox" id="n-once" checked> 每次登录只弹一次</label>
+        </div>`;
+      $("n-author").addEventListener("change",(e)=>{
+        const multi = e.target.value==="multi";
+        $("n-multi").hidden = !multi;
+        if (multi && !$("n-multi-box").children.length){
+          $("n-multi-box").innerHTML = state.authors.map(a=>`<label class="switch"><input type="checkbox" value="${a.id}"> id ${a.id}</label>`).join("");
+        }
+        refreshPreview();
+      });
+      renderMediaRows(); renderBtnRows();
+    }
+    else if (action==="add-author" || action==="edit-author"){
+      $("formTitle").textContent = action==="add-author" ? "👤 添加作者（暂未开放）" : "🛠 修改作者信息（暂未开放）";
+      body.innerHTML = `<div class="placeholder-note">
+        <p>作者数据的<strong>权威源在站外</strong> <code>authors.surge.sh/authors.json</code>，仓库里的 <code>authors/index.json</code> 是由 GitHub Actions 每 30 分钟自动从 Surge 生成的镜像，改本地会被覆盖。</p>
+        <p>因此「添加作者 / 修改作者信息」本期不在管理台开放，请按既有流程在 Surge 维护，或联系 David 调整。</p>
+        <p>本期可立即使用的动作：新增游戏、更新游戏、发全站公告、发开发者专用告示。</p>
+      </div>`;
+    }
+    refreshPreview();
+  }
+
+  function trio(id1,id2,id3,lab1,lab2,lab3){
+    return `<div class="field-row">
+      ${field(id1,lab1,{ph:"https://…"})}
+      ${field(id2,lab2,{ph:"https://…"})}
+      ${field(id3,lab3,{ph:"https://…"})}
+    </div>`;
+  }
+
+  async function prefillGame(id){
+    try{
+      const d = await rawJSON("/game/data/"+id+".json");
+      const f = $("u-form"); f.hidden=false;
+      const sug = state.maxId + 1;
+      const catEn = d.category_en||"Casual", ageEn = d.ageRating_en||"All Ages", typeEn = d.type||"local";
+      f.innerHTML =
+        duo("g-name-zh","g-name-en","名称（中文）","名称（英文）",d.name_zh,d.name_en) +
+        field("g-icon","图标 Emoji",{val:d.icon||"🎮"}) +
+        `<div class="field-row">
+          ${select("g-cat-zh","分类", CATEGORIES.map(([z,e])=>`<option value="${escapeHtml(e)}" ${e===catEn?"selected":""}>${escapeHtml(z+" / "+e)}</option>`).join(""),catEn)}
+          ${select("g-age-zh","适龄", AGES.map(([z,e])=>`<option value="${escapeHtml(e)}" ${e===ageEn?"selected":""}>${escapeHtml(z+" / "+e)}</option>`).join(""),ageEn)}
+          ${select("g-type","类型", optGroup(TYPES,typeEn),typeEn)}
+          ${select("g-author","作者", authorOptions(d.author),d.author)}
+        </div>` +
+        `<div class="groupline">链接与版本</div>` +
+        field("g-url","游戏地址 URL",{val:d.url||""}) +
+        field("g-version","版本号",{val:d.version||"v1.0.0"}) +
+        duo("g-sum-zh","g-sum-en","一句话简介（中文）","一句话简介（英文）",d.summary,d.summary_en) +
+        `<div class="groupline">图文与媒体</div>` +
+        field("g-banner","横幅图 URL",{val:d.banner||"",hint:"支持 .lsfp"}) +
+        textarea("g-shots","截图（每行一个 URL）","",(d.screenshots||[]).join("\n"),"每行一条，支持 .lsfp") +
+        textarea("g-videos","视频（每行一个直链）","",(d.videos||[]).join("\n"),"每行一条") +
+        `<div class="groupline">详情</div>` +
+        duo("g-desc-zh","g-desc-en","玩法说明（中文）","玩法说明（英文）",d.description_zh,d.description_en) +
+        textarea("g-log-zh","更新日志（中文，每行：版本 | 日期 | 内容）","",(d.updateLog_zh||[]).map(x=>typeof x==='string'?x:`${x.version} | ${x.date} | ${x.content}`).join("\n"),"例：v1.0.0 | 2026-11-12 | 游戏首发上线") +
+        textarea("g-log-en","更新日志（英文，每行：版本 | 日期 | 内容）","",(d.updateLog_en||[]).map(x=>typeof x==='string'?x:`${x.version} | ${x.date} | ${x.content}`).join("\n"),"例：v1.0.0 | 2026-11-12 | Initial release") +
+        `<div class="groupline">法律协议</div>` +
+        (function(){ const custom = !!(d.legal_urls && (d.legal_urls.eula||d.legal_urls.privacy||d.legal_urls.terms));
+          return select("g-legal","协议方式",`<option value="official">使用平台官方版协议（留空，自动挂载）</option><option value="custom">自定义三条直链</option>`,custom?"custom":"official") +
+          `<div id="customLegal" ${custom?"":"hidden"}>` + trio("g-eula","g-privacy","g-terms","用户协议","隐私政策","服务条款",) + `</div>`; })() +
+        `<input type="hidden" id="u-id-keep" value="${id}">` +
+        `<div class="hint">id 保持为 ${id}；修改后主列表与详情两处 URL 会自动同步。</div>`;
+      $("g-legal").addEventListener("change",(e)=>{ $("customLegal").hidden = e.target.value!=="custom"; refreshPreview(); });
+      refreshPreview();
+      toast("已预填 id "+id+" 的现有内容，可直接修改。");
+    }catch(e){ toast("预填失败："+e.message,"err"); }
+  }
+
+  function renderMediaRows(){
+    const box=$("mediaList"); if(!box) return;
+    const head=`<div class="media-row head"><span>类型</span><span>src（支持 .lsfp）</span><span>poster</span><span></span></div>`;
+    if(!box.dataset.init){ box.innerHTML=head + oneMediaRow(); box.dataset.init="1"; }
+  }
+  function oneMediaRow(){
+    return `<div class="media-row">
+      <select class="m-type"><option value="image">image</option><option value="video">video</option><option value="embed">embed</option></select>
+      <input class="m-src" placeholder="https://… 或 .lsfp">
+      <input class="m-poster" placeholder="视频封面（可空）">
+      <button type="button" class="rm" data-rm="media">×</button></div>`;
+  }
+  function renderBtnRows(){
+    const box=$("btnList"); if(!box) return;
+    const head=`<div class="btn-row head"><span>主按钮</span><span>中文标签</span><span>英文标签 / URL</span><span></span></div>`;
+    if(!box.dataset.init){ box.innerHTML=head + oneBtnRow(); box.dataset.init="1"; }
+  }
+  function oneBtnRow(){
+    return `<div class="btn-row">
+      <input type="checkbox" class="b-primary" checked style="width:auto">
+      <input class="b-zh" placeholder="中文标签">
+      <input class="b-en-url" placeholder="英文标签 | https://…（站内可达）">
+      <button type="button" class="rm" data-rm="btn">×</button></div>`;
+  }
+  document.addEventListener("click",(e)=>{
+    const a=e.target.closest("[data-add]"); if(a){ const k=a.dataset.add; if(k==="media") $("mediaList").insertAdjacentHTML("beforeend",oneMediaRow()); if(k==="btn") $("btnList").insertAdjacentHTML("beforeend",oneBtnRow()); return; }
+    const r=e.target.closest("[data-rm]"); if(r){ const k=r.dataset.rm; const row=r.closest(".media-row,.btn-row"); if(row && row.parentElement.children.length>2) row.remove(); refreshPreview(); }
+  });
+
+  /* ---------- 数据收集 ---------- */
+  function val(id){ const el=$(id); return el?el.value.trim():""; }
+  function lines(id){ return val(id).split(/\r?\n/).map(s=>s.trim()).filter(Boolean); }
+  function parseLog(id){ return lines(id).map(s=>{ const p=s.split('|').map(x=>x.trim()); return {version:p[0]||'', date:p[1]||'', content:(p.slice(2).join('|')||'').trim()}; }).filter(x=>x.version||x.content); }
+  function collectGame(isUpdate){
+    const legalMode = val("g-legal");
+    let legal_urls = {eula:"",privacy:"",terms:""};
+    if (legalMode==="custom"){
+      legal_urls = { eula:val("g-eula"), privacy:val("g-privacy"), terms:val("g-terms") };
+    }
+    const data = {
+      name_zh:val("g-name-zh"), name_en:val("g-name-en"), icon:val("g-icon")||"🎮",
+      category_zh:catZh(val("g-cat-zh")), category_en:val("g-cat-zh"),
+      ageRating_zh:ageZh(val("g-age-zh")), ageRating_en:val("g-age-zh"),
+      type:val("g-type"), author:String(val("g-author")), url:val("g-url"),
+      version:val("g-version")||"v1.0.0",
+      summary:val("g-sum-zh"), summary_en:val("g-sum-en"),
+      banner:val("g-banner"), screenshots:lines("g-shots"), videos:lines("g-videos"),
+      description_zh:val("g-desc-zh"), description_en:val("g-desc-en"),
+      updateLog_zh:parseLog("g-log-zh"), updateLog_en:parseLog("g-log-en"),
+      legal_urls
+    };
+    if (isUpdate) data.id = Number(val("u-id-keep")||val("u-id"))||Number(val("u-id"));
+    else data.id = (state.maxId||30) + 1;
+    return data;
+  }
+  function catZh(en){ const m=CATEGORIES.find(c=>c[1]===en); return m?m[0]:en; }
+  function ageZh(en){ const m=AGES.find(c=>c[1]===en); return m?m[0]:en; }
+
+  function collectAnnouncement(){
+    return { id:val("a-id"), title_zh:val("a-title-zh"), title_en:val("a-title-en"),
+      content_zh:val("a-content-zh"), content_en:val("a-content-en"),
+      publishDate:val("a-pub"), expireDate:val("a-exp") };
+  }
+  function collectNotice(){
+    let author = val("n-author");
+    if (author==="multi"){
+      const ids = Array.from(document.querySelectorAll("#n-multi-box input:checked")).map(c=>Number(c.value));
+      author = ids.length?ids:"all";
+    }
+    const media = Array.from(document.querySelectorAll("#mediaList .media-row:not(.head)")).map(r=>({
+      type:r.querySelector(".m-type").value,
+      src:r.querySelector(".m-src").value.trim(),
+      poster:r.querySelector(".m-poster").value.trim()
+    })).filter(m=>m.src);
+    const buttons = Array.from(document.querySelectorAll("#btnList .btn-row:not(.head)")).map(r=>({
+      primary:r.querySelector(".b-primary").checked,
+      label_zh:r.querySelector(".b-zh").value.trim(),
+      label_en:(r.querySelector(".b-en-url").value.split("|")[0]||"").trim(),
+      url:(r.querySelector(".b-en-url").value.split("|")[1]||"").trim()
+    })).filter(b=>b.label_zh && b.url);
+    const start = val("n-start"), end = val("n-end");
+    const toISO = (s)=> s? new Date(s).toISOString().slice(0,19)+"+08:00" : "";
+    return {
+      id:val("n-id"), author, priority:Number(val("n-priority"))||200,
+      startAt:toISO(start), endAt:toISO(end),
+      title_zh:val("n-title-zh"), title_en:val("n-title-en"),
+      body_zh:val("n-body-zh"), body_en:val("n-body-en"),
+      media, buttons, dismissible:$("n-dismiss").checked, oncePerUser:$("n-once").checked
+    };
+  }
+
+  function buildPayload(){
+    const a = state.action;
+    if (a==="add-game") return {action:"add-game", data:collectGame(false)};
+    if (a==="update-game") return {action:"update-game", data:collectGame(true)};
+    if (a==="add-announcement") return {action:"add-announcement", data:collectAnnouncement()};
+    if (a==="add-notice") return {action:"add-notice", data:collectNotice()};
+    return null;
+  }
+
+  /* ---------- 预览 ---------- */
+  function refreshPreview(){
+    const p = buildPayload();
+    const fl = $("fileList"); const bp = $("bodyPreview"); const rp = $("rfcPreview");
+    if (!p){ fl.innerHTML=""; bp.innerHTML=""; rp.hidden=true; updateSubmit(); return; }
+    let files=[];
+    if (p.action==="add-game") files=[`lelegame_data.json <b>追加 1 条</b>`, `game/data/${p.data.id}.json <b>新建</b>`];
+    else if (p.action==="update-game") files=[`lelegame_data.json <b>更新 id ${p.data.id}</b>`, `game/data/${p.data.id}.json <b>更新</b>`];
+    else if (p.action==="add-announcement") files=[`announcements.json <b>追加 1 条</b>`];
+    else if (p.action==="add-notice") files=[`noticetodeveloper.json <b>追加 1 条（version 自动 +1）</b>`];
+    fl.innerHTML = files.map(f=>`<li>${f}</li>`).join("");
+    bp.innerHTML = `<pre>${escapeHtml(JSON.stringify(p.data,null,2))}</pre>`;
+
+    // 富媒体预览
+    if (p.action==="add-announcement"){
+      rp.hidden=false;
+      const c = p.data.content_zh || p.data.content_en || "";
+      $("rfcRender").innerHTML = c.replace(/\n/g,"<br>");
+      setTimeout(()=>{ if(window.LeleleLsfp) window.LeleleLsfp.hydrate($("rfcRender")); },60);
+    } else if (p.action==="add-notice"){
+      rp.hidden=false;
+      const mediaHtml = (p.data.media||[]).map(m=>{
+        if(m.type==="image") return `<div>🖼 <code>${escapeHtml(m.src)}</code>${m.src&&LSFP_RE.test(m.src)?" （.lsfp，将回退旧图）":""}</div>`;
+        if(m.type==="video") return `<div>🎬 <code>${escapeHtml(m.src)}</code></div>`;
+        return `<div>🔗 <code>${escapeHtml(m.src)}</code></div>`;
+      }).join("");
+      $("rfcRender").innerHTML = `<div style="white-space:pre-wrap">${escapeHtml((p.data.body_zh||"")+"\n\n"+(p.data.body_en||""))}</div>` + (mediaHtml?`<div style="margin-top:8px">${mediaHtml}</div>`:"");
+      setTimeout(()=>{ if(window.LeleleLsfp) window.LeleleLsfp.hydrate($("rfcRender")); },60);
+    } else { rp.hidden=true; }
+    updateSubmit();
+  }
+
+  let submitting = false;
+  function updateSubmit(){
+    if (submitting) return;
+    const p = buildPayload();
+    const btn = $("submitBtn");
+    const enabled = p && ["add-game","update-game","add-announcement","add-notice"].includes(p.action) && patInput.value.trim();
+    btn.disabled = !enabled;
+    $("status").textContent = p ? "已就绪，点击提交将触发 GitHub Action 校验并落地。" : "请完整填写表单。";
+  }
+  document.addEventListener("input", refreshPreview);
+  document.addEventListener("change", refreshPreview);
+
+  /* ---------- 提交 ---------- */
+  $("submitBtn").addEventListener("click", async ()=>{
+    const p = buildPayload(); if(!p) return;
+    p.direct_push = $("directPush").checked;
+    const pat = patInput.value.trim();
+    if(!pat){ toast("请先填写 GitHub 令牌","err"); return; }
+    submitting=true;
+    $("submitBtn").disabled=true; $("status").textContent="已提交，等待 Action…";
+    try{
+      const r = await fetch(API+"/repos/"+REPO+"/dispatches",{
+        method:"POST",
+        headers:{"Authorization":"Bearer "+pat,"Accept":"application/vnd.github+json","Content-Type":"application/json","X-GitHub-Api-Version":"2022-11-28"},
+        body: JSON.stringify({event_type:"admin-apply", client_payload:p})
+      });
+      if (r.status===204){
+        toast("已触发 Action ✔ 默认开草稿 PR（或已直接推送）","ok");
+        $("status").innerHTML='已触发。查看 <a href="https://github.com/'+REPO+'/actions" target="_blank">Actions 运行</a> · <a href="https://github.com/'+REPO+'/pulls" target="_blank">Pull Requests</a>';
+      } else if (r.status===404){ toast("仓库不存在或无权限（404）","err"); $("status").textContent="404：检查令牌权限（需 Contents 写）"; }
+      else if (r.status===403){ toast("权限不足或触发频率限制（403）","err"); $("status").textContent="403：令牌需 Contents:write，或触发频率限制"; }
+      else { const t=await r.text().catch(()=> ""); toast("提交失败 HTTP "+r.status,"err"); $("status").textContent="HTTP "+r.status+": "+t.slice(0,120); }
+    }catch(e){ toast("网络错误："+e.message,"err"); $("status").textContent="网络错误："+e.message; }
+    finally{ submitting=false; $("submitBtn").disabled=false; }
+  });
+
+  $("resetBtn").addEventListener("click", ()=>{ renderForm(state.action); });
+
+  /* ---------- 动作卡 ---------- */
+  const ACTIONS = [
+    {id:"add-game", ico:"➕", t:"新增游戏", d:"收录一款新游戏（主列表 + 详情）"},
+    {id:"update-game", ico:"✏️", t:"更新游戏", d:"改现有游戏字段，URL 两处同步"},
+    {id:"add-announcement", ico:"📢", t:"发全站公告", d:"富文本：加粗/视频/图片/.lsfp"},
+    {id:"add-notice", ico:"🔔", t:"发开发者告示", d:"定向弹窗 + 媒体 + 按钮"},
+    {id:"add-author", ico:"👤", t:"添加作者", d:"暂未开放（权威源在站外 Surge）", disabled:true},
+    {id:"edit-author", ico:"🛠", t:"修改作者信息", d:"暂未开放（权威源在站外 Surge）", disabled:true}
+  ];
+  function renderCards(){
+    $("cards").innerHTML = ACTIONS.map(a=>`
+      <div class="card ${a.disabled?"disabled":""} ${state.action===a.id?"active":""}" data-action="${a.id}">
+        <div class="ico">${a.ico}</div><div class="t">${escapeHtml(a.t)}</div><div class="d">${escapeHtml(a.d)}</div>
+        ${a.disabled?'<span class="cta">🔒 暂未开放</span>':'<span class="cta">选择 →</span>'}
+      </div>`).join("");
+  }
+  $("cards").addEventListener("click",(e)=>{
+    const c=e.target.closest(".card"); if(!c||c.classList.contains("disabled")) return;
+    renderCards();
+    renderForm(c.dataset.action);
+  });
+
+  /* ---------- 初始化 ---------- */
+  renderCards();
+  if (patInput.value.trim()){ /* 已有令牌，提示可测试 */ $("connState").textContent="已记住令牌（建议点测试连接校验）"; }
+  pullData();
+})();
+</script>
+</body>
+</html>

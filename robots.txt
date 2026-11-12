@@ -3,5 +3,6 @@ Allow: /
 Disallow: /dashboard.html
 Disallow: /login.html
 Disallow: /gamecheck.html
+Disallow: /github/admin.html
 
 Sitemap: https://game.leleleling.site/sitemap.xml

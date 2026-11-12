@@ -1,6 +1,11 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.12 (admin 富媒体) —— common.js 公告消毒白名单新增 IMG/alt，支持公告正文
+ *   插入图片链接；.lsfp 图片经 promoteLsfpImages 抬升后由适配层水合。本文件仅因
+ *   common.js 字节变化触发重新 install/activate、清理 v1.11 旧缓存；三分支 fetch
+ *   策略、cacheKeyFor() 与预缓存清单（50 项）未改动，admin 页（github/admin.html）不进玩家预缓存。
+ *
  * ★ v1.11 (循环导航) —— 新增 /pager-nav.js（详情页/作者页上一个·下一个），
  *   加入预缓存并升 CACHE_NAME 清 v1.10 旧缓存。三分支 fetch 策略、
  *   cacheKeyFor() 与其余预缓存清单均未改动。
@@ -62,7 +67,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.11';
+const CACHE_NAME = 'lelele-pwa-v1.12';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。

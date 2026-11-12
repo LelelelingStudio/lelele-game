@@ -19,7 +19,7 @@
 
 ```json
 {
-  "id": 23,
+  "id": 31,
   "name_zh": "中文名",
   "name_en": "English Name",
   "icon": "🎮",
@@ -28,8 +28,7 @@
   "type": "external",
   "ageRating_zh": "全年龄",
   "ageRating_en": "All Ages",
-  "version": "v1.0.0",
-  "author": 4,
+  "author": "4",
   "url": "https://example.com/game/"
 }
 ```
@@ -38,18 +37,17 @@
 
 | 字段 | 必填 | 类型 | 说明 |
 |---|---|---|---|
-| `id` | ✅ | number | 数字。当前已占用 1–22，本次用 **23** |
+| `id` | ✅ | number | 数字。下一个 id = 当前 `lelegame_data.json` 最大 id + 1（当前最大 **30**，下一个用 **31**）；确认 `game/data/<id>.json` 不存在 |
 | `name_zh` | ✅ | string | 中文名 |
 | `name_en` | ✅ | string | 英文名 |
 | `icon` | ✅ | string | 单个 emoji |
 | `category_zh` | ✅ | string | 见下方分类表 |
 | `category_en` | ✅ | string | 见下方分类表 |
-| `type` | ✅ | string | 外网游戏固定填 `"external"` |
-| `ageRating_zh` | ✅ | string | `全年龄` / `6+` / `12+` / `16+` / `18+` |
-| `ageRating_en` | ✅ | string | `All Ages` / `6+` / `12+` / `16+` / `18+` |
-| `version` | ✅ | string | 形如 `v1.0.0` |
-| `author` | ✅ | number 或 string | 开发者 ID（数字）或开发者名字（字符串） |
-| `url` | ✅ | string | 游戏可玩地址，外网完整 URL |
+| `type` | ✅ | string | `external`（外网）/ `local`（本地）/ `internal`（站内）；主列表与详情一致 |
+| `ageRating_zh` | ✅ | string | `全年龄` / `6+` / `12+`（当前数据仅用到这三项） |
+| `ageRating_en` | ✅ | string | `All Ages` / `6+` / `12+`（同上） |
+| `author` | ✅ | string | 开发者 ID，**字符串**（如 `"4"`）；主列表与详情统一用字符串 |
+| `url` | ✅ | string | 游戏可玩地址，外网完整 URL；暂无部署地址可留 `""` |
 
 分类对照表（`category_zh` / `category_en` 必须成对使用）：
 
@@ -70,7 +68,7 @@
 
 ```json
 {
-  "id": 23,
+  "id": 31,
   "name_zh": "中文名",
   "name_en": "English Name",
   "icon": "🎮",
@@ -81,7 +79,6 @@
   "ageRating_en": "All Ages",
   "version": "v1.0.0",
   "author": "4",
-  "recommender": "推荐者名字",
   "url": "https://example.com/game/",
   "banner": "https://example.com/banner.png",
   "screenshots": [
@@ -98,7 +95,11 @@
   ],
   "updateLog_en": [
     { "version": "v1.0.0", "date": "2026-10-30", "content": "Initial release!" }
-  ]
+  ],
+  "summary": "一句话简介（中文）",
+  "summary_en": "One-line intro (EN)",
+  "authorName": "作者展示名，如 廖宸翰(Kevil Liao)",
+  "legal_urls": { "eula": "", "privacy": "", "terms": "" }
 }
 ```
 
@@ -110,14 +111,19 @@
 
 | 字段 | 必填 | 类型 | 说明 |
 |---|---|---|---|
-| `recommender` | ✅ | string | 推荐者名字，纯文本 |
-| `banner` | 推荐 | string | 横幅：图片 URL，或视频直链 |
-| `screenshots` | 推荐 | string[] | 截图 URL 数组，可以是图片，也可以混入视频链接 |
+| `version` | ✅ | string | 形如 `v1.0.0` |
+| `banner` | 推荐 | string | 横幅：图片 URL，或视频直链；**支持 `.lsfp` 复合后缀**（旧图保留才能回退） |
+| `screenshots` | 推荐 | string[] | 截图 URL 数组，可图片可视频；**支持 `.lsfp`** |
 | `videos` | 可选 | string[] | 额外视频链接数组 |
-| `description_zh` | ✅ | string | 中文简介 |
+| `description_zh` | ✅ | string | 中文简介，用 `\n\n` 分段 |
 | `description_en` | ✅ | string | 英文简介 |
-| `updateLog_zh` | ✅ | object[] | 更新日志，`{version, date, content}` |
+| `updateLog_zh` | ✅ | object[] | 更新日志，**`{version, date, content}` 对象数组**（不是纯字符串） |
 | `updateLog_en` | ✅ | object[] | 同上，英文版 |
+| `summary` | 推荐 | string | 一句话简介（中文） |
+| `summary_en` | 推荐 | string | 一句话简介（英文） |
+| `authorName` | ✅ | string | 作者展示名（如 `廖宸翰(Kevil Liao)`），由 `authors/index.json` 的 id 推导 |
+| `legal_urls` | ✅ | object | 三项 `{eula, privacy, terms}`：**全空串 `""` 表示自动挂载「了了了游官方版」协议**；填则用你给的三条 https 直链 |
+| `recommender` | ❌ | — | **当前数据契约不含此字段，请勿生成**（历史模板残留） |
 
 ---
 
@@ -146,7 +152,7 @@
 
 ```json
 {
-  "id": 23,
+  "id": 31,
   "name_zh": "星际清扫员",
   "name_en": "Star Sweeper",
   "icon": "🛰️",
@@ -157,7 +163,6 @@
   "ageRating_en": "12+",
   "version": "v1.2.0",
   "author": "4",
-  "recommender": "了了了小明",
   "url": "https://starsweeper.example.com/",
   "banner": "https://starsweeper.example.com/banner.mp4",
   "screenshots": [
@@ -174,7 +179,11 @@
   ],
   "updateLog_en": [
     { "version": "v1.2.0", "date": "2026-10-30", "content": "Added Level 3 and leaderboard." }
-  ]
+  ],
+  "summary": "轨道清扫与碎片回收的街机射击游戏",
+  "summary_en": "Arcade shooter: sweep orbit and salvage debris",
+  "authorName": "了了了岭工作室",
+  "legal_urls": { "eula": "", "privacy": "", "terms": "" }
 }
 ```
 
