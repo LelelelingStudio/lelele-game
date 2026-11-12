@@ -21,6 +21,7 @@
 | --- | --- | --- |
 | `foraisthings.md`（本文） | **接手总手册**：现状、架构、数据契约、SOP、已知坑 | ✅ 已被 git 跟踪，随 push 同步 |
 | `historymd/*.md` | **里程碑记录**：每次大改动一篇，写「改了什么、为什么、怎么验证」 | ❌ 被 `.gitignore` 忽略，**仅本地可见** |
+| `thoughts.md` | **升级点子库**：185 条分级待办（10 大 / 25 中 / 50 小 / 100 迷你），含优化、新功能、修 bug；与「已修档案」`plan.md` 相对 | ✅ |
 | `plan.md` | 4.0.14 审计基线产生的 170 项全站问题清单，状态已全标「本轮已修」，属**历史档案** | ✅ |
 | `AUTHOR_CERTIFICATION.md` | 官方认证等级规则（Lv.1–6）、徽章定义、申请流程 | ✅ |
 | `GAME_ENTRY_TEMPLATE.md` | 给 AI 用的「新增外网游戏 JSON 输出规范」（含中英分类对照、视频规则、完整示例） | ✅ |
@@ -64,6 +65,8 @@ grep -n "CACHE_NAME" sw.js
 python3 -c "import json;c=json.load(open('changelog.json'));print(c[0]['version'],len(c))"
 grep -n "版本 5.0.0" game_rules.html
 git check-ignore -v historymd/ && git ls-files --error-unmatch foraisthings.md
+grep -c "了了了游官方版" legal_generic.js generic_eula.html generic_privacy.html generic_tos.html
+grep -cE '^[0-9]+\.|^\| [0-9]+ \|' thoughts.md    # 应为 185
 ```
 
 ---
@@ -168,9 +171,9 @@ flowchart TB
 | `404.html` | GitHub Pages 404 页（含 `<base href="/">` 与全 fallback，见 8.1） |
 | `game_rules.html` | 《游戏守则》当前版 5.0.0 |
 | `game_rules4-0-0.html` / `game_rules4-0-1.html` / `game_rules4-0-2.html` | 规则历史快照 |
-| `user_agreement.html` | 平台用户协议 |
+| `user_agreement.html` | 平台用户协议（已区分官方游戏与第三方游戏的责任主体） |
 | `legal_templates.html` | 协议模板中心：三套中英模板 + Markdown/TXT/HTML/Word/PDF 五种导出 |
-| `generic_eula.html` / `generic_privacy.html` / `generic_tos.html` | 平台「万能协议」三个静态页（存量游戏兜底） |
+| `generic_eula.html` / `generic_privacy.html` / `generic_tos.html` | 平台「官方版」法律协议三个静态页（官方游戏适用 + 未提交专属协议的游戏兜底） |
 | `privacy.html` / `terms.html` / `copyright.html` | 平台自身合规页 |
 
 ### 2.2 根目录 JS
@@ -183,7 +186,7 @@ flowchart TB
 | `search.js` | 拼音/首字母搜索与高亮 | `leleleSearch` `leleleSearchAuthors` |
 | `notice.js` | **开发者专用定向告示**：登录态 → 作者身份 → 过滤 → 队列弹窗 | `leleleShowNotices` |
 | `rank-loader.js` | 独立排行榜模块（IIFE，不暴露全局） | — |
-| `legal_generic.js` | 万能协议纯常量数据源（中英 × 三类） | `LELELE_GENERIC_AGREEMENTS` `LELELE_LEGAL_ATTRIBUTION` |
+| `legal_generic.js` | **官方版协议**纯常量「单一数据源」（中英 × 三类，含 `liability` 责任声明字段） | `LELELE_GENERIC_AGREEMENTS` `LELELE_LEGAL_ATTRIBUTION` |
 | `lsfp.js` | 内置上游 LSFP v2.0.0 解码/编码器（Apache-2.0） | `LSFP` / `window.LSFP` |
 | `lsfp-adapter.js` | LSFP 图片集中适配层：fetch → decode → canvas → Blob URL → 失败回退 | `LeleleLsfp` |
 | `pager-nav.js` | 详情页/作者页循环导航（2026-11-12 新增） | `LelelePager` |
@@ -203,6 +206,7 @@ flowchart TB
 | 素材 | `lelelegame.svg` / `.png` / `.pdf`、`background-winter.png`、`winter-banner.png` `winter-snowman.png` `winter-tree.png`、`lelelegame-winter.png`、3 张 `截屏2026-11-04…png` |
 | 许可/合规 | `LICENSE` `LSFP-NOTICE.txt` |
 | 编辑器 | `lelele-game.code-workspace` |
+| 文档 | `foraisthings.md` `thoughts.md` `plan.md` `AUTHOR_CERTIFICATION.md` `GAME_ENTRY_TEMPLATE.md`（定位见 0.2） |
 
 ### 2.4 子目录
 
@@ -253,8 +257,8 @@ flowchart TB
   - ⚠️ **不要写投稿邮箱**：公开仓库，按 0.4 的隐私最小化原则。历史上 `25.json` 有 `email`，属遗留。
 - **`legal_urls`**：`{eula, privacy, terms}` 三个字符串。
   - 填 https 直链 → 详情页右侧协议按钮新标签打开。
-  - **三项留空 / 字段缺失 → 自动降级到平台万能协议弹窗**（规则 5.0.0 的存量兜底，见 4.8）。
-  - 新投稿若选「未自带，请使用平台提供的万能协议」，就写三个空串。
+  - **三项留空 / 字段缺失 → 自动降级到平台官方版协议弹窗**（规则 5.0.0 的存量兜底，见 4.8）。
+  - 新投稿若选「未自带，请使用平台提供的万能协议」，就写三个空串；该机制现在提供的文案已是「了了了游官方版」（见 4.8，功能机制仍沿用旧称）。
 - 图片 URL：`banner` 与 `screenshots[]` 指向 `gamepic.surge.sh`，命名规则见 4.9 / 8.5。
 - 视频 URL：`videos[]` 与公告 `<video src>`，允许的直链扩展名 `.mp4 .webm .ogv .ogg .mov .m4v .m3u8`；B站/YouTube/Vimeo 转内嵌 `iframe`。
 
@@ -380,13 +384,17 @@ fetchAuthors()       → 先 Fresh，失败才 Local
 
 独立 IIFE，**不暴露 window 全局**。DOM 契约：`#top3RankContainer`、`#rankModalList`、`#openRankModalBtn`、`#rankModalOverlay`、`#rankModalCloseBtn`。4 个 `analytics.leleleling.site/gamecheck?lang=…` 端点；`normalizePayload()` 兼容 `data/result/list/games/items/records/rows/ranking/top/rankings` 或首个数组；`pickUrl` 多别名后回落 `game.html?id=`；Top3 奖牌 🥇🥈🥉、弹窗 `slice(0,25)`；每 5 分钟刷新；失败渲染「暂无数据 / No data yet」。
 
-### 4.8 合规体系（规则 5.0.0）
+### 4.8 合规体系（规则 5.0.0 · 协议文案「官方版」）
 
-- `legal_generic.js`：纯常量、零网络、无副作用。`window.LELELE_GENERIC_AGREEMENTS[lang][type]`，`lang ∈ {zh,en}`、`type ∈ {eula,privacy,terms}`，值 `{title, subtitle, notice, sections:[{heading, paragraphs:[]}]}`；`LELELE_LEGAL_ATTRIBUTION = {zh:'本法律条款由了了了游提供', en:'These legal terms are provided by lelele Game'}`。subtitle 生效日期 2026-11-15。
+> **2026-11-12 升级**：作者 ID 1「了了了岭工作室」（`official:true`、Lv.6、`studio_special:true`）名下 **12 款游戏**（id 1,2,3,4,5,6,8,9,10,11,15,26）的 `legal_urls` 全部缺省，都走自动挂载。旧版三份协议**一律**声称「本游戏由第三方开发者提供、平台不托管代码、不是运营者」，对官方自研游戏是事实错误，故升级为「了了了游官方版」，按游戏归属区隔责任主体。**第三方游戏的展示/导航免责条款完整保留**，只是不再绝对化。
+
+- `legal_generic.js`：**唯一数据源**，纯常量、零网络、无副作用。`window.LELELE_GENERIC_AGREEMENTS[lang][type]`，`lang ∈ {zh,en}`、`type ∈ {eula,privacy,terms}`，值 `{title, subtitle, notice, liability, sections:[{heading, paragraphs:[]}]}`。`liability` 是官方/第三方责任声明，三份静态页的「⚖️ 责任声明」callout 直接读 `doc.liability`（**不再是硬编码字符串**，避免双份不同步）。`LELELE_LEGAL_ATTRIBUTION = {zh:'本法律条款由了了了游提供', en:'These legal terms are provided by lelele Game'}`。标题统一为「…（了了了游官方版）」/ `"… (lelele Game Official Version)"`，subtitle 生效日期 2026-11-15。内部常量 `LIABILITY` / `NOTICE` 为 `{zh, en}` 双语对象。
+- **官方游戏 / Official Game** 定义：作者 `id === 1`。这类游戏由本平台直接开发、运营，运行于本站，平台即开发者与运营方，依协议承担相应责任；第三方游戏仍由开发者独立负责，平台仅展示与导航。⚠️ **数据源里没有、也不该有运行时判定代码** —— 文案是条件式表述，同时覆盖两类游戏；不要在 `game.html` 再加一套「按 author 切换协议」的分支，否则会与单一数据源脱节。判断某游戏是否官方只需查 `authors/index.json` 的 `author` 是否为 `1`。
 - `game.html` 协议侧栏：右侧 3 枚 38px 圆钮（📜🛡️⚖️），`position:fixed` 垂直居中、半透明、hover 气泡提示。`currentLegalUrls()` 读 `legal_urls`；有直链则 `window.open`，**无直链则弹窗直接渲染 `LELELE_GENERIC_AGREEMENTS`**（存量游戏兜底）。`safeLegalUrl()` 是协议链接白名单，不要放宽。
-- `generic_eula.html` / `generic_privacy.html` / `generic_tos.html`：三个静态万能协议页，与弹窗共用同一常量源。
-- `legal_templates.html`：三套中英模板，占位符如 `【在此填写游戏名称 / Enter Game Name】`，实时预览 + 导出 `Markdown` / `TXT` / `HTML` / `Word(.doc)` / `PDF`（PDF 走浏览器打印 `@media print`，不是 pdf 库）。**所有导出自动附带来源声明**；预览器会解析内联 HTML，所以用户输入必须先转义、再转义 Markdown 元字符。页面底部强声明：基于 Apache-2.0 开源，须在游戏内保留「本法律条款由了了了游提供」。
-- `game_rules.html`：当前 5.0.0，2026-11-15 生效，核心是「所有游戏必须具备用户协议/隐私政策/服务条款；外链填三条 https 直链；代码游戏可自带或使用万能协议；存量游戏自动挂载不下架」。页尾有历史版本索引，异议可邮件 `leleleling@2980.com` 申诉并回退口径到 4.0.2。
+- `generic_eula.html` / `generic_privacy.html` / `generic_tos.html`：三个静态官方版协议页，与弹窗共用同一常量源；`<title>` 与 meta description 也已改为官方版。
+- `user_agreement.html`：平台用户协议第一条已同步为「两类游戏」的责任表述，「通用兜底协议」链接文案改为「官方版协议」，并注明官方游戏留在本站运行。
+- `legal_templates.html`：**仍是给第三方开发者用的模板中心**（三套中英模板，占位符如 `【在此填写游戏名称 / Enter Game Name】`），不受官方版升级影响。实时预览 + 导出 `Markdown` / `TXT` / `HTML` / `Word(.doc)` / `PDF`（PDF 走浏览器打印 `@media print`，不是 pdf 库）。**所有导出自动附带来源声明**；预览器会解析内联 HTML，所以用户输入必须先转义、再转义 Markdown 元字符。页面底部强声明：基于 Apache-2.0 开源，须在游戏内保留「本法律条款由了了了游提供」。
+- `game_rules.html`：当前 5.0.0，2026-11-15 生效，核心是「所有游戏必须具备用户协议/隐私政策/服务条款；外链填三条 https 直链；代码游戏可自带或使用平台协议；存量游戏自动挂载不下架」。其免责表述**已限定「第三方游戏」**，与官方版不冲突，故本次**未改正文**（规则快照体系见 6.5）。页尾有历史版本索引，异议可邮件 `leleleling@2980.com` 申诉并回退口径到 4.0.2。
 
 ### 4.9 LSFP 图片链路（4.1.0 / commit `fd8d8d9`）
 
@@ -597,7 +605,7 @@ fetchAuthorsFresh() 优先读 surge（5s），失败才 fetchAuthorsLocal()（8s
 1. **定 id**：`max(id in lelegame_data.json) + 1`（当前最大 **30**，下一个用 31）。确认 `game/data/` 里该 id 文件不存在。
 2. **定作者**：在 `authors/index.json` 按署名找 `id`。名字拼写可能不完全一致（例「廖宸翰(Kevil Liao)」→ Kevin Liao = id 3），全库搜一遍再定，别新建作者。
 3. **改 `lelegame_data.json`**：在数组末尾**纯文本追加**一条 11 字段记录（用 `json.dumps` 重排整个文件会产生大 diff）。`type`：代码投稿 → `local`，外链 → `external`；`url` 暂无部署地址时可留空串。
-4. **建 `game/data/<id>.json`**：字段照 3.3；版本号、一句话简介、详细玩法、首发更新日志（`date` 用当天）、投稿署名都写上；`legal_urls` 按表单选择填三条直链或三个空串（万能协议）；`banner` 与 `screenshots` 用投稿截图 URL。
+4. **建 `game/data/<id>.json`**：字段照 3.3；版本号、一句话简介、详细玩法、首发更新日志（`date` 用当天）、投稿署名都写上；`legal_urls` 按表单选择填三条直链或三个空串（自动挂官方版协议）；`banner` 与 `screenshots` 用投稿截图 URL。
    - **不要写投稿邮箱/个人官网/资质截图**。
 5. **改 `noticetodeveloper.json`**：`version` +1、`updatedAt` 更新、新增一条定向告示（`author` 填作者 id 字符串、`priority` 400 级以压过全体告示、14 天时间窗、中英双语、按钮站内可达）。正文用**纯文本**，别写 `**`。
 6. **可选**：`sitemap.xml` / `sitemap.html` 补 `game.html?id=<id>`（注意当前 sitemap 落后到 id=22，若决定补，要连 23–30 一起补并更新计数）。
@@ -764,7 +772,8 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 | 2026-11-11 | CORS 部署（站外） | 用户给 `gamepic.surge.sh` 加 `CORS` 文件并复验 `access-control-allow-origin: *` |
 | 2026-11-11 | `fd8d8d9` | LSFP 图片全量接入：内置解码库 + 许可、适配层与回退矩阵、38 处 URL 复合后缀、SW v1.10 |
 | 2026-11-12 | `7222bd2` / `6835ccf` / `6468c09` | 收录《枪火突围3D》id=30（作者 3、v1.0.0、万能协议、纯 `.lsfp` 截图无旧图）+ 定向告示；补 `https://gunfire3d-games.leleleling.site/` |
-| 2026-11-12 | 本次 | 详情页/作者页循环导航（`pager-nav.js`）+ SW v1.11 + `.gitignore` + `historymd/` 机制 + 本手册全量重构 |
+| 2026-11-12 | `6f813e9` | 详情页/作者页循环导航（`pager-nav.js`）+ SW v1.11 + `.gitignore` + `historymd/` 机制 + 本手册全量重构 |
+| 2026-11-12 | 本次 | 三份法律文件升级为「了了了游官方版」（官方游戏 / 第三方游戏责任区隔，`liability` 单一数据源）+ 新增 `thoughts.md` 185 条分级升级点子库 |
 
 ---
 
@@ -772,7 +781,8 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 
 | 术语 | 含义 |
 | --- | --- |
-| 万能协议 / Generic Agreements | 平台提供的三份通用法律协议，供未提交专属协议的存量/代码游戏自动挂载 |
+| 官方版协议 / Official Agreements（原「万能协议」） | 平台官方提供的三份法律协议，文案已升级为「了了了游官方版」；供官方自有游戏与未提交专属协议的存量/代码游戏自动挂载。规则 5.0.0 与投稿表单里仍用「万能协议」指这套**机制**，不是旧文案 |
+| 官方游戏 / Official Game | 作者 `id === 1`「了了了岭工作室」自主开发运营的游戏（当前 12 款），平台即开发者与运营方；与第三方游戏的展示/导航免责相对，见 4.8 |
 | 定向告示 | `noticetodeveloper.json` 里按作者 id / 时间窗 / 优先级弹出、登录后可见的站内通知 |
 | 灵动岛 | 滚动后收起的胶囊形顶部导航（4.0.1 重做） |
 | 复合后缀 | `原名.png.lsfp` 形式，去掉末尾 `.lsfp` 即精确还原旧图 URL |
@@ -782,6 +792,6 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 | 三段式 / 双轨 | 站点版本 `4.1.0` 与规则版本 `5.0.0` 各自独立 |
 | `?t=` | 破浏览器缓存的时间戳参数，SW `cacheKeyFor()` 会剔除 |
 
-**遇到问题先查**：改数据 → 第 3 章；改页面 → 2.1 / 4.13；改脚本 → 4.1–4.12；外部服务 → 第 5 章；线上没生效 → 6.2 / 6.3 / 8.6；要做某个任务 → 第 7 章；像是 bug → 第 8 章先看是不是已知坑。
+**遇到问题先查**：改数据 → 第 3 章；改页面 → 2.1 / 4.13；改脚本 → 4.1–4.12；外部服务 → 第 5 章；线上没生效 → 6.2 / 6.3 / 8.6；要做某个任务 → 第 7 章；像是 bug → 第 8 章先看是不是已知坑；想找下一步做什么 → `thoughts.md`。
 
 **联系/权限**：站点所有者 David（Surge 部署账号由用户自己持有，不写入公开仓库）；官方公开邮箱 `leleleling@2980.com`（认证结果与规则申诉，见 `AUTHOR_CERTIFICATION.md` / `game_rules.html`）。A 大版本升级必须先征得 David 同意。

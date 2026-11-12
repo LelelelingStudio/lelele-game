@@ -23,8 +23,8 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>用户协议（平台通用版） · Generic EULA</title>
-    <meta name="description" content="了了了游平台通用用户协议，适用于未提交专属协议的游戏。Generic EULA for games without a dedicated agreement.">
+    <title>用户协议（了了了游官方版） · Official EULA</title>
+    <meta name="description" content="了了了游官方版用户协议，适用于平台官方自有游戏与未提交专属协议的游戏。Official EULA issued by lelele Game.">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
     <link rel="stylesheet" href="/common.css">
@@ -158,9 +158,9 @@
                     parts.push('<h1>' + esc(doc.title) + '</h1>' +
                                '<div class="subhead">' + esc(doc.subtitle) + '</div>');
                     parts.push('<div class="callout"><strong>' + (lang === 'zh' ? '⚖️ 责任声明' : '⚖️ Liability statement') + '</strong><br>' +
-                               esc(lang === 'zh'
-                                   ? '本游戏由第三方开发者提供，了了了游仅提供展示与导航，不承担运营及数据纠纷的连带责任。'
-                                   : 'This game is provided by a third-party developer. lelele Game only provides display and navigation services and assumes no joint liability for its operation or for any data-related disputes.') + '</div>');
+                               esc(doc.liability || (lang === 'zh'
+                                   ? '本协议由了了了游官方提供。'
+                                   : 'These terms are provided officially by lelele Game.')) + '</div>');
                     parts.push('<p>' + esc(doc.notice) + '</p>');
                     doc.sections.forEach(function (sec) {
                         parts.push('<h2>' + esc(sec.heading) + '</h2>');
