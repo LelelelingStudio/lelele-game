@@ -74,6 +74,41 @@
   [hidden]{display:none!important}
   .placeholder-note{color:var(--muted);font-size:13px;line-height:1.7}
   .placeholder-note code{background:var(--card2);padding:2px 6px;border-radius:6px;font-size:12px}
+  .modebar{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .seg{font-size:12px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;cursor:pointer;color:var(--muted);background:var(--card2);user-select:none}
+  .seg.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .seg-hint{font-size:11px;color:var(--muted)}
+  #jsonEditor{width:100%;min-height:340px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.5;margin-bottom:10px}
+  .rawjson{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+  .rawjson summary{cursor:pointer;font-size:12px;color:var(--muted);font-weight:600}
+  .rawjson #bodyPreview{max-height:300px}
+  .v-ann,.v-notice{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+  .v-ann-head,.v-notice-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .v-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:color-mix(in srgb,var(--primary) 16%,transparent);color:var(--primary)}
+  .v-badge-notice{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+  .v-date{font-size:11px;color:var(--muted)}
+  .v-title{margin:4px 0 6px;font-size:18px}
+  .v-sub{font-size:12px;color:var(--muted);margin-bottom:8px}
+  .v-content{font-size:14px;line-height:1.7}
+  .v-content img{max-width:100%;border-radius:8px;margin:6px 0}
+  .v-content video{max-width:100%;border-radius:8px}
+  .v-game{background:var(--card2);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}
+  .v-banner-wrap{width:100%;max-height:160px;overflow:hidden;background:var(--card)}
+  .v-banner{width:100%;display:block;object-fit:cover;max-height:160px}
+  .v-game-main{display:flex;gap:12px;padding:14px}
+  .v-icon{font-size:40px;line-height:1}
+  .v-name{font-size:18px;font-weight:700}
+  .v-name-en{font-size:13px;color:var(--muted);font-weight:400}
+  .v-badges{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+  .v-b{font-size:11px;padding:2px 8px;border-radius:999px;background:color-mix(in srgb,var(--primary) 12%,transparent);color:var(--primary)}
+  .v-sum{font-size:13px;color:var(--muted)}
+  .v-desc{white-space:pre-wrap;font-size:13px;line-height:1.7;padding:0 14px 12px}
+  .v-shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;padding:0 14px 12px}
+  .v-shot{width:100%;height:88px;object-fit:cover;border-radius:8px;background:var(--card);border:1px solid var(--line)}
+  .v-url{display:inline-block;margin:0 14px 14px;color:var(--primary);font-weight:600}
+  .v-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .v-btn{font-size:13px;padding:8px 14px;border-radius:10px;background:var(--primary);color:#fff;text-decoration:none}
+  .v-err{color:var(--err);font-size:13px;background:color-mix(in srgb,var(--err) 12%,transparent);padding:10px;border-radius:10px}
 </style>
 </head>
 <body>
@@ -97,16 +132,19 @@
   <section class="work" id="work" hidden>
     <div class="pane" id="formPane">
       <h2 id="formTitle"></h2>
+      <div class="modebar" id="modeBar" hidden>
+        <span class="seg active" data-mode="form">✍️ 填空式</span>
+        <span class="seg" data-mode="json">{} 粘贴 / 改 JSON</span>
+        <span class="seg-hint" id="modeHint">也可把审核 AI 返回的 JSON 直接粘贴进来</span>
+      </div>
+      <textarea id="jsonEditor" hidden spellcheck="false"></textarea>
       <div id="formBody"></div>
     </div>
     <div class="pane preview">
-      <h2>改动预览</h2>
+      <h2>效果预览</h2>
       <ul class="files" id="fileList"></ul>
-      <div id="bodyPreview"></div>
-      <div class="rfc" id="rfcPreview" hidden>
-        <h4>公告 / 告示富媒体预览</h4>
-        <div id="rfcRender" style="font-size:13px"></div>
-      </div>
+      <div id="visualPreview"></div>
+      <details class="rawjson"><summary>原始 JSON 载荷（将提交给 Action）</summary><div id="bodyPreview"></div></details>
     </div>
   </section>
 </main>
@@ -130,7 +168,7 @@
   const PAT_KEY = "lelele_admin_pat_v1";
 
   const $ = (id) => document.getElementById(id);
-  const state = { action:null, authors:[], maxId:30, fetched:false };
+  const state = { action:null, authors:[], maxId:30, fetched:false, mode:"form", payloadError:null };
 
   /* ---------- 工具 ---------- */
   function escapeHtml(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
@@ -290,6 +328,10 @@
 
   function renderForm(action){
     state.action = action;
+    state.mode = "form";
+    $("jsonEditor").value=""; $("jsonEditor").hidden=true; $("formBody").hidden=false;
+    $("modeBar").hidden = (action==="add-author"||action==="edit-author");
+    setMode("form");
     $("work").hidden = false;
     const body = $("formBody");
     if (action==="add-game"){
@@ -524,19 +566,119 @@
   }
 
   function buildPayload(){
-    const a = state.action;
-    if (a==="add-game") return {action:"add-game", data:collectGame(false)};
-    if (a==="update-game") return {action:"update-game", data:collectGame(true)};
-    if (a==="add-announcement") return {action:"add-announcement", data:collectAnnouncement()};
-    if (a==="add-notice") return {action:"add-notice", data:collectNotice()};
+    const a = state.action; state.payloadError = null;
+    if (!a) return null;
+    let data;
+    if (state.mode==="json"){
+      const raw = $("jsonEditor").value.trim();
+      if (!raw){ state.payloadError="请在 JSON 框中粘贴 / 填写字段"; return null; }
+      try { data = JSON.parse(raw); } catch(e){ state.payloadError="JSON 解析失败：" + e.message; return null; }
+      if (typeof data!=="object" || data===null || Array.isArray(data)){ state.payloadError="JSON 顶层必须是对象（即字段集合）"; return null; }
+    } else {
+      if (a==="add-game") data = collectGame(false);
+      else if (a==="update-game") data = collectGame(true);
+      else if (a==="add-announcement") data = collectAnnouncement();
+      else if (a==="add-notice") data = collectNotice();
+      else return null;
+    }
+    if (a==="add-game") return {action:"add-game", data};
+    if (a==="update-game") return {action:"update-game", data};
+    if (a==="add-announcement") return {action:"add-announcement", data};
+    if (a==="add-notice") return {action:"add-notice", data};
     return null;
+  }
+
+  /* ---------- JSON 模式工具 ---------- */
+  function sanitizeHtml(raw){
+    const ALLOWED_TAGS=['BR','A','DIV','P','SPAN','B','STRONG','I','EM','U','VIDEO','IMG'];
+    const ALLOWED_ATTRS=['href','src','target','rel','controls','playsinline','muted','loop','poster','style','class','width','height','alt'];
+    const outDoc=new DOMParser().parseFromString('<div></div>','text/html');
+    const root=outDoc.body.firstElementChild;
+    const inDoc=new DOMParser().parseFromString(String(raw||''),'text/html');
+    const walk=(from,to)=>{ Array.from(from.childNodes).forEach(child=>{
+      if(child.nodeType===3){ to.appendChild(outDoc.createTextNode(child.nodeValue)); return; }
+      if(child.nodeType!==1) return;
+      const tag=child.tagName.toUpperCase();
+      if(!ALLOWED_TAGS.includes(tag)){ to.appendChild(outDoc.createTextNode(child.textContent||'')); return; }
+      const el=outDoc.createElement(tag.toLowerCase());
+      Array.from(child.attributes).forEach(attr=>{ const n=attr.name.toLowerCase(), v=attr.value||'';
+        if(!ALLOWED_ATTRS.includes(n)) return;
+        if((n==='href'||n==='src')&&!/^(https:\/\/|mailto:|\/|#)/i.test(v.trim())) return;
+        if(n==='style'&&/(javascript\s*:|expression\s*\(|@import)/i.test(v)) return;
+        el.setAttribute(n,v); });
+      if(el.hasAttribute('target')) el.setAttribute('rel','noopener noreferrer');
+      walk(child,el); to.appendChild(el); }); };
+    walk(inDoc.body,root); return root.innerHTML;
+  }
+  function promoteLsfpImages(container){
+    if(!container||!container.querySelectorAll) return;
+    Array.from(container.querySelectorAll('img[src]')).forEach(img=>{
+      const src=(img.getAttribute('src')||'').trim();
+      if(!/\.lsfp(?=[?#]|$)/i.test(src)) return;
+      img.setAttribute('data-lsfp-src',src);
+      const fb=(window.LeleleLsfp&&window.LeleleLsfp.fallbackOf)?window.LeleleLsfp.fallbackOf(src):'';
+      if(fb) img.setAttribute('data-lsfp-fallback',fb);
+      img.removeAttribute('src');
+    });
+  }
+  function renderVisual(p){
+    if(!p) return "";
+    const d=p.data||{};
+    if(p.action==="add-announcement"){
+      const title=d.title_zh||d.title_en||"（无标题）";
+      const sub=(d.title_en&&d.title_en!==d.title_zh)?d.title_en:"";
+      const dates=[d.publishDate,d.expireDate].filter(Boolean).join("  →  ");
+      return '<div class="v-ann"><div class="v-ann-head"><span class="v-badge">全站公告</span>'+(dates?'<span class="v-date">'+escapeHtml(dates)+'</span>':'')+'</div><h3 class="v-title">'+escapeHtml(title)+'</h3>'+(sub?'<div class="v-sub">'+escapeHtml(sub)+'</div>':'')+'<div class="v-content">'+sanitizeHtml(d.content_zh||d.content_en||"")+'</div></div>';
+    }
+    if(p.action==="add-game"||p.action==="update-game"){
+      const cat=[d.category_zh,d.category_en].filter(Boolean).join(" / ");
+      const age=[d.ageRating_zh,d.ageRating_en].filter(Boolean).join(" / ");
+      const typeLabel={local:"本地游戏",external:"站外链接",internal:"站内页面"}[d.type]||d.type||"";
+      const shots=(d.screenshots||[]).slice(0,8).map(s=>'<img class="v-shot" src="'+escapeHtml(s)+'" alt="" loading="lazy">').join("");
+      const bannerWrap=d.banner?'<div class="v-banner-wrap"><img class="v-banner" src="'+escapeHtml(d.banner)+'" alt=""></div>':'';
+      const desc=(d.description_zh||"")+(d.description_en?("\n\n"+d.description_en):"");
+      return '<div class="v-game">'+bannerWrap+'<div class="v-game-main"><div class="v-icon">'+escapeHtml(d.icon||"🎮")+'</div><div>'+
+        '<div class="v-name">'+escapeHtml(d.name_zh||"（未填名称）")+(d.name_en?' <span class="v-name-en">'+escapeHtml(d.name_en)+'</span>':'')+'</div>'+
+        '<div class="v-badges">'+(cat?'<span class="v-b">'+escapeHtml(cat)+'</span>':'')+(age?'<span class="v-b">'+escapeHtml(age)+'</span>':'')+(typeLabel?'<span class="v-b">'+escapeHtml(typeLabel)+'</span>':'')+(d.version?'<span class="v-b">'+escapeHtml(d.version)+'</span>':'')+'</div>'+
+        ((d.summary||d.summary_en)?'<div class="v-sum">'+escapeHtml(d.summary||d.summary_en)+'</div>':'')+
+        '</div></div>'+(desc?'<div class="v-desc">'+escapeHtml(desc)+'</div>':'')+(shots?'<div class="v-shots">'+shots+'</div>':'')+(d.url?'<a class="v-url" href="'+escapeHtml(d.url)+'" target="_blank" rel="noopener">打开游戏 ↗</a>':'')+'</div>';
+    }
+    if(p.action==="add-notice"){
+      const media=(d.media||[]).map(m=>{
+        if(m.type==="image") return '<img class="v-shot" src="'+escapeHtml(m.src)+'" alt="" loading="lazy">';
+        if(m.type==="video") return '<video class="v-shot" src="'+escapeHtml(m.src)+'" controls playsinline></video>';
+        return '<iframe class="v-shot" src="'+escapeHtml(m.src)+'"></iframe>';
+      }).join("");
+      const buttons=(d.buttons||[]).map(b=>'<a class="v-btn" href="'+escapeHtml(b.url||"#")+'" target="_blank" rel="noopener">'+escapeHtml(b.label_zh||b.label_en||"按钮")+'</a>').join("");
+      const authorTxt=Array.isArray(d.author)?("发给 id: "+d.author.join(", ")):(d.author==="all"?"全体开发者":("开发者 id "+d.author));
+      return '<div class="v-notice"><div class="v-ann-head"><span class="v-badge v-badge-notice">开发者告示</span><span class="v-date">'+escapeHtml(authorTxt)+'</span></div><h3 class="v-title">'+escapeHtml(d.title_zh||d.title_en||"（无标题）")+'</h3><div class="v-content" style="white-space:pre-wrap">'+escapeHtml((d.body_zh||"")+(d.body_en?("\n\n"+d.body_en):""))+'</div>'+(media?'<div class="v-shots">'+media+'</div>':'')+(buttons?'<div class="v-btns">'+buttons+'</div>':'')+'</div>';
+    }
+    return "";
+  }
+  function currentData(){
+    const a=state.action;
+    if(a==="add-game") return collectGame(false);
+    if(a==="update-game"){ const b=collectGame(true); if(b.id==null||isNaN(Number(b.id))) b.id=Number(val("u-id"))||state.maxId; return b; }
+    if(a==="add-announcement") return collectAnnouncement();
+    if(a==="add-notice") return collectNotice();
+    return {};
+  }
+  function setMode(mode){
+    state.mode=mode;
+    $("modeBar").querySelectorAll(".seg").forEach(s=>s.classList.toggle("active", s.dataset.mode===mode));
+    const form = mode==="form";
+    $("formBody").hidden=!form;
+    const je=$("jsonEditor"); je.hidden=form;
+    if(!form){ try{ je.value=JSON.stringify(currentData(),null,2); }catch(e){ je.value="{}"; } }
+    refreshPreview();
   }
 
   /* ---------- 预览 ---------- */
   function refreshPreview(){
     const p = buildPayload();
-    const fl = $("fileList"); const bp = $("bodyPreview"); const rp = $("rfcPreview");
-    if (!p){ fl.innerHTML=""; bp.innerHTML=""; rp.hidden=true; updateSubmit(); return; }
+    const fl = $("fileList"), vp = $("visualPreview"), bp = $("bodyPreview");
+    if (state.payloadError){ fl.innerHTML=""; vp.innerHTML=`<div class="v-err">⚠ ${escapeHtml(state.payloadError)}</div>`; bp.innerHTML=""; updateSubmit(); return; }
+    if (!p){ fl.innerHTML=""; vp.innerHTML=""; bp.innerHTML=""; updateSubmit(); return; }
     let files=[];
     if (p.action==="add-game") files=[`lelegame_data.json <b>追加 1 条</b>`, `game/data/${p.data.id}.json <b>新建</b>`];
     else if (p.action==="update-game") files=[`lelegame_data.json <b>更新 id ${p.data.id}</b>`, `game/data/${p.data.id}.json <b>更新</b>`];
@@ -544,23 +686,12 @@
     else if (p.action==="add-notice") files=[`noticetodeveloper.json <b>追加 1 条（version 自动 +1）</b>`];
     fl.innerHTML = files.map(f=>`<li>${f}</li>`).join("");
     bp.innerHTML = `<pre>${escapeHtml(JSON.stringify(p.data,null,2))}</pre>`;
-
-    // 富媒体预览
-    if (p.action==="add-announcement"){
-      rp.hidden=false;
-      const c = p.data.content_zh || p.data.content_en || "";
-      $("rfcRender").innerHTML = c.replace(/\n/g,"<br>");
-      setTimeout(()=>{ if(window.LeleleLsfp) window.LeleleLsfp.hydrate($("rfcRender")); },60);
-    } else if (p.action==="add-notice"){
-      rp.hidden=false;
-      const mediaHtml = (p.data.media||[]).map(m=>{
-        if(m.type==="image") return `<div>🖼 <code>${escapeHtml(m.src)}</code>${m.src&&LSFP_RE.test(m.src)?" （.lsfp，将回退旧图）":""}</div>`;
-        if(m.type==="video") return `<div>🎬 <code>${escapeHtml(m.src)}</code></div>`;
-        return `<div>🔗 <code>${escapeHtml(m.src)}</code></div>`;
-      }).join("");
-      $("rfcRender").innerHTML = `<div style="white-space:pre-wrap">${escapeHtml((p.data.body_zh||"")+"\n\n"+(p.data.body_en||""))}</div>` + (mediaHtml?`<div style="margin-top:8px">${mediaHtml}</div>`:"");
-      setTimeout(()=>{ if(window.LeleleLsfp) window.LeleleLsfp.hydrate($("rfcRender")); },60);
-    } else { rp.hidden=true; }
+    const html = renderVisual(p);
+    vp.innerHTML = html || "";
+    if (html){
+      promoteLsfpImages(vp);
+      if (window.LeleleLsfp) setTimeout(()=>window.LeleleLsfp.hydrate(vp), 60);
+    }
     updateSubmit();
   }
 
@@ -571,7 +702,9 @@
     const btn = $("submitBtn");
     const enabled = p && ["add-game","update-game","add-announcement","add-notice"].includes(p.action) && patInput.value.trim();
     btn.disabled = !enabled;
-    $("status").textContent = p ? "已就绪，点击提交将触发 GitHub Action 校验并落地。" : "请完整填写表单。";
+    if (state.payloadError) $("status").textContent = state.payloadError;
+    else if (!p) $("status").textContent = "请完整填写表单。";
+    else $("status").textContent = "已就绪，点击提交将触发 GitHub Action 校验并落地。";
   }
   document.addEventListener("input", refreshPreview);
   document.addEventListener("change", refreshPreview);
@@ -623,6 +756,7 @@
     renderCards();
     renderForm(c.dataset.action);
   });
+  $("modeBar").addEventListener("click",(e)=>{ const s=e.target.closest(".seg"); if(!s) return; setMode(s.dataset.mode); });
 
   /* ---------- 初始化 ---------- */
   renderCards();
