@@ -1,0 +1,19 @@
+[    2510ms] [ERROR] Access to fetch at 'https://analytics.leleleling.site/api/breakdown?site=1&cmp=1&limit=1000&dim=path,referrer,event,country,device&range=30d' from origin 'http://127.0.0.1:8899' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:8899/index.html:0
+[    2511ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://analytics.leleleling.site/api/breakdown?site=1&cmp=1&limit=1000&dim=path,referrer,event,country,device&range=30d:0
+[    2511ms] [WARNING] rank fetch failed TypeError: Failed to fetch
+    at refreshRankings (http://127.0.0.1:8899/index.js:660:35)
+    at initRanking (http://127.0.0.1:8899/index.js:707:35)
+    at leleleOnReady (http://127.0.0.1:8899/index.js:6:14)
+    at http://127.0.0.1:8899/index.js:711:5
+    at http://127.0.0.1:8899/index.js:713:3 @ http://127.0.0.1:8899/index.js:700
+[    6120ms] [ERROR] Access to fetch at 'https://analytics.leleleling.site/api/breakdown?site=1&cmp=1&limit=1000&dim=path,referrer,event,country,device&range=30d' from origin 'http://127.0.0.1:8899' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:8899/index.html:0
+[    6120ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://analytics.leleleling.site/api/breakdown?site=1&cmp=1&limit=1000&dim=path,referrer,event,country,device&range=30d:0
+[    6120ms] [WARNING] rank fetch failed TypeError: Failed to fetch
+    at refreshRankings (http://127.0.0.1:8899/index.js:660:35)
+    at initRanking (http://127.0.0.1:8899/index.js:707:35)
+    at leleleOnReady (http://127.0.0.1:8899/index.js:6:14)
+    at http://127.0.0.1:8899/index.js:711:5
+    at http://127.0.0.1:8899/index.js:713:3 @ http://127.0.0.1:8899/index.js:700
+[   11189ms] [ERROR] Access to fetch at 'https://example.com/x.lsfp?w=200&h=120' from origin 'http://127.0.0.1:8899' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. @ http://127.0.0.1:8899/index.html:0
+[   11189ms] [ERROR] Failed to load resource: net::ERR_FAILED @ https://example.com/x.lsfp?w=200&h=120:0
+[   11190ms] [WARNING] [LSFP] fallback: all LSFP candidates failed https://example.com/x.lsfp?w=200&h=120 @ http://127.0.0.1:8899/lsfp-adapter.js:76

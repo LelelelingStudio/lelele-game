@@ -1,0 +1,48 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]: 了了了游 · 管理控制台
+    - generic [ref=e4]: 内部工具 · 需令牌
+    - generic [ref=e5]:
+      - generic [ref=e6]: GitHub 令牌（细粒度 PAT，仅 Contents 写权限；只存本机浏览器）
+      - textbox "ghp_… 或 github_pat_…" [ref=e7]
+    - button "测试连接" [ref=e8] [cursor=pointer]
+    - button "拉取中…" [ref=e9] [cursor=pointer]
+  - main [ref=e10]:
+    - generic [ref=e11]:
+      - generic [ref=e12] [cursor=pointer]:
+        - generic [ref=e13]: ➕
+        - generic [ref=e14]: 新增游戏
+        - generic [ref=e15]: 收录一款新游戏（主列表 + 详情）
+        - generic [ref=e16]: 选择 →
+      - generic [ref=e17] [cursor=pointer]:
+        - generic [ref=e18]: ✏️
+        - generic [ref=e19]: 更新游戏
+        - generic [ref=e20]: 改现有游戏字段，URL 两处同步
+        - generic [ref=e21]: 选择 →
+      - generic [ref=e22] [cursor=pointer]:
+        - generic [ref=e23]: 📢
+        - generic [ref=e24]: 发全站公告
+        - generic [ref=e25]: 富文本：加粗/视频/图片/.lsfp
+        - generic [ref=e26]: 选择 →
+      - generic [ref=e27] [cursor=pointer]:
+        - generic [ref=e28]: 🔔
+        - generic [ref=e29]: 发开发者告示
+        - generic [ref=e30]: 定向弹窗 + 媒体 + 按钮
+        - generic [ref=e31]: 选择 →
+      - generic [ref=e32]:
+        - generic [ref=e33]: 👤
+        - generic [ref=e34]: 添加作者
+        - generic [ref=e35]: 暂未开放（权威源在站外 Surge）
+        - generic [ref=e36]: 🔒 暂未开放
+      - generic [ref=e37]:
+        - generic [ref=e38]: 🛠
+        - generic [ref=e39]: 修改作者信息
+        - generic [ref=e40]: 暂未开放（权威源在站外 Surge）
+        - generic [ref=e41]: 🔒 暂未开放
+  - contentinfo [ref=e42]:
+    - generic [ref=e43]: 请选择上方一个动作开始。
+    - generic [ref=e44]:
+      - checkbox "直接推送到 main（跳过草稿 PR）" [ref=e45]
+      - text: 直接推送到 main（跳过草稿 PR）
+    - button "清空" [ref=e46] [cursor=pointer]
+    - button "提交" [disabled] [ref=e47]
