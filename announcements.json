@@ -115,5 +115,14 @@
     "content_en": "Recently, we've noticed that some developers used the 'Code Upload' method for game submissions, but the files we received were incomplete or corrupted. We've identified the likely causes: specific code format rejections, or submitting the form before the upload progress finished.\n\nTo fix this, we've updated the submission form with the following improvements:\n1. 📦 Code submissions now require uploading a zip/rar archive;\n2. 📝 Added a 'Single File Code Paste' option for small codebases;\n3. 📧 If your archive is too large, please send it directly to our official email.\n\n💡 Friendly Reminder: We will send an email notification after processing your submission. Please make sure to check your Spam/Junk folder and look out for official emails from [leleleling Studio] so you don't miss any important updates!",
     "publishDate": "2026-10-22",
     "expireDate": "2026-12-31"
+  },
+  {
+    "id": "testing20261113",
+    "title_zh": "我做个实验你们别管",
+    "title_en": "我做个实验你们别管",
+    "content_zh": "我做个实验你们别管<img src=\"https://gamepic.surge.sh/qrcode1happyfarmerwx.lsfp\" alt=\"我做个实验你们别管\">",
+    "content_en": "我做个实验你们别管",
+    "publishDate": "2026-11-12",
+    "expireDate": "2026-11-14"
   }
 ]
