@@ -331,7 +331,8 @@
     state.mode = "form";
     $("jsonEditor").value=""; $("jsonEditor").hidden=true; $("formBody").hidden=false;
     $("modeBar").hidden = (action==="add-author"||action==="edit-author");
-    setMode("form");
+    // 只切高亮不提前 collect：collect 依赖表单字段，须等下方 body.innerHTML 渲染完（见函数末尾 refreshPreview）
+    $("modeBar").querySelectorAll(".seg").forEach(s=>s.classList.toggle("active", s.dataset.mode==="form"));
     $("work").hidden = false;
     const body = $("formBody");
     if (action==="add-game"){

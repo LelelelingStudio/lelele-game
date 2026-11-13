@@ -39,6 +39,7 @@ jobs:
           DIRECT: ${{ github.event.client_payload.direct_push }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -e
           if [ -z "$(git status --porcelain)" ]; then
             echo "无改动，跳过提交"
             exit 0
@@ -48,6 +49,8 @@ jobs:
           if [ "$DIRECT" = "true" ]; then
             git add -A
             git commit -m "chore(admin): apply changes via admin console"
+            # 直推前再 rebase 一次，降低与 sync-authors（每 30 分钟推送）的并发冲突
+            git pull --rebase origin "${GITHUB_REF_NAME}" || echo "::warning::rebase 失败，仍尝试直接推送"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           else
             BR="admin-apply-$(date +%s)"
@@ -55,5 +58,10 @@ jobs:
             git add -A
             git commit -m "chore(admin): apply changes via admin console"
             git push origin "$BR"
-            gh pr create --draft --title "Admin 控制台改动（草稿，待复核）" --body "由 admin 控制台自动生成，经校验后写入，待人工复核合并。"
+            if ! gh pr create --draft --base "${GITHUB_REF_NAME}" \
+                 --title "Admin 控制台改动（草稿，待复核）" \
+                 --body "由 admin 控制台自动生成，经校验后写入，待人工复核合并。"; then
+              echo "::error::创建草稿 PR 失败。最常见原因：仓库 Settings → Actions → General → Workflow permissions 未勾选「Allow GitHub Actions to create and approve pull requests」。勾选后重试；或打开 admin 页面的「直接推送 main」开关。"
+              exit 1
+            fi
           fi
