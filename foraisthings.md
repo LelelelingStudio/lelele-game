@@ -160,7 +160,7 @@ flowchart TB
 | 文件 | 用途 |
 | --- | --- |
 | `index.html` | 首页：游戏网格、类型/分类筛选、搜索、收藏、排行榜、公告、投稿/推荐弹窗 |
-| `game.html` | 游戏详情页：横幅、截图、简介、更新日志、作者栏、收藏、开始游戏、协议侧栏、灯箱、循环导航 |
+| `game.html` | 游戏详情页：横幅、截图、简介、更新日志、作者栏、收藏、开始游戏、协议侧栏、灯箱、循环导航（「开始游戏」改为在站内弹出**模拟浏览器外壳**，iframe 内嵌游戏原代码；外链游戏若站点禁止内嵌则给「在新标签打开」兜底；仅游戏页有此外壳） |
 | `author.html` | 作者主页：作者资料、徽章、名下游戏列表、循环导航 |
 | `authorlevel.html` | 认证等级说明（Lv.1–6） |
 | `apply-certification.html` | 开发者官方认证申请（Tally 表单） |
@@ -451,7 +451,7 @@ fetchAuthors()       → 先 Fresh，失败才 Local
 
 ### 4.13 关键页面实现要点
 
-- **`game.html`**：`init()` 读 `?id=`，`window.leleleFetch('/game/data/'+id+'.json')`，失败则由 `lelegame_data.json` 兜底构造；`renderGamePage()` 渲染横幅/截图/简介/更新日志/作者栏/元标签；`isVideoUrl()` 用 `VIDEO_FILE_RE` 排除视频，`safeLegalUrl()` 校验协议链接；`onBannerClick()` 与灯箱使用 `data-lsfp-resolved`；`playGame()` 在 `url` 为空时 `alert('该游戏暂无可用链接。')` 并 return（不崩溃）；`setLegalRailVisible()` 控制协议侧栏；`langChanged` 重绘 + 重挂导航。
+- **`game.html`**：`init()` 读 `?id=`，`window.leleleFetch('/game/data/'+id+'.json')`，失败则由 `lelegame_data.json` 兜底构造；`renderGamePage()` 渲染横幅/截图/简介/更新日志/作者栏/元标签；`isVideoUrl()` 用 `VIDEO_FILE_RE` 排除视频，`safeLegalUrl()` 校验协议链接；`onBannerClick()` 与灯箱使用 `data-lsfp-resolved`；`playGame()` 不再 `window.open` 新标签，而是调用 `openGameFrame(url)` 在站内弹出**模拟浏览器外壳**（红黄绿圆点 + 地址栏顶栏、底部工具栏「重载/重置/关闭/全屏」、`#gameFrame` iframe 内嵌游戏原代码）；同源（本站 `local`/`internal`）直接内嵌并隐藏外链兜底条，外链（`external`）尽力内嵌、禁止内嵌时显示「在新标签打开」兜底；`url` 为空时 `alert('该游戏暂无可用链接。')` 并 return（不崩溃）；`setLegalRailVisible()` 控制协议侧栏；`langChanged` 重绘 + 重挂导航。
 - **`author.html`**：`initAuthorPage()` 无 `?id=` 时 `showEmpty()`；`loadGames()` 拉主列表按 `String(g.author)===String(authorId)` 过滤；作者清单本地 + surge 两阶段 `applyAuthorList()`；Supabase `profiles` 单条查询覆盖 `display_name` / `bio` / `avatar_url` / `role`；`authors/data/<id>.json` 取作品数。注意 `authorlevel.html?level=4&lang=en` 实测仍显示中文，是该老页面既有的语言切换缺陷，未修。
 - **`dashboard.html`**：资料编辑（`profiles` upsert/update）、头像 `storage.from('avatars')`、`rpc('delete_user')`、更新游戏弹窗（Tally）、认证申请入口、analytics 数据看板（`SITE_ID=1`）。
 - **`404.html`**：GitHub Pages 会用根 `404.html` 响应**任意层级**的不存在 URL，所以 `<head>` 最前面有 `<base href="/">`，所有关键资源与首页链接都是根绝对路径，且所有 `var(--x)` 都带 fallback —— 即使 `common.css` 和 `common.js` 全挂也能完整渲染。另有不依赖 JS 的 `/sitemap.html` 备用出口。

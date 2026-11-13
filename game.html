@@ -441,6 +441,48 @@
             .legal-rail, .legal-rail-btn, .legal-tip { transition: none !important; }
         }
 
+        /* 4.2.0：模拟浏览器外壳（仅游戏页使用）——把游戏原始代码内嵌进“浏览器窗”里玩 */
+        .frame-modal {
+            position: fixed; inset: 0; z-index: 2000; display: none;
+            flex-direction: column; background: #0f172a;
+        }
+        .frame-modal.active { display: flex; }
+        .frame-bar {
+            display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+            padding: 10px 14px; background: #1e293b; color: #e2e8f0;
+        }
+        .frame-dots { display: flex; gap: 7px; flex-shrink: 0; }
+        .frame-dots span { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        .frame-dots .r { background: #ff5f56; } .frame-dots .y { background: #ffbd2e; } .frame-dots .g { background: #27c93f; }
+        .frame-url {
+            flex: 1; min-width: 0; background: #0f172a; color: #cbd5e1;
+            border: 1px solid #334155; border-radius: 20px; padding: 7px 14px;
+            font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .frame-bar button {
+            flex-shrink: 0; background: #334155; color: #e2e8f0; border: none; border-radius: 10px;
+            padding: 7px 12px; font-size: 0.85rem; cursor: pointer; font-family: inherit;
+        }
+        .frame-bar button:hover { background: #475569; }
+        .frame-open-ext {
+            display: none; align-items: center; justify-content: center; gap: 8px; flex-shrink: 0;
+            padding: 8px 12px; background: rgba(250, 204, 21, 0.12); color: #fde68a; font-size: 0.82rem;
+        }
+        .frame-open-ext a { color: #fde68a; font-weight: 700; }
+        .frame-content { flex: 1; position: relative; background: #fff; min-height: 0; }
+        .frame-content iframe {
+            width: 100%; height: 100%; border: 0; display: block; background: #fff;
+        }
+        .frame-foot {
+            display: flex; align-items: center; justify-content: center; gap: 10px; flex-shrink: 0;
+            padding: 10px; background: #1e293b;
+        }
+        .frame-foot button {
+            background: #334155; color: #e2e8f0; border: none; border-radius: 12px;
+            padding: 9px 16px; font-size: 0.92rem; cursor: pointer; font-family: inherit;
+        }
+        .frame-foot button:hover { background: #475569; }
+
     </style>
 </head>
 <body>
@@ -551,6 +593,26 @@
             </div>
         </div>
 
+    <!-- 4.2.0：模拟浏览器外壳：把游戏原始代码内嵌进“浏览器窗”里玩（仅游戏页） -->
+    <div class="frame-modal" id="gameFrameModal" role="dialog" aria-modal="true" aria-label="游戏窗口">
+        <div class="frame-bar">
+            <div class="frame-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+            <div class="frame-url" id="frameUrl">about:blank</div>
+            <button type="button" id="frameReload">↻ 重载</button>
+            <button type="button" id="frameFull">⛶ 全屏</button>
+            <button type="button" id="frameClose">✕ 关闭</button>
+        </div>
+        <div class="frame-open-ext" id="frameOpenExt">⚠ 该游戏站点禁止内嵌显示，请 <a id="frameOpenLink" href="#" target="_blank" rel="noopener noreferrer">在新标签打开 ↗</a></div>
+        <div class="frame-content">
+            <iframe id="gameFrame" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; fullscreen; gamepad; microphone; camera; clipboard-write"></iframe>
+        </div>
+        <div class="frame-foot">
+            <button type="button" id="footReload">↻ 重载</button>
+            <button type="button" id="footHome">🏠 重置</button>
+            <button type="button" id="footClose">✕ 关闭</button>
+        </div>
+    </div>
+
     <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
         <span class="lightbox-close">&times;</span>
         <img id="lightboxImg" src="" alt="Preview" onclick="event.stopPropagation()">
@@ -576,6 +638,7 @@
 
         let currentGameId = null;
         let currentGameData = null;
+        let frameInitialUrl = '';
 
         function isEn() {
             return document.documentElement.getAttribute('data-lang') === 'en';
@@ -763,6 +826,55 @@
             updateFavBtn();
         };
 
+        window.openGameFrame = function(url) {
+            if (!url) return;
+            const modal = document.getElementById('gameFrameModal');
+            const frame = document.getElementById('gameFrame');
+            const urlEl = document.getElementById('frameUrl');
+            const extBanner = document.getElementById('frameOpenExt');
+            const extLink = document.getElementById('frameOpenLink');
+            if (!modal || !frame) return;
+            frameInitialUrl = url;
+            urlEl.textContent = url;
+            extLink.href = url;
+            let sameOrigin = false;
+            try { sameOrigin = new URL(url, window.location.href).origin === window.location.origin; } catch (e) {}
+            // 外域游戏站点可能禁止内嵌（X-Frame-Options / frame-ancestors），给出在新标签打开的兜底
+            extBanner.style.display = sameOrigin ? 'none' : 'flex';
+            frame.src = url;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeGameFrame = function() {
+            const modal = document.getElementById('gameFrameModal');
+            if (!modal) return;
+            modal.classList.remove('active');
+            const frame = document.getElementById('gameFrame');
+            if (frame) frame.src = 'about:blank';
+            document.body.style.overflow = '';
+        };
+
+        function bindFrameControls() {
+            const byId = id => document.getElementById(id);
+            const reload = () => { const f = byId('gameFrame'); if (f) f.src = frameInitialUrl; };
+            const c = byId('frameClose'); if (c) c.addEventListener('click', window.closeGameFrame);
+            const c2 = byId('footClose'); if (c2) c2.addEventListener('click', window.closeGameFrame);
+            const r = byId('frameReload'); if (r) r.addEventListener('click', reload);
+            const r2 = byId('footReload'); if (r2) r2.addEventListener('click', reload);
+            const h = byId('footHome'); if (h) h.addEventListener('click', reload);
+            const f = byId('frameFull'); if (f) f.addEventListener('click', () => {
+                const el = byId('gameFrameModal');
+                const req = el.requestFullscreen || el.webkitRequestFullscreen;
+                const exit = document.exitFullscreen || document.webkitExitFullscreen;
+                if (!document.fullscreenElement) { if (req) req.call(el); } else { if (exit) exit.call(document); }
+            });
+        }
+        document.addEventListener('keydown', function (e) {
+            const modal = document.getElementById('gameFrameModal');
+            if (e.key === 'Escape' && modal && modal.classList.contains('active')) window.closeGameFrame();
+        });
+
         window.playGame = function() {
             if (!currentGameData || !currentGameData.url) {
                 alert(isEn() ? 'No playable link available.' : '该游戏暂无可用链接。');
@@ -774,7 +886,7 @@
                 edgemetry('play-game_' + gameName);
             }
 
-            window.open(currentGameData.url, '_blank', 'noopener,noreferrer');
+            openGameFrame(currentGameData.url);
         };
 
         // 异步查询作者信息并渲染链接
@@ -1194,6 +1306,7 @@
 
         window.onReady( () => {
             updateLinks();
+            bindFrameControls();
             const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.langBtn === currentLang);
