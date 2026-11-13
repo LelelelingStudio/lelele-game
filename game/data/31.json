@@ -1,0 +1,43 @@
+{
+  "id": 31,
+  "name_zh": "Explore the Realm",
+  "name_en": "Explore the Realm",
+  "icon": "🗺️",
+  "category_zh": "休闲",
+  "category_en": "Casual",
+  "type": "internal",
+  "ageRating_zh": "全年龄",
+  "ageRating_en": "All Ages",
+  "version": "v1.0",
+  "author": "10",
+  "url": "https://explore-the-realm-games.leleleling.site",
+  "banner": "https://gamepic.surge.sh/Screenshot2026-11-13at16.45.02.lsfp",
+  "screenshots": [
+    "https://gamepic.surge.sh/Screenshot2026-11-13at16.45.02.lsfp"
+  ],
+  "videos": [],
+  "description_zh": "Use WASD or arrow keys to move. Collect six flora relics and explore the world.",
+  "description_en": "Use WASD or arrow keys to move. Collect six flora relics and explore the world.",
+  "updateLog_zh": [
+    {
+      "content": "游戏首发上线！使用 Google Gemini 创建的",
+      "date": "2026.11.13",
+      "version": "v1.0"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "content": "The first time game appear, Created using Google Gemini",
+      "date": "2026.11.13",
+      "version": "v1.0"
+    }
+  ],
+  "summary": "史上最无聊的游戏",
+  "summary_en": "The most boring game ever in history",
+  "authorName": "LukeYang",
+  "legal_urls": {
+    "eula": "",
+    "privacy": "",
+    "terms": ""
+  }
+}

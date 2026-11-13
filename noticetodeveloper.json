@@ -1,6 +1,6 @@
 {
-  "version": 5,
-  "updatedAt": "2026-11-12T00:00:00+08:00",
+  "version": 6,
+  "updatedAt": "2026-11-13T15:14:09.577Z",
   "_readme": {
     "说明": "本文件是「开发者定向告示」数据源，由 notice.js 读取。JSON 标准不支持 // 注释，所以字段说明都写在 _readme 里，程序会忽略它。",
     "文件结构": "{ version, updatedAt, _readme, notices: [告示对象, ...] }。真正生效的只有 notices 数组。",
@@ -363,6 +363,37 @@
           "url": "https://game.leleleling.site/dashboard.html",
           "style": "ghost",
           "target": "_self"
+        }
+      ],
+      "dismissible": true,
+      "oncePerUser": true
+    },
+    {
+      "id": "notice-2026-11-13-explore-the-realm",
+      "enabled": true,
+      "author": "10",
+      "priority": 100,
+      "startAt": "2026-11-13T00:00:00+08:00",
+      "endAt": "2026-11-16T12:00:00+08:00",
+      "title_zh": "你的游戏《Explore the Realm》已上线！",
+      "title_en": "Your game \"Explore the Realm\" is now live!",
+      "body_zh": "感谢投稿！《Explore the Realm》已经收录到「了了了游」，玩家现在可以直接在平台上玩到了。\n\n你可以随时在开发者面板查看数据和更新游戏信息。\n\n本告示有效至 2026 年 11 月 16 日 12:00。",
+      "body_en": "Thanks for submitting! \"Explore the Realm\" is now listed on lelele Game, and players can jump in right away.\n\nYou can check stats and update the game info anytime from your Dashboard.\n\nThis notice is valid until Nov 16, 2026, 12:00 (UTC+8).",
+      "media": [],
+      "buttons": [
+        {
+          "style": "primary",
+          "target": "_blank",
+          "text_en": "Play now",
+          "text_zh": "立即试玩",
+          "url": "https://game.leleleling.site/game.html?id=31"
+        },
+        {
+          "style": "ghost",
+          "target": "_self",
+          "text_en": "Dashboard",
+          "text_zh": "开发者面板",
+          "url": "https://game.leleleling.site/dashboard.html"
         }
       ],
       "dismissible": true,
