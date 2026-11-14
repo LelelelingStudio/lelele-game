@@ -8,8 +8,8 @@ permissions:
   contents: write
   pull-requests: write
 
-# 与 sync-authors 用不同并发组：两者都会向 main 推送，但本工作流默认走草稿 PR，
-# 仅在站长勾选「直接推送」时才直推 main；与每 30 分钟的同步工作流尽量错峰。
+# 2026-11-14 起作者权威源迁回本仓库、sync-authors.yml 已退役，本工作流是唯一的自动写入入口。
+# 默认走草稿 PR，仅在站长勾选「直接推送」时才直推 main；并发组保证多次提交串行，不互相覆盖。
 concurrency:
   group: admin-apply
   cancel-in-progress: false
@@ -24,7 +24,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      # 生成前先快进拉取，降低与同步工作流冲突的概率
+      # 生成前先快进拉取，确保基于最新 main 校验（尤其作者 id 唯一性）
       - name: Fast-forward to latest
         run: git pull --ff-only origin "${GITHUB_REF_NAME}" || true
 
@@ -49,7 +49,7 @@ jobs:
           if [ "$DIRECT" = "true" ]; then
             git add -A
             git commit -m "chore(admin): apply changes via admin console"
-            # 直推前再 rebase 一次，降低与 sync-authors（每 30 分钟推送）的并发冲突
+            # 直推前再 rebase 一次，降低与站长其它手动推送的并发冲突
             git pull --rebase origin "${GITHUB_REF_NAME}" || echo "::warning::rebase 失败，仍尝试直接推送"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           else

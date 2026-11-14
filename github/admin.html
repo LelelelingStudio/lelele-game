@@ -219,13 +219,17 @@
     try{
       const [games, authors] = await Promise.all([
         rawJSON("/lelegame_data.json"),
-        rawJSON("/authors/index.json").catch(()=>([]))
+        // 优先 raw 主干（最新）；失败则退回同源清单（本地 / Pages 都可用），再失败用内置回退
+        rawJSON("/authors/index.json").catch(()=>fetch("/authors/index.json",{cache:"no-store"}).then(r=>{ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })).catch(()=>[])
       ]);
       state.maxId = Math.max(0, ...games.map(g=>g.id||0));
-      state.authors = authors.map(a=>({id:a.id, zh:a.name_zh||"", en:a.name_en||"", official:!!a.official}));
+      state.authors = authors.map(a=>Object.assign({}, a, {zh:a.name_zh||"", en:a.name_en||"", official:!!a.official}));
       state.fetched = true;
       toast("已拉取最新数据：最大游戏 id = "+state.maxId+"，作者 "+state.authors.length+" 位","ok");
-      if (state.action) renderForm(state.action); // 重渲染以预填 id 建议
+      // 仅在表单还是空的时候重渲染（刷新建议 id / 作者下拉）；用户已开始填写则保留其输入
+      const dirty = Array.from($("formBody").querySelectorAll("input,textarea,select"))
+        .some(el => el.type!=="checkbox" && String(el.value||"").trim()!=="");
+      if (state.action && !dirty) renderForm(state.action);
     }catch(e){
       toast("拉取失败："+e.message,"err");
     }finally{
@@ -235,14 +239,18 @@
   $("pullBtn").addEventListener("click", pullData);
 
   /* ---------- 作者下拉 ---------- */
+  // 拉取失败时的内置回退清单（与仓库 authors/index.json 的 id/名称一致，仅用于表单可操作）
+  const FALLBACK_AUTHORS = [
+    {id:1,zh:"了了了岭工作室",en:"Leleleling Studio",official:true,authorlevel:6},
+    {id:2,zh:"Andy Huang",en:"Andy Huang"},{id:3,zh:"Kevin Liao",en:"Kevin Liao"},
+    {id:4,zh:"Jonathan",en:"Jonathan"},{id:5,zh:"Wheat",en:"Wheat"},
+    {id:6,zh:"Emolingo games",en:"Emolingo games"},{id:7,zh:"Zanie",en:"Zanie"},
+    {id:8,zh:"Jeremy",en:"Jeremy"},{id:9,zh:"元成爱",en:"Roy Jin"},
+    {id:10,zh:"LukeYang",en:"Luke Yang"}
+  ];
+  function authorList(){ return state.authors.length ? state.authors : FALLBACK_AUTHORS; }
   function authorOptions(selected){
-    const list = state.authors.length ? state.authors : [
-      {id:1,zh:"了了了岭工作室",en:"Leleleling Studio",official:true},
-      {id:2,zh:"Andy Huang",en:"Andy Huang"},{id:3,zh:"Kevin Liao",en:"Kevin Liao"},
-      {id:4,zh:"Jonathan",en:"Jonathan"},{id:5,zh:"Wheat",en:"Wheat"},
-      {id:6,zh:"Emolingo games",en:"Emolingo games"},{id:7,zh:"Zanie",en:"Zanie"},
-      {id:8,zh:"Jeremy",en:"Jeremy"},{id:9,zh:"元成爱",en:"Roy Jin"}
-    ];
+    const list = authorList();
     return list.map(a=>{
       const label = `id ${a.id} · ${a.zh||a.en}` + (a.official?" · 官方":"");
       return `<option value="${a.id}" ${String(a.id)===String(selected)?"selected":""}>${escapeHtml(label)}</option>`;
@@ -330,7 +338,7 @@
     state.action = action;
     state.mode = "form";
     $("jsonEditor").value=""; $("jsonEditor").hidden=true; $("formBody").hidden=false;
-    $("modeBar").hidden = (action==="add-author"||action==="edit-author");
+    $("modeBar").hidden = false; // 六动作均支持 JSON 模式（含新增/修改作者）
     // 只切高亮不提前 collect：collect 依赖表单字段，须等下方 body.innerHTML 渲染完（见函数末尾 refreshPreview）
     $("modeBar").querySelectorAll(".seg").forEach(s=>s.classList.toggle("active", s.dataset.mode==="form"));
     $("work").hidden = false;
@@ -388,7 +396,7 @@
     }
     else if (action==="add-notice"){
       $("formTitle").textContent="🔔 发开发者专用告示";
-      const authorOpts = `<option value="all">全体开发者</option><option value="multi">按 id 多选</option>` + state.authors.map(a=>`<option value="${a.id}">id ${a.id} · ${escapeHtml(a.zh||a.en)}</option>`).join("");
+      const authorOpts = `<option value="all">全体开发者</option><option value="multi">按 id 多选</option>` + authorList().map(a=>`<option value="${a.id}">id ${a.id} · ${escapeHtml(a.zh||a.en)}</option>`).join("");
       body.innerHTML =
         field("n-id","告示 id",{ph:"唯一串，如 dev-2026-001"}) +
         select("n-author","对象", authorOpts, "all", "选「按 id 多选」后下方出现复选框") +
@@ -418,13 +426,39 @@
       renderMediaRows(); renderBtnRows();
     }
     else if (action==="add-author" || action==="edit-author"){
-      $("formTitle").textContent = action==="add-author" ? "👤 添加作者（暂未开放）" : "🛠 修改作者信息（暂未开放）";
-      body.innerHTML = `<div class="placeholder-note">
-        <p>作者数据的<strong>权威源在站外</strong> <code>authors.surge.sh/authors.json</code>，仓库里的 <code>authors/index.json</code> 是由 GitHub Actions 每 30 分钟自动从 Surge 生成的镜像，改本地会被覆盖。</p>
-        <p>因此「添加作者 / 修改作者信息」本期不在管理台开放，请按既有流程在 Surge 维护，或联系 David 调整。</p>
-        <p>本期可立即使用的动作：新增游戏、更新游戏、发全站公告、发开发者专用告示。</p>
-      </div>`;
+      const add = action==="add-author";
+      $("formTitle").textContent = add ? "👤 添加作者" : "🛠 修改作者信息";
+      const list = authorList();
+      const sugAu = Math.max(0, ...list.map(a=>Number(a.id)||0)) + 1;
+      if (add){
+        body.innerHTML = authorFieldsHtml({id:sugAu, name_zh:"", name_en:"", uuid:"", authorlevel:1, official:false, studio_special:false}, true);
+      } else {
+        const first = list.length ? list[0].id : "";
+        body.innerHTML = select("au-pick","选择要修改的作者", authorOptions(), first, "选 id 后自动预填现有内容") + `<div id="au-form"></div>`;
+        $("au-pick").addEventListener("change",(e)=>prefillAuthor(e.target.value));
+        if (first) prefillAuthor(first);
+      }
     }
+    refreshPreview();
+  }
+
+  function authorFieldsHtml(a, add){
+    return field("au-id", add?"作者 id（正整数，唯一）":"作者 id（不可修改）", {val:a.id}) +
+      duo("au-name-zh","au-name-en","名称（中文）","名称（英文）",a.name_zh,a.name_en) +
+      field("au-uuid","UUID（可选，Supabase 登录映射）",{val:a.uuid||"",hint:"留空表示不绑定；修改时留空会保留旧 uuid"}) +
+      select("au-level","作者等级", [1,2,3,4,5,6].map(n=>`<option value="${n}" ${n===Number(a.authorlevel||1)?"selected":""}>${n}</option>`).join(""), String(a.authorlevel||1), "1 为默认；6 通常为工作室") +
+      `<div class="duo" style="margin-top:12px">
+        <label class="switch"><input type="checkbox" id="au-official" ${a.official?"checked":""}> 官方作者（official）</label>
+        <label class="switch"><input type="checkbox" id="au-special" ${a.studio_special?"checked":""}> 工作室特供（studio_special）</label>
+      </div>` +
+      `<div class="hint">权威源为本仓库 <code>authors/index.json</code>；Action 写入后会重算 <code>authors/data/&lt;id&gt;.json</code> 的作品数。</div>`;
+  }
+  function prefillAuthor(id){
+    const a = authorList().find(x=>String(x.id)===String(id));
+    if(!a){ toast("未找到作者 id "+id,"err"); return; }
+    const f = $("au-form");
+    f.innerHTML = authorFieldsHtml(a, false);
+    const idEl = $("au-id"); if(idEl) idEl.readOnly = true;
     refreshPreview();
   }
 
@@ -566,6 +600,17 @@
     };
   }
 
+  function collectAuthor(){
+    return {
+      id:Number(val("au-id"))||0,
+      name_zh:val("au-name-zh"), name_en:val("au-name-en"),
+      uuid:val("au-uuid"),
+      authorlevel:Number(val("au-level"))||1,
+      official:!!($("au-official")&&$("au-official").checked),
+      studio_special:!!($("au-special")&&$("au-special").checked)
+    };
+  }
+
   function buildPayload(){
     const a = state.action; state.payloadError = null;
     if (!a) return null;
@@ -580,12 +625,15 @@
       else if (a==="update-game") data = collectGame(true);
       else if (a==="add-announcement") data = collectAnnouncement();
       else if (a==="add-notice") data = collectNotice();
+      else if (a==="add-author" || a==="edit-author") data = collectAuthor();
       else return null;
     }
     if (a==="add-game") return {action:"add-game", data};
     if (a==="update-game") return {action:"update-game", data};
     if (a==="add-announcement") return {action:"add-announcement", data};
     if (a==="add-notice") return {action:"add-notice", data};
+    if (a==="add-author") return {action:"add-author", data};
+    if (a==="edit-author") return {action:"edit-author", data};
     return null;
   }
 
@@ -644,6 +692,15 @@
         ((d.summary||d.summary_en)?'<div class="v-sum">'+escapeHtml(d.summary||d.summary_en)+'</div>':'')+
         '</div></div>'+(desc?'<div class="v-desc">'+escapeHtml(desc)+'</div>':'')+(shots?'<div class="v-shots">'+shots+'</div>':'')+(d.url?'<a class="v-url" href="'+escapeHtml(d.url)+'" target="_blank" rel="noopener">打开游戏 ↗</a>':'')+'</div>';
     }
+    if(p.action==="add-author" || p.action==="edit-author"){
+      const badges=[`Lv.${Number(d.authorlevel)||1}`, `id ${d.id||"—"}`];
+      if(d.official) badges.push("官方作者");
+      if(d.studio_special) badges.push("工作室特供");
+      return '<div class="v-ann"><div class="v-ann-head"><span class="v-badge">'+(p.action==="add-author"?"新增作者":"修改作者")+'</span></div>'+
+        '<h3 class="v-title">'+escapeHtml(d.name_zh||"（未填名称）")+(d.name_en?' <span class="v-name-en">'+escapeHtml(d.name_en)+'</span>':'')+'</h3>'+
+        '<div class="v-badges">'+badges.map(b=>'<span class="v-b">'+escapeHtml(b)+'</span>').join('')+'</div>'+
+        (d.uuid?'<div class="v-sub">UUID：'+escapeHtml(d.uuid)+'</div>':'')+'</div>';
+    }
     if(p.action==="add-notice"){
       const media=(d.media||[]).map(m=>{
         if(m.type==="image") return '<img class="v-shot" src="'+escapeHtml(m.src)+'" alt="" loading="lazy">';
@@ -662,6 +719,7 @@
     if(a==="update-game"){ const b=collectGame(true); if(b.id==null||isNaN(Number(b.id))) b.id=Number(val("u-id"))||state.maxId; return b; }
     if(a==="add-announcement") return collectAnnouncement();
     if(a==="add-notice") return collectNotice();
+    if(a==="add-author" || a==="edit-author") return collectAuthor();
     return {};
   }
   function setMode(mode){
@@ -685,6 +743,8 @@
     else if (p.action==="update-game") files=[`lelegame_data.json <b>更新 id ${p.data.id}</b>`, `game/data/${p.data.id}.json <b>更新</b>`];
     else if (p.action==="add-announcement") files=[`announcements.json <b>追加 1 条</b>`];
     else if (p.action==="add-notice") files=[`noticetodeveloper.json <b>追加 1 条（version 自动 +1）</b>`];
+    else if (p.action==="add-author") files=[`authors/index.json <b>追加 1 条</b>`, `authors/data/${p.data.id}.json <b>新建（games_count=0）</b>`, `authors/data/*.json <b>重算作品数</b>`];
+    else if (p.action==="edit-author") files=[`authors/index.json <b>更新 id ${p.data.id}</b>`, `authors/data/*.json <b>重算作品数</b>`];
     fl.innerHTML = files.map(f=>`<li>${f}</li>`).join("");
     bp.innerHTML = `<pre>${escapeHtml(JSON.stringify(p.data,null,2))}</pre>`;
     const html = renderVisual(p);
@@ -701,7 +761,7 @@
     if (submitting) return;
     const p = buildPayload();
     const btn = $("submitBtn");
-    const enabled = p && ["add-game","update-game","add-announcement","add-notice"].includes(p.action) && patInput.value.trim();
+    const enabled = p && ["add-game","update-game","add-announcement","add-notice","add-author","edit-author"].includes(p.action) && patInput.value.trim();
     btn.disabled = !enabled;
     if (state.payloadError) $("status").textContent = state.payloadError;
     else if (!p) $("status").textContent = "请完整填写表单。";
@@ -742,8 +802,8 @@
     {id:"update-game", ico:"✏️", t:"更新游戏", d:"改现有游戏字段，URL 两处同步"},
     {id:"add-announcement", ico:"📢", t:"发全站公告", d:"富文本：加粗/视频/图片/.lsfp"},
     {id:"add-notice", ico:"🔔", t:"发开发者告示", d:"定向弹窗 + 媒体 + 按钮"},
-    {id:"add-author", ico:"👤", t:"添加作者", d:"暂未开放（权威源在站外 Surge）", disabled:true},
-    {id:"edit-author", ico:"🛠", t:"修改作者信息", d:"暂未开放（权威源在站外 Surge）", disabled:true}
+    {id:"add-author", ico:"👤", t:"添加作者", d:"新增作者（写 authors/index.json）"},
+    {id:"edit-author", ico:"🛠", t:"修改作者信息", d:"改名 / 等级 / 官方标 / UUID"}
   ];
   function renderCards(){
     $("cards").innerHTML = ACTIONS.map(a=>`

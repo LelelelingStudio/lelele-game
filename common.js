@@ -1272,17 +1272,12 @@ function leleleOnReady(fn) {
     // 作者数据：唯一定义处已移到 boot.js（head 同步加载，dashboard 等页也能用）。
     // 这里只在 boot.js 缺席时提供兼容实现——game/ 子目录页面通过绝对 URL 直接加载
     // common.js、不加载 boot.js，必须保证它们仍能拿到 fetchAuthors。
-    // 契约不变：surge 权威主源（5s 超时）+ 同域 authors/index.json 兜底，返回数组或 null。
+    // 契约不变：2026-11-14 起唯一权威源是本仓库 /authors/index.json（admin 控制台写入，surge 已退役）。
+    // 用同源根绝对路径，保证 game/ 子目录页面也解析正确。以下均为 boot.js 缺席时的等价兼容实现。
     if (typeof window.fetchAuthors !== 'function') {
         window.fetchAuthors = async function () {
-            const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
-            const timer = ctrl ? setTimeout(() => ctrl.abort(), 5000) : null;
             try {
-                const r = await fetch('https://authors.surge.sh/authors.json', ctrl ? { signal: ctrl.signal } : {});
-                if (r.ok) return await r.json();
-            } catch (e) {} finally { if (timer) clearTimeout(timer); }
-            try {
-                const r = await window.leleleFetch('authors/index.json');
+                const r = await window.leleleFetch('/authors/index.json');
                 if (r.ok) return await r.json();
             } catch (e) {}
             return null;
@@ -1292,19 +1287,17 @@ function leleleOnReady(fn) {
     if (typeof window.fetchAuthorsLocal !== 'function') {
         window.fetchAuthorsLocal = async function () {
             try {
-                const r = await window.leleleFetch('authors/index.json');
+                const r = await window.leleleFetch('/authors/index.json');
                 return r.ok ? await r.json() : null;
             } catch (e) { return null; }
         };
     }
     if (typeof window.fetchAuthorsFresh !== 'function') {
         window.fetchAuthorsFresh = async function () {
-            const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
-            const timer = ctrl ? setTimeout(() => ctrl.abort(), 5000) : null;
             try {
-                const r = await fetch('https://authors.surge.sh/authors.json', ctrl ? { signal: ctrl.signal } : {});
+                const r = await window.leleleFetch('/authors/index.json?t=' + Date.now());
                 return r.ok ? await r.json() : null;
-            } catch (e) { return null; } finally { if (timer) clearTimeout(timer); }
+            } catch (e) { return null; }
         };
     }
 

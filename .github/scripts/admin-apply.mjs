@@ -168,6 +168,99 @@ export function genAddNotice(data) {
   return { files: [p], summary: `发开发者告示 id=${data.id}（version→${obj.version}）` };
 }
 
+/* ---------------- 作者（权威源已迁回本仓库） ---------------- */
+// 原 sync-authors.yml 负责的 games_count 统计，改由本脚本在每次 Action 末尾重算。
+export function recomputeAuthorCounts() {
+  let games = [];
+  try { games = readJson('lelegame_data.json'); } catch { games = []; }
+  const counts = new Map();
+  for (const g of games) {
+    if (g && g.author !== undefined && g.author !== null) {
+      const k = String(g.author);
+      counts.set(k, (counts.get(k) || 0) + 1);
+    }
+  }
+  const dir = path.join('authors', 'data');
+  const absDir = path.join(ROOT, dir);
+  fs.mkdirSync(absDir, { recursive: true });
+  const authors = loadAuthors();
+  const liveIds = new Set(authors.map(a => String(a.id)));
+  const changed = [];
+  for (const a of authors) {
+    const rel = path.join(dir, String(a.id) + '.json');
+    let current = null;
+    try { current = JSON.parse(fs.readFileSync(path.join(ROOT, rel), 'utf8')); } catch {}
+    const next = Object.assign({}, current || {}, { games_count: counts.get(String(a.id)) || 0 });
+    if (!current || JSON.stringify(current) !== JSON.stringify(next)) {
+      writeJson(rel, next);
+      changed.push(rel);
+    }
+  }
+  // 删除已不存在作者的 data 文件
+  for (const f of fs.readdirSync(absDir)) {
+    const m = f.match(/^(\d+)\.json$/);
+    if (m && !liveIds.has(m[1])) {
+      fs.unlinkSync(path.join(absDir, f));
+      changed.push(path.join(dir, f));
+    }
+  }
+  return changed;
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function validateAuthorCommon(data) {
+  const id = Number(data.id);
+  if (!Number.isInteger(id) || id <= 0) fail('作者 id 需正整数');
+  if (!data.name_zh || !data.name_en) fail('作者名称中英文必填');
+  if (data.uuid && !UUID_RE.test(data.uuid)) fail('uuid 格式非法');
+  const lv = (data.authorlevel === undefined || data.authorlevel === '') ? 1 : Number(data.authorlevel);
+  if (!Number.isInteger(lv) || lv < 1 || lv > 6) fail('作者等级需 1–6 整数');
+  ['official', 'studio_special'].forEach(k => {
+    if (data[k] !== undefined && typeof data[k] !== 'boolean') fail(k + ' 需布尔值');
+  });
+  ['name_zh', 'name_en'].forEach(k => {
+    if (DANGER_RE.test(data[k] || '')) fail('作者名称含危险标签: ' + k);
+  });
+  checkPrivacy(data, 'data');
+  return { id, lv };
+}
+
+function authorEntry(data, lv) {
+  const e = { id: Number(data.id) };
+  if (data.uuid) e.uuid = data.uuid;
+  e.name_zh = data.name_zh;
+  e.name_en = data.name_en;
+  if (lv !== 1) e.authorlevel = lv;
+  if (data.official) e.official = true;
+  if (data.studio_special) e.studio_special = true;
+  return e;
+}
+
+export function genAddAuthor(data) {
+  const { id, lv } = validateAuthorCommon(data);
+  const arr = loadAuthors();
+  if (arr.some(a => Number(a.id) === id)) fail('作者 id 已存在: ' + id);
+  arr.push(authorEntry(data, lv));
+  arr.sort((a, b) => Number(a.id) - Number(b.id));
+  const p = 'authors/index.json';
+  writeJson(p, arr);
+  return { files: [p], summary: `新增作者 id=${id}《${data.name_zh}》` };
+}
+
+export function genEditAuthor(data) {
+  const { id, lv } = validateAuthorCommon(data);
+  const arr = loadAuthors();
+  const i = arr.findIndex(a => Number(a.id) === id);
+  if (i < 0) fail('作者 id 不存在: ' + id);
+  const entry = authorEntry(data, lv);
+  if (!entry.uuid && arr[i].uuid) entry.uuid = arr[i].uuid; // 未填 uuid 时保留旧值，避免解绑 Supabase 登录
+  arr[i] = entry;
+  const p = 'authors/index.json';
+  writeJson(p, arr);
+  return { files: [p], summary: `修改作者 id=${id}《${data.name_zh}》` };
+}
+
 /* ---------------- 入口 ---------------- */
 function main() {
   const raw = process.env.PAYLOAD;
@@ -181,7 +274,12 @@ function main() {
   else if (action === 'update-game') res = genUpdateGame(data);
   else if (action === 'add-announcement') res = genAddAnnouncement(data);
   else if (action === 'add-notice') res = genAddNotice(data);
+  else if (action === 'add-author') res = genAddAuthor(data);
+  else if (action === 'edit-author') res = genEditAuthor(data);
   else fail('未知 action: ' + action);
+  // 任何游戏/作者改动后都重算作者作品数（原 sync-authors.yml 的职责，现由本脚本承担）
+  const counts = recomputeAuthorCounts();
+  res.files = [...new Set([...res.files, ...counts])];
   console.log('CHANGED_FILES=' + JSON.stringify(res.files));
   console.log('SUMMARY=' + res.summary);
   if (process.env.GITHUB_STEP_SUMMARY) {

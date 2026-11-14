@@ -77,13 +77,14 @@
     // 无 UI 副作用，是最合适的共享引导层。
     //
     // 契约：fetchAuthors() 返回含 uuid 的作者数组或 null。
-    //   - surge 为权威主源（用户要求恢复，已核实 CORS *），5s 超时；
-    //   - 失败回退同域 authors/index.json（工作流同步生成，SW 缓存）。
+    //   - 2026-11-14 起作者权威源已迁回本仓库：/authors/index.json 是唯一数据源，
+    //     由 admin 控制台（添加/修改作者动作）经 admin-apply Action 写入；surge 已退役。
+    //   - 同源根路径（绝对路径，game/ 子页面也正确）；SW 对数据 JSON 走网络优先 + 缓存兜底。
     // 另暴露 fetchAuthorsLocal / fetchAuthorsFresh 供首屏 stale-while-revalidate：
-    // 先用本地清单即时渲染，再由 surge 异步校正，跨域变慢也不拖首屏。
+    // 先用缓存清单即时渲染，再带时间戳异步取最新校正，不拖首屏。
     // ----------------------------------------------------------------------
-    var AUTHORS_PRIMARY = 'https://authors.surge.sh/authors.json';
-    var AUTHORS_FALLBACK = 'authors/index.json';
+    var AUTHORS_SOURCE = '/authors/index.json';
+    var AUTHORS_FALLBACK = '/authors/index.json';
 
     function readAuthorsJson(url, timeoutMs) {
         return new Promise(function (resolve) {
@@ -117,9 +118,9 @@
         return readAuthorsJson(AUTHORS_FALLBACK, 8000);
     };
 
-    // 权威主源：仅 surge，失败返回 null（用于无感校正，不阻塞）
+    // 权威源（本仓库）：带时间戳破 CDN 缓存，失败返回 null（用于无感校正，不阻塞）
     window.fetchAuthorsFresh = function () {
-        return readAuthorsJson(AUTHORS_PRIMARY, 5000);
+        return readAuthorsJson(AUTHORS_SOURCE + '?t=' + Date.now(), 5000);
     };
 
     window.fetchAuthors = async function () {

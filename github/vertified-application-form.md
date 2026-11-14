@@ -1,7 +1,7 @@
 # 开发者「官方认证（Vertified）」申请表单 — Tally 规格
 
 > 用途：交给 Tally（https://tally.so）按此规格搭建 **「开发者申请官方认证 / vertified」** 表单。
-> 申请通过后，由管理员在 `authors.json` 中为该作者设置 `official: true`（及对应 `authorlevel`），重新部署 `authors.surge.sh` 生效。
+> 申请通过后，由站长在 **admin 控制台「🛠 修改作者信息」** 选该作者 id，勾选 `official`（及调整 `authorlevel`）后提交；数据写入本仓库 `authors/index.json`（唯一权威源）。默认开草稿 PR，合并后生效。⚠️ `authors.surge.sh` 已于 2026-11-14 退役，不要再改站外文件。
 
 ---
 
@@ -24,8 +24,8 @@
 
 | # | 字段标签 | 类型 | 必填 | 说明 / 校验 |
 | --- | --- | --- | --- | --- |
-| 1 | 开发者 / 工作室名称 | 单行文本 | ✅ | 与 `authors.json` 中的 `name_zh` / `name_en` 一致 |
-| 2 | 作者 ID（authors.json 的 id） | 单行文本 | ✅ | 数字；用于后台定位作者对象 |
+| 1 | 开发者 / 工作室名称 | 单行文本 | ✅ | 与 `authors/index.json` 中的 `name_zh` / `name_en` 一致 |
+| 2 | 作者 ID（authors/index.json 的 id） | 单行文本 | ✅ | 数字；用于 admin 控制台「修改作者信息」定位作者 |
 | 3 | 联系邮箱 | 邮箱 | ✅ | 格式校验；审核结果通知到此 |
 | 4 | 申请认证等级 | 单选（Radio） | ✅ | 选项：`制作人` / `优质制作人` / `开发者` / `金牌开发者` / `开发团队`（**不要**选「普通创作者」） |
 | 5 | 你的作品（游戏）链接 | 多行文本 / 多链接 | ✅ | 每行一个 `game.leleleling.site/game.html?id=...` 或外网链接 |
@@ -65,11 +65,12 @@
 
 ## 7. 提交后处理（后台）
 
-1. Tally 通知邮件 → 管理员核对 `作者 ID` 与 `authors.json`。
-2. 审核通过 → 编辑 `authors.json`：设置 `official: true`，必要时更新 `authorlevel`；重新部署 Surge。
+1. Tally 通知邮件 → 站长核对 `作者 ID` 与本仓库 `authors/index.json`。
+2. 审核通过 → 在 **admin 控制台「🛠 修改作者信息」** 选该 id，勾选 `official`、必要时调整 `authorlevel`，提交并**合并草稿 PR**（或勾选「直接推送 main」）。数据写入 `authors/index.json`，Pages 发布后生效。⚠️ 不再编辑站外 `authors.json` / 部署 Surge。
 3. 审核不通过 → 邮件说明原因，可重新申请。
+4. 可另用「🔔 发开发者专用告示」按作者 id 推送认证结果通知。
 
 ## 8. 注意
 
-- 本表单只负责「申请收集」，最终认证状态以 `authors.json` 数据为准。
+- 本表单只负责「申请收集」，最终认证状态以本仓库 `authors/index.json` 数据为准（唯一权威源，见 `foraisthings.md` 3.4）。
 - 「官方」标识渲染：中文【官方】/ 英文 Official（红徽章）；「本站原创团队」仅主理团队（`studio_special`）使用，不对申请者开放。

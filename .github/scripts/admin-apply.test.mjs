@@ -118,3 +118,61 @@ test('add-notice：author 不存在 / 按钮非站内 / 媒体非法 失败', ()
   assert.throws(() => mod.genAddNotice({ ...base, buttons: [{ label_zh: 'x', url: 'https://evil.com' }] }), /站内可达/);
   assert.throws(() => mod.genAddNotice({ ...base, media: [{ type: 'image', src: 'ftp://x' }] }), /媒体 src 非法/);
 });
+
+/* ---------------- 作者（权威源已迁回本仓库） ---------------- */
+const authorData = (over) => Object.assign({
+  id: 11, name_zh: '新作者', name_en: 'New Author',
+  uuid: 'd1f92b7f-ffc8-4597-bb0c-b2e835bacc97', authorlevel: 2,
+  official: false, studio_special: false
+}, over);
+
+test('add-author：正常追加并按 id 排序', () => {
+  const r = mod.genAddAuthor(authorData());
+  assert.deepEqual(r.files, ['authors/index.json']);
+  const arr = JSON.parse(fs.readFileSync('authors/index.json', 'utf8'));
+  assert.deepEqual(arr.map(a => a.id), [1, 3, 11]);
+  assert.equal(arr[2].name_zh, '新作者');
+  assert.equal(arr[2].authorlevel, 2);
+  assert.equal(arr[2].official, undefined); // false / 默认值省略，与既有索引格式一致
+});
+
+test('add-author：id 重复 / 非整数 / 名称缺英文 / uuid 非法 / 等级越界 失败', () => {
+  assert.throws(() => mod.genAddAuthor(authorData({ id: 1 })), /id 已存在/);
+  assert.throws(() => mod.genAddAuthor(authorData({ id: 2.5 })), /正整数/);
+  assert.throws(() => mod.genAddAuthor(authorData({ name_en: '' })), /中英文必填/);
+  assert.throws(() => mod.genAddAuthor(authorData({ uuid: 'not-a-uuid' })), /uuid 格式非法/);
+  assert.throws(() => mod.genAddAuthor(authorData({ authorlevel: 9 })), /等级/);
+  assert.throws(() => mod.genAddAuthor(authorData({ name_zh: 'a@b.com' })), /含邮箱/);
+  assert.throws(() => mod.genAddAuthor(authorData({ name_zh: '<script>x</script>' })), /危险标签/);
+});
+
+test('edit-author：原地更新且不丢 uuid', () => {
+  fs.writeFileSync('authors/index.json', JSON.stringify([
+    { id: 3, uuid: '56bffb80-d44a-427e-9014-367a2890e121', name_zh: 'Kevin Liao', name_en: 'Kevin Liao', authorlevel: 2 }
+  ], null, 2));
+  const r = mod.genEditAuthor(authorData({ id: 3, name_zh: 'Kevin（改）', name_en: 'Kevin (edited)', uuid: '', authorlevel: 4, official: true }));
+  assert.deepEqual(r.files, ['authors/index.json']);
+  const arr = JSON.parse(fs.readFileSync('authors/index.json', 'utf8'));
+  assert.equal(arr[0].name_zh, 'Kevin（改）');
+  assert.equal(arr[0].authorlevel, 4);
+  assert.equal(arr[0].official, true);
+  assert.equal(arr[0].uuid, '56bffb80-d44a-427e-9014-367a2890e121'); // 未填 uuid 保留旧值
+});
+
+test('edit-author：id 不存在失败', () => {
+  assert.throws(() => mod.genEditAuthor(authorData({ id: 99 })), /id 不存在/);
+});
+
+test('recomputeAuthorCounts：按主列表统计作品数并删孤儿文件', () => {
+  fs.writeFileSync('lelegame_data.json', JSON.stringify([
+    { id: 1, author: '1' }, { id: 2, author: '1' }, { id: 3, author: '3' }
+  ], null, 2));
+  fs.mkdirSync('authors/data', { recursive: true });
+  fs.writeFileSync('authors/data/1.json', JSON.stringify({ games_count: 0 }));
+  fs.writeFileSync('authors/data/99.json', JSON.stringify({ games_count: 5 }));
+  const changed = mod.recomputeAuthorCounts();
+  assert.equal(JSON.parse(fs.readFileSync('authors/data/1.json', 'utf8')).games_count, 2);
+  assert.equal(JSON.parse(fs.readFileSync('authors/data/3.json', 'utf8')).games_count, 1);
+  assert.equal(fs.existsSync('authors/data/99.json'), false);
+  assert.ok(changed.includes(path.join('authors', 'data', '1.json')));
+});

@@ -28,7 +28,7 @@
 | `README.md` | 面向访客的项目简介 | ✅ |
 | `LSFP-NOTICE.txt` | 内置 `lsfp.js` 的上游 NOTICE + Apache-2.0 全文，合规留存 | ✅ |
 | `github/vertified-application-form.md` | 认证申请表相关留档 | ✅ |
-| `github/admin.html` | 站长**内部**管理控制台（可公开部署，但仅站长持 PAT 可用）：选动作 → 填空/选题 → 预览 → 触发 Action 落库；文件零密钥、PAT 只存浏览器 | ✅ |
+| `github/admin.html` | 站长**内部**管理控制台（可公开部署，但仅站长持 PAT 可用）：六动作全可用 → 填空/选题或粘贴 JSON → 效果预览 → 触发 Action 落库；文件零密钥、PAT 只存浏览器 | ✅ |
 | `.github/workflows/admin-apply.yml` | 监听 `repository_dispatch` 的 `admin-apply` 事件，校验并生成静态 JSON，默认开草稿 PR 或直接推送 | ✅ |
 | `.github/scripts/admin-apply.mjs`（+`.test.mjs`） | 按动作分派：字段校验 + 最小差异写入；Node 单测覆盖 | ✅ |
 
@@ -83,7 +83,7 @@ grep -cE '^[0-9]+\.|^\| [0-9]+ \|' thoughts.md    # 应为 185
 | 页面 | 原生 HTML + 内联 `<script>` | 25 个根页面 + `game/` 下 12 个游戏页 |
 | 样式 | `common.css`（全局令牌/组件）+ `effects.css`（特效）+ 各页内联 `<style>` | 苹果风：留白、毛玻璃、pill 按钮、圆角 |
 | 逻辑 | 原生 JS，IIFE + `window.*` 全局 | 无模块打包，`defer` 与 `boot.js` 的 `onReady` 控制时序 |
-| 数据 | 静态 JSON 文件 | 手改 + GitHub Actions 自动生成 + 跨域 Surge 源 |
+| 数据 | 静态 JSON 文件 | 手改 + admin 控制台（Action 校验落库）生成；**作者权威源已迁回本仓库**（2026-11-14） |
 | 账号 | Supabase Auth + Postgres `profiles` | 仅开发者生态（登录/后台/认证/资料） |
 | 表单 | Tally iframe 嵌入 | 投稿/推荐/认证申请/更新游戏/反馈 |
 | 统计 | Edgemetry（主）+ Umami（回退） | `leleleTrack()` 统一埋点；排行榜从 analytics API 取数 |
@@ -107,14 +107,13 @@ flowchart TB
     COMMON --> CAP[recaptcha.js 人机验证]
     COMMON --> SB[supabase-client.js 鉴权]
   end
-  JSON -. 跨域优先 / 本地兜底 .-> SURGE_AUTH[authors.surge.sh/authors.json]
   ADAPT -. fetch 图片字节 .-> SURGE_PIC[gamepic.surge.sh/*.lsfp]
   CAP --> VERCEL[recaptcha.leleleling.site/api/captcha]
   SB --> SUPA[Supabase Auth + profiles + storage]
   P --> TALLY[Tally iframe 表单]
   COMMON --> ANALYTICS[analytics.leleleling.site]
   GH[GitHub 主干] --> PAGES[GitHub Pages] --> CF[Cloudflare] --> Browser
-  ACTION[.github/workflows/sync-authors.yml] -->|每 30 分钟重建 authors/*| GH
+  ADMIN[github/admin.html] -. repository_dispatch .-> ACT[.github/workflows/admin-apply.yml] -->|校验并写入 JSON| GH
 ```
 
 ### 1.3 页面加载时序（很重要，改脚本顺序必读）
@@ -144,7 +143,7 @@ flowchart TB
 | --- | --- | --- |
 | `game.leleleling.site` | 主站（CNAME 文件内容即此 HTTPS URL） | 本仓库 |
 | `gamepic.surge.sh` | 图片床，存 `.png/.PNG/.jpg/.jpeg` 旧图与 `.lsfp` 新图；根目录有 `CORS` 文件（内容 `*`） | 用户手工 `surge` 部署 |
-| `authors.surge.sh` | **作者清单权威源** `authors.json` | 用户在 Surge 维护 |
+| `authors.surge.sh` | ⛔ **已退役**（2026-11-14 起不再读取；站点仍在但仅留档） | 不再维护 |
 | `recaptcha.leleleling.site` | 自建人机验证服务 `/api/captcha/*` | 外部 Vercel 项目，**源码不在本仓库** |
 | `analytics.leleleling.site` | Edgemetry 统计 + 排行榜 API | 外部服务 |
 | `mynsjlquktwucqlmfmxf.supabase.co` | Supabase 项目 | 外部 Supabase |
@@ -217,7 +216,7 @@ flowchart TB
 - `game/<slug>/` — 12 个本地游戏本体目录，各含 `index.html`（+ 同目录 `style.css` / `game.js` 等）：`2048_1`、`3Dshooting`、`MCpointygame`、`deleting_bombs`、`eat_planet`、`happycorn`、`leveleating`、`old_happyfarmer`、`popping_banana`、`space_shooting`、`universal_evolution`、`others/2026_7_7/point_the_button`。这些页面通过 `https://game.leleleling.site/common.js` 引全站脚本。
 - `authors/` — `index.json`（9 条）+ `data/1.json`–`data/9.json`（各 `{"games_count": n}`）。**由 GitHub Actions 生成，不要手改**。
 - `vendor/` — 自托管 UMD：`supabase-js.js`、`pinyin-pro.js`、`echarts.min.js`（4.0.12 起，当前**在用**，旧手册说「已 revert」是错的）。
-- `.github/workflows/` — 工作流：`sync-authors.yml`（每 30 分钟从 surge 同步作者，见 5.8 / 6.2）、`admin-apply.yml`（监听 `repository_dispatch`，由 `github/admin.html` 触发，校验并落库静态 JSON，见 4.14）。
+- `.github/workflows/` — 唯一工作流 `admin-apply.yml`（监听 `repository_dispatch`，由 `github/admin.html` 触发，校验并落库静态 JSON，见 4.14）。原 `sync-authors.yml` 已于 2026-11-14 删除（surge 退役、作者权威源迁回本仓库，见 3.4）。
 - `.github/scripts/admin-apply.mjs`（+`.test.mjs`）— `admin-apply.yml` 调用的校验/生成脚本，纯 Node 内置模块，不依赖第三方包。
 - `github/` — `vertified-application-form.md` 留档；`admin.html` 是站长内部管理控制台（见 4.14），可公开部署，不进玩家导航。
 - `historymd/` — 里程碑记录，被忽略，见 0.3。
@@ -249,7 +248,7 @@ flowchart TB
 - 顶层是**数组**（不是 `{games:[…]}`），当前 **30 条，id 1–30 连续**。
 - 字段（11 个，全部必需）：`id`(number)、`name_zh`、`name_en`、`icon`(emoji)、`category_zh`、`category_en`、`type`(`'local'` 本站代码 / `'external'` 外链)、`ageRating_zh`、`ageRating_en`、`author`(数字字符串，指向 `authors/index.json` 的 id)、`url`(可玩地址)。
 - **注意**：`GAME_ENTRY_TEMPLATE.md` 规范要求主列表也带 `version`，但实际文件里**没有** `version` 字段；版本号只在 `game/data/{id}.json`。改数据时以实际文件为准。
-- 消费者：`index.js` 的 `getCatalog()`（与排行榜共享）、`game.html` 的 `id.json` 404 兜底、`author.html` 的 `loadGames()`、`dashboard.html`、`common.js` 的直链探针、`sync-authors.yml` 统计 `games_count`、`pager-nav.js` 的 id 全集、`sw.js` 的 DATA_PATH_RE。
+- 消费者：`index.js` 的 `getCatalog()`（与排行榜共享）、`game.html` 的 `id.json` 404 兜底、`author.html` 的 `loadGames()`、`dashboard.html`、`common.js` 的直链探针、`admin-apply.mjs` 的 `recomputeAuthorCounts()` 统计 `games_count`、`pager-nav.js` 的 id 全集、`sw.js` 的 DATA_PATH_RE。
 - 分类中英对照（来自模板，6 组）：休闲/Casual、冒险/Adventure、射击/Shooter、益智/Puzzle、动作/Action、模拟经营/Simulation。
 - `url` 可以是空串：详情页「开始游戏」会提示「该游戏暂无可用链接」，不崩溃。**收录代码投稿但尚未部署时允许留空，拿到地址后必须同时改主列表与详情 json 两处**。
 
@@ -266,21 +265,23 @@ flowchart TB
 - 图片 URL：`banner` 与 `screenshots[]` 指向 `gamepic.surge.sh`，命名规则见 4.9 / 8.5。
 - 视频 URL：`videos[]` 与公告 `<video src>`，允许的直链扩展名 `.mp4 .webm .ogv .ogg .mov .m4v .m3u8`；B站/YouTube/Vimeo 转内嵌 `iframe`。
 
-### 3.4 作者数据（**权威源在站外**）
+### 3.4 作者数据（**权威源 = 本仓库 `authors/index.json`**）
 
-`authors/index.json`：数组，**9 条，id 1–9**。字段：`id`(number 必有)、`uuid`(string 可选，用于把 Supabase 登录用户映射成作者)、`name_zh` `name_en`、`authorlevel`(number 可选，**只有 !==1 时才写入**)、`official`(true 可选)、`studio_special`(true 可选)。
+> 2026-11-14 全面迁移完成：`authors.surge.sh` 退役，`sync-authors.yml` 已删除。作者清单**由 admin 控制台「添加作者 / 修改作者信息」两个动作**经 `admin-apply` Action 校验后直接写入本仓库；不再有任何外部源会覆盖它。Supabase `profiles` 仍只提供 bio/角色/头像等可编辑资料，与 id 映射无关。
 
-`authors/data/<id>.json`：`{"games_count": n}`，由 `author.html` 读取显示作品数。
+`authors/index.json`：数组，**10 条，id 1–10**。字段：`id`(number 必有、唯一)、`uuid`(string 可选，用于把 Supabase 登录用户映射成作者)、`name_zh` `name_en`(双语必填)、`authorlevel`(number 1–6 可选，**只有 !==1 时才写入**)、`official`(true 可选)、`studio_special`(true 可选)。
 
-读取优先级（`boot.js`）：
+`authors/data/<id>.json`：`{"games_count": n}`，由 `author.html` 读取显示作品数。**由 `admin-apply.mjs` 的 `recomputeAuthorCounts()` 在每次 Action 末尾按 `lelegame_data.json` 自动重算**（原 `sync-authors.yml` 的职责），并删除已不存在作者的孤儿文件。
+
+读取优先级（`boot.js`，唯一定义处）：
 ```
-fetchAuthorsFresh()  → https://authors.surge.sh/authors.json  5s
-fetchAuthorsLocal()  → authors/index.json                    8s（兜底）
+fetchAuthorsFresh()  → /authors/index.json?t=<时间戳>   5s（同源，破 CDN 缓存取最新）
+fetchAuthorsLocal()  → /authors/index.json             8s（首屏，可命中 SW 缓存）
 fetchAuthors()       → 先 Fresh，失败才 Local
 ```
-`readAuthorsJson()` 只在 `Array.isArray(data) && data.length` 时 resolve 数组，否则 `null`；任何失败都 resolve `null` 不抛。失败原因写 `window.leleleLastAuthorsError`。
+全部用**同源根绝对路径**（`game/` 子页面也解析正确）；SW 对 `authors/index.json` 走「网络优先 + 1.5s 超时回退缓存」（见 4.12）。`common.js` / `notice.js` 各有一份等价兼容实现，同样只读本仓库同源清单，不会再请求任何外部域。`readAuthorsJson()` 只在 `Array.isArray(data) && data.length` 时 resolve 数组，否则 `null`；任何失败都 resolve `null` 不抛。失败原因写 `window.leleleLastAuthorsError`。
 
-前端常见用法是 **stale-while-revalidate**：先 `fetchAuthorsLocal()` 渲染首屏，再 `fetchAuthorsFresh()` 用权威结果覆盖（`author.html` 的 `applyAuthorList()` 会被调用两次，任何依赖它的逻辑必须**幂等**）。
+前端常见用法是 **stale-while-revalidate**：先 `fetchAuthorsLocal()` 渲染首屏，再 `fetchAuthorsFresh()` 用最新结果覆盖（`author.html` 的 `applyAuthorList()` 会被调用两次，任何依赖它的逻辑必须**幂等**）。
 
 ### 3.5 `announcements.json` — 全站公告
 
@@ -299,7 +300,7 @@ fetchAuthors()       → 先 Fresh，失败才 Local
 - `notice.js` 精确过滤链：
   1. `location.pathname` 以 `/game/` 开头 → 整页不显示（游戏本体保持纯净）；
   2. 无 `window.supabaseClient` 或 `auth.getSession()` 无 session → 不显示（**未登录整站不弹**）；
-  3. `resolveAuthorId()`：surge 主源 5s，失败回退本地 `authors/index.json`，用 `uuid === session.user.id` 找到 `String(me.id)`；
+  3. `resolveAuthorId()`：读取同源 `/authors/index.json`（5s 超时，`leleleFetch` 兜底），用 `uuid === session.user.id` 找到 `String(me.id)`；
   4. `window.leleleFetch('noticetodeveloper.json?t=' + Date.now(), {cache:'no-store'})`，payload 支持数组或 `{notices:[…]}`；
   5. 逐条：`enabled !== false` → `matchAuthor()`（`'*'`/`'all'` 不区分大小写 / 精确 id）→ `inTimeWindow()`（无效日期忽略）→ `!alreadySeen()` → 按 `priority` **降序**排序；
   6. 已读：`localStorage['lelele_notice_seen_' + id] === '1'`；`oncePerUser === false` 时不查重；任何关闭路径都会 `markSeen()`。
@@ -382,7 +383,7 @@ fetchAuthors()       → 先 Fresh，失败才 Local
 
 ### 4.6 `notice.js` — 开发者告示
 
-见 3.6 的完整过滤链。常量：`NOTICE_URL='noticetodeveloper.json'`、`AUTHORS_URL='https://authors.surge.sh/authors.json'`、`SEEN_PREFIX='lelele_notice_seen_'`、`AUTO_OPEN_DELAY=800`、`VIDEO_FILE_RE=/\.(mp4|webm|ogv|ogg|mov|m4v|m3u8)(?:$|[?#])/i`。`renderMedia()` 图片分支输出 `data-lsfp-src` 交给适配层，弹窗插入 DOM 后调 `LeleleLsfp.hydrate(mask)`。
+见 3.6 的完整过滤链。常量：`NOTICE_URL='noticetodeveloper.json'`、`AUTHORS_URL='/authors/index.json'`、`AUTHORS_FALLBACK_URL='/authors/index.json'`、`SEEN_PREFIX='lelele_notice_seen_'`、`AUTO_OPEN_DELAY=800`、`VIDEO_FILE_RE=/\.(mp4|webm|ogv|ogg|mov|m4v|m3u8)(?:$|[?#])/i`。`renderMedia()` 图片分支输出 `data-lsfp-src` 交给适配层，弹窗插入 DOM 后调 `LeleleLsfp.hydrate(mask)`。
 
 ### 4.7 `rank-loader.js` — 排行榜
 
@@ -421,7 +422,7 @@ fetchAuthors()       → 先 Fresh，失败才 Local
 
 - `window.LelelePager.mount({ids, currentId, urlFor, nameFor})` / `unmount()`。
 - id 只接受正整数、去重升序；`prev = sorted[(i-1+n)%n]`、`next = sorted[(i+1)%n]`，**首尾闭环且自动跳过缺口**（未来下架产生 id 缺口时不会跳 404）。
-- **幂等**：复用同一 `#lelelePagerNav` 容器，只更新两枚 `<a>` 的 `href` / tooltip / `aria-label`；键盘监听只绑一次。作者页本地+surge 两阶段、语言切换重绘都会重复 `mount()`。
+- **幂等**：复用同一 `#lelelePagerNav` 容器，只更新两枚 `<a>` 的 `href` / tooltip / `aria-label`；键盘监听只绑一次。作者页缓存+最新校正两阶段、语言切换重绘都会重复 `mount()`。
 - URL 由页面 `urlFor(id)` 提供（`Number()` 强转 + `isEn()` 追加 `&lang=en`），模块不碰语言实现；目标名称一律 `textContent`。
 - 键盘 ←/→ 跳转；排除 `INPUT`/`TEXTAREA`/`SELECT`/`contenteditable` 焦点；协议 modal / 灯箱 / 公告弹窗打开时不抢键；排除带修饰键的组合。
 - 降级：`ids` 为空 / 长度 ≤1 / `currentId` 不在列表 / `urlFor` 缺失或抛错 → `unmount()` 静默隐藏。
@@ -442,7 +443,7 @@ fetchAuthors()       → 先 Fresh，失败才 Local
 - install：`Promise.allSettled` 逐项 `cache.add().catch(()=>{})` + `skipWaiting()`；activate：删除非当前 CACHE_NAME + `clients.claim()`。
 - **三分支 fetch（不要改结构）**：
   1. 非 GET 不接管；
-  2. `URL.origin !== self.location.origin` → **外部域直通**（`gamepic.surge.sh` 的 `.lsfp`、`authors.surge.sh` 都走这里，不缓存）；
+  2. `URL.origin !== self.location.origin` → **外部域直通**（现在只剩 `gamepic.surge.sh` 的 `.lsfp` 等，不缓存；作者清单已改为同源读取）；
   3. 命中 `DATA_PATH_RE` → `networkFirstWithTimeout(req, 1500)`（1.5s AbortController，超时/失败回退 `cache.match(cacheKeyFor(req))`，无缓存 `Response.error()`）；
   4. 其余 → `staleWhileRevalidate()`（命中缓存立即返回 + `waitUntil(network)` 后台 `cache.put`；导航失败仅 `/` 或 `/index.html` 回退首页缓存，否则返回 Offline HTML 200）。
 - `isBasicOk(res)` = `status===200 && type==='basic'`；`cacheKeyFor(req)` 对导航/`.html`/`/` 只取 `origin+pathname`，其余删除 `['t','_','ts','cb','nocache','cacheBust']` 参数后返回 `origin+pathname+search`（所以 `?t=Date.now()` 不会撑爆缓存）。
@@ -452,27 +453,30 @@ fetchAuthors()       → 先 Fresh，失败才 Local
 ### 4.13 关键页面实现要点
 
 - **`game.html`**：`init()` 读 `?id=`，`window.leleleFetch('/game/data/'+id+'.json')`，失败则由 `lelegame_data.json` 兜底构造；`renderGamePage()` 渲染横幅/截图/简介/更新日志/作者栏/元标签；`isVideoUrl()` 用 `VIDEO_FILE_RE` 排除视频，`safeLegalUrl()` 校验协议链接；`onBannerClick()` 与灯箱使用 `data-lsfp-resolved`；`playGame()` 不再 `window.open` 新标签，而是调用 `openGameFrame(url)` 在站内弹出**模拟浏览器外壳**（红黄绿圆点 + 地址栏顶栏、底部工具栏「重载/重置/关闭/全屏」、`#gameFrame` iframe 内嵌游戏原代码）；同源（本站 `local`/`internal`）直接内嵌并隐藏外链兜底条，外链（`external`）尽力内嵌、禁止内嵌时显示「在新标签打开」兜底；`url` 为空时 `alert('该游戏暂无可用链接。')` 并 return（不崩溃）；`setLegalRailVisible()` 控制协议侧栏；`langChanged` 重绘 + 重挂导航。
-- **`author.html`**：`initAuthorPage()` 无 `?id=` 时 `showEmpty()`；`loadGames()` 拉主列表按 `String(g.author)===String(authorId)` 过滤；作者清单本地 + surge 两阶段 `applyAuthorList()`；Supabase `profiles` 单条查询覆盖 `display_name` / `bio` / `avatar_url` / `role`；`authors/data/<id>.json` 取作品数。注意 `authorlevel.html?level=4&lang=en` 实测仍显示中文，是该老页面既有的语言切换缺陷，未修。
+- **`author.html`**：`initAuthorPage()` 无 `?id=` 时 `showEmpty()`；`loadGames()` 拉主列表按 `String(g.author)===String(authorId)` 过滤；作者清单同源缓存 + 最新校正两阶段 `applyAuthorList()`（幂等）；Supabase `profiles` 单条查询覆盖 `display_name` / `bio` / `avatar_url` / `role`；`authors/data/<id>.json` 取作品数。注意 `authorlevel.html?level=4&lang=en` 实测仍显示中文，是该老页面既有的语言切换缺陷，未修。
 - **`dashboard.html`**：资料编辑（`profiles` upsert/update）、头像 `storage.from('avatars')`、`rpc('delete_user')`、更新游戏弹窗（Tally）、认证申请入口、analytics 数据看板（`SITE_ID=1`）。
 - **`404.html`**：GitHub Pages 会用根 `404.html` 响应**任意层级**的不存在 URL，所以 `<head>` 最前面有 `<base href="/">`，所有关键资源与首页链接都是根绝对路径，且所有 `var(--x)` 都带 fallback —— 即使 `common.css` 和 `common.js` 全挂也能完整渲染。另有不依赖 JS 的 `/sitemap.html` 备用出口。
 - **`legal_templates.html`**：见 4.8。
 
 ### 4.14 管理控制台（admin 页面 + admin-apply Action）— 2026-11-12 新增
 
-站长**内部**工具，把「手工改 4 个 JSON」变成「选按钮 → 填空/选题 → 预览 → 一键校验落库」。可公开部署，但仅站长持 PAT 可用；不进玩家导航。
+站长**内部**工具，把「手工改 5 类 JSON」变成「选按钮 → 填空/选题 → 预览 → 一键校验落库」。可公开部署，但仅站长持 PAT 可用；不进玩家导航。**2026-11-14 起六动作全可用**，作者权威源已迁回本仓库（见 3.4）。
 
-- **`github/admin.html`**（单文件、零依赖、零硬编码密钥）：顶栏粘贴细粒度 PAT（只存浏览器 `localStorage`）；六动作卡 —— **➕ 新增游戏 / ✏️ 更新游戏 / 📢 发全站公告 / 🔔 发开发者专用告示** 四个可用，**👤 添加作者 / 🛠 修改作者信息** 两个**禁用占位**（作者权威源在站外 surge，本期不动）；表单按选题字段（分类/适龄/`type`/作者下拉/协议方式/告示对象/优先级/媒体类型/日期）与填空字段（中英成对）组织；富文本工具条生成 `<strong>`/`<video>`/`<img>`（**不含 `**` 语法**），所有图片/媒体允许 `.lsfp` 并提供回退提示；表单上方有「✍️ 填空式 / {} 粘贴·改 JSON」切换——**JSON 模式**会按当前动作预填字段模板，也可直接粘贴**审核 AI 返回的 JSON**，提交时以 JSON 为准；提交前提供「**效果预览**」（公告渲染成公告卡、游戏渲染成游戏卡、告示渲染成弹窗卡，与线上 `sanitizeAnnouncementHtml` 消毒 + LSFP 水合逻辑同源）+ 可折叠的原始 JSON；页面可公开部署（`hostname` 不再限制提交，仅以 PAT 守卫），`robots.txt` 已 `Disallow: /github/admin.html`。
-- **`.github/workflows/admin-apply.yml`**：监听 `repository_dispatch` 的 `admin-apply` 事件；`permissions: contents:write, pull-requests:write`；checkout → `git pull --ff-only`（与 `sync-authors.yml` 并发协调）→ 调 `admin-apply.mjs` → 默认开**草稿 PR**（页面「直接推送 main」开关可切直推）。
-- **`.github/scripts/admin-apply.mjs`**（+`.test.mjs`）：按 `client_payload.action` 分派四类生成器；**信任前端不可信**——先校验（JSON 合法、id 唯一不冲突、作者 id 存在于 `authors/index.json`、中英成对、日期 `YYYY-MM-DD`、告示 `version+1`、按钮 URL 站内可达、`legal_urls` 合法、隐私字段拒绝邮箱/官网/资质截图、拦截 `**` 与危险 HTML、`.lsfp` 格式）再写盘，校验失败不写任何文件；主列表 `lelegame_data.json` 纯文本追加、详情 `game/data/<id>.json` 新建/更新（`url` 两处同步）、公告追加 `announcements.json`、告示追加 `noticetodeveloper.json`。
+- **`github/admin.html`**（单文件、零依赖、零硬编码密钥）：顶栏粘贴细粒度 PAT（只存浏览器 `localStorage`）；**六动作卡全部可用** —— ➕ 新增游戏 / ✏️ 更新游戏 / 📢 发全站公告 / 🔔 发开发者专用告示 / 👤 添加作者 / 🛠 修改作者信息；表单按选题字段（分类/适龄/`type`/作者下拉/协议方式/告示对象/优先级/媒体类型/日期）与填空字段（中英成对）组织；富文本工具条生成 `<strong>`/`<video>`/`<img>`（**不含 `**` 语法**），所有图片/媒体允许 `.lsfp` 并提供回退提示；表单上方有「✍️ 填空式 / {} 粘贴·改 JSON」切换——**JSON 模式**会按当前动作（含作者动作）预填字段模板，也可直接粘贴**审核 AI 返回的 JSON**，提交时以 JSON 为准；提交前提供「**效果预览**」（公告渲染成公告卡、游戏渲染成游戏卡、告示渲染成弹窗卡、作者渲染成作者卡，与线上 `sanitizeAnnouncementHtml` 消毒 + LSFP 水合逻辑同源）+ 可折叠的原始 JSON；页面可公开部署（`hostname` 不再限制提交，仅以 PAT 守卫），`robots.txt` 已 `Disallow: /github/admin.html`。
+  - **添加作者**：填 `id`（建议当前最大 +1）、中英名称、可选 `uuid`（Supabase 登录映射）、`authorlevel`(1–6)、`official` / `studio_special` 勾选，写入 `authors/index.json`。
+  - **修改作者**：下拉选 id 后自动预填现有内容（名称 / uuid / 等级 / 徽标），`id` 只读；uuid 留空时保留旧值以免解绑登录。
+  - **健壮性**：`pullData()` 拉作者优先 raw 主干、失败回退同源 `/authors/index.json`、再失败用内置 10 位回退清单（`authorList()`，游戏表单的作者下拉与告示对象共用）；拉取异步完成**只在表单尚为空时**才重渲染，不会清空用户已填内容；新增作者的建议 id = 当前最大 id + 1（本地/线上都能算对）。
+- **`.github/workflows/admin-apply.yml`**：**仓库唯一工作流**（`sync-authors.yml` 已删）。监听 `repository_dispatch` 的 `admin-apply` 事件；`permissions: contents:write, pull-requests:write`；checkout → `git pull --ff-only` → 调 `admin-apply.mjs` → 默认开**草稿 PR**（页面「直接推送 main」开关可切直推，直推前再 rebase 一次）。
+- **`.github/scripts/admin-apply.mjs`**（+`.test.mjs`，15/15 单测）：按 `client_payload.action` 分派**六类**生成器；**信任前端不可信**——先校验（JSON 合法、id 唯一不冲突、作者 id 存在于 `authors/index.json`、中英成对、日期 `YYYY-MM-DD`、告示 `version+1`、按钮 URL 站内可达、`legal_urls` 合法、隐私字段拒绝邮箱/官网/资质截图、拦截 `**` 与危险 HTML、`.lsfp` 格式、作者字段含 id 正整数 / 双语名 / uuid 格式 / 等级 1–6 / 布尔徽标）再写盘，校验失败不写任何文件；主列表 `lelegame_data.json` 纯文本追加、详情 `game/data/<id>.json` 新建/更新（`url` 两处同步）、公告追加 `announcements.json`、告示追加 `noticetodeveloper.json`、**作者写入 `authors/index.json`（按 id 升序）**；末尾统一 `recomputeAuthorCounts()` 按主列表重算 `authors/data/<id>.json` 的 `games_count` 并清理孤儿文件（原 `sync-authors.yml` 的职责）。
 - **密钥红线**：PAT **绝不硬编码**进 `github/admin.html`（该文件会被 Pages 公开 + 进公开仓库，硬编码=泄露）；只在运行时粘贴、仅存浏览器。Action 侧用仓库自带 `secrets.GITHUB_TOKEN` 落地，无需额外密钥。所需 PAT：Fine-grained，仅 `LelelelingStudio/lelele-game` 的 `Contents: Read and write` + `Pull requests: Read and write`。
 - **事件契约**：`POST /repos/LelelelingStudio/lelele-game/dispatches`，`{event_type:"admin-apply", client_payload:{action, direct_push, data}}`，`data` 字段名严格复用现有 JSON 字段名（见 3.2–3.6）。
-- **边界**：外部投稿仍人工看 Tally；作者数据本期不写回（占位）；本工具是 `thoughts.md` #8「投稿审核工作流」的**收窄内部版**（不含 Tally API、不含外部投稿自动入库、不含作者写回），不等于原 #8 全自动方案。
+- **边界**：外部投稿仍人工看 Tally；本工具是 `thoughts.md` #8「投稿审核工作流」的**收窄内部版**（不含 Tally API、不含外部投稿自动入库），不等于原 #8 全自动方案。作者数据自 2026-11-14 起**已由本工具写回本仓库**，不再依赖站外源。
 
 ---
 
 ## 5. 后端与外部服务（⚠️ 源码不在本仓库）
 
-> **重要边界**：仓库里**没有** `api/`、`lib/`、`supabase/`、`functions/`、`migrations/` 任何服务端源码，只有 `.github/workflows/sync-authors.yml`。下面全部是「浏览器端可核实的调用契约」。要改服务端实现，必须另取对应外部项目源码；不要在本仓库里找不存在的后端文件。
+> **重要边界**：仓库里**没有** `api/`、`lib/`、`supabase/`、`functions/`、`migrations/` 任何服务端源码，只有 `.github/workflows/admin-apply.yml` 这一个工作流（负责把 admin 控制台的改动校验后写入静态 JSON）。下面全部是「浏览器端可核实的调用契约」。要改服务端实现，必须另取对应外部项目源码；不要在本仓库里找不存在的后端文件。
 
 ### 5.1 Supabase
 
@@ -499,9 +503,9 @@ fetchAuthors()       → 先 Fresh，失败才 Local
   - **红色【官方】/ Official 徽章与等级相互独立**（官方正式背书），不要因为「升级等级」就加 `official:true`；另有金色 ★ 本站原创团队（`studio_special`）。
   - 申请入口：`apply-certification.html` 或后台「🏅 申请官方认证」，表单字段含工作室名称、作者 ID、邮箱、申请等级、作品链接、已发布数量、自评、官网、资质证明、条款勾选；结果按文档由 `leleleling@2980.com` **邮件**通知（3–5 个工作日）。本仓库只能落「站内定向告示」，发邮件需人工。
 
-### 5.2 前提：**作者清单的权威源是 Surge，不是 Supabase**
+### 5.2 前提：**作者清单的权威源是本仓库 `authors/index.json`，不是 Surge 也不是 Supabase**
 
-`https://authors.surge.sh/authors.json` 决定 `authorlevel` / `official` / `uuid` / 名称。仓库里的 `authors/index.json` 只是自动生成的本地副本。详见 6.2 —— **这是最容易做无效功的地方**。
+2026-11-14 起，`/authors/index.json` 决定 `authorlevel` / `official` / `uuid` / 名称，由 admin 控制台「添加作者 / 修改作者信息」写入（见 3.4 / 4.14）。`authors.surge.sh` 已退役、`sync-authors.yml` 已删除，**不会再有定时同步覆盖**；改 `authors/index.json` 即持久生效。Supabase `profiles` 只提供 bio / `display_name` / `avatar_url` / `role` 等可编辑资料，不决定 id 与等级。
 
 ### 5.3 自建 reCAPTCHA 验证服务
 
@@ -547,15 +551,15 @@ fetchAuthors()       → 先 Fresh，失败才 Local
 - 取数接口：`/api/breakdown?site=1&cmp=1&limit=1000&dim=path,referrer,event,country,device&range=30d`（index.js/gamecheck.html/dashboard.html 参数略有差异）；`rank-loader.js` 用 4 个 `/gamecheck?lang=…` 端点。
 - 缓存/轮询：首页 `ANALYTICS_TTL=10min` + 10min 轮询；排行榜 5min 轮询。
 
-### 5.6 Surge 上的三个静态源
+### 5.6 Surge 上的静态源（作者源已退役）
 
 | 域名 | 内容 | 维护方式 |
 | --- | --- | --- |
-| `gamepic.surge.sh` | 旧图 `.png/.PNG/.jpg/.jpeg`、新图 `*.lsfp`、根目录 `CORS` 文件（内容 `*`） | 用户 `cd ~/Desktop/gamepic && surge . gamepic.surge.sh` |
-| `authors.surge.sh` | `authors.json`（权威作者清单） | 用户在 Surge 维护 |
+| `gamepic.surge.sh` | 旧图 `.png/.PNG/.jpg/.jpeg`、新图 `*.lsfp`、根目录 `CORS` 文件（内容 `*`）—— **仍在用** | 用户 `cd ~/Desktop/gamepic && surge . gamepic.surge.sh` |
+| `authors.surge.sh` | ⛔ **已退役**（2026-11-14）：站点保留但不下线、不再被任何代码读取；作者权威源已迁回本仓库 `/authors/index.json` | 不再维护 |
 | `lsfp.leleleling.site` | 上游 `lsfp.js` 外链（本仓库已内置，运行时不依赖） | 上游项目 |
 
-Surge 的 `CORS` 文件是 project-wide 策略：整个项目所有响应都会带 `access-control-allow-origin`；文件本身不对外服务（直接访问返回 404 是正常的），验证要看响应头。也可用 `surge <domain> config --cors` 从平台侧设置。
+Surge 的 `CORS` 文件是 project-wide 策略：整个项目所有响应都会带 `access-control-allow-origin`；文件本身不对外服务（直接访问返回 404 是正常的），验证要看响应头。也可用 `surge <domain> config --cors` 从平台侧设置。注意：`gamepic.surge.sh` 的 `CORS` 文件**仍必须保留**（LSFP 图片解码要 `arrayBuffer()`），与作者源退役无关。
 
 ### 5.7 部署与 DNS
 
@@ -563,17 +567,13 @@ Surge 的 `CORS` 文件是 project-wide 策略：整个项目所有响应都会�
 - `robots.txt` 屏蔽 `/dashboard.html`、`/login.html`、`/gamecheck.html`。
 - `sitemap.xml` / `sitemap.html` 由人工维护，当前落后于游戏列表（只到 id=22）。
 
-### 5.8 GitHub Actions：`.github/workflows/sync-authors.yml`
+### 5.8 GitHub Actions：`.github/workflows/admin-apply.yml`（唯一工作流）
 
-- `name: Sync authors (index + data) from surge.sh`；触发 `cron: '*/30 * * * *'`（**每 30 分钟**）+ `workflow_dispatch`；`permissions.contents: write`；`concurrency: sync-authors`（`cancel-in-progress:false`）。
-- Step 1 `actions/checkout@v4`（`fetch-depth:0`）。
-- Step 2 `curl -fsSL --max-time 30 "https://authors.surge.sh/authors.json?t=$(date +%s)" -o authors.remote.json`，`node -e` 校验 `Array.isArray(d)`。
-- Step 3 `git pull --ff-only origin || true`，然后 node 脚本：
-  - 从 `lelegame_data.json` 按 `String(g.author)` 统计每人 `gameCount`；
-  - 遍历 surge 数组（`Number(a.id)` 非整数跳过）记入 `liveIds`；
-  - 生成 `authors/index.json`：条目 `{id, uuid?, name_zh, name_en, authorlevel?(仅 Number!==1), official?:true, studio_special?:true}`，按 id 升序；
-  - 写 `authors/data/<id>.json` 为 `{"games_count": count}`；删除不在 `liveIds` 的旧 `data/<数字>.json`；清理临时文件。
-- Step 4 `git add -A authors`；无 diff 则跳过，否则以 `github-actions[bot]` 身份 commit `chore: auto-sync authors index+data from surge.sh` 并 **`git push`**。
+- `name: Apply admin changes`；触发 `repository_dispatch` 的 `admin-apply` 事件（由 `github/admin.html` 用 PAT 调 `/dispatches`）；`permissions: contents:write, pull-requests:write`；`concurrency: admin-apply`（`cancel-in-progress:false`）。
+- Step 1 `actions/checkout@v4`（`fetch-depth:0`）→ `git pull --ff-only`（保证基于最新 main 校验，尤其作者 id 唯一性）。
+- Step 2 `node .github/scripts/admin-apply.mjs`，`PAYLOAD` 由 `toJSON(github.event.client_payload)` 注入；六类生成器校验后写盘，末尾重算 `authors/data/<id>.json` 的 `games_count`。
+- Step 3 有 diff 才提交：默认开**草稿 PR**（`gh pr create --draft`），勾选「直接推送 main」时 rebase 后直推。**草稿 PR 必须人工合并才生效**（见 6.2）。
+- ⛔ 原 `sync-authors.yml`（每 30 分钟从 surge 同步并覆盖 `authors/*`）**已于 2026-11-14 删除**。它承担的 `games_count` 统计已移到 `admin-apply.mjs` 的 `recomputeAuthorCounts()`。
 - 注释明确：`bio` / `role` / 头像走 Supabase，与 dashboard 编辑同源，**不在此流程**。
 
 ---
@@ -585,19 +585,21 @@ Surge 的 `CORS` 文件是 project-wide 策略：整个项目所有响应都会�
 本地改文件 → 验证（见 7.9）→ `git add` + `git commit`（**不 push**）→ 用户自行 push → Pages 自动发布。
 工作区里用户自己的改动（常见 `announcements.json` / `changelog.json` 的日期文案）**不要擅自暂存或提交**，提交前先看 `git status --short`。
 
-### 6.2 作者数据同步（最容易做无效功）
+### 6.2 作者数据写入链路（2026-11-14 起）
 
 ```
-用户在 authors.surge.sh 改 authors.json（权威）
-        ↓ 每 30 分钟
-GitHub Actions sync-authors.yml
-        ↓ 生成 + git push
-authors/index.json + authors/data/<id>.json（仓库内产物）
+站长在 admin 控制台填「添加作者 / 修改作者信息」
+        ↓ repository_dispatch (PAT)
+GitHub Actions admin-apply.yml → admin-apply.mjs 校验
+        ↓ 写盘 + recomputeAuthorCounts()
+authors/index.json（权威源） + authors/data/<id>.json（games_count）
+        ↓ 默认开草稿 PR，人工合并后 Pages 发布（或勾选直推 main）
         ↓ 浏览器
-fetchAuthorsFresh() 优先读 surge（5s），失败才 fetchAuthorsLocal()（8s）
+fetchAuthorsFresh() / fetchAuthorsLocal() 均读同源 /authors/index.json
 ```
 
-> ⚠️ **只改仓库里的 `authors/index.json` 会在下次同步时被覆盖回旧值，线上玩家也可能仍通过 surge 看到旧等级。** 要持久生效必须改 `authors.surge.sh/authors.json`。这是通过认证申请时的必办事项。
+> ✅ **没有定时同步会覆盖了**：`sync-authors.yml` 已删除、`authors.surge.sh` 已退役。`authors/index.json` 就是唯一权威源，改它即持久生效。
+> ⚠️ 唯一要注意的是 **admin 默认是草稿 PR 模式**：Action 跑绿但线上没变时，先去 GitHub 合并 PR（或勾选「直接推送 main」）。详见 4.14 / 5.8。
 
 ### 6.3 SW 缓存升版
 
@@ -643,7 +645,7 @@ fetchAuthorsFresh() 优先读 surge（5s），失败才 fetchAuthorsLocal()（8s
 3. 改 `authors/index.json` 的 `authorlevel` → 目标等级。**不要加 `official`**（徽章与等级独立）。
 4. `noticetodeveloper.json` 新增定向审批结果告示（version +1、priority 400、中英双语），说明等级依据、作品数、【官方】不涉及、以及以后可再申请更高级。
 5. 隐私：邮箱/官网/资质截图不入库；结果通知按规则是**邮件**（需用户人工发），站内告示只是补充。
-6. **必须告知用户**：`authors/index.json` 会被 30 分钟同步覆盖，要持久生效得改 `authors.surge.sh/authors.json`（见 6.2）。
+6. **作者数据**：`authors/index.json` 已是权威源、不会被覆盖；新增/修改作者请用 admin 控制台两个作者动作（见 4.14），不要再去站外 Surge 改文件。若走草稿 PR 模式，提醒用户合并 PR 才生效（见 6.2）。
 
 ### 7.4 加公告 / 开发者告示
 
@@ -694,7 +696,7 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 ```
 
 - 浏览器自动化用 `playwright-cli`（`open --browser=chrome` / `run-code`），多断点 `page.setViewportSize()`。
-- 需要模拟登录时用 `page.route('**/supabase-client.js', …)` 在脚本尾追加覆盖 `supabaseClient.auth.getSession()`；作者清单用 `page.route('**/authors.surge.sh/**', r=>r.fulfill({path:'authors/index.json'}))`。
+- 需要模拟登录时用 `page.route('**/supabase-client.js', …)` 在脚本尾追加覆盖 `supabaseClient.auth.getSession()`；作者清单已是同源文件，用 `page.route('**/authors/index.json*', r=>r.fulfill({path:'authors/index.json'}))` 即可（不再需要拦 `authors.surge.sh`）。
 - ⚠️ 测试里触发 `alert()` 会卡住 `run-code` 输出，改用「临时替换 `window.alert` 捕获消息」。
 - ⚠️ `page.route()` 回调参数是 **Route** 对象，取 URL 要 `r.request().url()`，不是 `r.url()`。
 - 静态校验脚本套路：`node --check *.js`、正则抽出 HTML 内联 `<script>` 逐个 `node --check`、`json.load` 全量 JSON、`xml.etree` 解析 sitemap、CSS 花括号计数、正则扫 `href/src` 检查文件存在性。
@@ -742,7 +744,8 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 - 投稿邮箱等个人信息不进公开仓库。
 
 ### 8.8 认证数据的坑
-改本地 `authors/index.json` 会被 30 分钟同步覆盖（6.2）；`official` 徽章与 `authorlevel` 独立；`authorlevel > 0` 只是「是否作者」判定。
+`official` 徽章与 `authorlevel` 独立（不要因升级等级就加 `official:true`）；`authorlevel > 0` 只是「是否作者」判定。
+⚠️ 历史坑（**已消除，2026-11-14**）：以前 `sync-authors.yml` 每 30 分钟从 surge 覆盖 `authors/index.json`，改本地无效。现在该工作流已删、作者权威源就是本仓库 `/authors/index.json`，用 admin 控制台改即生效（见 3.4 / 6.2）。剩下的坑只剩：**admin 默认草稿 PR 模式要人工合并**。
 
 ### 8.9 已知遗留 / 待办（不阻塞，但别误判为 bug）
 
@@ -796,6 +799,8 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 | 2026-11-12 | `6f813e9` | 详情页/作者页循环导航（`pager-nav.js`）+ SW v1.11 + `.gitignore` + `historymd/` 机制 + 本手册全量重构 |
 | 2026-11-12 | 本次 | 三份法律文件升级为「了了了游官方版」（官方游戏 / 第三方游戏责任区隔，`liability` 单一数据源）+ 新增 `thoughts.md` 185 条分级升级点子库 |
 | 2026-11-12 | 本次（admin 控制台） | 内部管理控制台 `github/admin.html`（六动作四可用两占位）+ `admin-apply` Action（校验+最小差异写入，默认草稿 PR）；公告消毒白名单补 `IMG`/`alt` 支持图片、`.lsfp` 图片接 LSFP 水合；SW v1.12；`thoughts.md` 落盘批准状态（181/185） |
+| 2026-11-13 | `94f0982` / `a5f047b` | admin 新增 JSON 模式与效果预览；游戏「开始游戏」改为站内模拟浏览器外壳内嵌 iframe；新增游戏 #31、开发者告示、清理测试日志 |
+| 2026-11-14 | 本次（作者源迁移） | **surge 退役、作者权威源迁回本仓库**：删除 `sync-authors.yml`；`boot.js`/`common.js`/`notice.js`/`author.html` 改读同源 `/authors/index.json`；admin 两作者卡启用（`add-author`/`edit-author`）；`admin-apply.mjs` 加作者生成器与 `recomputeAuthorCounts()`（15/15 单测）；`thoughts.md` #3 标记完成；手册/认证表全量同步 |
 
 ---
 
@@ -808,14 +813,14 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 | 定向告示 | `noticetodeveloper.json` 里按作者 id / 时间窗 / 优先级弹出、登录后可见的站内通知 |
 | 灵动岛 | 滚动后收起的胶囊形顶部导航（4.0.1 重做） |
 | 复合后缀 | `原名.png.lsfp` 形式，去掉末尾 `.lsfp` 即精确还原旧图 URL |
-| stale-while-revalidate | 先给缓存、后台更新（SW 静态分支）；也用于作者清单「本地先渲染、surge 后覆盖」 |
+| stale-while-revalidate | 先给缓存、后台更新（SW 静态分支）；也用于作者清单「同源缓存先渲染、带时间戳的最新结果后覆盖」 |
 | fail-open / 熔断 | 验证服务不可用时放行而非阻塞登录，见 5.3 |
-| 权威源 | `authors.surge.sh/authors.json`，仓库内 `authors/index.json` 只是产物 |
+| 权威源 | **本仓库 `/authors/index.json`**（2026-11-14 起；admin 控制台写入，无外部源覆盖）。图片床 `gamepic.surge.sh` 仍是站外源 |
 | 三段式 / 双轨 | 站点版本 `4.1.0` 与规则版本 `5.0.0` 各自独立 |
 | `?t=` | 破浏览器缓存的时间戳参数，SW `cacheKeyFor()` 会剔除 |
 | 管理控制台 / admin-apply | 站长内部工具（`github/admin.html`）+ Action（`admin-apply.yml`/`admin-apply.mjs`）。选动作、填空/选题、预览后触发 `repository_dispatch`，远端校验并落库；只限本地使用，密钥只存浏览器、绝不硬编码 |
 | 草稿 PR 模式 | `admin-apply` 默认不开直接推送，而是开草稿 PR 等人工合并；页面「直接推送 main」开关可切直推 |
 
-**遇到问题先查**：改数据 → 第 3 章；改页面 → 2.1 / 4.13；改脚本 → 4.1–4.14；外部服务 → 第 5 章；线上没生效 → 6.2 / 6.3 / 8.6；要做某个任务 → 第 7 章（新增/更新游戏、加公告/告示优先看 `github/admin.html` 管理控制台，见 4.14）；像是 bug → 第 8 章先看是不是已知坑；想找下一步做什么 → `thoughts.md`。
+**遇到问题先查**：改数据 → 第 3 章；**改作者 → 3.4 / 4.14（admin 控制台「添加/修改作者」，本仓库为唯一权威源）**；改页面 → 2.1 / 4.13；改脚本 → 4.1–4.14；外部服务 → 第 5 章；线上没生效 → 6.2 / 6.3 / 8.6（**先确认草稿 PR 是否已合并**）；要做某个任务 → 第 7 章（六类动作优先用 `github/admin.html` 管理控制台，见 4.14）；像是 bug → 第 8 章先看是不是已知坑；想找下一步做什么 → `thoughts.md`。
 
 **联系/权限**：站点所有者 David（Surge 部署账号由用户自己持有，不写入公开仓库）；官方公开邮箱 `leleleling@2980.com`（认证结果与规则申诉，见 `AUTHOR_CERTIFICATION.md` / `game_rules.html`）。A 大版本升级必须先征得 David 同意。

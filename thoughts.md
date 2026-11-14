@@ -54,7 +54,7 @@
 | --- | --- | --- |
 | 1 | 静态站 CI 质量门禁 | 在 `.github/workflows/` 新增校验流水线：JSON Schema 校验、站内链接存在性、`node --check` 全量 JS 与内联脚本、CSS 花括号平衡、SW 预缓存清单对齐，PR 失败即阻断。把目前每次靠临时 Python 脚本做的事固化下来。定位：`foraisthings.md` 7.8 发版检查单 |
 | 2 | 数据层单一化 | 消除 `lelegame_data.json` 与 `game/data/<id>.json` 的**双份存储**（`url`、`name_*`、`category_*` 重复），改为一份 `catalog.json` 在构建期生成详情文件，从根上杜绝「改了主列表忘改详情」(`7.2` 踩过)。定位：`lelegame_data.json` / `game/data/` / `index.js` / `game.html` |
-| 3 | 作者数据源迁到 Supabase | 用 `authors` 表 + 只读 API 取代 `authors.surge.sh` 权威源与每 30 分钟的定时同步，消除「改本地 `authors/index.json` 会被覆盖」这个最容易做无效功的坑，并让认证审批即时生效。定位：`.github/workflows/sync-authors.yml` / `boot.js` 的 `fetchAuthorsFresh` |
+| 3 | ~~作者数据源单一化~~ ✅ **已完成（2026-11-14，改走本仓库方案）** | 未采用「迁到 Supabase」，而是**把权威源直接迁回本仓库 `/authors/index.json`**：`authors.surge.sh` 退役、删除 `sync-authors.yml`，`boot.js` / `common.js` / `notice.js` 改为只读同源清单；admin 控制台新增「添加作者 / 修改作者信息」两动作，`admin-apply.mjs` 校验写入并重算 `games_count`。同样消除了「改本地会被覆盖」的坑，且无需任何服务端/API。定位：`authors/index.json` / `github/admin.html` / `.github/scripts/admin-apply.mjs` / `boot.js` |
 | 4 | 全站 i18n 抽取 | 建立 `i18n/zh.json` / `i18n/en.json`，把散落在 25 个页面里的 `.zh-inline` / `.en-inline`、JS 里 `isEn()` 三元表达式收敛到统一词条，顺便支持第三种语言与缺失 key 告警。定位：`common.js` / 各页内联脚本 |
 | 5 | 本站游戏离线可玩 | 把 `game/` 下 12 款 local 游戏的代码与资源纳入 SW 预缓存 + 离线入口页，让 PWA 从「能装」变成「断网也能玩」，并处理游戏页对 `common.js` 的跨域依赖。定位：`sw.js` / `game/*/index.html` / `index.html` |
 | 6 | 图片管线自动化 | 写批量转码脚本（旧图 → LSFP，自动备份原图并生成复合后缀）+ CI 上传 Surge，替代纯手工部署；同时解决「纯 `.lsfp` 命名无回退图」与 256 色量化失真的人工挑选问题。定位：`lsfp.js` / `lsfp-adapter.js` / `game/data/*.json` |

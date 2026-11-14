@@ -17,15 +17,16 @@ if (typeof window.leleleFetch !== 'function') {
  * 开发者定向告示弹窗  notice.js
  * 数据源：/noticetodeveloper.json
  * 仅当「已登录」且「登录账号对应的作者 ID」与告示的 author 匹配时才显示。
- * 作者 ID 映射：Supabase session.user.id (uuid) -> authors.surge.sh/authors.json 的 id
+ * 作者 ID 映射：Supabase session.user.id (uuid) -> 本仓库 /authors/index.json 的 id
  * 支持内容：标题 / 正文 / 图片 / 视频（直链或 B站、YouTube、Vimeo 链接）/ 按钮
  * ========================================================================== */
 (function () {
     'use strict';
 
     const NOTICE_URL = 'noticetodeveloper.json';
-    const AUTHORS_URL = 'https://authors.surge.sh/authors.json';
-    const AUTHORS_FALLBACK_URL = 'authors/index.json';
+    // 2026-11-14：作者权威源迁回本仓库（admin 控制台维护），surge 退役；同源根绝对路径。
+    const AUTHORS_URL = '/authors/index.json';
+    const AUTHORS_FALLBACK_URL = '/authors/index.json';
     const SEEN_PREFIX = 'lelele_notice_seen_';
     const AUTO_OPEN_DELAY = 800;
 
@@ -92,14 +93,14 @@ if (typeof window.leleleFetch !== 'function') {
     async function resolveAuthorId(session) {
         try {
             let list = null;
-            // 主源：surge.sh 跨域（十月底以来一直稳定），5s 超时
+            // 唯一权威源：本仓库 /authors/index.json（同源，admin 控制台维护），5s 超时
             const ctrl = new AbortController();
             const timer = setTimeout(() => ctrl.abort(), 5000);
             try {
                 const res = await fetch(AUTHORS_URL, { signal: ctrl.signal });
                 if (res.ok) list = await res.json();
             } catch (e) {} finally { clearTimeout(timer); }
-            // 兜底：本地轻量清单（离线 / surge 不可达）
+            // 兜底：同源清单经 leleleFetch（离线 / SW 缓存）
             if (!list) {
                 try {
                     const res = await window.leleleFetch(AUTHORS_FALLBACK_URL);
