@@ -1,6 +1,6 @@
 {
-  "version": 6,
-  "updatedAt": "2026-11-13T15:14:09.577Z",
+  "version": 7,
+  "updatedAt": "2026-11-14T01:41:27.168Z",
   "_readme": {
     "说明": "本文件是「开发者定向告示」数据源，由 notice.js 读取。JSON 标准不支持 // 注释，所以字段说明都写在 _readme 里，程序会忽略它。",
     "文件结构": "{ version, updatedAt, _readme, notices: [告示对象, ...] }。真正生效的只有 notices 数组。",
@@ -396,6 +396,22 @@
           "url": "https://game.leleleling.site/dashboard.html"
         }
       ],
+      "dismissible": true,
+      "oncePerUser": true
+    },
+    {
+      "id": "testing111420261",
+      "enabled": true,
+      "author": "all",
+      "priority": 300,
+      "startAt": null,
+      "endAt": null,
+      "title_zh": "我做个实验你们别管",
+      "title_en": "我做个实验你们别管",
+      "body_zh": "我做个实验你们别管",
+      "body_en": "我做个实验你们别管",
+      "media": [],
+      "buttons": [],
       "dismissible": true,
       "oncePerUser": true
     }
