@@ -2,7 +2,7 @@
 
 > **读者**：一个对本仓库**零上下文**的 AI（或人类协作者）。通读本文后，你应该能独立理解架构、数据契约、前后端边界、部署链路、历史遗留问题，并安全地接手任何改造任务。
 > **维护**：本文件由 AI 维护，描述「项目**现在**是什么样」。每次大改动完成后，更新本文相关章节，并在 `historymd/` 新增一篇记录（见 0.3）。
-> **版本基准**：2026-11-12 · 站点 `4.1.0` ·《游戏守则》`5.0.0` · SW 缓存 `lelele-pwa-v1.11` · 30 款游戏 / 9 位作者。
+> **版本基准**：2026-11-15 · 站点 `4.1.0` ·《游戏守则》`5.0.0` · SW 缓存 `lelele-pwa-v1.12` · 31 款游戏 / 10 位作者 / 13 条公告 / 12 条开发者告示。
 > **准确性**：本文所有标识符、常量、字段、域名、表单 ID 均逐文件核实过。行号会随改动漂移，故正文以「文件 + 函数名 / 常量名」定位，不依赖行号。若发现描述与代码冲突，**以代码为准**并顺手修正本文。
 
 ---
@@ -25,7 +25,7 @@
 | `plan.md` | 4.0.14 审计基线产生的 170 项全站问题清单，状态已全标「本轮已修」，属**历史档案** | ✅ |
 | `AUTHOR_CERTIFICATION.md` | 官方认证等级规则（Lv.1–6）、徽章定义、申请流程 | ✅ |
 | `GAME_ENTRY_TEMPLATE.md` | 给 AI 用的「新增外网游戏 JSON 输出规范」（含中英分类对照、视频规则、完整示例） | ✅ |
-| `README.md` | 面向访客的项目简介 | ✅ |
+| `README.md` | 面向访客/贡献者的**英文**项目说明（2026-11-15 全量重写）：当前数据快照（31 游戏 / 10 作者 / 25 根页面 / SW v1.12）、功能、架构、目录树、数据契约、投稿流程、admin 控制台、部署、文档索引、隐私与 License，含 Star History 图表 | ✅ |
 | `LSFP-NOTICE.txt` | 内置 `lsfp.js` 的上游 NOTICE + Apache-2.0 全文，合规留存 | ✅ |
 | `github/vertified-application-form.md` | 认证申请表相关留档 | ✅ |
 | `github/admin.html` | 站长**内部**管理控制台（可公开部署，但仅站长持 PAT 可用）：六动作全可用 → 填空/选题或粘贴 JSON → 效果预览 → 触发 Action 落库；文件零密钥、PAT 只存浏览器 | ✅ |
@@ -214,7 +214,7 @@ flowchart TB
 
 - `game/data/` — **30 个** `1.json`–`30.json`，每个是一款游戏的详情数据（见 3.3）。
 - `game/<slug>/` — 12 个本地游戏本体目录，各含 `index.html`（+ 同目录 `style.css` / `game.js` 等）：`2048_1`、`3Dshooting`、`MCpointygame`、`deleting_bombs`、`eat_planet`、`happycorn`、`leveleating`、`old_happyfarmer`、`popping_banana`、`space_shooting`、`universal_evolution`、`others/2026_7_7/point_the_button`。这些页面通过 `https://game.leleleling.site/common.js` 引全站脚本。
-- `authors/` — `index.json`（9 条）+ `data/1.json`–`data/9.json`（各 `{"games_count": n}`）。**由 GitHub Actions 生成，不要手改**。
+- `authors/` — `index.json`（**权威源，10 条，id 1–10，由 admin 控制台写入**）+ `data/1.json`–`data/10.json`（各 `{"games_count": n}`，由 `admin-apply.mjs` 的 `recomputeAuthorCounts()` 重算）。两者都不建议手改，见 3.4。
 - `vendor/` — 自托管 UMD：`supabase-js.js`、`pinyin-pro.js`、`echarts.min.js`（4.0.12 起，当前**在用**，旧手册说「已 revert」是错的）。
 - `.github/workflows/` — 唯一工作流 `admin-apply.yml`（监听 `repository_dispatch`，由 `github/admin.html` 触发，校验并落库静态 JSON，见 4.14）。原 `sync-authors.yml` 已于 2026-11-14 删除（surge 退役、作者权威源迁回本仓库，见 3.4）。
 - `.github/scripts/admin-apply.mjs`（+`.test.mjs`）— `admin-apply.yml` 调用的校验/生成脚本，纯 Node 内置模块，不依赖第三方包。
@@ -292,7 +292,7 @@ fetchAuthors()       → 先 Fresh，失败才 Local
 
 ### 3.6 `noticetodeveloper.json` — 开发者专用定向告示
 
-- 顶层对象：`version`(当前 **5**)、`updatedAt`（ISO 8601 +08:00）、`_readme`（中文键说明对象，**程序忽略**）、`notices`(数组，当前 **10 条**)。
+- 顶层对象：`version`(当前 **7**)、`updatedAt`（ISO 8601 +08:00）、`_readme`（中文键说明对象，**程序忽略**）、`notices`(数组，当前 **12 条**)。
 - `notices[]` 字段：`id`(唯一)、`enabled`(默认 true)、`author`（`'all'` / `'*'` / 单个 id 字符串 / id 数组）、`priority`(number，降序弹出)、`startAt` / `endAt`(ISO 时间窗)、`title_zh`/`title_en`、`body_zh`/`body_en`、`media[]`、`buttons[]`、`dismissible`、`oncePerUser`。
   - `media[]`：`{type: 'image'|'video'|'embed', src, poster, alt}`。图片 `src` 走 LSFP 复合后缀。
   - `buttons[]`：`{text_zh, text_en, url, style: 'primary'|'ghost', target: '_blank'|'_self'}`，`url` 必须是站内存在的页面。
@@ -801,6 +801,7 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 | 2026-11-12 | 本次（admin 控制台） | 内部管理控制台 `github/admin.html`（六动作四可用两占位）+ `admin-apply` Action（校验+最小差异写入，默认草稿 PR）；公告消毒白名单补 `IMG`/`alt` 支持图片、`.lsfp` 图片接 LSFP 水合；SW v1.12；`thoughts.md` 落盘批准状态（181/185） |
 | 2026-11-13 | `94f0982` / `a5f047b` | admin 新增 JSON 模式与效果预览；游戏「开始游戏」改为站内模拟浏览器外壳内嵌 iframe；新增游戏 #31、开发者告示、清理测试日志 |
 | 2026-11-14 | 本次（作者源迁移） | **surge 退役、作者权威源迁回本仓库**：删除 `sync-authors.yml`；`boot.js`/`common.js`/`notice.js`/`author.html` 改读同源 `/authors/index.json`；admin 两作者卡启用（`add-author`/`edit-author`）；`admin-apply.mjs` 加作者生成器与 `recomputeAuthorCounts()`（15/15 单测）；`thoughts.md` #3 标记完成；手册/认证表全量同步 |
+| 2026-11-15 | 本次（README 重写） | `README.md` 全量改为**英文详细版**（当前数据快照 31 游戏 / 10 作者 / SW v1.12、架构与目录树、数据契约、投稿与认证、admin 六动作、部署、文档索引、隐私与 License），新增 **Star History** `<picture>` 明暗双主题图表；58 个相对链接全部校验无死链；手册 0.2 / 版本基准 / 2.4 / 3.6 计数同步 |
 
 ---
 
