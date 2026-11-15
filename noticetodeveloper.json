@@ -1,6 +1,6 @@
 {
-  "version": 7,
-  "updatedAt": "2026-11-14T01:41:27.168Z",
+  "version": 8,
+  "updatedAt": "2026-11-15T12:19:10.991Z",
   "_readme": {
     "说明": "本文件是「开发者定向告示」数据源，由 notice.js 读取。JSON 标准不支持 // 注释，所以字段说明都写在 _readme 里，程序会忽略它。",
     "文件结构": "{ version, updatedAt, _readme, notices: [告示对象, ...] }。真正生效的只有 notices 数组。",
@@ -412,6 +412,37 @@
       "body_en": "我做个实验你们别管",
       "media": [],
       "buttons": [],
+      "dismissible": true,
+      "oncePerUser": true
+    },
+    {
+      "id": "notice-2026-11-15-zombie-apolocase-incomplete",
+      "enabled": true,
+      "author": "10",
+      "priority": 120,
+      "startAt": "2026-11-15T00:00:00+08:00",
+      "endAt": "2026-11-22T23:59:59+08:00",
+      "title_zh": "《Zombie Apolocase》代码文件不完整，需要重新提交",
+      "title_en": "\"Zombie Apolocase\" code file is incomplete — please resubmit",
+      "body_zh": "感谢投稿《Zombie Apolocase》！我们解压检查后发现 HTML 文件后半部分缺失，大约从 $('sens 这一行到文件末尾（缺少灵敏度事件、键盘/鼠标/触摸绑定、主循环 animate()、初始化收尾等约 150–200 行）。\n\n游戏目前会卡在加载条约 58%，无法正常启动，因此暂时无法上架。\n\n请重新打包完整文件（.zip / .rar）上传，或将完整 HTML 直接粘贴到「代码内容」。详情请查看我们发送到您邮箱的说明邮件。\n\n本告示有效至 2026 年 11 月 22 日 23:59。",
+      "body_en": "Thanks for submitting \"Zombie Apolocase\"! After unzipping, we found the second half of the HTML file is missing — roughly from the $('sens line to the end of the file (missing sensitivity events, keyboard/mouse/touch bindings, the main animate() loop, init finishing steps — about 150–200 lines).\n\nThe game currently gets stuck at about 58% on the loading bar and cannot start, so it cannot be listed yet.\n\nPlease repackage the complete file (.zip / .rar) and upload it, or paste the full HTML directly into the \"Code Content\" field. For details, please check the explanation email sent to your inbox.\n\nThis notice is valid until Nov 22, 2026, 23:59 (UTC+8).",
+      "media": [],
+      "buttons": [
+        {
+          "style": "primary",
+          "target": "_blank",
+          "text_en": "Resubmit",
+          "text_zh": "重新提交",
+          "url": "https://game.leleleling.site/submit.html"
+        },
+        {
+          "style": "ghost",
+          "target": "_blank",
+          "text_en": "Game Rules",
+          "text_zh": "游戏守则",
+          "url": "https://game.leleleling.site/game_rules.html"
+        }
+      ],
       "dismissible": true,
       "oncePerUser": true
     }
