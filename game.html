@@ -594,22 +594,23 @@
         </div>
 
     <!-- 4.2.0：模拟浏览器外壳：把游戏原始代码内嵌进“浏览器窗”里玩（仅游戏页） -->
-    <div class="frame-modal" id="gameFrameModal" role="dialog" aria-modal="true" aria-label="游戏窗口">
+    <div class="frame-modal" id="gameFrameModal" role="dialog" aria-modal="true" aria-label="Game window / 游戏窗口">
         <div class="frame-bar">
             <div class="frame-dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
             <div class="frame-url" id="frameUrl">about:blank</div>
-            <button type="button" id="frameReload">↻ 重载</button>
-            <button type="button" id="frameFull">⛶ 全屏</button>
-            <button type="button" id="frameClose">✕ 关闭</button>
+            <button type="button" id="frameLang" title="Switch language / 切换语言"><span class="zh-inline">🌐 EN</span><span class="en-inline">🌐 中文</span></button>
+            <button type="button" id="frameReload">↻ <span class="zh-inline">重载</span><span class="en-inline">Reload</span></button>
+            <button type="button" id="frameFull">⛶ <span class="zh-inline">全屏</span><span class="en-inline">Fullscreen</span></button>
+            <button type="button" id="frameClose">✕ <span class="zh-inline">关闭</span><span class="en-inline">Close</span></button>
         </div>
-        <div class="frame-open-ext" id="frameOpenExt">⚠ 该游戏站点禁止内嵌显示，请 <a id="frameOpenLink" href="#" target="_blank" rel="noopener noreferrer">在新标签打开 ↗</a></div>
+        <div class="frame-open-ext" id="frameOpenExt">⚠ <span class="zh-inline">该游戏站点禁止内嵌显示，请</span><span class="en-inline">This site blocks embedding. Please</span> <a id="frameOpenLink" href="#" target="_blank" rel="noopener noreferrer"><span class="zh-inline">在新标签打开</span><span class="en-inline">open in a new tab</span> ↗</a></div>
         <div class="frame-content">
             <iframe id="gameFrame" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; fullscreen; gamepad; microphone; camera; clipboard-write"></iframe>
         </div>
         <div class="frame-foot">
-            <button type="button" id="footReload">↻ 重载</button>
-            <button type="button" id="footHome">🏠 重置</button>
-            <button type="button" id="footClose">✕ 关闭</button>
+            <button type="button" id="footReload">↻ <span class="zh-inline">重载</span><span class="en-inline">Reload</span></button>
+            <button type="button" id="footHome">🏠 <span class="zh-inline">重置</span><span class="en-inline">Reset</span></button>
+            <button type="button" id="footClose">✕ <span class="zh-inline">关闭</span><span class="en-inline">Close</span></button>
         </div>
     </div>
 
@@ -858,6 +859,10 @@
         function bindFrameControls() {
             const byId = id => document.getElementById(id);
             const reload = () => { const f = byId('gameFrame'); if (f) f.src = frameInitialUrl; };
+            // 外壳内语言切换：外壳覆盖全屏，顶部语言按钮被挡住，这里必须自带一个
+            const langBtn = byId('frameLang'); if (langBtn) langBtn.addEventListener('click', () => {
+                if (typeof window.setLang === 'function') window.setLang(isEn() ? 'zh' : 'en');
+            });
             const c = byId('frameClose'); if (c) c.addEventListener('click', window.closeGameFrame);
             const c2 = byId('footClose'); if (c2) c2.addEventListener('click', window.closeGameFrame);
             const r = byId('frameReload'); if (r) r.addEventListener('click', reload);
