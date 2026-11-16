@@ -159,7 +159,8 @@ flowchart TB
 | 文件 | 用途 |
 | --- | --- |
 | `index.html` | 首页：游戏网格、类型/分类筛选、搜索、收藏、排行榜、公告、投稿/推荐弹窗 |
-| `game.html` | 游戏详情页：横幅、截图、简介、更新日志、作者栏、收藏、开始游戏、协议侧栏、灯箱、循环导航（「开始游戏」改为在站内弹出**模拟浏览器外壳**，iframe 内嵌游戏原代码；外链游戏若站点禁止内嵌则给「在新标签打开」兜底；仅游戏页有此外壳） |
+| `game.html` | 游戏详情页：横幅、截图、简介、更新日志、作者栏、收藏、开始游戏（**4.2.1 起跳独立播放器 `play.html?id=N&lang=zh|en`**）、协议侧栏、灯箱、循环导航 |
+| `play.html` | **独立游戏播放器**（4.2.1 新增，零外部 CSS/JS 依赖）：`?id=` 查 `lelegame_data.json` → 自建干净浏览器外壳（地址栏 + 重载/全屏/关闭 + 底部栏）；同源游戏以 `?embed=1&lang=` 内嵌（游戏子页的 `common.js` 识别 embed 后跳过页脚/节日装饰/公告弹窗），外链游戏显示「在新标签打开」兜底；外壳中英双语 + 内置语言切换（localStorage `lelele_lang`），不设 iframe `sandbox` 以保留游戏 localStorage 存档；全屏整窗优先、iframe 兜底 |
 | `author.html` | 作者主页：作者资料、徽章、名下游戏列表、循环导航 |
 | `authorlevel.html` | 认证等级说明（Lv.1–6） |
 | `apply-certification.html` | 开发者官方认证申请（Tally 表单） |
@@ -452,7 +453,9 @@ fetchAuthors()       → 先 Fresh，失败才 Local
 
 ### 4.13 关键页面实现要点
 
-- **`game.html`**：`init()` 读 `?id=`，`window.leleleFetch('/game/data/'+id+'.json')`，失败则由 `lelegame_data.json` 兜底构造；`renderGamePage()` 渲染横幅/截图/简介/更新日志/作者栏/元标签；`isVideoUrl()` 用 `VIDEO_FILE_RE` 排除视频，`safeLegalUrl()` 校验协议链接；`onBannerClick()` 与灯箱使用 `data-lsfp-resolved`；`playGame()` 不再 `window.open` 新标签，而是调用 `openGameFrame(url)` 在站内弹出**模拟浏览器外壳**（红黄绿圆点 + 地址栏顶栏、底部工具栏「重载/重置/关闭/全屏」、`#gameFrame` iframe 内嵌游戏原代码）；**外壳顶栏/底栏/外链兜底条文案全部用 `.zh-inline`/`.en-inline` 双语 span（自动跟随 `data-lang`），并在外壳内自带 `#frameLang` 语言切换按钮**（因外壳全屏覆盖会挡住页面顶部语言栏），点击调 `window.setLang()` 并触发 `langChanged` 同步顶部高亮；同源（本站 `local`/`internal`）直接内嵌并隐藏外链兜底条，外链（`external`）尽力内嵌、禁止内嵌时显示「在新标签打开」兜底；`url` 为空时 `alert('该游戏暂无可用链接。')` 并 return（不崩溃）；`setLegalRailVisible()` 控制协议侧栏；`langChanged` 重绘 + 重挂导航。
+- **`game.html`**：`init()` 读 `?id=`，`window.leleleFetch('/game/data/'+id+'.json')`，失败则由 `lelegame_data.json` 兜底构造；`renderGamePage()` 渲染横幅/截图/简介/更新日志/作者栏/元标签；`isVideoUrl()` 用 `VIDEO_FILE_RE` 排除视频，`safeLegalUrl()` 校验协议链接；`onBannerClick()` 与灯箱使用 `data-lsfp-resolved`；**`playGame()`（4.2.1）直接 `location.href='/play.html?id='+id+'&lang=…'` 跳到独立播放器**（旧的站内外壳 CSS/DOM/JS 已全部删除，避免两套外壳叠加）；`url` 为空时 `alert('该游戏暂无可用链接。')` 并 return（不崩溃）；`setLegalRailVisible()` 控制协议侧栏；`langChanged` 重绘 + 重挂导航。
+- **`play.html`**（4.2.1 新增，零外部依赖）：读 `?id=`（+`?lang=`）→ `fetch('/lelegame_data.json')` 找游戏 → 自建**干净浏览器外壳**（红黄绿圆点 + 地址栏 + 顶栏「语言/重载/全屏/关闭」+ 底部栏），全部 `.zh-inline`/`.en-inline` 双语；`localStorage['lelele_lang']` 记忆语言并 `postMessage({type:'lelele:setLang'})` 同步 iframe 内的 `common.js`；同源游戏 iframe src = 游戏 URL + `?embed=1&lang=…`，外链游戏显示「在新标签打开」兜底条；**iframe 不设 sandbox**，保证游戏自身 localStorage 存档可用；全屏整窗 `requestFullscreen` 优先、失败降级 iframe，监听 `fullscreenchange` 更新「全屏/退出全屏」；背景渐变只在最底层，外壳不引 `common.css`/`effects.css`。
+- **`common.js` 的 `isEmbedMode`**（`new URLSearchParams(location.search).get('embed')==='1'`）：`initActivityTheme()` / `injectFooter()` / `initAnnouncements()` 在 embed 模式直接 return —— 解决「游戏子页引 `common.js` 导致外壳里出现雪人/圣诞树/飘雪/页脚」的问题；并通过 `message` 监听 `lelele:setLang` 同步语言。
 - **`author.html`**：`initAuthorPage()` 无 `?id=` 时 `showEmpty()`；`loadGames()` 拉主列表按 `String(g.author)===String(authorId)` 过滤；作者清单同源缓存 + 最新校正两阶段 `applyAuthorList()`（幂等）；Supabase `profiles` 单条查询覆盖 `display_name` / `bio` / `avatar_url` / `role`；`authors/data/<id>.json` 取作品数。注意 `authorlevel.html?level=4&lang=en` 实测仍显示中文，是该老页面既有的语言切换缺陷，未修。
 - **`dashboard.html`**：资料编辑（`profiles` upsert/update）、头像 `storage.from('avatars')`、`rpc('delete_user')`、更新游戏弹窗（Tally）、认证申请入口、analytics 数据看板（`SITE_ID=1`）。
 - **`404.html`**：GitHub Pages 会用根 `404.html` 响应**任意层级**的不存在 URL，所以 `<head>` 最前面有 `<base href="/">`，所有关键资源与首页链接都是根绝对路径，且所有 `var(--x)` 都带 fallback —— 即使 `common.css` 和 `common.js` 全挂也能完整渲染。另有不依赖 JS 的 `/sitemap.html` 备用出口。

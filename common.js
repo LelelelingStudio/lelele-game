@@ -132,6 +132,8 @@ function leleleOnReady(fn) {
     // ==================== 全局配置 ====================
     const GAME_PATH_KEY = '/game/';
     const isGamePage = window.location.pathname.includes(GAME_PATH_KEY) || window.forceGamePage === true;
+    // play.html 以 ?embed=1 内嵌游戏子页：跳过页脚 / 节日装饰 / 公告弹窗，保持干净的“浏览器窗”画面
+    const isEmbedMode = new URLSearchParams(window.location.search).get('embed') === '1';
     const MAIN_SITE_URL = 'https://game.leleleling.site';
 
     const TALLY_FEEDBACK_ID_ZH = 'EqkbqB';
@@ -556,6 +558,14 @@ function leleleOnReady(fn) {
         window.dispatchEvent(new Event('langChanged'));
     };
 
+    // play.html 外壳通过 postMessage 同步语言（游戏子页被内嵌时顶部按钮点不到）
+    window.addEventListener('message', function (e) {
+        if (e && e.data && e.data.type === 'lelele:setLang' &&
+            (e.data.lang === 'zh' || e.data.lang === 'en')) {
+            window.setLang(e.data.lang);
+        }
+    });
+
     // ==================== 深色模式逻辑 ====================
     function initTheme() {
         const savedTheme = localStorage.getItem('lelele_theme');
@@ -612,6 +622,7 @@ function leleleOnReady(fn) {
 
     // ==================== 活动核心逻辑 ====================
     async function initActivityTheme() {
+        if (isEmbedMode) return; // play.html 内嵌：不要雪人 / 圣诞树 / 飘雪 / 活动背景
         try {
             let skipEffects = false;
             try {
@@ -775,6 +786,7 @@ function leleleOnReady(fn) {
 
     // ==================== Footer 注入逻辑 ====================
     function injectFooter() {
+        if (isEmbedMode) return; // play.html 内嵌：不要站点页脚（截图里底部那条版权栏）
         const existingFooter = document.querySelector('.common-footer');
         if (existingFooter) existingFooter.remove();
         
@@ -895,6 +907,7 @@ function leleleOnReady(fn) {
     function setAnnModalCache(ids) { setStorage(ANN_MODAL_KEY, { lastShown: Date.now(), ids: ids }); }
 
     async function initAnnouncements() {
+        if (isEmbedMode) return; // play.html 内嵌：不要公告弹窗盖住游戏
         try {
             const res = await window.leleleFetch(`${MAIN_SITE_URL}/announcements.json`);
             if (!res.ok) return;

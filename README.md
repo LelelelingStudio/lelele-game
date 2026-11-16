@@ -45,7 +45,7 @@
 
 ### Playing
 
-- **Instant play, no install.** Every title is a link or a bundled HTML5 page. Clicking **Start Game** on [`game.html`](game.html) opens an in-page **simulated browser shell** — traffic-light dots, address bar, reload / fullscreen / close controls — that hosts the game's original code in an `<iframe>`. Same-origin (`local` / `internal`) games are embedded directly; external sites that send `X-Frame-Options` or `frame-ancestors` show a graceful **"Open in new tab ↗"** fallback instead of a blank frame.
+- **Instant play, no install.** Every title is a link or a bundled HTML5 page. Clicking **Start Game** on [`game.html`](game.html) opens [`play.html?id=N`](play.html) — a standalone, dependency-free **player** with a simulated browser shell (traffic-light dots, address bar, reload / fullscreen / close controls). Same-origin games load in a clean `<iframe>` with `?embed=1` so the site's footer and seasonal decorations stay out of the frame; games can still use `localStorage` for saves. External sites that block embedding show a graceful **"Open in new tab ↗"** fallback. The shell is bilingual with a built-in language toggle.
 - **Three catalog types:** `local` (game code bundled under `/game/<slug>/`), `external` (linked to an author-deployed site), and `internal` (a page served inside the platform).
 - **Rich detail pages:** banner, screenshots, videos, bilingual descriptions and summaries, versioned update logs, author card, age rating, category, legal-agreement rail, favourites, and cyclic **previous / next** navigation shared with author pages.
 - **Search & discovery:** pinyin-aware fuzzy search (self-hosted `vendor/pinyin-pro.js`), category / age filters, weighted scoring, highlighted matches, and a 500-result cap with a 25-author sub-list.
@@ -111,7 +111,8 @@ This repository contains **only browser-side code and static data**. There is no
 ```
 lelele-game/
 ├── index.html, index.js            # Homepage: catalog, search, announcements
-├── game.html                      # Game detail page + simulated browser shell
+├── game.html                      # Game detail page (Start Game → play.html?id=N)
+├── play.html                      # Standalone player: clean browser shell, ?id= lookup, embed=1, localStorage saves
 ├── author.html, dashboard.html    # Author profile / developer dashboard
 ├── login.html, gamecheck.html     # Auth / leaderboard
 ├── game/                          # 13 bundled game directories + game/data/<id>.json

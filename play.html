@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Lelele Game · Player</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+  :root { --bar:#1e293b; --bar2:#0f172a; --fg:#e2e8f0; --muted:#94a3b8; --btn:#334155; --btn-h:#475569; --accent:#4f46e5; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; }
+  body {
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+    /* 背景只在最底层；游戏 iframe 独立白底覆盖其上，不会被装饰遮挡 */
+    background:linear-gradient(135deg,#eef2ff 0%,#f8fafc 55%,#ede9fe 100%);
+    color:var(--fg); overflow:hidden;
+  }
+  html.dark body { background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%); }
+  .zh-inline,.en-inline { display:none; }
+  html[data-lang="zh"] .zh-inline { display:inline; }
+  html[data-lang="en"] .en-inline { display:inline; }
+
+  #playRoot { position:fixed; inset:0; display:flex; flex-direction:column; }
+  .pbar { display:flex; align-items:center; gap:8px; flex-shrink:0; padding:9px 12px; background:var(--bar); }
+  .dots { display:flex; gap:7px; flex-shrink:0; }
+  .dots i { display:block; width:12px; height:12px; border-radius:50%; }
+  .dots .r { background:#ff5f56; } .dots .y { background:#ffbd2e; } .dots .g { background:#27c93f; }
+  .url {
+    flex:1; min-width:0; background:var(--bar2); border:1px solid #334155; border-radius:999px;
+    padding:6px 12px; font-size:12px; color:#cbd5e1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  button {
+    background:var(--btn); color:var(--fg); border:0; border-radius:10px; padding:7px 11px;
+    font:600 12px/1 inherit; cursor:pointer; white-space:nowrap; flex-shrink:0;
+  }
+  button:hover { background:var(--btn-h); }
+  button.langbtn { background:var(--accent); }
+  .extbar {
+    display:none; align-items:center; justify-content:center; gap:8px; flex-shrink:0;
+    padding:8px 12px; background:rgba(250,204,21,.14); color:#fde68a; font-size:12px;
+  }
+  .extbar a { color:#fde68a; font-weight:700; }
+  .stage { flex:1; min-height:0; position:relative; background:#fff; }
+  /* 不设 sandbox：同源游戏的 localStorage 存档必须可用 */
+  #gameFrame { width:100%; height:100%; border:0; display:block; background:#fff; }
+  .pfoot { display:flex; align-items:center; justify-content:center; gap:10px; flex-shrink:0; padding:10px; background:var(--bar); }
+  .msg {
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    background:#fff; color:#64748b; font-size:14px; text-align:center; padding:20px;
+  }
+  @media (max-width:640px){
+    .pbar { gap:5px; padding:7px 8px; }
+    button { padding:6px 8px; font-size:11px; }
+    .dots i { width:9px; height:9px; }
+    .url { font-size:11px; }
+  }
+</style>
+</head>
+<body>
+<div id="playRoot">
+  <div class="pbar">
+    <div class="dots"><i class="r"></i><i class="y"></i><i class="g"></i></div>
+    <div class="url" id="urlBar">about:blank</div>
+    <button type="button" class="langbtn" id="langBtn" title="Switch language / 切换语言"><span class="zh-inline">🌐 EN</span><span class="en-inline">🌐 中文</span></button>
+    <button type="button" id="reloadBtn">↻ <span class="zh-inline">重载</span><span class="en-inline">Reload</span></button>
+    <button type="button" id="fullBtn">⛶ <span class="zh-inline">全屏</span><span class="en-inline">Fullscreen</span></button>
+    <button type="button" id="closeBtn">✕ <span class="zh-inline">关闭</span><span class="en-inline">Close</span></button>
+  </div>
+  <div class="extbar" id="extBar">⚠ <span class="zh-inline">该站点禁止内嵌，请</span><span class="en-inline">This site blocks embedding —</span> <a id="extLink" href="#" target="_blank" rel="noopener noreferrer"><span class="zh-inline">在新标签打开</span><span class="en-inline">open in a new tab</span> ↗</a></div>
+  <div class="stage">
+    <iframe id="gameFrame" title="Game" allow="autoplay; fullscreen; gamepad; microphone; camera; clipboard-write; accelerometer; gyroscope" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    <div class="msg" id="msgBox"><span class="zh-inline">正在读取游戏信息…</span><span class="en-inline">Loading game…</span></div>
+  </div>
+  <div class="pfoot">
+    <button type="button" id="footReload">↻ <span class="zh-inline">重载</span><span class="en-inline">Reload</span></button>
+    <button type="button" id="footHome">🏠 <span class="zh-inline">重试</span><span class="en-inline">Retry</span></button>
+    <button type="button" id="footFull">⛶ <span class="zh-inline">全屏</span><span class="en-inline">Fullscreen</span></button>
+    <button type="button" id="footClose">✕ <span class="zh-inline">关闭</span><span class="en-inline">Close</span></button>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var params = new URLSearchParams(window.location.search);
+  var gameId = params.get('id') || '';
+  var game = null, targetUrl = '', sameOrigin = false;
+
+  function stored(key, fallback) {
+    try { var v = localStorage.getItem(key); return v == null ? fallback : v; }
+    catch (e) { return fallback; }
+  }
+  function save(key, value) { try { localStorage.setItem(key, value); } catch (e) {} }
+  function isEn() { return document.documentElement.getAttribute('data-lang') === 'en'; }
+
+  var initialLang = params.get('lang');
+  if (initialLang !== 'zh' && initialLang !== 'en') initialLang = stored('lelele_lang', '');
+  if (initialLang !== 'zh' && initialLang !== 'en') initialLang = (navigator.language || '').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en';
+
+  function applyLang(lang) {
+    document.documentElement.setAttribute('data-lang', lang);
+    document.documentElement.setAttribute('lang', lang === 'en' ? 'en' : 'zh-CN');
+    save('lelele_lang', lang);
+    // 同步语言给游戏子页里的 common.js（若它加载了）
+    try {
+      var f = $('gameFrame');
+      if (f && f.contentWindow) f.contentWindow.postMessage({ type: 'lelele:setLang', lang: lang }, '*');
+    } catch (e) {}
+  }
+  applyLang(initialLang);
+
+  $('langBtn').addEventListener('click', function () { applyLang(isEn() ? 'zh' : 'en'); });
+
+  function showMsg(text) { var b = $('msgBox'); b.textContent = text; b.style.display = 'flex'; }
+
+  function fetchJSON(url, ms) {
+    return new Promise(function (resolve, reject) {
+      var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+      var timer = setTimeout(function () { if (ctrl) ctrl.abort(); reject(new Error('timeout')); }, ms || 8000);
+      fetch(url, ctrl ? { signal: ctrl.signal } : {})
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (d) { clearTimeout(timer); resolve(d); })
+        .catch(function (e) { clearTimeout(timer); reject(e); });
+    });
+  }
+
+  // 同源游戏子页加 embed=1 + lang：common.js 识别后跳过页脚 / 节日装饰 / 公告弹窗
+  function frameSrc(url) {
+    if (!sameOrigin) return url;
+    try {
+      var u = new URL(url, window.location.href);
+      u.searchParams.set('embed', '1');
+      u.searchParams.set('lang', isEn() ? 'en' : 'zh');
+      return u.pathname + u.search + u.hash;
+    } catch (e) { return url; }
+  }
+
+  function loadGame() {
+    if (!gameId) { showMsg(isEn() ? 'Missing ?id= parameter.' : '缺少 ?id= 参数。'); return; }
+    fetchJSON('/lelegame_data.json?t=' + Date.now())
+      .then(function (list) {
+        game = list.find(function (g) { return String(g.id) === String(gameId); });
+        if (!game) throw new Error('Game id ' + gameId + ' not found');
+        if (!game.url) throw new Error('No playable URL');
+        targetUrl = game.url;
+        $('urlBar').textContent = targetUrl;
+        $('extLink').href = targetUrl;
+        try { sameOrigin = new URL(targetUrl, window.location.href).origin === window.location.origin; }
+        catch (e) { sameOrigin = false; }
+        // 外链（跨源）站点可能禁止内嵌，明确给出链接兜底
+        $('extBar').style.display = sameOrigin ? 'none' : 'flex';
+        $('msgBox').style.display = 'none';
+        $('gameFrame').src = frameSrc(targetUrl);
+      })
+      .catch(function (e) { showMsg((isEn() ? 'Failed to load game: ' : '游戏加载失败：') + e.message); });
+  }
+
+  function reload() { if (targetUrl) $('gameFrame').src = frameSrc(targetUrl); }
+  $('reloadBtn').addEventListener('click', reload);
+  $('footReload').addEventListener('click', reload);
+  $('footHome').addEventListener('click', reload);
+
+  function closePlay() {
+    try {
+      if (document.referrer && history.length > 1) { history.back(); return; }
+    } catch (e) {}
+    window.location.href = '/game.html?id=' + encodeURIComponent(gameId);
+  }
+  $('closeBtn').addEventListener('click', closePlay);
+  $('footClose').addEventListener('click', closePlay);
+
+  // 全屏：整窗优先，iframe 兜底；捕获 Promise 拒绝，避免"按钮没反应"
+  function exitFull() {
+    var d = document;
+    var exit = d.exitFullscreen || d.webkitExitFullscreen || d.mozCancelFullScreen;
+    if (exit) { try { var p = exit.call(d); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+  }
+  function iframeFull() {
+    var f = $('gameFrame');
+    var req = f.requestFullscreen || f.webkitRequestFullscreen || f.mozRequestFullScreen;
+    if (req) { try { var p = req.call(f); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+  }
+  function toggleFull() {
+    var d = document;
+    var inFull = d.fullscreenElement || d.webkitFullscreenElement || d.mozFullScreenElement;
+    if (inFull) { exitFull(); return; }
+    var root = $('playRoot');
+    var req = root.requestFullscreen || root.webkitRequestFullscreen || root.mozRequestFullScreen;
+    if (!req) { iframeFull(); return; }
+    try {
+      var p = req.call(root);
+      if (p && p.catch) p.catch(function () { iframeFull(); });
+    } catch (e) { iframeFull(); }
+  }
+  $('fullBtn').addEventListener('click', toggleFull);
+  $('footFull').addEventListener('click', toggleFull);
+  function updateFullLabel() {
+    var inFull = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+    ['fullBtn', 'footFull'].forEach(function (id) {
+      var b = $(id); if (!b) return;
+      var zh = b.querySelector('.zh-inline'), en = b.querySelector('.en-inline');
+      if (zh) zh.textContent = inFull ? '退出全屏' : '全屏';
+      if (en) en.textContent = inFull ? 'Exit Full' : 'Fullscreen';
+    });
+  }
+  document.addEventListener('fullscreenchange', updateFullLabel);
+  document.addEventListener('webkitfullscreenchange', updateFullLabel);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !document.fullscreenElement && !document.webkitFullscreenElement) closePlay();
+  });
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'lelele:langRequest') applyLang(e.data.lang === 'en' ? 'en' : 'zh');
+  });
+
+  loadGame();
+})();
+</script>
+</body>
+</html>
