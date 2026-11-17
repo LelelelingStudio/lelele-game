@@ -1,0 +1,45 @@
+{
+  "id": 32,
+  "name_zh": "打僵尸",
+  "name_en": "3D Warehouse District",
+  "icon": "🔫",
+  "category_zh": "射击",
+  "category_en": "Shooter",
+  "type": "internal",
+  "ageRating_zh": "12+",
+  "ageRating_en": "12+",
+  "version": "v1.0.0",
+  "author": "10",
+  "url": "https://warehousedistrict-pages.leleleling.site/",
+  "banner": "https://gamepic.surge.sh/zombieapolocase1.lsfp",
+  "screenshots": [
+    "https://gamepic.surge.sh/zombieapolocase1.lsfp",
+    "https://gamepic.surge.sh/zombieapolocase2.lsfp",
+    "https://gamepic.surge.sh/zombieapolocase3.lsfp"
+  ],
+  "videos": [],
+  "description_zh": "进入游戏查看",
+  "description_en": "Inside the Game",
+  "updateLog_zh": [
+    {
+      "content": "游戏首发上线！",
+      "date": "2026.11.17",
+      "version": "v1.0.0"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "content": "The first deploy of this game!",
+      "date": "2026.11.17",
+      "version": "v1.0.0"
+    }
+  ],
+  "summary": "游戏首发上线！",
+  "summary_en": "The first deploy of this game!",
+  "authorName": "LukeYang",
+  "legal_urls": {
+    "eula": "",
+    "privacy": "",
+    "terms": ""
+  }
+}
