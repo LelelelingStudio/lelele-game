@@ -35,15 +35,42 @@
   }
   button:hover { background:var(--btn-h); }
   button.langbtn { background:var(--accent); }
+  /* 外链兜底条：高对比大字号，避免“看不出来能新标签打开” */
   .extbar {
-    display:none; align-items:center; justify-content:center; gap:8px; flex-shrink:0;
-    padding:8px 12px; background:rgba(250,204,21,.14); color:#fde68a; font-size:12px;
+    display:none; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; flex-shrink:0;
+    padding:12px 16px; background:#b45309; color:#fff; font-size:15px; font-weight:700;
+    box-shadow:0 2px 10px rgba(0,0,0,.25);
   }
-  .extbar a { color:#fde68a; font-weight:700; }
+  .extbar a {
+    color:#fff; font-weight:800; font-size:15px; text-decoration:underline;
+    background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.5);
+    border-radius:8px; padding:4px 12px;
+  }
+  .extbar a:hover { background:rgba(255,255,255,.32); }
   .stage { flex:1; min-height:0; position:relative; background:#fff; }
   /* 不设 sandbox：同源游戏的 localStorage 存档必须可用 */
   #gameFrame { width:100%; height:100%; border:0; display:block; background:#fff; }
-  .pfoot { display:flex; align-items:center; justify-content:center; gap:10px; flex-shrink:0; padding:10px; background:var(--bar); }
+  /* 沉浸全屏：iframe 自己全屏，外壳（顶栏/底栏/地址栏）完全消失，只留游戏画面 */
+  #gameFrame:fullscreen, #gameFrame:-webkit-full-screen { width:100vw; height:100vh; }
+  .pfoot { display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; flex-shrink:0; padding:8px 10px; background:var(--bar); }
+  button.filebtn { background:#0f766e; font-size:11px; padding:7px 10px; }
+  button.filebtn:hover { background:#115e59; }
+  /* 站点页脚栏（非全屏时常驻，全屏随外壳一起消失） */
+  .sitefoot {
+    display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;
+    flex-shrink:0; padding:7px 12px; background:#0f172a; color:#94a3b8; font-size:11px;
+  }
+  .sitefoot a { color:#a5b4fc; text-decoration:none; }
+  .sitefoot a:hover { color:#c7d2fe; text-decoration:underline; }
+  /* 三文件弹窗 */
+  .file-modal { position:fixed; inset:0; z-index:3000; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(2,6,23,.78); }
+  .file-modal.active { display:flex; }
+  .file-box { width:min(860px,100%); max-height:86vh; display:flex; flex-direction:column; background:#1e293b; color:#e2e8f0; border:1px solid #475569; border-radius:16px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,.5); }
+  .file-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; background:#0f172a; border-bottom:1px solid #334155; }
+  .file-head strong { font-size:14px; }
+  .file-head button { background:#334155; padding:6px 12px; }
+  .file-body { margin:0; padding:18px; overflow:auto; font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; white-space:pre-wrap; word-break:break-word; color:#e2e8f0; }
+  .file-tip { padding:8px 18px; background:rgba(79,70,229,.14); color:#c7d2fe; font-size:12px; }
   .msg {
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
     background:#fff; color:#64748b; font-size:14px; text-align:center; padding:20px;
@@ -66,7 +93,10 @@
     <button type="button" id="fullBtn">⛶ <span class="zh-inline">全屏</span><span class="en-inline">Fullscreen</span></button>
     <button type="button" id="closeBtn">✕ <span class="zh-inline">关闭</span><span class="en-inline">Close</span></button>
   </div>
-  <div class="extbar" id="extBar">⚠ <span class="zh-inline">该站点禁止内嵌，请</span><span class="en-inline">This site blocks embedding —</span> <a id="extLink" href="#" target="_blank" rel="noopener noreferrer"><span class="zh-inline">在新标签打开</span><span class="en-inline">open in a new tab</span> ↗</a></div>
+  <div class="extbar" id="extBar">
+    <span>⚠️ <span class="zh-inline">该游戏来自外部站点，可能无法在本页正常显示。请点这里</span><span class="en-inline">This game is hosted externally and may not display here. Please</span></span>
+    <a id="extLink" href="#" target="_blank" rel="noopener noreferrer"><span class="zh-inline">在新标签页打开 ↗</span><span class="en-inline">open in a new tab ↗</span></a>
+  </div>
   <div class="stage">
     <iframe id="gameFrame" title="Game" allow="autoplay; fullscreen; gamepad; microphone; camera; clipboard-write; accelerometer; gyroscope" referrerpolicy="strict-origin-when-cross-origin"></iframe>
     <div class="msg" id="msgBox"><span class="zh-inline">正在读取游戏信息…</span><span class="en-inline">Loading game…</span></div>
@@ -76,6 +106,31 @@
     <button type="button" id="footHome">🏠 <span class="zh-inline">重试</span><span class="en-inline">Retry</span></button>
     <button type="button" id="footFull">⛶ <span class="zh-inline">全屏</span><span class="en-inline">Fullscreen</span></button>
     <button type="button" id="footClose">✕ <span class="zh-inline">关闭</span><span class="en-inline">Close</span></button>
+    <button type="button" class="filebtn" id="fileListBtn">📋 <span class="zh-inline">主列表</span><span class="en-inline">Catalog</span></button>
+    <button type="button" class="filebtn" id="fileDetailBtn">🗂 <span class="zh-inline">详情</span><span class="en-inline">Details</span></button>
+    <button type="button" class="filebtn" id="fileSourceBtn">📄 <span class="zh-inline">源文件</span><span class="en-inline">Source</span></button>
+  </div>
+  <div class="sitefoot">
+    <a href="/index.html"><span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span></a>
+    <span>·</span>
+    <a href="/game_rules.html"><span class="zh-inline">游戏守则</span><span class="en-inline">Game Rules</span></a>
+    <span>·</span>
+    <a href="/user_agreement.html"><span class="zh-inline">用户协议</span><span class="en-inline">User Agreement</span></a>
+    <span>·</span>
+    <a href="/privacy.html"><span class="zh-inline">隐私政策</span><span class="en-inline">Privacy</span></a>
+    <span>·</span>
+    <a href="/terms.html"><span class="zh-inline">服务条款</span><span class="en-inline">Terms</span></a>
+    <span>·</span>
+    <a href="/copyright.html"><span class="zh-inline">版权投诉</span><span class="en-inline">Copyright</span></a>
+    <span>· © 2026 <span class="zh-inline">了了了岭工作室</span><span class="en-inline">Leleleling Studio</span></span>
+  </div>
+</div>
+
+<div class="file-modal" id="fileModal" role="dialog" aria-modal="true" aria-label="Game files / 游戏文件">
+  <div class="file-box">
+    <div class="file-head"><strong id="fileTitle">—</strong><button type="button" id="fileClose">✕ <span class="zh-inline">关闭</span><span class="en-inline">Close</span></button></div>
+    <div class="file-tip" id="fileTip"></div>
+    <pre class="file-body" id="fileBody">…</pre>
   </div>
 </div>
 
@@ -170,7 +225,7 @@
   $('closeBtn').addEventListener('click', closePlay);
   $('footClose').addEventListener('click', closePlay);
 
-  // 全屏：整窗优先，iframe 兜底；捕获 Promise 拒绝，避免"按钮没反应"
+  // 全屏：只让 iframe 全屏（外壳顶栏/底栏/地址栏全部消失），不是整窗套壳
   function exitFull() {
     var d = document;
     var exit = d.exitFullscreen || d.webkitExitFullscreen || d.mozCancelFullScreen;
@@ -185,13 +240,14 @@
     var d = document;
     var inFull = d.fullscreenElement || d.webkitFullscreenElement || d.mozFullScreenElement;
     if (inFull) { exitFull(); return; }
-    var root = $('playRoot');
-    var req = root.requestFullscreen || root.webkitRequestFullscreen || root.mozRequestFullScreen;
-    if (!req) { iframeFull(); return; }
-    try {
-      var p = req.call(root);
-      if (p && p.catch) p.catch(function () { iframeFull(); });
-    } catch (e) { iframeFull(); }
+    // 外链游戏：先中英双语确认，避免用户进全屏后才发现游戏根本没正常运行
+    if (!sameOrigin && targetUrl) {
+      var msg = isEn()
+        ? 'This game is hosted on another site and may not be embeddable. Fullscreen may not work well. Continue?'
+        : '该游戏来自外部站点，可能不适合嵌入。全屏后可能玩不了或体验不好，仍要全屏吗？';
+      if (!window.confirm(msg)) return;
+    }
+    iframeFull();
   }
   $('fullBtn').addEventListener('click', toggleFull);
   $('footFull').addEventListener('click', toggleFull);
@@ -207,8 +263,66 @@
   document.addEventListener('fullscreenchange', updateFullLabel);
   document.addEventListener('webkitfullscreenchange', updateFullLabel);
 
+  // ===== 三文件弹窗：主列表条目 / 详情 JSON / 游戏源文件 =====
+  function openFile(kind) {
+    var modal = $('fileModal'), body = $('fileBody'), title = $('fileTitle'), tip = $('fileTip');
+    if (!modal || !game) return;
+    var isSource = kind === 'source';
+    var url = kind === 'list' ? '/lelegame_data.json?t=' + Date.now()
+      : kind === 'detail' ? '/game/data/' + encodeURIComponent(gameId) + '.json?t=' + Date.now()
+      : targetUrl;
+    var label = kind === 'list'
+      ? (isEn() ? 'Catalog entry · lelegame_data.json' : '主列表条目 · lelegame_data.json')
+      : kind === 'detail'
+      ? (isEn() ? 'Game details · game/data/' + gameId + '.json' : '游戏详情 · game/data/' + gameId + '.json')
+      : (isEn() ? 'Game source · ' + targetUrl : '游戏源文件 · ' + targetUrl);
+    title.textContent = label;
+    body.textContent = isEn() ? 'Loading…' : '加载中…';
+    tip.textContent = '';
+    modal.classList.add('active');
+
+    if (isSource && !sameOrigin) {
+      // 外链游戏的源码不在本仓库，不跨域抓取，给出地址与说明
+      tip.textContent = isEn()
+        ? 'This game is hosted externally; its source is not in this repository. Open it in a new tab to inspect.'
+        : '该游戏为外部站点，源码不在本仓库。请在新标签页打开查看。';
+      body.textContent = targetUrl;
+      return;
+    }
+    fetch(url, { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+      .then(function (text) {
+        if (kind === 'list') {
+          try {
+            var list = JSON.parse(text);
+            var entry = list.find(function (g) { return String(g.id) === String(gameId); });
+            body.textContent = JSON.stringify(entry || { error: 'id not found' }, null, 2);
+          } catch (e) { body.textContent = text; }
+        } else if (kind === 'detail') {
+          try { body.textContent = JSON.stringify(JSON.parse(text), null, 2); }
+          catch (e) { body.textContent = text; }
+        } else {
+          body.textContent = text;
+          tip.textContent = isEn()
+            ? 'Source is shown read-only. Use the buttons below to return to the game.'
+            : '源码只读展示，点下方按钮返回游戏。';
+        }
+      })
+      .catch(function (e) {
+        body.textContent = (isEn() ? 'Failed to load: ' : '加载失败：') + e.message;
+      });
+  }
+  function closeFile() { $('fileModal').classList.remove('active'); }
+  $('fileListBtn').addEventListener('click', function () { openFile('list'); });
+  $('fileDetailBtn').addEventListener('click', function () { openFile('detail'); });
+  $('fileSourceBtn').addEventListener('click', function () { openFile('source'); });
+  $('fileClose').addEventListener('click', closeFile);
+  $('fileModal').addEventListener('click', function (e) { if (e.target === $('fileModal')) closeFile(); });
+
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && !document.fullscreenElement && !document.webkitFullscreenElement) closePlay();
+    if (e.key !== 'Escape') return;
+    if ($('fileModal').classList.contains('active')) { closeFile(); return; }
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) closePlay();
   });
   window.addEventListener('message', function (e) {
     if (e.data && e.data.type === 'lelele:langRequest') applyLang(e.data.lang === 'en' ? 'en' : 'zh');

@@ -160,7 +160,7 @@ flowchart TB
 | --- | --- |
 | `index.html` | 首页：游戏网格、类型/分类筛选、搜索、收藏、排行榜、公告、投稿/推荐弹窗 |
 | `game.html` | 游戏详情页：横幅、截图、简介、更新日志、作者栏、收藏、开始游戏（**4.2.1 起跳独立播放器 `play.html?id=N&lang=zh|en`**）、协议侧栏、灯箱、循环导航 |
-| `play.html` | **独立游戏播放器**（4.2.1 新增，零外部 CSS/JS 依赖）：`?id=` 查 `lelegame_data.json` → 自建干净浏览器外壳（地址栏 + 重载/全屏/关闭 + 底部栏）；同源游戏以 `?embed=1&lang=` 内嵌（游戏子页的 `common.js` 识别 embed 后跳过页脚/节日装饰/公告弹窗），外链游戏显示「在新标签打开」兜底；外壳中英双语 + 内置语言切换（localStorage `lelele_lang`），不设 iframe `sandbox` 以保留游戏 localStorage 存档；全屏整窗优先、iframe 兜底 |
+| `play.html` | **独立游戏播放器**（4.2.1 新增，零外部 CSS/JS 依赖）：`?id=` 查 `lelegame_data.json` → 自建干净浏览器外壳（地址栏 + 重载/全屏/关闭 + 底部栏 + 站点页脚栏）；同源游戏以 `?embed=1&lang=` 内嵌（游戏子页的 `common.js` 识别 embed 后跳过页脚/节日装饰/公告弹窗），外链游戏显示**醒目橙棕高对比外链条**与「在新标签页打开 ↗」按钮；外壳中英双语 + 内置语言切换（localStorage `lelele_lang`），不设 iframe `sandbox` 以保留游戏 localStorage 存档；**全屏 = iframe 自身全屏（外壳顶栏/底栏/页脚全部消失，只留游戏画面）**，外链游戏全屏前弹中英双语确认「可能不适合嵌入，仍要全屏吗」；底部「📋 主列表 / 🗂 详情 / 📄 源文件」三按钮点击弹窗展示 `lelegame_data.json` 对应条目 / `game/data/<id>.json` / 游戏源码（外链只给地址与说明），Esc 优先关弹窗 |
 | `author.html` | 作者主页：作者资料、徽章、名下游戏列表、循环导航 |
 | `authorlevel.html` | 认证等级说明（Lv.1–6） |
 | `apply-certification.html` | 开发者官方认证申请（Tally 表单） |
@@ -454,7 +454,8 @@ fetchAuthors()       → 先 Fresh，失败才 Local
 ### 4.13 关键页面实现要点
 
 - **`game.html`**：`init()` 读 `?id=`，`window.leleleFetch('/game/data/'+id+'.json')`，失败则由 `lelegame_data.json` 兜底构造；`renderGamePage()` 渲染横幅/截图/简介/更新日志/作者栏/元标签；`isVideoUrl()` 用 `VIDEO_FILE_RE` 排除视频，`safeLegalUrl()` 校验协议链接；`onBannerClick()` 与灯箱使用 `data-lsfp-resolved`；**`playGame()`（4.2.1）直接 `location.href='/play.html?id='+id+'&lang=…'` 跳到独立播放器**（旧的站内外壳 CSS/DOM/JS 已全部删除，避免两套外壳叠加）；`url` 为空时 `alert('该游戏暂无可用链接。')` 并 return（不崩溃）；`setLegalRailVisible()` 控制协议侧栏；`langChanged` 重绘 + 重挂导航。
-- **`play.html`**（4.2.1 新增，零外部依赖）：读 `?id=`（+`?lang=`）→ `fetch('/lelegame_data.json')` 找游戏 → 自建**干净浏览器外壳**（红黄绿圆点 + 地址栏 + 顶栏「语言/重载/全屏/关闭」+ 底部栏），全部 `.zh-inline`/`.en-inline` 双语；`localStorage['lelele_lang']` 记忆语言并 `postMessage({type:'lelele:setLang'})` 同步 iframe 内的 `common.js`；同源游戏 iframe src = 游戏 URL + `?embed=1&lang=…`，外链游戏显示「在新标签打开」兜底条；**iframe 不设 sandbox**，保证游戏自身 localStorage 存档可用；全屏整窗 `requestFullscreen` 优先、失败降级 iframe，监听 `fullscreenchange` 更新「全屏/退出全屏」；背景渐变只在最底层，外壳不引 `common.css`/`effects.css`。
+- **`play.html`**（4.2.1 新增，零外部依赖）：读 `?id=`（+`?lang=`）→ `fetch('/lelegame_data.json')` 找游戏 → 自建**干净浏览器外壳**（红黄绿圆点 + 地址栏 + 顶栏「语言/重载/全屏/关闭」+ 底部栏 + **站点页脚栏**：返回首页 / 游戏守则 / 用户协议 / 隐私 / 条款 / 版权 / © 2026），全部 `.zh-inline`/`.en-inline` 双语；`localStorage['lelele_lang']` 记忆语言并 `postMessage({type:'lelele:setLang'})` 同步 iframe 内的 `common.js`；同源游戏 iframe src = 游戏 URL + `?embed=1&lang=…`，**外链游戏显示橙棕底白字 15px 的高对比兜底条 +「在新标签页打开 ↗」按钮**（旧淡黄小字对比度不足已修）；**iframe 不设 sandbox**，保证游戏自身 localStorage 存档可用；**全屏改为对 `#gameFrame` 自身 `requestFullscreen()`**（外壳顶栏/底栏/页脚全部消失，只留游戏画面，`#gameFrame:fullscreen` 铺满 100vw/100vh），外链游戏全屏前 `window.confirm()` 中英双语确认「可能不适合嵌入，仍要全屏吗？」，取消则不进；监听 `fullscreenchange` 更新「全屏/退出全屏」；背景渐变只在最底层，外壳不引 `common.css`/`effects.css`。
+  - **三文件弹窗**：底部「📋 主列表 / 🗂 详情 / 📄 源文件」三按钮 → `#fileModal` 弹窗：`lelegame_data.json` 对应 id 条目（格式化）/ `game/data/<id>.json`（格式化）/ 游戏源码（同源 `fetch(text)` 只读展示；外链不跨域抓取，显示 URL + 中英说明「源码不在本仓库，请在新标签打开」）。点遮罩 / ✕ / Esc 关闭；**Esc 优先关弹窗**，无弹窗时才 `closePlay()`。
 - **`common.js` 的 `isEmbedMode`**（`new URLSearchParams(location.search).get('embed')==='1'`）：`initActivityTheme()` / `injectFooter()` / `initAnnouncements()` 在 embed 模式直接 return —— 解决「游戏子页引 `common.js` 导致外壳里出现雪人/圣诞树/飘雪/页脚」的问题；并通过 `message` 监听 `lelele:setLang` 同步语言。
 - **`author.html`**：`initAuthorPage()` 无 `?id=` 时 `showEmpty()`；`loadGames()` 拉主列表按 `String(g.author)===String(authorId)` 过滤；作者清单同源缓存 + 最新校正两阶段 `applyAuthorList()`（幂等）；Supabase `profiles` 单条查询覆盖 `display_name` / `bio` / `avatar_url` / `role`；`authors/data/<id>.json` 取作品数。注意 `authorlevel.html?level=4&lang=en` 实测仍显示中文，是该老页面既有的语言切换缺陷，未修。
 - **`dashboard.html`**：资料编辑（`profiles` upsert/update）、头像 `storage.from('avatars')`、`rpc('delete_user')`、更新游戏弹窗（Tally）、认证申请入口、analytics 数据看板（`SITE_ID=1`）。
@@ -807,6 +808,7 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 | 2026-11-15 | 本次（README 重写） | `README.md` 全量改为**英文详细版**（当前数据快照 31 游戏 / 10 作者 / SW v1.12、架构与目录树、数据契约、投稿与认证、admin 六动作、部署、文档索引、隐私与 License），新增 **Star History** `<picture>` 明暗双主题图表；58 个相对链接全部校验无死链；手册 0.2 / 版本基准 / 2.4 / 3.6 计数同步 |
 | 2026-11-16 | 本次（独立播放器） | 新增零依赖 `play.html`（`?id=` 查主列表、干净浏览器外壳、localStorage 存档、全屏整窗优先+iframe 兜底、外链兜底），`common.js` 加 `isEmbedMode` 跳过页脚/节日装饰/公告弹窗并接收 `lelele:setLang` postMessage；`game.html` 开始游戏改为跳 `play.html?id=N&lang=`，移除旧外壳 CSS/DOM/JS（解决截图里外壳内出现雪人/树/飘雪/页脚）；实测 #16 `embed=1` iframe 内无装饰、#31 外链兜底、语言切换与跳转全绿 |
 | 2026-11-17 | 本次（about 宣传视频） | `about.html` 新增宣传视频区：YouTube iframe 优先 + 30s 无 `load` 自动换国内直连 mp4（`gamepic.surge.sh/lelelegamevideo.mp4`）+ 常驻按钮双向切换；修复两个实测发现的 bug（手动切换被 settled 锁死、切回 YouTube 时 src 仍为 about:blank 黑框）。`PROMO_VIDEO_TIMEOUT` 可配便于测试 |
+| 2026-11-17 | 本次（播放器 UX） | `play.html` 四项改进：①外链兜底条改橙棕底白字 15px + 醒目「在新标签页打开 ↗」按钮；②底部栏加「📋 主列表 / 🗂 详情 / 📄 源文件」三按钮，点击弹窗展示对应 JSON/源码（外链只给地址与说明），Esc 优先关弹窗；③底栏下加站点页脚栏（返回首页 / 游戏守则 / 用户协议 / 隐私 / 条款 / 版权 / © 2026）；④**全屏改为 iframe 自身全屏**（外壳完全消失只留游戏画面），外链游戏全屏前中英双语确认「可能不适合嵌入，仍要全屏吗」；实测外链 confirm+gameFrame 全屏、站内直接全屏、三文件弹窗内容、页脚双语、零 JS 错误 |
 
 ---
 
