@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Lelele Game · Player</title>
 <meta name="robots" content="noindex,nofollow">
+<script src="/legal_generic.js" defer></script>
 <style>
   :root { --bar:#1e293b; --bar2:#0f172a; --fg:#e2e8f0; --muted:#94a3b8; --btn:#334155; --btn-h:#475569; --accent:#4f46e5; }
   * { box-sizing:border-box; margin:0; padding:0; }
@@ -71,6 +72,14 @@
   .file-head button { background:#334155; padding:6px 12px; }
   .file-body { margin:0; padding:18px; overflow:auto; font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; white-space:pre-wrap; word-break:break-word; color:#e2e8f0; }
   .file-tip { padding:8px 18px; background:rgba(79,70,229,.14); color:#c7d2fe; font-size:12px; }
+  /* 协议弹窗正文（沿用 game.html 的 legal-modal 观感） */
+  .file-body.legal { font:14px/1.85 inherit; white-space:normal; }
+  .file-body.legal h4 { font-size:15px; margin:14px 0 4px; color:#fff; }
+  .file-body.legal p { margin:6px 0; }
+  .legal-sub, .legal-note { font-size:12px; color:#a5b4fc; padding-bottom:8px; border-bottom:1px solid #334155; margin-bottom:8px; }
+  .legal-note { color:#cbd5e1; border:0; padding:8px 10px; background:rgba(148,163,184,.1); border-radius:8px; }
+  .legal-foot { margin-top:14px; padding-top:10px; border-top:1px dashed #475569; font-size:12px; }
+  .legal-foot a { color:#a5b4fc; }
   .msg {
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
     background:#fff; color:#64748b; font-size:14px; text-align:center; padding:20px;
@@ -106,9 +115,9 @@
     <button type="button" id="footHome">🏠 <span class="zh-inline">重试</span><span class="en-inline">Retry</span></button>
     <button type="button" id="footFull">⛶ <span class="zh-inline">全屏</span><span class="en-inline">Fullscreen</span></button>
     <button type="button" id="footClose">✕ <span class="zh-inline">关闭</span><span class="en-inline">Close</span></button>
-    <button type="button" class="filebtn" id="fileListBtn">📋 <span class="zh-inline">主列表</span><span class="en-inline">Catalog</span></button>
-    <button type="button" class="filebtn" id="fileDetailBtn">🗂 <span class="zh-inline">详情</span><span class="en-inline">Details</span></button>
-    <button type="button" class="filebtn" id="fileSourceBtn">📄 <span class="zh-inline">源文件</span><span class="en-inline">Source</span></button>
+    <button type="button" class="filebtn" id="legalEulaBtn">📄 <span class="zh-inline">用户协议</span><span class="en-inline">EULA</span></button>
+    <button type="button" class="filebtn" id="legalPrivacyBtn">🔒 <span class="zh-inline">隐私政策</span><span class="en-inline">Privacy Policy</span></button>
+    <button type="button" class="filebtn" id="legalTermsBtn">📜 <span class="zh-inline">服务条款</span><span class="en-inline">Terms of Service</span></button>
   </div>
   <div class="sitefoot">
     <a href="/index.html"><span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span></a>
@@ -140,7 +149,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var params = new URLSearchParams(window.location.search);
   var gameId = params.get('id') || '';
-  var game = null, targetUrl = '', sameOrigin = false;
+  var game = null, targetUrl = '', sameOrigin = false, legalUrls = {};
 
   function stored(key, fallback) {
     try { var v = localStorage.getItem(key); return v == null ? fallback : v; }
@@ -207,6 +216,10 @@
         $('extBar').style.display = sameOrigin ? 'none' : 'flex';
         $('msgBox').style.display = 'none';
         $('gameFrame').src = frameSrc(targetUrl);
+        // 协议直链（与 game.html 同契约）：读 game/data/<id>.json 的 legal_urls
+        fetchJSON('/game/data/' + encodeURIComponent(gameId) + '.json?t=' + Date.now())
+          .then(function (d) { legalUrls = (d && d.legal_urls && typeof d.legal_urls === 'object') ? d.legal_urls : {}; })
+          .catch(function () { legalUrls = {}; });
       })
       .catch(function (e) { showMsg((isEn() ? 'Failed to load game: ' : '游戏加载失败：') + e.message); });
   }
@@ -263,61 +276,80 @@
   document.addEventListener('fullscreenchange', updateFullLabel);
   document.addEventListener('webkitfullscreenchange', updateFullLabel);
 
-  // ===== 三文件弹窗：主列表条目 / 详情 JSON / 游戏源文件 =====
-  function openFile(kind) {
-    var modal = $('fileModal'), body = $('fileBody'), title = $('fileTitle'), tip = $('fileTip');
-    if (!modal || !game) return;
-    var isSource = kind === 'source';
-    var url = kind === 'list' ? '/lelegame_data.json?t=' + Date.now()
-      : kind === 'detail' ? '/game/data/' + encodeURIComponent(gameId) + '.json?t=' + Date.now()
-      : targetUrl;
-    var label = kind === 'list'
-      ? (isEn() ? 'Catalog entry · lelegame_data.json' : '主列表条目 · lelegame_data.json')
-      : kind === 'detail'
-      ? (isEn() ? 'Game details · game/data/' + gameId + '.json' : '游戏详情 · game/data/' + gameId + '.json')
-      : (isEn() ? 'Game source · ' + targetUrl : '游戏源文件 · ' + targetUrl);
-    title.textContent = label;
-    body.textContent = isEn() ? 'Loading…' : '加载中…';
+  // ===== 协议三按钮（与 game.html 4.1.0 同契约）=====
+  // 合法 https 直链 → 新标签打开游戏方协议；缺失/空串/非法 → 弹窗渲染 legal_generic.js 平台万能协议
+  var LEGAL_KINDS = ['eula', 'privacy', 'terms'];
+  var legalKind = 'eula';
+  function safeLegalUrl(value) {
+    if (typeof value !== 'string') return null;
+    var s = value.trim();
+    if (!s || /[\s\u0000-\u001f\u007f]/.test(s)) return null;
+    if (!/^https:\/\/[^\/?#\s]+/i.test(s)) return null;
+    try { var u = new URL(s); return (u.protocol === 'https:' && u.hostname) ? u.href : null; }
+    catch (e) { return null; }
+  }
+  function renderLegal(kind) {
+    var body = $('fileBody'), title = $('fileTitle'), tip = $('fileTip');
+    var lang = isEn() ? 'en' : 'zh';
+    var data = window.LELELE_GENERIC_AGREEMENTS;
+    body.classList.add('legal');
     tip.textContent = '';
-    modal.classList.add('active');
-
-    if (isSource && !sameOrigin) {
-      // 外链游戏的源码不在本仓库，不跨域抓取，给出地址与说明
-      tip.textContent = isEn()
-        ? 'This game is hosted externally; its source is not in this repository. Open it in a new tab to inspect.'
-        : '该游戏为外部站点，源码不在本仓库。请在新标签页打开查看。';
-      body.textContent = targetUrl;
+    if (!data || !data[lang] || !data[lang][kind]) {
+      title.textContent = isEn() ? 'Agreement' : '协议';
+      body.textContent = isEn()
+        ? 'Unable to load the agreement at the moment. Please refresh and try again.'
+        : '协议正文暂时无法载入，请刷新后重试。';
       return;
     }
-    fetch(url, { cache: 'no-store' })
-      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
-      .then(function (text) {
-        if (kind === 'list') {
-          try {
-            var list = JSON.parse(text);
-            var entry = list.find(function (g) { return String(g.id) === String(gameId); });
-            body.textContent = JSON.stringify(entry || { error: 'id not found' }, null, 2);
-          } catch (e) { body.textContent = text; }
-        } else if (kind === 'detail') {
-          try { body.textContent = JSON.stringify(JSON.parse(text), null, 2); }
-          catch (e) { body.textContent = text; }
-        } else {
-          body.textContent = text;
-          tip.textContent = isEn()
-            ? 'Source is shown read-only. Use the buttons below to return to the game.'
-            : '源码只读展示，点下方按钮返回游戏。';
-        }
-      })
-      .catch(function (e) {
-        body.textContent = (isEn() ? 'Failed to load: ' : '加载失败：') + e.message;
-      });
+    var doc = data[lang][kind];
+    title.textContent = doc.title;
+    body.textContent = '';
+    function add(cls, text) { var d = document.createElement('div'); d.className = cls; d.textContent = text; body.appendChild(d); }
+    add('legal-sub', doc.subtitle);
+    add('legal-note', doc.notice);
+    doc.sections.forEach(function (sec) {
+      var h = document.createElement('h4'); h.textContent = sec.heading; body.appendChild(h);
+      sec.paragraphs.forEach(function (text) { var p = document.createElement('p'); p.textContent = text; body.appendChild(p); });
+    });
+    var foot = document.createElement('div'); foot.className = 'legal-foot';
+    var pageMap = { eula: 'generic_eula.html', privacy: 'generic_privacy.html', terms: 'generic_tos.html' };
+    var a = document.createElement('a');
+    a.href = pageMap[kind] + (isEn() ? '?lang=en' : '');
+    a.target = '_blank'; a.rel = 'noopener noreferrer';
+    a.textContent = isEn() ? 'Open the full agreement in a new tab ↗' : '在新标签查看完整协议 ↗';
+    foot.appendChild(a); body.appendChild(foot);
+  }
+  function openLegal(kind) {
+    if (LEGAL_KINDS.indexOf(kind) < 0) return;
+    var url = safeLegalUrl(legalUrls[kind]);
+    if (url) {
+      var a = document.createElement('a');
+      a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.style.display = 'none';
+      document.body.appendChild(a); a.click();
+      if (a.parentNode) a.parentNode.removeChild(a);
+      return;
+    }
+    legalKind = kind;
+    renderLegal(kind);
+    $('fileModal').classList.add('active');
   }
   function closeFile() { $('fileModal').classList.remove('active'); }
-  $('fileListBtn').addEventListener('click', function () { openFile('list'); });
-  $('fileDetailBtn').addEventListener('click', function () { openFile('detail'); });
-  $('fileSourceBtn').addEventListener('click', function () { openFile('source'); });
+  $('legalEulaBtn').addEventListener('click', function () { openLegal('eula'); });
+  $('legalPrivacyBtn').addEventListener('click', function () { openLegal('privacy'); });
+  $('legalTermsBtn').addEventListener('click', function () { openLegal('terms'); });
   $('fileClose').addEventListener('click', closeFile);
   $('fileModal').addEventListener('click', function (e) { if (e.target === $('fileModal')) closeFile(); });
+  // 弹窗打开时语言切换需重绘协议正文（observe 与 langChanged 双通道去重，同 game.html）
+  var lastLegalRender = 0;
+  function onLegalLangChange() {
+    if (!$('fileModal').classList.contains('active')) return;
+    var now = Date.now(); if (now - lastLegalRender < 60) return;
+    lastLegalRender = now; renderLegal(legalKind);
+  }
+  window.addEventListener('langChanged', onLegalLangChange);
+  if (window.MutationObserver) {
+    new MutationObserver(onLegalLangChange).observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
+  }
 
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;

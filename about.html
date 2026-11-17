@@ -512,7 +512,7 @@
             </div>
         </div>
 
-        <!-- 视频介绍：YouTube 优先，30 秒无响应自动切国内可直连的 mp4 -->
+        <!-- 视频介绍：YouTube 优先，8 秒无 load 响应自动切国内可直连的 mp4（https） -->
         <div class="section" id="introVideo">
             <div class="section-title">
                 <span class="zh-inline">🎬 宣传视频</span>
@@ -520,20 +520,21 @@
             </div>
             <div class="video-wrap">
                 <iframe id="youtubeFrame" hidden
-                    src="https://www.youtube.com/embed/Ty5BQUiSlts?si=mrkq2P5VyDXs_ewx"
+                    src="https://www.youtube-nocookie.com/embed/Ty5BQUiSlts?si=mrkq2P5VyDXs_ewx"
                     title="YouTube video player" frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                <!-- 备用源用 https：http 会被 Chrome 自动升级触发 Mixed Content 警告且可能加载失败 -->
                 <video id="backupVideo" hidden controls playsinline preload="metadata">
-                    <source src="http://gamepic.surge.sh/lelelegamevideo.mp4" type="video/mp4">
+                    <source src="https://gamepic.surge.sh/lelelegamevideo.mp4" type="video/mp4">
                 </video>
                 <div class="video-loading" id="videoLoading">
                     <span class="zh-inline">正在加载视频…</span><span class="en-inline">Loading video…</span>
                 </div>
             </div>
             <p class="video-note">
-                <span class="zh-inline">国内用户若 YouTube 30 秒无响应，将自动切换备用视频；也可随时手动切换：</span>
-                <span class="en-inline">For users where YouTube is unavailable, a backup video loads automatically after 30 seconds. You can also switch manually:</span>
+                <span class="zh-inline">若 YouTube 8 秒内无响应，将自动切换备用视频（国内可直连）；也可随时手动切换：</span>
+                <span class="en-inline">If YouTube does not respond within 8 seconds, a backup video loads automatically. You can also switch manually:</span>
                 <button type="button" class="video-alt-btn" id="videoAltBtn">
                     <span class="zh-inline" id="videoAltZh">切换备用视频</span><span class="en-inline" id="videoAltEn">Use backup video</span>
                 </button>
@@ -643,7 +644,7 @@
     <script src="/common.js" defer></script>
 
     <script>
-        // ==================== 宣传视频：YouTube 30s 超时回退国内 mp4 ====================
+        // ==================== 宣传视频：YouTube 8s 超时回退国内 mp4（https） ====================
         (function initPromoVideo() {
             const frame = document.getElementById('youtubeFrame');
             const backup = document.getElementById('backupVideo');
@@ -656,7 +657,7 @@
             let autoSettled = false;   // 只锁定「首次 load vs 30s 超时」的竞态
             let usingBackup = false;   // 当前显示源，手动切换可随时双向调用
             let timeoutId = null;
-            const TIMEOUT = window.PROMO_VIDEO_TIMEOUT || 30000;
+            const TIMEOUT = window.PROMO_VIDEO_TIMEOUT || 8000;
             const ORIGINAL_SRC = frame.getAttribute('src');
 
             function showFrame() {
@@ -686,6 +687,14 @@
                 clearTimeout(timeoutId);
                 if (toBackup) showBackup(); else showFrame();
             }
+
+            // mp4 万一挂了（跨域/编解码不支持），自动切回 YouTube，不让用户对着黑屏
+            backup.addEventListener('error', function () {
+                if (usingBackup && autoSettled) showFrame();
+            });
+            backup.querySelector('source').addEventListener('error', function () {
+                if (usingBackup && autoSettled) showFrame();
+            });
 
             // 默认先挂 YouTube，TIMEOUT 内没有 load 响应就走备用源
             frame.addEventListener('load', function () { settleAuto(false); });
