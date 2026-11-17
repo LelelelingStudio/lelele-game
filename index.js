@@ -402,7 +402,18 @@ if (searchPaginationEl) {
     });
 }
 
+// 搜索框占位符跟随语言（原先硬编码中文，切英文后仍是中文）
+function updateSearchPlaceholder() {
+    const el = document.getElementById('searchInput');
+    if (!el) return;
+    el.placeholder = document.documentElement.getAttribute('data-lang') === 'en'
+        ? 'Search by name / category / author / pinyin…'
+        : '搜索游戏名 / 分类 / 作者 / 拼音...';
+}
+updateSearchPlaceholder();
+
 window.addEventListener('langChanged', () => {
+    updateSearchPlaceholder();
     renderCategories();
     renderGames();
 });
