@@ -402,5 +402,18 @@
     "ageRating_en": "All Ages",
     "author": "10",
     "url": "https://explore-the-realm-games.leleleling.site"
+  },
+  {
+    "id": 32,
+    "name_zh": "打僵尸",
+    "name_en": "3D Warehouse District",
+    "icon": "🔫",
+    "category_zh": "射击",
+    "category_en": "Shooter",
+    "type": "internal",
+    "ageRating_zh": "12+",
+    "ageRating_en": "12+",
+    "author": "10",
+    "url": "https://warehousedistrict-pages.leleleling.site/"
   }
 ]
