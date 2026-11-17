@@ -281,6 +281,40 @@
             transform: none;
         }
 
+        /* ===== 视频介绍（YouTube 优先 + 国内备用源） ===== */
+        .video-wrap {
+            position: relative; width: 100%; max-width: 720px; margin: 0 auto;
+            aspect-ratio: 16 / 9; background: #000; border-radius: 16px;
+            overflow: hidden; border: 1px solid var(--card-border);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+        }
+        .video-wrap iframe, .video-wrap video {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            border: 0; display: block; background: #000;
+        }
+        .video-wrap iframe[hidden], .video-wrap video[hidden] { display: none; }
+        .video-loading {
+            position: absolute; inset: 0; z-index: 2; display: flex;
+            align-items: center; justify-content: center; flex-direction: column; gap: 14px;
+            background: rgba(15, 23, 42, 0.94); color: #e2e8f0;
+            font-size: 0.95rem; text-align: center; padding: 1.5rem;
+        }
+        .video-note {
+            font-size: 0.85rem !important; color: var(--text-muted) !important;
+            text-align: center !important; margin-top: 12px !important;
+        }
+        .video-alt-btn {
+            display: inline-block; margin-top: 4px; padding: 7px 16px; border-radius: 20px;
+            border: 1px solid var(--primary); background: rgba(79, 70, 229, 0.08);
+            color: var(--primary); font: 600 0.82rem/1 inherit; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .video-alt-btn:hover { background: rgba(79, 70, 229, 0.18); }
+        @media (max-width: 768px) {
+            .video-wrap { border-radius: 12px; }
+            .video-loading { font-size: 0.85rem; }
+        }
+
         /* ===== 更新日志 (Changelog) 模块 ===== */
         .changelog-box {
             display: flex;
@@ -478,6 +512,34 @@
             </div>
         </div>
 
+        <!-- 视频介绍：YouTube 优先，30 秒无响应自动切国内可直连的 mp4 -->
+        <div class="section" id="introVideo">
+            <div class="section-title">
+                <span class="zh-inline">🎬 宣传视频</span>
+                <span class="en-inline">🎬 Promo Video</span>
+            </div>
+            <div class="video-wrap">
+                <iframe id="youtubeFrame" hidden
+                    src="https://www.youtube.com/embed/Ty5BQUiSlts?si=mrkq2P5VyDXs_ewx"
+                    title="YouTube video player" frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                <video id="backupVideo" hidden controls playsinline preload="metadata">
+                    <source src="http://gamepic.surge.sh/lelelegamevideo.mp4" type="video/mp4">
+                </video>
+                <div class="video-loading" id="videoLoading">
+                    <span class="zh-inline">正在加载视频…</span><span class="en-inline">Loading video…</span>
+                </div>
+            </div>
+            <p class="video-note">
+                <span class="zh-inline">国内用户若 YouTube 30 秒无响应，将自动切换备用视频；也可随时手动切换：</span>
+                <span class="en-inline">For users where YouTube is unavailable, a backup video loads automatically after 30 seconds. You can also switch manually:</span>
+                <button type="button" class="video-alt-btn" id="videoAltBtn">
+                    <span class="zh-inline" id="videoAltZh">切换备用视频</span><span class="en-inline" id="videoAltEn">Use backup video</span>
+                </button>
+            </p>
+        </div>
+
         <!-- 给开发者的承诺 -->
         <div class="section">
             <div class="section-title">
@@ -581,6 +643,66 @@
     <script src="/common.js" defer></script>
 
     <script>
+        // ==================== 宣传视频：YouTube 30s 超时回退国内 mp4 ====================
+        (function initPromoVideo() {
+            const frame = document.getElementById('youtubeFrame');
+            const backup = document.getElementById('backupVideo');
+            const overlay = document.getElementById('videoLoading');
+            const altBtn = document.getElementById('videoAltBtn');
+            const altZh = document.getElementById('videoAltZh');
+            const altEn = document.getElementById('videoAltEn');
+            if (!frame || !backup || !overlay) return;
+
+            let autoSettled = false;   // 只锁定「首次 load vs 30s 超时」的竞态
+            let usingBackup = false;   // 当前显示源，手动切换可随时双向调用
+            let timeoutId = null;
+            const TIMEOUT = window.PROMO_VIDEO_TIMEOUT || 30000;
+            const ORIGINAL_SRC = frame.getAttribute('src');
+
+            function showFrame() {
+                usingBackup = false;
+                backup.pause();
+                backup.hidden = true;
+                // 切到备用时把 src 置为 about:blank 停请求；切回时必须恢复原地址，否则黑框
+                if (frame.getAttribute('src') !== ORIGINAL_SRC) frame.src = ORIGINAL_SRC;
+                frame.hidden = false;
+                overlay.hidden = true;
+                if (altZh) altZh.textContent = '切换备用视频';
+                if (altEn) altEn.textContent = 'Use backup video';
+            }
+            function showBackup() {
+                usingBackup = true;
+                backup.hidden = false;
+                frame.hidden = true;
+                frame.src = 'about:blank'; // 停掉 YouTube 请求，避免国内用户一直挂着重试
+                overlay.hidden = true;
+                backup.play().catch(function () {}); // 浏览器拦截自动播放时用户仍可点原生控件
+                if (altZh) altZh.textContent = '切回 YouTube';
+                if (altEn) altEn.textContent = 'Back to YouTube';
+            }
+            function settleAuto(toBackup) {
+                if (autoSettled) return;
+                autoSettled = true;
+                clearTimeout(timeoutId);
+                if (toBackup) showBackup(); else showFrame();
+            }
+
+            // 默认先挂 YouTube，TIMEOUT 内没有 load 响应就走备用源
+            frame.addEventListener('load', function () { settleAuto(false); });
+            timeoutId = setTimeout(function () {
+                if (!autoSettled) {
+                    console.warn('[about] YouTube 无响应，切换到备用视频');
+                    settleAuto(true);
+                }
+            }, TIMEOUT);
+
+            if (altBtn) altBtn.addEventListener('click', function () {
+                clearTimeout(timeoutId);
+                autoSettled = true;
+                if (usingBackup) showFrame(); else showBackup();
+            });
+        })();
+
         // ==================== 更新日志逻辑 ====================
         let changelogData = [];
         let activeVersionIndex = 0;

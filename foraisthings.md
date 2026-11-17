@@ -166,7 +166,7 @@ flowchart TB
 | `apply-certification.html` | 开发者官方认证申请（Tally 表单） |
 | `dashboard.html` | 开发者后台：资料编辑、头像上传、收藏管理、更新游戏、认证申请入口、数据看板 |
 | `login.html` | 开发者登录/注册（邮箱 + OAuth + 密码找回） |
-| `about.html` | 关于我们 + `changelog.json` 渲染 |
+| `about.html` | 关于我们 + `changelog.json` 渲染 + **宣传视频**：YouTube iframe 优先，`PROMO_VIDEO_TIMEOUT`（默认 30s）无 `load` 响应自动切 `http://gamepic.surge.sh/lelelegamevideo.mp4`（国内可直连），视频下方按钮可随时双向切换；切备用时把 iframe src 置 `about:blank` 停请求，切回恢复 `ORIGINAL_SRC` 防黑框 |
 | `docs.html` | 站点导航 / 文档中心 |
 | `developer_docs.html` | 开发者文档 |
 | `sitemap.html` | 人类可读站点地图 |
@@ -805,6 +805,8 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 | 2026-11-13 | `94f0982` / `a5f047b` | admin 新增 JSON 模式与效果预览；游戏「开始游戏」改为站内模拟浏览器外壳内嵌 iframe；新增游戏 #31、开发者告示、清理测试日志 |
 | 2026-11-14 | 本次（作者源迁移） | **surge 退役、作者权威源迁回本仓库**：删除 `sync-authors.yml`；`boot.js`/`common.js`/`notice.js`/`author.html` 改读同源 `/authors/index.json`；admin 两作者卡启用（`add-author`/`edit-author`）；`admin-apply.mjs` 加作者生成器与 `recomputeAuthorCounts()`（15/15 单测）；`thoughts.md` #3 标记完成；手册/认证表全量同步 |
 | 2026-11-15 | 本次（README 重写） | `README.md` 全量改为**英文详细版**（当前数据快照 31 游戏 / 10 作者 / SW v1.12、架构与目录树、数据契约、投稿与认证、admin 六动作、部署、文档索引、隐私与 License），新增 **Star History** `<picture>` 明暗双主题图表；58 个相对链接全部校验无死链；手册 0.2 / 版本基准 / 2.4 / 3.6 计数同步 |
+| 2026-11-16 | 本次（独立播放器） | 新增零依赖 `play.html`（`?id=` 查主列表、干净浏览器外壳、localStorage 存档、全屏整窗优先+iframe 兜底、外链兜底），`common.js` 加 `isEmbedMode` 跳过页脚/节日装饰/公告弹窗并接收 `lelele:setLang` postMessage；`game.html` 开始游戏改为跳 `play.html?id=N&lang=`，移除旧外壳 CSS/DOM/JS（解决截图里外壳内出现雪人/树/飘雪/页脚）；实测 #16 `embed=1` iframe 内无装饰、#31 外链兜底、语言切换与跳转全绿 |
+| 2026-11-17 | 本次（about 宣传视频） | `about.html` 新增宣传视频区：YouTube iframe 优先 + 30s 无 `load` 自动换国内直连 mp4（`gamepic.surge.sh/lelelegamevideo.mp4`）+ 常驻按钮双向切换；修复两个实测发现的 bug（手动切换被 settled 锁死、切回 YouTube 时 src 仍为 about:blank 黑框）。`PROMO_VIDEO_TIMEOUT` 可配便于测试 |
 
 ---
 
