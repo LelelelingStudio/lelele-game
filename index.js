@@ -573,8 +573,8 @@ window.addEventListener("message", function(event) {
 // ==================== 排行榜逻辑 ====================
 (function() {
     const rankLang = {
-        zh: { title: '游戏排名', subtitle: '全站热度榜', more: '查看更多', modalTitle: '前 25 名排行', noData: '暂无数据', played: '次', favUnit: '收藏', view: '查看详情', tabTotal: '总榜', tabFav: '收藏榜', tabPlay: '游玩榜' },
-        en: { title: 'Top Games', subtitle: 'Global popularity ranking', more: 'View More', modalTitle: 'Top 25 Ranking', noData: 'No data available', played: 'plays', favUnit: 'favorites', view: 'Details', tabTotal: 'Overall', tabFav: 'Favorites', tabPlay: 'Plays' }
+        zh: { title: '游戏排名', subtitle: '全站热度榜', more: '查看更多', modalTitle: '前 25 名排行', noData: '暂无数据', played: '次', favUnit: '收藏', points: '排行点', view: '查看详情', tabTotal: '总榜', tabFav: '收藏榜', tabPlay: '游玩榜' },
+        en: { title: 'Top Games', subtitle: 'Global popularity ranking', more: 'View More', modalTitle: 'Top 25 Ranking', noData: 'No data available', played: 'plays', favUnit: 'favorites', points: 'rank points', view: 'Details', tabTotal: 'Overall', tabFav: 'Favorites', tabPlay: 'Plays' }
     };
     const ANALYTICS_API = 'https://analytics.leleleling.site/api/breakdown?site=1&cmp=1&limit=1000&dim=path,referrer,event,country,device&range=30d';
     let catalogCache = []; 
@@ -615,7 +615,7 @@ window.addEventListener("message", function(event) {
                 <button class="rank-card rank-${rankLevel}" type="button" style="text-align:left;" onclick="window.location.href='${detailUrl}'">
                     <div class="rank-card-header"><div class="rank-medal">${medal}</div><div class="rank-tag">No.${rankLevel}</div></div>
                     <div class="rank-main"><div class="rank-icon">${item.icon || '🎮'}</div><div class="rank-name">${escapeHtml(name)}</div></div>
-                    <div class="rank-meta"><div class="rank-count">${item.count} <small>${t('favUnit')}×5+${t('played')}</small></div><a href="${detailUrl}" class="rank-link" onclick="event.stopPropagation();">${t('view')}</a></div>
+                    <div class="rank-meta"><div class="rank-count">${item.count} <small>${t('points')}</small></div><a href="${detailUrl}" class="rank-link" onclick="event.stopPropagation();">${t('view')}</a></div>
                 </button>
             `;
         }).join('');

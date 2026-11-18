@@ -1,5 +1,14 @@
 [
   {
+    "id": "20261118-site-420-player-update",
+    "title_zh": "🎉 站点 4.2.0：全新游戏播放器、收藏榜与宣传视频",
+    "title_en": "🎉 Site v4.2.0: New Player, Favorites Leaderboard & Promo Video",
+    "content_zh": "站点升级到 4.2.0，带来几项和玩家直接相关的新功能：\n\n🎮 全新独立播放器：在游戏详情页点「开始游戏」，会进入干净的 play.html 播放器窗口，游戏存档照常保存，全屏只留游戏画面；如果某个游戏不允许被内嵌，我们会提示你在新标签页打开。\n\n⭐ 收藏榜上线：现在可以在「收藏榜」（favgames.html）看到全站玩家最喜爱的游戏排行；首页 Top3 也改成按收藏和游玩综合计算的「排行点」排序，点「查看更多」还能切换总榜、收藏榜、游玩榜。你收藏过的游戏在作品页和作者页都能看到累计收藏数。\n\n🎬 宣传视频：关于页新增平台的宣传视频，YouTube 加载慢时会自动切换到备用视频，国内玩家也能顺畅观看。\n\n🌐 中英双语：播放器外壳、搜索提示、排行榜等细节都补齐了中英适配，切换语言即实时生效。\n\n感谢每一位玩家和开发者的支持，祝玩得开心！",
+    "content_en": "Site v4.2.0 is here with several player-facing improvements:\n\n🎮 A brand-new standalone player: hitting \"Start Game\" on a detail page opens a clean play.html window. Your game saves still work, fullscreen shows only the game, and games that block embedding prompt you to open them in a new tab.\n\n⭐ Favorites leaderboard: see which games the community loves most on the new favorites leaderboard (favgames.html). The homepage Top3 now sorts by \"rank points\" combining favorites and plays, and \"View More\" lets you switch between Overall, Favorites and Plays. Favorite counts also show up on game and author pages.\n\n🎬 Promo video: the About page now has a platform trailer that automatically falls back to a mainland-accessible video if YouTube is slow.\n\n🌐 Bilingual polish: the player shell, search placeholder, rankings and more now follow your language switch instantly.\n\nThanks to every player and developer - have fun!",
+    "publishDate": "2026-11-18",
+    "expireDate": "2026-12-18"
+  },
+  {
     "id": "20261111-legal-agreements-500",
     "title_zh": "📜 合规新规：游戏守则 5.0.0 · 所有游戏须具备法律协议",
     "title_en": "📜 Compliance Update: Game Rules v5.0.0 · Legal Agreements Required",

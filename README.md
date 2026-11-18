@@ -30,7 +30,7 @@
 
 | | |
 | --- | --- |
-| Games in catalog | **31** (17 local · 12 external · 2 internal) |
+| Games in catalog | **32** (17 local · 12 external · 3 internal) |
 | Registered authors | **10** (id 1–10) |
 | Pages | **25** root HTML pages + **13** bundled game directories |
 | Languages | Chinese (zh) + English (en), full UI |
@@ -125,7 +125,7 @@ lelele-game/
 ├── pager-nav.js                   # Cyclic prev/next navigation
 ├── lsfp.js, lsfp-adapter.js       # LSFP decoder + transparent image fallback
 ├── sw.js, manifest-*.json         # Offline / PWA
-├── lelegame_data.json             # Master game list (31 entries)
+├── lelegame_data.json             # Master game list (32 entries)
 ├── announcements.json             # Site-wide announcements
 ├── noticetodeveloper.json         # Targeted developer notices
 ├── changelog.json                 # Bilingual release notes (about.html)
@@ -169,7 +169,7 @@ Validation is deliberately strict and runs **server-side, in the Action**, becau
 
 ## Games & Submission
 
-**Current catalog:** 31 titles — 17 `local`, 12 `external`, 2 `internal`. New entries are appended to `lelegame_data.json` with a matching `game/data/<id>.json`.
+**Current catalog:** 32 titles — 17 `local`, 12 `external`, 3 `internal`. New entries are appended to `lelegame_data.json` with a matching `game/data/<id>.json`.
 
 To submit a game, use the **Game Submission** form linked from the site (Tally). Please read [Game Rules 5.0.0](game_rules.html) first — in particular clause **4.6 (Mandatory Legal Agreements)**: link submissions must provide their own EULA / privacy / terms URLs, while code submissions may use the platform's generic agreements. Missing agreements block review.
 

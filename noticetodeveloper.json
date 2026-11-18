@@ -1,12 +1,12 @@
 {
-  "version": 9,
-  "updatedAt": "2026-11-17T02:12:43.499Z",
+  "version": 10,
+  "updatedAt": "2026-11-18T09:00:00.000Z",
   "_readme": {
     "说明": "本文件是「开发者定向告示」数据源，由 notice.js 读取。JSON 标准不支持 // 注释，所以字段说明都写在 _readme 里，程序会忽略它。",
     "文件结构": "{ version, updatedAt, _readme, notices: [告示对象, ...] }。真正生效的只有 notices 数组。",
     "notices[].id": "必填，字符串，全局唯一。用于 localStorage 记录已读，改 id 会导致重复弹出。",
     "notices[].enabled": "可选，布尔，默认 true。false 表示临时下线该告示。",
-    "notices[].author": "必填，目标开发者。支持 \"4\"（单个ID）、[\"4\",\"5\"]（多人）、\"*\" 或 \"all\"（全体开发者）。ID 对应 authors.surge.sh/authors.json 的 id。",
+    "notices[].author": "必填，目标开发者。支持 \"4\"（单个ID）、[\"4\",\"5\"]（多人）、\"*\" 或 \"all\"（全体开发者）。ID 对应本仓库 /authors/index.json 的 id（authors.surge.sh 已于 2026-11-14 退役）。",
     "notices[].priority": "可选，数字，默认 0。多条同时命中时按从大到小依次弹出。",
     "notices[].startAt": "可选，ISO 时间字符串，此前不显示。留空=立即生效。",
     "notices[].endAt": "可选，ISO 时间字符串，超过此时间自动失效。留空=永不过期。",
@@ -26,11 +26,42 @@
     "buttons[].target": "可选，_blank 新窗口（默认）/ _self 当前窗口。",
     "notices[].dismissible": "可选，布尔，默认 true。false = 强制阅读，隐藏关闭按钮且点遮罩不关闭。",
     "notices[].oncePerUser": "可选，布尔，默认 true。true = 同一用户读过一次后不再弹；false = 每次刷新都可能弹。",
-    "显示条件": "需同时满足：已登录 + 账号在 authors.json 有对应作者ID + author 匹配 + 在时间窗内 + 未读过。",
+    "显示条件": "需同时满足：已登录 + 账号在 authors/index.json 有对应作者ID + author 匹配 + 在时间窗内 + 未读过。",
     "生效范围": "index.html、game.html、author.html、dashboard.html。游戏本体目录 /game/xxx/ 内不显示。",
     "新增告示": "在 notices 数组末尾追加对象，复制现有示例改字段即可，注意 id 不要重复。"
   },
   "notices": [
+    {
+      "id": "notice-2026-11-18-v420-favorites-dashboard",
+      "enabled": true,
+      "author": "all",
+      "priority": 400,
+      "startAt": "2026-11-18T00:00:00+08:00",
+      "endAt": "2026-12-18T23:59:59+08:00",
+      "title_zh": "🆕 站点 4.2.0：现在能看到自己游戏的收藏数了",
+      "title_en": "🆕 Site v4.2.0: see favorite counts for your games",
+      "body_zh": "站点升级到 4.2.0，与开发者密切相关的是收藏数据与后台能力：\n\n① 每个游戏的收藏数：登录开发者后台（dashboard.html），在「我的游戏收藏数（近 30 天）」卡片可以看到你名下每款游戏的净收藏数；公开作者页（author.html）的游戏卡也会展示收藏数，方便你对比作品表现。\n\n② 统计口径：收藏 = 玩家点收藏，取消收藏 = 玩家取消，净收藏 = 收藏 − 取消。每游戏每天最多统计 3 轮循环，防止刷量；11 月 26 日前会把玩家已有的本地收藏一次性补报进统计。\n\n③ 排行榜：首页 Top3 现按「收藏×5 + 游玩」的排行点排序，「查看更多」里可切换总榜、收藏榜、游玩榜；全站另有 favgames.html 收藏榜（analytics 域也有同款页面）。\n\n④ 播放器升级：游戏详情页点「开始游戏」会进入独立 play.html，游戏存档（localStorage）照常可用，页面更干净；若你的游戏禁止被内嵌，玩家会看到「在新标签打开」提示。\n\n⑤ 作者权威源已迁回本仓库 authors/index.json（surge 退役），admin 控制台六项动作（新增/修改作者、新增/修改/更新游戏等）全部可用；提交游戏仍须具备三类法律协议（守则 5.0.0）。",
+      "body_en": "Site v4.2.0 is live. What matters most to developers:\n\n(1) Per-game favorite counts: sign in to the developer dashboard (dashboard.html) and check the \"Favorites on my games (last 30 days)\" card for the net favorite count of each of your games. Public author pages (author.html) also show a favorite count on every game card, so you can compare your titles.\n\n(2) How it is counted: favoriting adds one, unfavoriting subtracts one, net favorites = fav minus unfav. Each game is capped at 3 cycles per day to prevent inflation; existing local favorites are reported once before November 26.\n\n(3) Rankings: the homepage Top3 now sorts by \"rank points\" (favorites x 5 + plays), and \"View More\" lets visitors switch between Overall / Favorites / Plays. There is also a dedicated favorites leaderboard at favgames.html (mirrored on the analytics domain).\n\n(4) New player: \"Start Game\" on a detail page now opens a standalone play.html. Game saves (localStorage) still work, the shell is cleaner, and games that block embedding show an \"Open in new tab\" prompt.\n\n(5) The author registry is back in this repository (authors/index.json; surge retired), and all six admin console actions (add/edit author, add/edit/update game, etc.) are available. Submitted games still need all three legal agreements (Game Rules v5.0.0).",
+      "media": [],
+      "buttons": [
+        {
+          "text_zh": "前往开发者后台",
+          "text_en": "Open Developer Dashboard",
+          "url": "https://game.leleleling.site/dashboard.html",
+          "style": "primary",
+          "target": "_self"
+        },
+        {
+          "text_zh": "查看收藏榜",
+          "text_en": "View Favorites Leaderboard",
+          "url": "https://game.leleleling.site/favgames.html",
+          "style": "ghost",
+          "target": "_blank"
+        }
+      ],
+      "dismissible": true,
+      "oncePerUser": true
+    },
     {
       "id": "notice-2026-11-11-legal-agreements-500",
       "enabled": true,
