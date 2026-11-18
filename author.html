@@ -218,11 +218,36 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* 关注 / 取消关注按钮：未关注为描边样式，已关注为主色填充 */
+        .btn-follow {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            padding: 9px 14px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .btn-follow:hover { background: rgba(79, 70, 229, 0.08); }
+        .btn-follow[aria-pressed="true"] {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+        .btn-follow:disabled { opacity: 0.5; cursor: not-allowed; }
+
         @media (max-width: 600px) {
             .author-card { flex-direction: column; text-align: center; padding: 30px 20px; gap: 20px; }
             .author-avatar { width: 100px; height: 100px; font-size: 3rem; }
             .author-name { font-size: 1.8rem; }
             .games-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 16px; }
+            .author-apply { justify-content: center; }
         }
     </style>
 </head>
@@ -266,10 +291,13 @@
                     <span class="en-inline">This author hasn't set up their profile yet.</span>
                 </div>
             </div>
-            <div class="author-apply" style="margin-top:14px;">
+            <div class="author-apply" style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
                 <a class="btn btn-primary" href="apply-certification.html" style="display:inline-block;text-decoration:none;border-radius:12px;padding:9px 14px;font-weight:700;">
                     <span class="zh-inline">🏅 申请官方认证</span><span class="en-inline">🏅 Apply for Certification</span>
                 </a>
+                <button type="button" id="followBtn" class="btn btn-follow" aria-pressed="false" hidden>
+                    <span class="zh-inline follow-label">＋ 关注</span><span class="en-inline follow-label">＋ Follow</span>
+                </button>
             </div>
         </div>
 
@@ -296,6 +324,7 @@
 
     <script src="/common.js" defer></script>
     <script src="supabase-client.js" defer></script>
+    <script src="/user-actions.js" defer></script>
     <script src="/lsfp-adapter.js" defer></script>
     <script src="/notice.js" defer></script>
     <script src="/pager-nav.js" defer></script>
@@ -304,6 +333,7 @@
         let currentAuthorData = null;
         let currentGamesList = [];
         let allGamesData = [];
+        let followState = { following: false, known: false, busy: false };
 
         function isEn() {
             return document.documentElement.getAttribute('data-lang') === 'en';
@@ -432,6 +462,7 @@
             currentAuthorData = {
                 name_zh: defaultNameZh, name_en: defaultNameEn,
                 avatar_url: null, bio: null,
+                uuid: uuid || null,
                 role: uuid ? 'developer' : 'External / Unregistered',
                 isRegistered: !!uuid,
                 authorlevel: base ? (base.authorlevel || 1) : 1,
@@ -541,6 +572,80 @@
                 .catch(() => { done(); showError(); });
         }
 
+        // ---------- 关注 / 取消关注 ----------
+        function followToast(msg, ms) {
+            let el = document.getElementById('leleleToast');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'leleleToast';
+                el.className = 'lelele-toast';
+                document.body.appendChild(el);
+            }
+            el.textContent = msg;
+            el.classList.add('active');
+            clearTimeout(el._t);
+            el._t = setTimeout(() => el.classList.remove('active'), ms || 2600);
+        }
+
+        function renderFollowButton() {
+            const btn = document.getElementById('followBtn');
+            if (!btn) return;
+            const uuid = currentAuthorData && currentAuthorData.uuid;
+            if (!uuid) { btn.hidden = true; return; }
+            btn.hidden = false;
+            const zh = followState.following ? '✓ 已关注' : '＋ 关注';
+            const en = followState.following ? '✓ Following' : '＋ Follow';
+            btn.querySelectorAll('.follow-label').forEach(l => {
+                l.textContent = l.classList.contains('zh-inline') ? zh : en;
+            });
+            btn.setAttribute('aria-pressed', String(followState.following));
+            btn.disabled = followState.busy;
+        }
+
+        async function refreshFollowButton() {
+            const btn = document.getElementById('followBtn');
+            if (!btn) return;
+            const uuid = currentAuthorData && currentAuthorData.uuid;
+            if (!uuid) { btn.hidden = true; return; }
+            if (typeof window.leleleUser === 'undefined' || !window.leleleUser) { renderFollowButton(); return; }
+
+            const session = await window.leleleUser.getSession();
+            // 本人主页：不显示关注按钮
+            if (session && session.user.id === uuid) { btn.hidden = true; return; }
+
+            const st = await window.leleleUser.getFollowState(uuid);
+            followState = { following: st.following, known: st.known, busy: false };
+            renderFollowButton();
+        }
+
+        async function onFollowClick() {
+            const btn = document.getElementById('followBtn');
+            const uuid = currentAuthorData && currentAuthorData.uuid;
+            if (!btn || !uuid || followState.busy) return;
+            if (typeof window.leleleUser === 'undefined' || !window.leleleUser) return;
+
+            const session = await window.leleleUser.getSession();
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const next = !followState.following;
+            // 乐观更新：先翻转界面，失败再回滚
+            followState = { following: next, known: true, busy: true };
+            renderFollowButton();
+
+            const res = await window.leleleUser.toggleFollow(uuid, next);
+            if (res.ok) {
+                followState = { following: next, known: true, busy: false };
+                followToast(isEn() ? (next ? 'Following' : 'Unfollowed') : (next ? '已关注' : '已取消关注'));
+            } else {
+                followState = { following: !next, known: followState.known, busy: false };
+                followToast(isEn() ? 'Action failed, please retry.' : '操作失败，请稍后重试。');
+            }
+            renderFollowButton();
+        }
+
         // 渲染页面核心逻辑
         function renderAuthorPage() {
             if (!currentAuthorData) return;
@@ -581,6 +686,9 @@
 
             // 未注册提示
             document.getElementById('authorUnregistered').style.display = currentAuthorData.isRegistered ? 'none' : 'inline-block';
+
+            // 关注按钮（异步读取当前关注状态）
+            refreshFollowButton();
 
             // 2. 渲染游戏列表
             const grid = document.getElementById('gamesGrid');
@@ -641,6 +749,9 @@
             });
 
             initAuthorPage();
+
+            const followBtn = document.getElementById('followBtn');
+            if (followBtn) followBtn.addEventListener('click', onFollowClick);
 
             window.addEventListener('langChanged', () => {
                 updateLinks();

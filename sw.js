@@ -1,6 +1,9 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.17 (用户行为前端) —— 新增 /user-actions.js 封装评分/最近游玩/关注作者接口；
+ *   author.html 关注按钮、game.html 星级评分与最近游玩记录接入。补预缓存清单。
+ *
  * ★ v1.16 (后台双语 + 主动复验) —— dashboard 头像/资料/注销等提示补齐英文，
  *   apply-certification.html / stats.html 补早期语言脚本修复 ?lang=en；
  *   设置面板新增低调的主动 reCAPTCHA 复验入口，通过后刷新 7 天倒计时。
@@ -88,7 +91,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.16';
+const CACHE_NAME = 'lelele-pwa-v1.17';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。
@@ -135,6 +138,7 @@ const ASSETS_TO_CACHE = [
     '/lsfp-adapter.js',
     '/pager-nav.js',
     '/supabase-client.js',
+    '/user-actions.js',
     '/recaptcha.js',
     '/recaptcha.css',
     '/recaptcha-config.js',
