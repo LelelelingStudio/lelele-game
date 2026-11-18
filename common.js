@@ -148,6 +148,70 @@ function leleleOnReady(fn) {
         }
     };
 
+    // ==================== 收藏数查询（供作者页 / 后台显示每个游戏收藏数） ====================
+    // 净收藏 = fav-game_<id> - unfav-game_<id>，与首页/收藏榜同源同口径
+    window.loadFavCounts = async function(range) {
+        const API = 'https://analytics.leleleling.site/api/breakdown?site=1&cmp=1&limit=1000&dim=path,referrer,event,country,device&range=' + (range || '30d');
+        try {
+            const fetcher = window.leleleFetch || fetch.bind(window);
+            const res = await fetcher(API, { cache: 'no-store' });
+            if (!res || !res.ok) return {};
+            const data = await res.json();
+            const events = (data && data.breakdowns && data.breakdowns.event) || [];
+            const counts = {};
+            events.forEach(function(item) {
+                const name = String((item && item.name) || '');
+                const value = Number((item && item.value) || 0);
+                let id = null, delta = 0;
+                if (name.startsWith('fav-game_')) { id = name.slice(9); delta = value; }
+                else if (name.startsWith('unfav-game_')) { id = name.slice(11); delta = -value; }
+                if (id) counts[id] = (counts[id] || 0) + delta;
+            });
+            return counts;
+        } catch (e) { return {}; }
+    };
+
+    // ==================== 收藏埋点（每天每游戏最多 3 轮，仅限制埋点，不影响收藏功能） ====================
+    // 事件名与统计后端约定：fav-game_<id> / unfav-game_<id>（与 play-game_ 同一 event 通道）
+    const FAV_ROUNDS_KEY = 'em:fav-rounds:v1';
+    function utcDay() { return new Date().toISOString().slice(0, 10); }
+    function favRoundState() {
+        try {
+            const raw = JSON.parse(localStorage.getItem(FAV_ROUNDS_KEY) || '{}');
+            if (raw && raw.day === utcDay() && raw.counts && typeof raw.counts === 'object') return raw;
+        } catch (e) {}
+        return { day: utcDay(), counts: Object.create(null) };
+    }
+    window.trackFavorite = function(gameId, action) {
+        const id = String(gameId == null ? '' : gameId);
+        if (!id) return false;
+        try {
+            const state = favRoundState();
+            // 每游戏每天最多 3 轮：一次收藏或取消各算半轮，6 次 toggle 封顶；超限只跳过埋点
+            const count = Number(state.counts[id]) || 0;
+            if (count >= 6) return false;
+            state.counts[id] = count + 1;
+            localStorage.setItem(FAV_ROUNDS_KEY, JSON.stringify(state));
+        } catch (e) {}
+        window.leleleTrack((action === 'unfav' ? 'unfav-game_' : 'fav-game_') + id);
+        return true;
+    };
+    // 上线后一次性把当前收藏补报给 analytics：仅 2026-11-26 之前、且本机从没补报过
+    window.migrateFavoritesOnce = function() {
+        const DEADLINE = '2026-11-26';
+        const KEY = 'lelele_favs_migrated_2026';
+        try {
+            if (utcDay() >= DEADLINE || localStorage.getItem(KEY)) return;
+        } catch (e) { return; }
+        const favs = (typeof window.getFavorites === 'function' ? window.getFavorites() : []) || [];
+        if (!Array.isArray(favs) || !favs.length) return;
+        favs.forEach(function(id) {
+            // 存量补报同样受每游戏 3 轮限制；超限不再发
+            window.trackFavorite(id, 'fav');
+        });
+        try { localStorage.setItem(KEY, '1'); } catch (e) {}
+    };
+
     // ==================== 作者认证徽章体系（新增） ====================
     // 等级 1-6：普通创作者 / 制作人 / 优质制作人 / 开发者 / 金牌开发者 / 开发团队
     const LELELE_AUTHOR_LEVELS = [
@@ -1517,6 +1581,8 @@ function leleleOnReady(fn) {
         
         // 启动新增功能
         initDirectLinkTracker();
+        // 一次性补报存量收藏（上线后至 2026-11-26，每机仅一次，带 localStorage 标记）
+        if (typeof window.migrateFavoritesOnce === 'function') window.migrateFavoritesOnce();
         initMainSiteAuth();
         initApplyCertGating();
         initIslandNav();

@@ -44,8 +44,7 @@ window.removeFavorite = function(id, event) {
     favs = favs.filter(f => f !== String(id));
     saveFavorites(favs);
     renderFavoritesList();
-    
-    // 取消收藏埋点已移除
+    if (typeof window.trackFavorite === 'function') window.trackFavorite(id, 'unfav');
 };
 
 document.getElementById('openFavBtn').addEventListener('click', () => {
@@ -473,7 +472,8 @@ window.toggleFavFromPreview = function() {
     const gameId = String(currentPreviewGame.id);
     let favs = getFavorites();
     
-    if (favs.includes(gameId)) {
+    const wasFav = favs.includes(gameId);
+    if (wasFav) {
         favs = favs.filter(id => id !== gameId);
     } else {
         favs.push(gameId);
@@ -481,8 +481,7 @@ window.toggleFavFromPreview = function() {
     
     saveFavorites(favs);
     updateFavUI(gameId);
-    
-    // 收藏埋点已移除
+    if (typeof window.trackFavorite === 'function') window.trackFavorite(gameId, wasFav ? 'unfav' : 'fav');
 };
 
 // ==================== 投稿流程逻辑 ====================
@@ -574,8 +573,8 @@ window.addEventListener("message", function(event) {
 // ==================== 排行榜逻辑 ====================
 (function() {
     const rankLang = {
-        zh: { title: '游戏排名', subtitle: '全站热度榜', more: '查看更多', modalTitle: '前 25 名排行', noData: '暂无数据', played: '次', view: '查看详情' },
-        en: { title: 'Top Games', subtitle: 'Global popularity ranking', more: 'View More', modalTitle: 'Top 25 Ranking', noData: 'No data available', played: 'plays', view: 'Details' }
+        zh: { title: '游戏排名', subtitle: '全站热度榜', more: '查看更多', modalTitle: '前 25 名排行', noData: '暂无数据', played: '次', favUnit: '收藏', view: '查看详情', tabTotal: '总榜', tabFav: '收藏榜', tabPlay: '游玩榜' },
+        en: { title: 'Top Games', subtitle: 'Global popularity ranking', more: 'View More', modalTitle: 'Top 25 Ranking', noData: 'No data available', played: 'plays', favUnit: 'favorites', view: 'Details', tabTotal: 'Overall', tabFav: 'Favorites', tabPlay: 'Plays' }
     };
     const ANALYTICS_API = 'https://analytics.leleleling.site/api/breakdown?site=1&cmp=1&limit=1000&dim=path,referrer,event,country,device&range=30d';
     let catalogCache = []; 
@@ -616,15 +615,16 @@ window.addEventListener("message", function(event) {
                 <button class="rank-card rank-${rankLevel}" type="button" style="text-align:left;" onclick="window.location.href='${detailUrl}'">
                     <div class="rank-card-header"><div class="rank-medal">${medal}</div><div class="rank-tag">No.${rankLevel}</div></div>
                     <div class="rank-main"><div class="rank-icon">${item.icon || '🎮'}</div><div class="rank-name">${escapeHtml(name)}</div></div>
-                    <div class="rank-meta"><div class="rank-count">${item.count} <small>${t('played')}</small></div><a href="${detailUrl}" class="rank-link" onclick="event.stopPropagation();">${t('view')}</a></div>
+                    <div class="rank-meta"><div class="rank-count">${item.count} <small>${t('favUnit')}×5+${t('played')}</small></div><a href="${detailUrl}" class="rank-link" onclick="event.stopPropagation();">${t('view')}</a></div>
                 </button>
             `;
         }).join('');
     }
 
-    function renderModal(items) {
+    function renderModal(items, unitKey) {
         const list = document.getElementById('rankModalList');
         if (!list) return;
+        const unit = unitKey ? t(unitKey) : t('played');
         const top25 = items.slice(0, 25);
         list.innerHTML = top25.map((item, index) => {
             const detailUrl = item.url || '#';
@@ -632,7 +632,7 @@ window.addEventListener("message", function(event) {
                 <li class="rank-modal-row">
                     <div class="rank-modal-index">${index + 1}</div>
                     <div class="rank-modal-name">${escapeHtml(item.name || 'Unknown')}</div>
-                    <div class="rank-modal-count">${item.count}</div>
+                    <div class="rank-modal-count">${item.count} <small>${unit}</small></div>
                     <div><a href="${detailUrl}" class="rank-modal-link" onclick="event.stopPropagation();">${t('view')}</a></div>
                 </li>
             `;
@@ -642,7 +642,20 @@ window.addEventListener("message", function(event) {
     function syncTexts() {
         const nodes = document.querySelectorAll('[data-i18n]');
         const map = { rankTitle: t('title'), rankSubtitle: t('subtitle'), rankMore: t('more'), rankModalTitle: t('modalTitle') };
+        ['total', 'fav', 'play'].forEach(k => {
+            const btn = document.querySelector('[data-rank-tab="' + k + '"]');
+            if (btn) btn.textContent = t('tab' + k.charAt(0).toUpperCase() + k.slice(1));
+        });
         nodes.forEach(node => { const key = node.getAttribute('data-i18n'); if (map[key]) node.textContent = map[key]; });
+    }
+
+    let _rankMapped = [];
+    let _activeRankTab = 'total';
+    function renderActiveRankModal() {
+        const list = _activeRankTab === 'fav' ? _rankMapped.filter(x => x.fav > 0).map(x => ({ ...x, count: x.fav })).sort((a, b) => b.count - a.count)
+            : _activeRankTab === 'play' ? _rankMapped.filter(x => x.play > 0).map(x => ({ ...x, count: x.play })).sort((a, b) => b.count - a.count)
+            : _rankMapped;
+        renderModal(list, _activeRankTab === 'fav' ? 'favUnit' : 'played');
     }
 
     function bindModal() {
@@ -654,6 +667,13 @@ window.addEventListener("message", function(event) {
         openBtn.addEventListener('click', () => modal.classList.add('active'));
         closeBtn.addEventListener('click', () => modal.classList.remove('active'));
         modal.addEventListener('click', (event) => { if (event.target === modal) modal.classList.remove('active'); });
+        document.querySelectorAll('[data-rank-tab]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                _activeRankTab = btn.getAttribute('data-rank-tab');
+                document.querySelectorAll('[data-rank-tab]').forEach(b => b.classList.toggle('active', b === btn));
+                renderActiveRankModal();
+            });
+        });
     }
 
     // analytics 结果内存缓存：10 分钟内切语言只重渲染、不重拉接口；轮询周期同步放宽
@@ -673,16 +693,35 @@ window.addEventListener("message", function(event) {
                 if (!res.ok) throw new Error('fetch failed');
                 const json = await res.json();
                 const events = json.breakdowns?.event || [];
-                rawList = events
-                    .filter(item => typeof item?.name === 'string' && item.name.toLowerCase().startsWith('play-game_'))
-                    .map(item => ({ name: String(item.name).replace(/^play-game[_\s-]*/i, '').trim(), count: Number(item.value || 0) }))
-                    .filter(item => item.name)
-                    .sort((a, b) => b.count - a.count);
+                // 收藏榜：fav-game_<id> 减去 unfav-game_<id>；游玩榜：play-game_<name>
+                const playCounts = new Map(), favCounts = new Map();
+                events.forEach(item => {
+                    const name = String(item?.name || '');
+                    const value = Number(item?.value || 0);
+                    if (/^play-game[_\s-]/i.test(name)) {
+                        const key = name.replace(/^play-game[_\s-]*/i, '').trim();
+                        if (key) playCounts.set(key, (playCounts.get(key) || 0) + value);
+                    }
+                    if (/^fav-game_/i.test(name)) {
+                        const key = name.slice(9);
+                        if (key) favCounts.set(key, (favCounts.get(key) || 0) + value);
+                    } else if (/^unfav-game_/i.test(name)) {
+                        const key = name.slice(11);
+                        if (key) favCounts.set(key, (favCounts.get(key) || 0) - value);
+                    }
+                });
+                const allKeys = new Set([...playCounts.keys(), ...favCounts.keys()]);
+                rawList = Array.from(allKeys).map(key => ({
+                    name: key,
+                    play: Math.max(0, playCounts.get(key) || 0),
+                    fav: Math.max(0, favCounts.get(key) || 0),
+                    count: Math.max(0, favCounts.get(key) || 0) * 5 + Math.max(0, playCounts.get(key) || 0)
+                })).filter(item => item.name).sort((a, b) => b.count - a.count);
                 _analyticsCache = rawList;
                 _analyticsTime = now;
             }
 
-            if (!rawList.length) { renderEmpty(); return; }
+            if (!rawList.length) { _rankMapped = []; renderEmpty(); return; }
 
             if (!catalogCache.length) catalogCache = await fetchCatalog();
 
@@ -702,12 +741,15 @@ window.addEventListener("message", function(event) {
                     name: matchedGame ? (isEn ? (matchedGame.name_en || matchedGame.name_zh || matchedGame.name) : (matchedGame.name_zh || matchedGame.name_en || matchedGame.name)) : entry.name,
                     icon: matchedGame ? (matchedGame.icon || '🎮') : '🎮',
                     count: entry.count,
+                    play: entry.play,
+                    fav: entry.fav,
                     url: matchedGame ? getGameDetailUrl(matchedGame.id) : null
                 };
             }).filter(item => item.name && item.url);
 
+            _rankMapped = mapped;
             renderTop3(mapped);
-            renderModal(mapped);
+            renderActiveRankModal();
         } catch (e) {
             console.warn('rank fetch failed', e);
             renderEmpty();

@@ -754,14 +754,17 @@
             let favs = getFavorites();
             const idStr = String(currentGameId);
             
-            if (favs.includes(idStr)) {
+            const wasFav = favs.includes(idStr);
+            if (wasFav) {
                 favs = favs.filter(f => f !== idStr);
             } else {
                 favs.push(idStr);
             }
-            
+
             try { localStorage.setItem('lelele_favs', JSON.stringify(favs)); } catch (e) {}
             updateFavBtn();
+            // 埋点：收藏/取消各发一个事件；每游戏每天最多 3 轮，超限只跳过埋点不影响功能
+            if (typeof window.trackFavorite === 'function') window.trackFavorite(idStr, wasFav ? 'unfav' : 'fav');
         };
 
         // 4.2.1：跳到独立播放器 play.html?id=N（它自建干净的浏览器外壳、支持 localStorage 存档、

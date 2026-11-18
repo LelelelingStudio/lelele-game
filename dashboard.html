@@ -383,6 +383,11 @@
 
                 <div class="game-select-grid" id="gameSelectGrid" style="display:none;"></div>
 
+                <div id="myFavCounts" style="display:none; margin:20px 0; padding:18px; border:1px solid var(--border,#e2e8f0); border-radius:14px; background:rgba(248,250,252,.6);">
+                    <div style="font-weight:700; margin-bottom:12px; font-size:1.05rem;"><span class="zh-inline">⭐ 我的游戏收藏数（近 30 天）</span><span class="en-inline">⭐ Favorites on my games (last 30 days)</span></div>
+                    <div id="myFavList" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
+                </div>
+
                 <div id="analyticsDataView" style="display:none;">
                     <button class="btn btn-outline" onclick="backToGameList()" style="margin-bottom: 16px; padding: 8px 16px; font-size: 0.9rem;">
                         ← <span class="zh-inline">返回游戏列表</span><span class="en-inline">Back to Game List</span>
@@ -1215,6 +1220,42 @@
                     `;
                 }).join('');
             }
+
+            // 作者查看自己每个游戏的收藏数（与首页/收藏榜同源同口径）；本页不引 common.js，内联查询
+            const favBox = document.getElementById('myFavCounts');
+            if (!window.loadFavCounts) {
+                window.loadFavCounts = async function() {
+                    try {
+                        const res = await fetch('https://analytics.leleleling.site/api/breakdown?site=1&cmp=1&limit=1000&dim=path,referrer,event,country,device&range=30d', { cache: 'no-store' });
+                        if (!res || !res.ok) return {};
+                        const data = await res.json();
+                        const events = (data && data.breakdowns && data.breakdowns.event) || [];
+                        const counts = {};
+                        events.forEach(function(item) {
+                            const name = String((item && item.name) || ''), value = Number((item && item.value) || 0);
+                            let id = null, delta = 0;
+                            if (name.startsWith('fav-game_')) { id = name.slice(9); delta = value; }
+                            else if (name.startsWith('unfav-game_')) { id = name.slice(11); delta = -value; }
+                            if (id) counts[id] = (counts[id] || 0) + delta;
+                        });
+                        return counts;
+                    } catch (e) { return {}; }
+                };
+            }
+            if (favBox) {
+                favBox.style.display = 'block';
+                window.loadFavCounts().then(function(counts) {
+                    const list = document.getElementById('myFavList');
+                    if (!list) return;
+                    const isEn = getLang() === 'en';
+                    list.innerHTML = myGames.map(function(g) {
+                        const n = Math.max(0, Number(counts[String(g.id)]) || 0);
+                        const name = isEn ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en);
+                        return '<span style="padding:6px 12px;border-radius:999px;background:rgba(225,29,72,.08);color:#e11d48;font-weight:700;font-size:0.9rem;">' +
+                            (g.icon || '🎮') + ' ' + name + '：' + n + '</span>';
+                    }).join('');
+                });
+            } else if (favBox) { favBox.style.display = 'none'; }
         }
 
         function fillGameSelector() {

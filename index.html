@@ -215,6 +215,11 @@
         <div class="modal modal-wide">
             <button class="modal-close" id="rankModalCloseBtn" type="button">×</button>
             <div class="modal-header"><span data-i18n="rankModalTitle"><span class="zh-inline">前 25 名排行</span><span class="en-inline">Top 25 Ranking</span></span></div>
+            <div class="rank-tabs" id="rankTabs">
+                <button type="button" class="rank-tab active" data-rank-tab="total"><span class="zh-inline">总榜</span><span class="en-inline">Overall</span></button>
+                <button type="button" class="rank-tab" data-rank-tab="fav"><span class="zh-inline">收藏榜</span><span class="en-inline">Favorites</span></button>
+                <button type="button" class="rank-tab" data-rank-tab="play"><span class="zh-inline">游玩榜</span><span class="en-inline">Plays</span></button>
+            </div>
             <ul class="rank-modal-list" id="rankModalList"></ul>
         </div>
     </div>

@@ -210,6 +210,7 @@
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--text-main);
         }
 
+        .game-fav-count { margin-top: 8px; font-size: 12px; font-weight: 700; color: #e11d48; }
         .empty-state {
             text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 1.1rem;
             background: rgba(148, 163, 184, 0.05); border-radius: 24px; border: 1px dashed var(--card-border);
@@ -593,9 +594,19 @@
                         <a class="game-card" href="game.html?id=${game.id}${langSuffix}">
                             <div class="game-icon">${game.icon || '🎮'}</div>
                             <div class="game-name">${escapeHtml(gameName)}</div>
+                            <div class="game-fav-count" data-fav-game="${game.id}"><span class="zh-inline">⭐ 收藏 —</span><span class="en-inline">⭐ Favorites —</span></div>
                         </a>
                     `;
                 }).join('');
+                // 异步填充每个游戏的收藏数（作者可见自己作品的收藏表现）
+                if (typeof window.loadFavCounts === 'function') {
+                    window.loadFavCounts().then(function(counts) {
+                        document.querySelectorAll('#gamesGrid [data-fav-game]').forEach(function(el) {
+                            const n = Math.max(0, Number(counts[el.getAttribute('data-fav-game')]) || 0);
+                            el.innerHTML = '<span class="zh-inline">⭐ 收藏 ' + n + '</span><span class="en-inline">⭐ Favorites ' + n + '</span>';
+                        });
+                    });
+                }
             }
         }
 
