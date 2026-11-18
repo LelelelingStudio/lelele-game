@@ -485,6 +485,28 @@ window.toggleFavFromPreview = function() {
     if (typeof window.trackFavorite === 'function') window.trackFavorite(gameId, wasFav ? 'unfav' : 'fav');
 };
 
+// 排行榜卡片/弹窗的收藏按钮：按 id 切换，并就地更新所有同 id 按钮（独立于预览弹窗状态）
+window.toggleRankFav = function(gameId) {
+    const id = String(gameId == null ? '' : gameId);
+    if (!id) return;
+    let favs = getFavorites();
+    const wasFav = favs.includes(id);
+    favs = wasFav ? favs.filter(f => f !== id) : favs.concat([id]);
+    saveFavorites(favs);
+    // 同步预览弹窗按钮（若正打开同一游戏）
+    if (currentPreviewGame && String(currentPreviewGame.id) === id) updateFavUI(id);
+    // 就地更新排行榜里所有该 id 的收藏按钮
+    document.querySelectorAll('[data-rank-fav="' + id + '"]').forEach(btn => {
+        const nowFav = favs.includes(id);
+        btn.classList.toggle('is-fav', nowFav);
+        btn.setAttribute('aria-pressed', nowFav ? 'true' : 'false');
+        btn.innerHTML = nowFav
+            ? '<span class="zh-inline">🌟 已收藏</span><span class="en-inline">🌟 Favorited</span>'
+            : '<span class="zh-inline">⭐ 收藏</span><span class="en-inline">⭐ Favorite</span>';
+    });
+    if (typeof window.trackFavorite === 'function') window.trackFavorite(id, wasFav ? 'unfav' : 'fav');
+};
+
 // ==================== 投稿流程逻辑 ====================
 function initSubmitFlow() {
     document.getElementById('openSubmitGuide').onclick = async () => {
@@ -599,6 +621,20 @@ window.addEventListener("message", function(event) {
         if (top3) top3.innerHTML = `<div class="rank-empty">${t('noData')}</div>`;
     }
 
+    // 排行榜卡片的收藏按钮（复用 getFavorites，data-rank-fav 供 toggleRankFav 就地刷新）
+    function rankFavBtn(item) {
+        if (!item.id) return '';
+        const favs = getFavorites();
+        const isFav = favs.includes(String(item.id));
+        const id = String(item.id);
+        return `<button type="button" class="rank-fav-btn${isFav ? ' is-fav' : ''}" data-rank-fav="${id}" aria-pressed="${isFav ? 'true' : 'false'}" title="${t('favUnit')}" onclick="event.stopPropagation(); window.toggleRankFav('${id}');"><span class="zh-inline">${isFav ? '🌟 已收藏' : '⭐ 收藏'}</span><span class="en-inline">${isFav ? '🌟 Favorited' : '⭐ Favorite'}</span></button>`;
+    }
+    // 可点击作者名（跳作者主页）
+    function rankAuthor(item) {
+        if (!item.authorUrl || !item.authorName) return '';
+        return `<a class="rank-author" href="${item.authorUrl}" onclick="event.stopPropagation();"><span class="zh-inline">作者：</span><span class="en-inline">By </span>${escapeHtml(item.authorName)}</a>`;
+    }
+
     function renderTop3(items) {
         const container = document.getElementById('top3RankContainer');
         if (!container) return;
@@ -613,11 +649,12 @@ window.addEventListener("message", function(event) {
             const detailUrl = item.url || '#';
             const name = item.name || 'Unknown';
             return `
-                <button class="rank-card rank-${rankLevel}" type="button" style="text-align:left;" onclick="window.location.href='${detailUrl}'">
+                <div class="rank-card rank-${rankLevel}" role="link" tabindex="0" onclick="window.location.href='${detailUrl}'" onkeydown="if(event.key==='Enter'){window.location.href='${detailUrl}'}">
                     <div class="rank-card-header"><div class="rank-medal">${medal}</div><div class="rank-tag">No.${rankLevel}</div></div>
                     <div class="rank-main"><div class="rank-icon">${item.icon || '🎮'}</div><div class="rank-name">${escapeHtml(name)}</div></div>
-                    <div class="rank-meta"><div class="rank-count">${item.count} <small>${t('points')}</small></div><a href="${detailUrl}" class="rank-link" onclick="event.stopPropagation();">${t('view')}</a></div>
-                </button>
+                    <div class="rank-author-row">${rankAuthor(item)}</div>
+                    <div class="rank-meta"><div class="rank-count">${item.count} <small>${t('points')}</small></div><div class="rank-actions">${rankFavBtn(item)}<a href="${detailUrl}" class="rank-link" onclick="event.stopPropagation();">${t('view')}</a></div></div>
+                </div>
             `;
         }).join('');
     }
@@ -632,9 +669,12 @@ window.addEventListener("message", function(event) {
             return `
                 <li class="rank-modal-row">
                     <div class="rank-modal-index">${index + 1}</div>
-                    <div class="rank-modal-name">${escapeHtml(item.name || 'Unknown')}</div>
+                    <div class="rank-modal-game">
+                        <div class="rank-modal-name">${escapeHtml(item.name || 'Unknown')}</div>
+                        <div class="rank-modal-author">${rankAuthor(item)}</div>
+                    </div>
                     <div class="rank-modal-count">${item.count} <small>${unit}</small></div>
-                    <div><a href="${detailUrl}" class="rank-modal-link" onclick="event.stopPropagation();">${t('view')}</a></div>
+                    <div class="rank-modal-actions">${rankFavBtn(item)}<a href="${detailUrl}" class="rank-modal-link" onclick="event.stopPropagation();">${t('view')}</a></div>
                 </li>
             `;
         }).join('');
@@ -701,6 +741,10 @@ window.addEventListener("message", function(event) {
             if (!_analyticsCache.length) { _rankMapped = []; renderEmpty(); return; }
 
             if (!catalogCache.length) catalogCache = await fetchCatalog();
+            // 作者名兜底：排行榜可能与 loadGames 并行启动，authorsData 尚未填充时单独拉一次
+            if ((!authorsData || !authorsData.length) && typeof window.fetchAuthors === 'function') {
+                try { authorsData = await window.fetchAuthors() || []; } catch (e) {}
+            }
 
             const lookup = new Map();
             catalogCache.forEach(game => {
@@ -735,13 +779,18 @@ window.addEventListener("message", function(event) {
                 const g = lookup.get(key);
                 const fav = Math.max(0, favCounts.get(key) || 0);
                 const play = Math.max(0, playCounts.get(key) || 0);
+                const authorId = g ? (g.authorId || g.author) : null;
+                const authorObj = authorId != null ? authorsData.find(a => String(a.id) === String(authorId)) : null;
                 return {
                     id: g ? g.id : null,
                     name: g ? (isEn ? (g.name_en || g.name_zh || g.name) : (g.name_zh || g.name_en || g.name)) : key,
                     icon: g ? (g.icon || '🎮') : '🎮',
                     count: fav * 5 + play,
                     play, fav,
-                    url: g ? getGameDetailUrl(g.id) : null
+                    url: g ? getGameDetailUrl(g.id) : null,
+                    authorId: authorId != null ? String(authorId) : null,
+                    authorName: authorObj ? (isEn ? (authorObj.name_en || authorObj.name_zh) : (authorObj.name_zh || authorObj.name_en)) : (authorId != null ? String(authorId) : null),
+                    authorUrl: authorId != null ? `author.html?id=${encodeURIComponent(authorId)}` : null
                 };
             }).filter(item => item.name && item.url).sort((a, b) => b.count - a.count);
 

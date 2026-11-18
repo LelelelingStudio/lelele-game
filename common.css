@@ -894,9 +894,16 @@ html.dark-mode .lelele-settings-card { background: rgba(30,41,59,0.92); }
         .home-side .rank-showcase { padding: 22px 18px 18px; border-radius: 24px; }
         .home-side .rank-header { margin-bottom: 16px; }
         .home-side .rank-header h3 { font-size: 1.1rem; }
-        .home-side .rank-grid { flex-direction: column; align-items: stretch; gap: 12px; }
+        .home-side .rank-grid { flex-direction: column; align-items: center; gap: 12px; }
         .home-side .rank-card { padding: 14px 14px; }
-        .home-side .rank-card.rank-1, .home-side .rank-card.rank-2, .home-side .rank-card.rank-3 { width: 100%; min-width: unset; min-height: unset; transform: none; }
+        /* 侧栏三卡按名次递减：宽度 100%/91%/85%（1→2 差 9% > 2→3 差 6%），高度梯度同理 */
+        .home-side .rank-card.rank-1 { width: 100%; min-width: unset; min-height: 214px; transform: none; }
+        .home-side .rank-card.rank-2 { width: 91%; min-width: unset; min-height: 182px; transform: none; }
+        .home-side .rank-card.rank-3 { width: 85%; min-width: unset; min-height: 162px; transform: none; }
+        /* 侧栏按钮不换行，避免窄卡被撑高破坏梯度 */
+        .home-side .rank-actions { flex-wrap: nowrap; gap: 5px; }
+        .home-side .rank-fav-btn, .home-side .rank-link { font-size: 0.72rem; padding: 4px 7px; }
+        .home-side .rank-meta { gap: 6px; }
         .home-side .rank-card.rank-1:hover { transform: translateY(-4px) scale(1.01); }
         .home-side .rank-main { gap: 12px; margin-top: 10px; }
         .home-side .rank-icon { width: 44px; height: 44px; font-size: 1.6rem; border-radius: 14px; }
@@ -930,17 +937,16 @@ html.dark-mode .lelele-settings-card { background: rgba(30,41,59,0.92); }
             .home-side .rank-header h3 { font-size: 1rem; }
             .home-side .rank-grid {
                 display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-                gap: 8px; align-items: stretch;
+                gap: 8px; align-items: start;
             }
-            .home-side .rank-card { padding: 10px; border-radius: 14px; min-height: 0; }
-            .home-side .rank-card.rank-1,
-            .home-side .rank-card.rank-2,
-            .home-side .rank-card.rank-3 {
-                width: 100%; min-width: 0; min-height: 0; transform: none;
-            }
+            .home-side .rank-card { padding: 10px; border-radius: 14px; }
+            /* 窄屏三列等宽，用高度保留名次梯度：1→2 差 22px > 2→3 差 11px */
+            .home-side .rank-card.rank-1 { width: 100%; min-width: 0; min-height: 146px; transform: none; }
+            .home-side .rank-card.rank-2 { width: 100%; min-width: 0; min-height: 124px; transform: none; }
+            .home-side .rank-card.rank-3 { width: 100%; min-width: 0; min-height: 113px; transform: none; }
             .home-side .rank-card:hover,
             .home-side .rank-card.rank-1:hover { transform: translateY(-2px); }
-            .home-side .rank-main { gap: 8px; margin-top: 0; flex-direction: column; align-items: flex-start; }
+            .home-side .rank-main { gap: 8px; margin-top: 0; flex-direction: row; align-items: center; }
             .home-side .rank-icon,
             .home-side .rank-card.rank-1 .rank-icon {
                 width: 30px; height: 30px; font-size: 1.2rem; border-radius: 10px;
@@ -949,9 +955,16 @@ html.dark-mode .lelele-settings-card { background: rgba(30,41,59,0.92); }
             .home-side .rank-card.rank-1 .rank-name,
             .home-side .rank-card.rank-2 .rank-name,
             .home-side .rank-card.rank-3 .rank-name {
-                font-size: 0.78rem; -webkit-line-clamp: 2; animation: none; text-shadow: none;
+                font-size: 0.9rem; -webkit-line-clamp: 2; animation: none; text-shadow: none;
             }
-            .home-side .rank-meta { display: none; }
+            /* 窄屏保留次数/作者/收藏/详情，不再整体 display:none（用户反馈按钮消失、字过小） */
+            .home-side .rank-author-row { min-height: 20px; margin-top: 4px; }
+            .home-side .rank-author { font-size: 0.74rem; }
+            .home-side .rank-meta { margin-top: 8px; gap: 4px; flex-wrap: wrap; }
+            .home-side .rank-count { font-size: 0.78rem; }
+            .home-side .rank-actions { gap: 4px; }
+            .home-side .rank-fav-btn, .home-side .rank-link { font-size: 0.72rem; padding: 4px 7px; }
+            .home-side .rank-card { gap: 2px; }
 
             /* 公告：多列网格 + 紧凑卡片，不再用三张全宽大卡占满首屏 */
             .home-side .announcements-title { font-size: 0.95rem; margin-bottom: 8px; }
@@ -978,6 +991,13 @@ html.dark-mode .lelele-settings-card { background: rgba(30,41,59,0.92); }
             .home-side .rank-card.rank-3 { padding: 8px 6px; transform: none; }
             .home-side .rank-icon,
             .home-side .rank-card.rank-1 .rank-icon { width: 26px; height: 26px; font-size: 1rem; }
+            .home-side .rank-card.rank-1 { min-height: 138px; }
+            .home-side .rank-card.rank-2 { min-height: 120px; }
+            .home-side .rank-card.rank-3 { min-height: 111px; }
+            .home-side .rank-name { font-size: 0.82rem; }
+            .home-side .rank-author { font-size: 0.7rem; }
+            .home-side .rank-fav-btn, .home-side .rank-link { font-size: 0.68rem; padding: 3px 6px; }
+            .home-side .rank-actions { gap: 4px; }
             .home-side .announcements-list { grid-template-columns: 1fr; }
             .home-side .announce-card { padding: 8px 10px; }
             .home-side .announce-name {
@@ -1046,9 +1066,10 @@ html.dark-mode .lelele-settings-card { background: rgba(30,41,59,0.92); }
         .rank-more-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 20px rgba(79, 70, 229, 0.35); }
         .rank-grid { display: flex; align-items: flex-end; justify-content: center; gap: 20px; flex-wrap: wrap; }
         .rank-card { position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 22px 20px; border-radius: 22px; cursor: pointer; color: #1e293b; border: 1px solid rgba(255, 255, 255, 0.6); transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease; text-align: left; overflow: hidden; }
-        .rank-card.rank-1 { background: linear-gradient(135deg, rgba(255, 235, 170, 0.9), rgba(255,255,255,0.95)); min-width: 280px; min-height: 210px; transform: translateY(-16px); box-shadow: 0 20px 40px -10px rgba(245, 158, 11, 0.25), inset 0 2px 4px rgba(255,255,255,0.9); z-index: 3; }
-        .rank-card.rank-2 { background: linear-gradient(135deg, rgba(226, 232, 240, 0.9), rgba(255,255,255,0.95)); min-width: 240px; min-height: 175px; box-shadow: 0 15px 30px -10px rgba(148, 163, 184, 0.35), inset 0 2px 4px rgba(255,255,255,0.9); z-index: 2; }
-        .rank-card.rank-3 { background: linear-gradient(135deg, rgba(254, 215, 170, 0.85), rgba(255,255,255,0.95)); min-width: 220px; min-height: 155px; box-shadow: 0 15px 30px -10px rgba(217, 119, 6, 0.2), inset 0 2px 4px rgba(255,255,255,0.9); z-index: 1; }
+        /* 卡片尺寸按名次递减，且 1→2 的落差明显大于 2→3（宽度差 56/26，高度差 50/24） */
+        .rank-card.rank-1 { background: linear-gradient(135deg, rgba(255, 235, 170, 0.9), rgba(255,255,255,0.95)); min-width: 306px; min-height: 234px; transform: translateY(-16px); box-shadow: 0 20px 40px -10px rgba(245, 158, 11, 0.25), inset 0 2px 4px rgba(255,255,255,0.9); z-index: 3; }
+        .rank-card.rank-2 { background: linear-gradient(135deg, rgba(226, 232, 240, 0.9), rgba(255,255,255,0.95)); min-width: 250px; min-height: 184px; box-shadow: 0 15px 30px -10px rgba(148, 163, 184, 0.35), inset 0 2px 4px rgba(255,255,255,0.9); z-index: 2; }
+        .rank-card.rank-3 { background: linear-gradient(135deg, rgba(254, 215, 170, 0.85), rgba(255,255,255,0.95)); min-width: 224px; min-height: 160px; box-shadow: 0 15px 30px -10px rgba(217, 119, 6, 0.2), inset 0 2px 4px rgba(255,255,255,0.9); z-index: 1; }
         .rank-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 24px 48px -10px rgba(15, 23, 42, 0.15); }
         .rank-card.rank-1:hover { transform: translateY(-24px) scale(1.02); }
         .rank-card-header { display: flex; align-items: center; justify-content: space-between; }
@@ -1067,19 +1088,32 @@ html.dark-mode .lelele-settings-card { background: rgba(30,41,59,0.92); }
         .rank-count { font-size: 0.95rem; color: #475569; font-weight: 700; }
         .rank-card.rank-1 .rank-count { font-size: 1.1rem; color: #b45309; }
         .rank-count small { font-size: 0.75rem; color: #64748b; font-weight: 600; }
-        .rank-link { color: #4f46e5; text-decoration: none; font-weight: 800; font-size: 0.85rem; padding: 4px 10px; background: rgba(79, 70, 229, 0.1); border-radius: 12px; transition: all 0.2s; }
+        .rank-link { color: #4f46e5; text-decoration: none; font-weight: 800; font-size: 0.85rem; padding: 4px 10px; background: rgba(79, 70, 229, 0.1); border-radius: 12px; transition: all 0.2s; white-space: nowrap; }
         .rank-link:hover { background: rgba(79, 70, 229, 0.2); }
+        .rank-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        /* 排行榜卡片的收藏按钮（与预览弹窗收藏同口径，就地切换） */
+        .rank-fav-btn { appearance: none; border: 1px solid rgba(225,29,72,0.35); cursor: pointer; font-family: inherit; font-weight: 800; font-size: 0.78rem; line-height: 1; padding: 5px 10px; border-radius: 12px; color: #e11d48; background: rgba(225,29,72,0.08); transition: all 0.2s; white-space: nowrap; }
+        .rank-fav-btn:hover { background: rgba(225,29,72,0.18); }
+        .rank-fav-btn.is-fav { background: #e11d48; color: #fff; border-color: #e11d48; }
+        /* 可点击作者名 */
+        .rank-author-row { margin-top: 6px; min-height: 18px; }
+        .rank-author { display: inline-flex; align-items: center; gap: 2px; max-width: 100%; color: #4f46e5; text-decoration: none; font-weight: 700; font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .rank-author:hover { text-decoration: underline; }
         .rank-empty { width: 100%; min-height: 120px; display: flex; align-items: center; justify-content: center; border: 1px dashed rgba(148,163,184,0.45); border-radius: 18px; color: #64748b; background: rgba(255,255,255,0.45); font-size: 0.95rem; }
         .rank-tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
         .rank-tab { border: 1px solid rgba(79,70,229,0.25); background: rgba(79,70,229,0.06); color: #4f46e5; font-weight: 700; font-size: 0.9rem; padding: 7px 16px; border-radius: 999px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
         .rank-tab:hover { background: rgba(79,70,229,0.14); }
         .rank-tab.active { background: #4f46e5; color: #fff; border-color: #4f46e5; }
         .rank-modal-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
-        .rank-modal-row { display: grid; grid-template-columns: 52px 1.5fr 86px 84px; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; border: 1px solid rgba(148,163,184,0.14); background: rgba(248,250,252,0.9); }
+        .rank-modal-row { display: grid; grid-template-columns: 44px minmax(0,1fr) 104px 168px; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; border: 1px solid rgba(148,163,184,0.14); background: rgba(248,250,252,0.9); }
         .rank-modal-index { width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #eef2ff, #e2e8f0); color: #4f46e5; font-weight: 800; }
+        .rank-modal-game { min-width: 0; }
         .rank-modal-name { font-weight: 700; color: #1e293b; word-break: break-word; }
+        .rank-modal-author { margin-top: 2px; min-height: 16px; }
         .rank-modal-count { color: #475569; font-weight: 700; text-align: right; }
-        .rank-modal-link { color: #4f46e5; text-decoration: none; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; justify-content: center; width: 100%; }
+        .rank-modal-count small { font-size: 0.72rem; color: #64748b; }
+        .rank-modal-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+        .rank-modal-link { color: #4f46e5; text-decoration: none; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
 
         /* 游戏列表 */
         .games-container {
@@ -1230,7 +1264,8 @@ html.dark-mode .lelele-settings-card { background: rgba(30,41,59,0.92); }
             .modal { padding: 1.2rem; max-width: 100%; border-radius: 1.2rem; }
             .modal-header { font-size: 1.2rem; }
             .btn-fav-list { padding: 8px 12px; font-size: 13px; }
-            .rank-modal-row { grid-template-columns: 42px 1fr 72px 72px; }
+            .rank-modal-row { grid-template-columns: 34px minmax(0,1fr) 76px; gap: 8px; padding: 10px 12px; }
+            .rank-modal-actions { grid-column: 2 / -1; justify-content: flex-start; }
         }
 
 /* --- index.html inline style block 2 --- */
