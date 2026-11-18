@@ -443,9 +443,10 @@ function showPreview(game) {
     
     document.getElementById('btnPlay').onclick = () => {
         if (window.leleleTrack) {
-            window.leleleTrack('play-game_' + (game.name_zh || game.name)); 
+            window.leleleTrack('play-game_' + (game.name_zh || game.name));
         }
-        if (game.url) window.open(game.url, '_blank', 'noopener,noreferrer');
+        // 统一走独立播放器 play.html（与详情页「开始游戏」一致），不再 window.open 直链
+        window.location.href = `play.html?id=${game.id}${isEn ? '&lang=en' : '&lang=zh'}`;
     };
     
     updateFavUI(game.id);
