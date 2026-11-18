@@ -1,6 +1,16 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.16 (后台双语 + 主动复验) —— dashboard 头像/资料/注销等提示补齐英文，
+ *   apply-certification.html / stats.html 补早期语言脚本修复 ?lang=en；
+ *   设置面板新增低调的主动 reCAPTCHA 复验入口，通过后刷新 7 天倒计时。
+ *   common.js / recaptcha.js / dashboard.html 字节已变故升缓存版本。
+ *
+ * ★ v1.15 (榜单双语与参数) —— favgames.html / gamecheck.html 补齐中英双语
+ *   UI 并支持 ?lang / ?range / ?limit 参数；about.html 将「了了了读」改为已上线
+ *   链接。两页字节已变故升 CACHE_NAME 清 v1.14 旧缓存；三分支 fetch 策略、
+ *   cacheKeyFor() 与预缓存清单未改动。
+ *
  * ★ v1.14 (文档/站点地图一致性) —— authorlevel.html 补 head 早期语言脚本（修
  *   ?lang=en 不生效）、sitemap.xml / sitemap.html 由 scripts/gen-sitemap.py 全量重建
  *   （补齐 id 23–32、作者 8–10、play/stats/favgames 等页面）。预缓存清单同时补上
@@ -78,7 +88,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.14';
+const CACHE_NAME = 'lelele-pwa-v1.16';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。

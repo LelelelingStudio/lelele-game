@@ -1,6 +1,26 @@
 <!DOCTYPE html>
 <html lang="zh" data-lang="zh">
 <head>
+<script>
+    (function() {
+        try {
+            var urlParams = new URLSearchParams(window.location.search);
+            var urlLang = urlParams.get('lang');
+            var storedLang = localStorage.getItem('lelele_lang');
+            var lang;
+            if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+            else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+            else {
+                var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                if (navLang.indexOf('zh') === 0) lang = 'zh';
+                else if (navLang.indexOf('en') === 0) lang = 'en';
+                else lang = 'zh';
+            }
+            document.documentElement.setAttribute('data-lang', lang);
+            document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+        } catch (e) {}
+    })();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>开发者数据大屏 · Developer Stats</title>

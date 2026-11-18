@@ -1565,6 +1565,13 @@ function leleleOnReady(fn) {
                     '<div class="lelele-settings-label">' + tr('游戏方块大小', 'Game card size') + '</div>' +
                     sizeSlider('card', tr('游戏方块', 'Game cards')) +
                 '</div>' +
+                '<div class="lelele-settings-section" id="leleleCaptchaSection">' +
+                    '<div class="lelele-settings-label">' + tr('账号安全', 'Account security') + '</div>' +
+                    '<div class="lelele-captcha-row">' +
+                        '<button type="button" class="lelele-captcha-btn" id="leleleCaptchaBtn">' + tr('我现在有时间，主动验证 reCAPTCHA', 'I have time now — verify reCAPTCHA') + '</button>' +
+                        '<span class="lelele-captcha-state" id="leleleCaptchaState"></span>' +
+                    '</div>' +
+                '</div>' +
             '</div>';
         document.body.appendChild(panel);
         panel.querySelector('.lelele-settings-backdrop').addEventListener('click', closeSettings);
@@ -1587,6 +1594,7 @@ function leleleOnReady(fn) {
             catch (err) { toast(err.message || tr('上传失败', 'Upload failed')); }
         });
         panel.querySelector('.lelele-bg-clear').addEventListener('click', clearCustomBg);
+        bindManualCaptcha(panel);
         panel.querySelectorAll('.lelele-size-range').forEach((r) => {
             r.addEventListener('input', () => {
                 const key = r.dataset.key, v = parseFloat(r.value);
@@ -1599,6 +1607,77 @@ function leleleOnReady(fn) {
         if (cur) panel.querySelectorAll('.lelele-accent-dot').forEach((d) => d.classList.toggle('active', d.dataset.accent === cur));
         return panel;
     }
+    // 主动复验：未登录时隐藏入口；已登录点击后走与投稿相同的验证链路，通过后刷新 7 天倒计时
+    function renderCaptchaState(stateEl, status) {
+        if (!stateEl) return;
+        if (!status) { stateEl.textContent = ''; return; }
+        if (status.locallyVerified) {
+            const due = status.nextDueAt ? new Date(status.nextDueAt) : null;
+            if (due && Number.isFinite(due.getTime())) {
+                const days = Math.max(0, Math.ceil((due.getTime() - Date.now()) / 864e5));
+                stateEl.textContent = tr('已验证，剩余约 ' + days + ' 天', 'Verified · ~' + days + ' days left');
+            } else {
+                stateEl.textContent = tr('已验证', 'Verified');
+            }
+        } else if (status.required && status.due) {
+            stateEl.textContent = tr('验证已到期', 'Verification due');
+        } else {
+            stateEl.textContent = tr('当前无需验证', 'No verification required');
+        }
+    }
+
+    async function refreshCaptchaState(btn, stateEl) {
+        try {
+            if (typeof supabaseClient === 'undefined' || !supabaseClient) throw new Error('no session');
+            const { data } = await supabaseClient.auth.getSession();
+            const session = data && data.session;
+            if (!session) {
+                if (btn) btn.style.display = 'none';
+                if (stateEl) stateEl.textContent = '';
+                return null;
+            }
+            const client = await loadCaptchaClient();
+            const status = await client.getStatus(session, { force: true });
+            renderCaptchaState(stateEl, status);
+            return { client, session, status };
+        } catch (e) {
+            if (stateEl) stateEl.textContent = '';
+            return null;
+        }
+    }
+
+    function bindManualCaptcha(panel) {
+        const btn = panel.querySelector('#leleleCaptchaBtn');
+        const stateEl = panel.querySelector('#leleleCaptchaState');
+        if (!btn) return;
+
+        refreshCaptchaState(btn, stateEl).then((ctx) => {
+            if (!ctx) return;
+            btn.addEventListener('click', async () => {
+                if (btn.disabled) return;
+                btn.disabled = true;
+                const prev = btn.textContent;
+                btn.textContent = tr('正在验证…', 'Verifying…');
+                try {
+                    let status;
+                    try {
+                        status = await ctx.client.requireCurrentVerification(ctx.session);
+                    } catch (error) {
+                        await ctx.client.showReverificationModal(ctx.session, 'manual_reverify');
+                        status = await ctx.client.getStatus(ctx.session, { force: true });
+                    }
+                    renderCaptchaState(stateEl, status);
+                    toast(tr('验证通过，7 天倒计时已刷新', 'Verified — the 7-day timer has been refreshed'));
+                } catch (error) {
+                    toast((error && error.message) || tr('验证失败，请重试', 'Verification failed. Please retry.'));
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = prev;
+                }
+            });
+        });
+    }
+
     function openSettings() { buildSettingsPanel().classList.add('active'); }
     function closeSettings() { const p = document.getElementById('leleleSettings'); if (p) p.classList.remove('active'); }
     function initSettings() {

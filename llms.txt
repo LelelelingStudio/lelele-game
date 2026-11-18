@@ -63,8 +63,8 @@ Event naming conventions (important):
 - Game catalog / discovery: `/index.html`
 - Game detail: `/game.html?id=<id>`
 - Standalone player: `/play.html?id=<id>` (games load as `?embed=1` inside a clean shell)
-- Favorites leaderboard: `/favgames.html`
-- Play/visit leaderboard: `/gamecheck.html`
+- Favorites leaderboard: `/favgames.html` (params: `lang=zh|en`, `range=today|7d|30d|90d|12mo`, `limit=5|10|20|all`)
+- Play/visit leaderboard: `/gamecheck.html` (same params: `lang`, `range`, `limit`)
 - Visual stats dashboard: `/stats.html`
 - Developer docs: `/developer_docs.html`
 - Game rules: `/game_rules.html` · Legal templates: `/legal_templates.html`

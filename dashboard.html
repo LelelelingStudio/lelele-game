@@ -453,7 +453,7 @@
                     </div>
                     <div class="form-group">
                         <label><span class="zh-inline">个人简介</span><span class="en-inline">Bio</span></label>
-                        <textarea id="inputBio" placeholder="介绍一下你自己... / Introduce yourself..."></textarea>
+                        <textarea id="inputBio" data-placeholder-zh="介绍一下你自己..." data-placeholder-en="Introduce yourself..."></textarea>
                     </div>
                     <button class="btn btn-primary" onclick="saveProfile()">
                         <span class="zh-inline">保存更改</span><span class="en-inline">Save Changes</span>
@@ -569,11 +569,11 @@
             <h3 style="text-align: center;"><span class="zh-inline">重置您的密码</span><span class="en-inline">Reset Your Password</span></h3>
             <p style="text-align: center;"><span class="zh-inline">请为您的账号设置一个新密码。</span><span class="en-inline">Please set a new password for your account.</span></p>
             <div class="form-group" style="margin-bottom: 16px;">
-                <input type="password" id="forceNewPassword" placeholder="新密码 / New Password" autocomplete="new-password" oninput="onPasswordInput('force')">
+                <input type="password" id="forceNewPassword" data-placeholder-zh="新密码" data-placeholder-en="New Password" autocomplete="new-password" oninput="onPasswordInput('force')">
             </div>
             <div class="pwd-requirements" id="pwdReqForce" style="margin-top:-8px;margin-bottom:16px;"></div>
             <div class="form-group" style="margin-bottom: 24px;">
-                <input type="password" id="forceConfirmPassword" placeholder="确认密码 / Confirm Password" autocomplete="new-password">
+                <input type="password" id="forceConfirmPassword" data-placeholder-zh="确认密码" data-placeholder-en="Confirm Password" autocomplete="new-password">
             </div>
             <button class="btn btn-primary" style="width: 100%;" onclick="changePassword('force')">
                 <span class="zh-inline">保存新密码</span><span class="en-inline">Save New Password</span>
@@ -738,7 +738,15 @@
                 unlinkSuccess:       '已解绑 / Unlinked successfully',
                 unbindConfirm:       '确定解绑该登录方式吗？/ Unlink this provider?',
                 linkedLabel:         '已绑定 / Linked',
-                unlinkedLabel:       '未绑定 / Not linked'
+                unlinkedLabel:       '未绑定 / Not linked',
+                avatarTooLarge:      '图片过大，请选择小一点的图片',
+                avatarUploadFail:    '上传失败: ',
+                nameEmpty:           '名字不能为空',
+                saveFail:            '保存失败: ',
+                saveSuccess:         '保存成功！',
+                deleteConfirmType:   '请输入 DELETE',
+                deleteFail:          '注销失败: ',
+                deleteSuccess:       '账号已注销'
             },
             en: {
                 slowUp: 'Slowly growing...', fastUp: 'Rising fast!', rocketUp: 'Trending!',
@@ -769,7 +777,15 @@
                 unlinkSuccess:       'Unlinked successfully',
                 unbindConfirm:       'Unlink this provider?',
                 linkedLabel:         'Linked',
-                unlinkedLabel:       'Not linked'
+                unlinkedLabel:       'Not linked',
+                avatarTooLarge:      'Image too large. Please choose a smaller image.',
+                avatarUploadFail:    'Upload failed: ',
+                nameEmpty:           'Name cannot be empty',
+                saveFail:            'Save failed: ',
+                saveSuccess:         'Saved!',
+                deleteConfirmType:   'Type DELETE',
+                deleteFail:          'Deletion failed: ',
+                deleteSuccess:       'Account deleted'
             }
         };
         const getLang = () => document.documentElement.getAttribute('data-lang') || 'zh';
@@ -1047,7 +1063,9 @@
             const oldPwdEl = document.getElementById('currentPassword');
             if (!oldPwdEl) return;
             oldPwdEl.disabled = true;
-            oldPwdEl.placeholder = getLang() === 'zh' ? 'Google 登录账号未设置密码' : 'Google account has no password';
+            oldPwdEl.dataset.placeholderZh = 'Google 登录账号未设置密码';
+            oldPwdEl.dataset.placeholderEn = 'Google account has no password';
+            oldPwdEl.placeholder = getLang() === 'zh' ? oldPwdEl.dataset.placeholderZh : oldPwdEl.dataset.placeholderEn;
             const hint = oldPwdEl.nextElementSibling;
             if (hint) {
                 hint.innerHTML =
@@ -1694,7 +1712,7 @@
 
                     canvas.toBlob(async (blob) => {
                         if (blob.size > 51200) {
-                            alert('图片过大，请选择小一点的图片 / Image too large');
+                            alert(t('avatarTooLarge'));
                             return;
                         }
                         const ext = file.name.split('.').pop();
@@ -1702,7 +1720,7 @@
 
                         const { error: uploadError } = await supabaseClient.storage.from('avatars').upload(filePath, blob);
                         if (uploadError) {
-                            alert('上传失败: ' + uploadError.message);
+                            alert(t('avatarUploadFail') + uploadError.message);
                             return;
                         }
 
@@ -1722,7 +1740,7 @@
             const newBio = document.getElementById('inputBio').value.trim();
             const newAvatar = userProfile.tempAvatarUrl || userProfile.avatar_url;
 
-            if (!newName) return alert('名字不能为空 / Name cannot be empty');
+            if (!newName) return alert(t('nameEmpty'));
 
             const updates = {
                 display_name: newName,
@@ -1731,9 +1749,9 @@
             };
 
             const { error } = await supabaseClient.from('profiles').update(updates).eq('id', currentUser.id);
-            if (error) return alert('保存失败: ' + error.message);
+            if (error) return alert(t('saveFail') + error.message);
 
-            alert('保存成功！ / Saved!');
+            alert(t('saveSuccess'));
             userProfile.display_name = newName;
             userProfile.bio = newBio;
             userProfile.avatar_url = newAvatar;
@@ -1749,13 +1767,13 @@
         };
         window.executeDelete = async function() {
             const val = document.getElementById('deleteConfirmInput').value;
-            if (val !== 'DELETE') return alert('请输入 DELETE / Type DELETE');
+            if (val !== 'DELETE') return alert(t('deleteConfirmType'));
 
             const { error } = await supabaseClient.rpc('delete_user');
-            if (error) return alert('注销失败: ' + error.message);
+            if (error) return alert(t('deleteFail') + error.message);
 
             await supabaseClient.auth.signOut();
-            alert('账号已注销 / Account deleted');
+            alert(t('deleteSuccess'));
             window.location.href = '/index.html';
         };
 
@@ -1781,6 +1799,13 @@
             });
         }
 
+        // 带 data-placeholder-zh / data-placeholder-en 的输入框，随语言切换占位文案
+        function syncPlaceholders(lang) {
+            document.querySelectorAll('[data-placeholder-zh]').forEach(el => {
+                el.placeholder = lang === 'en' ? (el.dataset.placeholderEn || '') : (el.dataset.placeholderZh || '');
+            });
+        }
+
         window.switchLang = function(lang) {
             if (typeof setLang === 'function') {
                 setLang(lang);
@@ -1790,6 +1815,7 @@
                 try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
             }
             syncLangButtons(lang);
+            syncPlaceholders(lang);
 
             if (myGames.length > 0) {
                 fillGameSelector();
@@ -1819,8 +1845,9 @@
             // 绑定身份（第三方）的 OAuth 回跳：留在本页完成，避免跳登录页建新号
             handleOAuthLinkReturn().catch(function () {});
 
-            // 同步语言按钮状态
+            // 同步语言按钮状态与占位文案
             syncLangButtons(getLang());
+            syncPlaceholders(getLang());
 
             // 拦截 PASSWORD_RECOVERY（SDK 未就绪时跳过，避免中断本页其余初始化）
             if (window.supabaseClient && window.supabaseClient.auth) {

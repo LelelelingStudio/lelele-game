@@ -1,11 +1,32 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>游戏实时数据看板</title>
-    <meta name="description" content="了了了游游戏实时数据看板。Real-time game analytics dashboard of Lelele Game.">
+    <title>游戏游玩榜 · Plays Leaderboard</title>
+    <meta name="description" content="了了了游游戏游玩排行榜。Real-time play leaderboard of Lelele Game.">
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
     <script src="/boot.js"></script>
+    <link rel="stylesheet" href="/common.css">
     <style>
         :root {
             --bg: #f8fafc;
@@ -23,9 +44,12 @@
         .container { max-width: 1200px; margin: 0 auto; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
         h1 { margin: 0; font-size: 24px; }
-        .controls { display: flex; gap: 10px; flex-wrap: wrap; }
+        .controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         select { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-main); font-size: 14px; cursor: pointer; outline: none; }
         select:hover { border-color: var(--primary); }
+        .lang-switch { display:inline-flex; gap:6px; }
+        .lang-btn { padding:8px 14px; border-radius:8px; border:1px solid var(--border); background:var(--card-bg); color:var(--text-muted); font-size:14px; cursor:pointer; }
+        .lang-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
         @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
         .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid var(--border); padding: 20px; overflow: hidden; }
@@ -45,48 +69,171 @@
         tr:hover { background: var(--primary-light); }
         .loading { text-align: center; padding: 50px; color: var(--text-muted); }
         .error { text-align: center; padding: 20px; color: red; display: none; }
+        .foot { text-align:center; color:var(--text-muted); font-size:13px; margin-top:24px; }
+        .foot a { color:var(--primary); text-decoration:none; }
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text { display: block; }
+        html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+        html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <h1>🎮 游戏数据看板</h1>
+        <h1>
+            <span class="zh-inline">🎮 游戏游玩榜</span>
+            <span class="en-inline">🎮 Plays Leaderboard</span>
+        </h1>
         <div class="controls">
-            <select id="timeRange" onchange="fetchData()">
-                <option value="today">今天</option>
-                <option value="7d">近 7 天</option>
-                <option value="30d" selected>近 30 天</option>
-                <option value="90d">近 90 天</option>
-                <option value="12mo">近 12 个月</option>
+            <select id="timeRange" onchange="syncParamsAndFetch()">
+                <option value="today">今天 / Today</option>
+                <option value="7d">近 7 天 / 7d</option>
+                <option value="30d" selected>近 30 天 / 30d</option>
+                <option value="90d">近 90 天 / 90d</option>
+                <option value="12mo">近 12 个月 / 12mo</option>
             </select>
-            <select id="topLimit" onchange="fetchData()">
+            <select id="topLimit" onchange="syncParamsAndFetch()">
                 <option value="5">Top 5</option>
                 <option value="10" selected>Top 10</option>
                 <option value="20">Top 20</option>
-                <option value="all">查看全部</option>
+                <option value="all">查看全部 / All</option>
             </select>
+            <div class="lang-switch" role="group">
+                <button type="button" class="lang-btn" data-lang-btn="zh" onclick="switchLang('zh')">中文</button>
+                <button type="button" class="lang-btn" data-lang-btn="en" onclick="switchLang('en')">English</button>
+            </div>
             <button type="button" id="exportCsvBtn" style="padding:8px 14px;border-radius:10px;border:1px solid rgba(79,70,229,.3);background:rgba(79,70,229,.08);color:#4f46e5;font-weight:700;cursor:pointer;">⬇ CSV</button>
         </div>
     </div>
-    <div id="loading" class="loading">数据加载中...</div>
-    <div id="error" class="error">加载失败，请确保后端接口已部署并允许跨域</div>
+    <div id="loading" class="loading"><span class="zh-inline">数据加载中...</span><span class="en-inline">Loading...</span></div>
+    <div id="error" class="error"><span class="zh-inline">加载失败，请确保后端接口已部署并允许跨域</span><span class="en-inline">Load failed. Please check the analytics backend and CORS.</span></div>
     <div class="grid" id="rankContainer" style="display: none;">
-        <div class="card"><h2>🔥 热门排行</h2><div id="topList"></div></div>
-        <div class="card"><h2>🧊 冷门排行</h2><div id="bottomList"></div></div>
+        <div class="card"><h2><span class="zh-inline">🔥 热门排行</span><span class="en-inline">🔥 Most Played</span></h2><div id="topList"></div></div>
+        <div class="card"><h2><span class="zh-inline">🧊 冷门排行</span><span class="en-inline">🧊 Least Played</span></h2><div id="bottomList"></div></div>
     </div>
     <div class="table-container" id="tableContainer" style="display: none;">
-        <table><thead><tr><th>排名</th><th>游戏名称</th><th>访问次数</th><th>占比</th></tr></thead><tbody id="tableBody"></tbody></table>
+        <table>
+            <thead>
+                <tr>
+                    <th><span class="zh-inline">排名</span><span class="en-inline">Rank</span></th>
+                    <th><span class="zh-inline">游戏名称</span><span class="en-inline">Game</span></th>
+                    <th><span class="zh-inline">访问次数</span><span class="en-inline">Plays</span></th>
+                    <th><span class="zh-inline">占比</span><span class="en-inline">Share</span></th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+    <div class="foot">
+        <a id="linkFav" href="/favgames.html">⭐ <span class="zh-inline">查看收藏榜</span><span class="en-inline">Favorites Leaderboard</span></a>
+        ·
+        <a id="linkHome" href="/index.html"><span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span></a>
     </div>
 </div>
 <script>
-    // 这里使用了绝对路径，直接请求你的 analytics 域名
     const BASE_API = 'https://analytics.leleleling.site/api/breakdown?site=1&cmp=1&limit=1000&dim=path,referrer,event,country,device';
+    const RANGES = ['today', '7d', '30d', '90d', '12mo'];
+    const LIMITS = ['5', '10', '20', 'all'];
+
+    let gameNameMap = null;
+
+    function getLang() {
+        return document.documentElement.getAttribute('data-lang') === 'en' ? 'en' : 'zh';
+    }
+
+    function t(zh, en) { return getLang() === 'en' ? en : zh; }
+
+    function readParams() {
+        const params = new URLSearchParams(window.location.search);
+        let lang = params.get('lang');
+        if (lang !== 'zh' && lang !== 'en') {
+            try { lang = localStorage.getItem('lelele_lang'); } catch (e) {}
+        }
+        if (lang !== 'zh' && lang !== 'en') lang = 'zh';
+
+        let range = params.get('range');
+        if (!RANGES.includes(range)) range = '30d';
+
+        let limit = params.get('limit');
+        if (!LIMITS.includes(limit)) limit = '10';
+
+        return { lang, range, limit };
+    }
+
+    function applyParamsToUI() {
+        const { lang, range, limit } = readParams();
+        document.documentElement.setAttribute('data-lang', lang);
+        document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+        const rangeSel = document.getElementById('timeRange');
+        const limitSel = document.getElementById('topLimit');
+        if (rangeSel && RANGES.includes(range)) rangeSel.value = range;
+        if (limitSel && LIMITS.includes(limit)) limitSel.value = limit;
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.langBtn === lang);
+        });
+        updateFooterLinks(lang);
+    }
+
+    function updateFooterLinks(lang) {
+        const suffix = lang === 'en' ? '?lang=en' : '';
+        const linkFav = document.getElementById('linkFav');
+        const linkHome = document.getElementById('linkHome');
+        if (linkFav) linkFav.href = '/favgames.html' + suffix;
+        if (linkHome) linkHome.href = '/index.html' + suffix;
+    }
+
+    function syncParamsToUrl() {
+        const params = new URLSearchParams(window.location.search);
+        params.set('lang', getLang());
+        params.set('range', document.getElementById('timeRange').value);
+        params.set('limit', document.getElementById('topLimit').value);
+        const newUrl = window.location.pathname + '?' + params.toString();
+        if (newUrl !== window.location.pathname + window.location.search) {
+            history.replaceState(null, '', newUrl);
+        }
+    }
+
+    function switchLang(lang) {
+        try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
+        document.documentElement.setAttribute('data-lang', lang);
+        document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.langBtn === lang);
+        });
+        syncParamsToUrl();
+        updateFooterLinks(lang);
+        fetchData();
+    }
+
+    async function loadGameNames() {
+        if (gameNameMap) return gameNameMap;
+        try {
+            const res = await fetch('/lelegame_data.json', { cache: 'no-store' });
+            const list = res.ok ? await res.json() : [];
+            gameNameMap = { byId: {}, byName: {} };
+            list.forEach(g => {
+                const entry = {
+                    zh: g.name_zh || g.name_en || g.name || String(g.id),
+                    en: g.name_en || g.name_zh || g.name || String(g.id)
+                };
+                gameNameMap.byId[String(g.id)] = entry;
+                [g.name_zh, g.name_en, g.name].forEach(n => {
+                    if (n) gameNameMap.byName[String(n)] = entry;
+                });
+            });
+        } catch (e) { gameNameMap = { byId: {}, byName: {} }; }
+        return gameNameMap;
+    }
 
     async function fetchData() {
+        syncParamsToUrl();
         const range = document.getElementById('timeRange').value;
         const limitType = document.getElementById('topLimit').value;
-        
+        const lang = getLang();
+
         document.getElementById('loading').style.display = 'block';
+        document.getElementById('loading').innerText = t('数据加载中...', 'Loading...');
         document.getElementById('error').style.display = 'none';
         document.getElementById('rankContainer').style.display = 'none';
         document.getElementById('tableContainer').style.display = 'none';
@@ -98,32 +245,41 @@
             const url = BASE_API + '&range=' + range;
             const response = await window.leleleFetch(url);
             if (!response.ok) throw new Error('网络请求失败');
-            
+
             const data = await response.json();
+            const names = await loadGameNames();
             const events = data.breakdowns && data.breakdowns.event ? data.breakdowns.event : [];
-            
+
             let games = events
                 .filter(item => item.name.startsWith('play-game'))
-                .map(item => ({ 
-                    name: item.name.replace('play-game_', '').replace('play-game', '未知游戏'), 
-                    count: item.value 
-                }))
+                .map(item => {
+                    const raw = item.name.replace('play-game_', '').replace('play-game', '');
+                    const entry = (names.byId && names.byId[raw]) || (names.byName && names.byName[raw]) || {
+                        zh: raw || t('未知游戏', 'Unknown'),
+                        en: raw || t('未知游戏', 'Unknown')
+                    };
+                    return {
+                        id: raw,
+                        name: entry[lang] || entry.zh || raw || t('未知游戏', 'Unknown'),
+                        count: Number(item.value || 0)
+                    };
+                })
                 .sort((a, b) => b.count - a.count);
-                
+
             const totalViews = games.reduce((sum, item) => sum + item.count, 0);
-            
-            if (games.length === 0) { 
-                document.getElementById('loading').innerText = '当前时间段暂无游戏数据'; 
-                return; 
+
+            if (games.length === 0) {
+                document.getElementById('loading').innerText = t('当前时间段暂无游戏数据', 'No play data for this range yet.');
+                return;
             }
-            
+
             document.getElementById('loading').style.display = 'none';
-            
+
             if (limitType === 'all') {
                 document.getElementById('tableContainer').style.display = 'block';
                 renderFullTable(games, totalViews);
             } else {
-                const n = parseInt(limitType);
+                const n = parseInt(limitType, 10);
                 document.getElementById('rankContainer').style.display = 'grid';
                 renderRank('topList', games.slice(0, n), true);
                 const bottomN = games.slice(-n).reverse();
@@ -135,8 +291,8 @@
             const msg = document.getElementById('error');
             const noData = err && /no data|empty|暂无/i.test(String(err.message || err));
             msg.textContent = noData
-                ? (document.documentElement.getAttribute('data-lang') === 'en' ? 'No data for this range yet.' : '该时间范围暂无数据。')
-                : (document.documentElement.getAttribute('data-lang') === 'en' ? 'Network error - please check the analytics backend and CORS.' : '网络请求失败，请检查统计后端是否可用或跨域设置。');
+                ? t('该时间范围暂无数据。', 'No data for this range yet.')
+                : t('网络请求失败，请检查统计后端是否可用或跨域设置。', 'Network error - please check the analytics backend and CORS.');
             msg.style.display = 'block';
         }
     }
@@ -146,7 +302,9 @@
         div.className = 'list-item';
         let rankClass = 'rank';
         if (isTop && index < 3) rankClass += ' rank-' + (index + 1);
-        div.innerHTML = '<div class="game-name"><span class="' + rankClass + '">' + (index + 1) + '</span><span>' + item.name + '</span></div><div class="game-value">' + item.count + ' 次</div>';
+        div.innerHTML = '<div class="game-name"><span class="' + rankClass + '">' + (index + 1) + '</span><span></span></div><div class="game-value"></div>';
+        div.querySelector('.game-name span:last-child').textContent = item.name;
+        div.querySelector('.game-value').textContent = item.count + ' ' + t('次', 'plays');
         return div;
     }
 
@@ -160,19 +318,28 @@
         games.forEach((item, index) => {
             const tr = document.createElement('tr');
             const percent = totalViews > 0 ? ((item.count / totalViews) * 100).toFixed(1) : 0;
-            tr.innerHTML = '<td style="color: var(--text-muted);">' + (index + 1) + '</td><td style="font-weight: 500;">' + item.name + '</td><td style="color: var(--primary); font-weight: bold;">' + item.count + '</td><td style="color: var(--text-muted);">' + percent + '%</td>';
+            tr.innerHTML = '<td style="color: var(--text-muted);"></td><td style="font-weight: 500;"></td><td style="color: var(--primary); font-weight: bold;"></td><td style="color: var(--text-muted);"></td>';
+            const cells = tr.querySelectorAll('td');
+            cells[0].textContent = index + 1;
+            cells[1].textContent = item.name;
+            cells[2].textContent = item.count;
+            cells[3].textContent = percent + '%';
             tbody.appendChild(tr);
         });
     }
 
-    fetchData();
+    function syncParamsAndFetch() {
+        syncParamsToUrl();
+        fetchData();
+    }
 
-    // 导出当前表格为 CSV（#18）
+    // 导出当前表格为 CSV
     function exportCsv() {
         const rows = [...document.querySelectorAll('#tableBody tr')];
         if (!rows.length) return;
         const esc = s => '"' + String(s || '').replace(/"/g, '""') + '"';
-        const lines = [['排名','游戏名称','访问次数','占比'].map(esc).join(',')];
+        const header = [t('排名', 'Rank'), t('游戏名称', 'Game'), t('访问次数', 'Plays'), t('占比', 'Share')];
+        const lines = [header.map(esc).join(',')];
         rows.forEach(r => lines.push([...r.querySelectorAll('td')].map(td => esc(td.textContent.trim())).join(',')));
         const blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
         const a = document.createElement('a');
@@ -182,10 +349,19 @@
         setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     }
     document.getElementById('exportCsvBtn')?.addEventListener('click', exportCsv);
+
+    applyParamsToUI();
+    fetchData();
+
+    window.addEventListener('langChanged', () => {
+        applyParamsToUI();
+        fetchData();
+    });
 </script>
 
 <div style="margin:28px 0 10px;text-align:center;font-size:.88rem;color:#64748b">
-    <a href="user_agreement.html" style="color:#4a6cff">用户协议</a> · <a href="user_agreement.html?lang=en" style="color:#4a6cff">User Agreement</a> · <a href="legal_templates.html" style="color:#4a6cff">协议模板中心</a>
+    <a href="user_agreement.html" style="color:#4a6cff"><span class="zh-inline">用户协议</span><span class="en-inline">User Agreement</span></a>
+    · <a href="legal_templates.html" style="color:#4a6cff"><span class="zh-inline">协议模板中心</span><span class="en-inline">Legal Templates</span></a>
 </div>
 </body>
 </html>

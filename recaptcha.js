@@ -7,7 +7,7 @@
         return;
     }
 
-    const ACTIONS = new Set(['login', 'register', 'periodic_reverify']);
+    const ACTIONS = new Set(['login', 'register', 'periodic_reverify', 'manual_reverify']);
     const CACHE_KEY = 'lelele_captcha_status';
     // 本地“已验证”记忆：验证通过后的 7 天内视为已验证，避免服务端 due 标志未持久化导致“每次访问都复验”
     const LOCAL_VERIFIED_KEY = 'lelele_captcha_verified_at';
@@ -415,8 +415,9 @@
         return container;
     }
 
-    function showReverificationModal(session) {
+    function showReverificationModal(session, action) {
         if (modalPromise) return modalPromise;
+        action = action || 'periodic_reverify';
         modalPromise = new Promise((resolve, reject) => {
             const overlay = document.createElement('div');
             overlay.className = 'recaptcha-modal-overlay active';
@@ -459,7 +460,7 @@
                 retry.hidden = true;
                 status.textContent = text('正在进行无感验证…', 'Running a background check…');
                 try {
-                    const result = await ensure('periodic_reverify', {
+                    const result = await ensure(action, {
                         container: inline,
                         onState(state) {
                             if (state === 'v2') status.textContent = text('需要进一步确认', 'One more check is required');
@@ -468,7 +469,7 @@
                     });
                     // 熔断放行：跳过 consume 直接通过
                     if (result.skipped) { finishPass(); return; }
-                    await consume(result.ticket, 'periodic_reverify', session);
+                    await consume(result.ticket, action, session);
                     finishPass();
                 } catch (error) {
                     const server = isServerError(error);

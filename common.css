@@ -637,6 +637,15 @@ html.dark-mode .lelele-settings-card { background: rgba(30,41,59,0.92); }
     transition: background 0.2s, border-color 0.2s; box-sizing: border-box; font-family: inherit;
 }
 .lelele-bg-upload:hover, .lelele-bg-clear:hover { border-color: var(--accent); color: var(--accent); }
+.lelele-captcha-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.lelele-captcha-btn {
+    border: 1px dashed var(--card-border, rgba(148,163,184,0.35)); background: transparent; color: var(--text-muted);
+    border-radius: 12px; padding: 9px 14px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.lelele-captcha-btn:hover { color: var(--accent); border-color: var(--accent); background: rgba(148,163,184,0.08); }
+.lelele-captcha-btn:disabled { opacity: 0.55; cursor: default; }
+.lelele-captcha-state { font-size: 0.78rem; color: var(--text-muted); }
 
 /* ===== 作者认证徽章体系（新增） ===== */
 .lelele-badge {
