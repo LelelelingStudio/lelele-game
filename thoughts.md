@@ -2,7 +2,7 @@
 
 > **这是什么**：一份**待办点子清单**，记录「还可以做什么」——包含新功能、体验优化、架构改进、性能提升与 bug 修复，共 **185 条**。
 > **这不是什么**：`plan.md` 是 4.0.14 审计产生的 170 项**已修问题清单**，属历史档案；`historymd/` 是**已完成的里程碑记录**。本文只写**还没做**的事，不要混为一谈。
-> **版本基准**：2026-11-18 · 站点 `4.3.0` / 规则 `5.0.0` / SW `lelele-pwa-v1.12` · 32 款游戏 / 10 位作者。
+> **版本基准**：2026-11-18 · 站点 `4.3.0` / 规则 `5.0.0` / SW `lelele-pwa-v1.14` · 32 款游戏 / 10 位作者。
 > **怎么用**：挑一条做之前先读 `foraisthings.md` 对应章节确认现状（本文的定位字段可能随改动漂移）；做完把该条删掉或标注完成，并按手册 0.3 节判断是否要在 `historymd/` 写一篇。括号里的「定位」是起点，不是完整改动范围。
 
 ## 分级定义
@@ -68,8 +68,8 @@
 ## 二、🟠 中等升级（25 项）
 
 1. **循环导航复用扩展** — 把 `LelelePager` 用到规则历史快照页、更新日志、公告详情等有顺序的页面，只需传 `ids` / `urlFor`。定位：`pager-nav.js`
-2. **sitemap 自动生成** — `sitemap.xml` + `sitemap.html` 现在只收录到 `id=22`（23–30 缺），改成发版时由主列表自动生成并同步计数。定位：`sitemap.xml` / `sitemap.html`
-3. **修作者等级页语言切换** — `authorlevel.html?level=4&lang=en` 实测仍显示中文，补齐英文等级条件与徽章文案。定位：`authorlevel.html`
+2. ✅ **已完成（2026-11-18）** **sitemap 自动生成** — 新增 `scripts/gen-sitemap.py`，从 `lelegame_data.json` / `authors/index.json` / 根页面重建 `sitemap.xml` 与 `sitemap.html`，计数自动写；已重建至 **147 URL**（32 游戏 + 10 作者 + 全部根页面），并写入手册 7.10。定位：`scripts/gen-sitemap.py` / `sitemap.xml` / `sitemap.html`
+3. ✅ **已完成（2026-11-18）** **修作者等级页语言切换** — `authorlevel.html` 补 head 早期语言脚本（`?lang=` → localStorage → 系统语言），标题与申请链接随语言切换。定位：`authorlevel.html`
 4. **清理死链 manifest** — `game/3Dshooting/index.html` 引用了仓库不存在的 `manifest-ja.json` / `manifest-fr.json`，补文件或删引用。定位：`game/3Dshooting/`
 5. **游戏链接健康探测** — 定期 HEAD 检查 30 个 `url`，在详情页与后台标记失效链接，避免玩家点了才知道打不开。定位：`lelegame_data.json` / `dashboard.html`
 6. **收藏夹云端同步** — 用 Supabase `profiles` 存收藏 id 列表，跨设备一致，未登录时仍回退 localStorage。定位：`common.js` `getFavorites` / `index.js`
@@ -176,15 +176,15 @@
 22. 把长 URL 的 `word-break` 规则从内联提取到 CSS（`sitemap.html`）
 23. 移除 `game/data/25.json` 里遗留的投稿 `email`（`game/data/25.json`）
 24. 全库扫描并清除其它私人联系方式（`*.json` / `game/data/*.json`）
-25. `GAME_ENTRY_TEMPLATE.md` 示例 id 从 23 更新到 31（`GAME_ENTRY_TEMPLATE.md`）
-26. 删除模板里「主列表须带 `version`」这条与实际数据结构不符的规范（`GAME_ENTRY_TEMPLATE.md`）
+25. ✅ **已完成（2026-11-18）** `GAME_ENTRY_TEMPLATE.md` 示例 id 已从 23 更新到 **33**（当前最大 32）（`GAME_ENTRY_TEMPLATE.md`）
+26. ✅ **已完成（2026-11-18）** 模板里「主列表须带 `version`」的表述与实际数据结构不符 —— 已在手册 3.2 标注、模板只保留详情 `version`；另统一 `author` 一律写字符串（`GAME_ENTRY_TEMPLATE.md`）
 27. 发版时同步 `foraisthings.md` 顶部的版本基准日期（`foraisthings.md`）
-28. `plan.md` 首行标注「历史档案，非待办清单」（`plan.md`）
+28. ✅ **已完成（2026-11-18）** `plan.md` 首行已标注「历史档案，非待办清单」（`plan.md`）
 29. `README.md` 补本地运行命令 `python3 -m http.server 8899`（`README.md`）
 30. `README.md` 补 `thoughts.md` / `historymd/` / `foraisthings.md` 的互相指引（`README.md`）
 31. 对齐 `AUTHOR_CERTIFICATION.md` 与 `common.js` 里 Lv4 / Lv5 的条件文案（`AUTHOR_CERTIFICATION.md`）
 32. `LSFP-NOTICE.txt` 补上游 commit hash 与获取日期（`LSFP-NOTICE.txt`）
-33. `sw.js` 头部沿革注释补 v1.11 之后的版本（`sw.js`）
+33. ✅ **已完成（2026-11-18）** `sw.js` 头部沿革注释已补到 **v1.14**（`sw.js`）
 34. 加一个 `ASSETS_TO_CACHE` 去重检查脚本，避免清单重复（`sw.js` / CI）
 35. SW Offline 页面补中英双语文案（`sw.js`）
 36. `networkFirstWithTimeout` 的 1.5s 提取为具名常量（`sw.js`）
@@ -237,8 +237,8 @@
 83. `special_common.json` 的域名 / 路径数组去重（`special_common.json`）
 84. `changelog.json` 的 50 条日期格式统一为 `YYYY-MM-DD`（`changelog.json`）
 85. `manifest-*.json` 的 `start_url` 与 canonical 对齐（`manifest-zh/en.json`）
-86. `sitemap.xml` 的 `lastmod` 用真实更新日期而非固定值（`sitemap.xml`）
-87. `sitemap.xml` 补 `<changefreq>` / `<priority>`（`sitemap.xml`）
+86. ✅ **已完成（2026-11-18）** `sitemap.xml` 的 `lastmod` 由 `gen-sitemap.py` 统一写入（默认当天，可用 `--lastmod` 指定）（`scripts/gen-sitemap.py`）
+87. ✅ **已完成（2026-11-18）** `sitemap.xml` 每条的 `<changefreq>` / `<priority>` 由脚本按页面类型统一产出（`scripts/gen-sitemap.py`）
 88. 规则页页尾历史版本索引按版本号升序排列（`game_rules.html`）
 89. 三份 `game_rules4-0-*.html` 标题统一带「历史留存」字样（`game_rules4-0-*.html`）
 90. `legal_templates.html` 的 5 个导出按钮补 `aria-label`（`legal_templates.html`）

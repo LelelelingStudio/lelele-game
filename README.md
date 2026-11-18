@@ -32,10 +32,10 @@
 | --- | --- |
 | Games in catalog | **32** (17 local · 12 external · 3 internal) |
 | Registered authors | **10** (id 1–10) |
-| Pages | **25** root HTML pages + **13** bundled game directories |
+| Pages | **25** root HTML pages + **12** bundled game directories |
 | Languages | Chinese (zh) + English (en), full UI |
-| Site version (changelog) | **4.1.0** · [Game Rules](game_rules.html) **5.0.0** |
-| Service Worker cache | `lelele-pwa-v1.13` |
+| Site version (changelog) | **4.3.0** · [Game Rules](game_rules.html) **5.0.0** |
+| Service Worker cache | `lelele-pwa-v1.14` |
 | Build step | **None.** No framework, no bundler, no `package.json`, no server-side code |
 | Deployment | Push to `main` → GitHub Pages → Cloudflare (`CNAME`) |
 
@@ -115,7 +115,7 @@ lelele-game/
 ├── play.html                      # Standalone player: clean browser shell, ?id= lookup, embed=1, localStorage saves
 ├── author.html, dashboard.html    # Author profile / developer dashboard
 ├── login.html, gamecheck.html     # Auth / leaderboard
-├── game/                          # 13 bundled game directories + game/data/<id>.json
+├── game/                          # 12 bundled game directories + game/data/<id>.json
 ├── authors/
 │   ├── index.json                 # Authoritative author registry (10 entries)
 │   └── data/<id>.json             # {"games_count": n}, auto-recomputed
@@ -143,6 +143,9 @@ lelele-game/
 ├── AUTHOR_CERTIFICATION.md        # Certification levels Lv.1–6 and badge rules
 ├── thoughts.md / plan.md          # Upgrade idea backlog / historical audit archive
 ├── CNAME, robots.txt, sitemap.*   # Deployment & indexing
+├── scripts/
+│   ├── check-precache.mjs         # Verifies every ASSETS_TO_CACHE path exists
+│   └── gen-sitemap.py             # Rebuilds sitemap.xml / sitemap.html from real data
 └── LICENSE                        # Apache-2.0
 ```
 
@@ -169,7 +172,7 @@ Validation is deliberately strict and runs **server-side, in the Action**, becau
 
 ## Games & Submission
 
-**Current catalog:** 32 titles — 17 `local`, 12 `external`, 3 `internal`. New entries are appended to `lelegame_data.json` with a matching `game/data/<id>.json`.
+**Current catalog:** 32 titles — 17 `local`, 12 `external`, 3 `internal`. New entries are appended to `lelegame_data.json` with a matching `game/data/<id>.json`, then run `python3 scripts/gen-sitemap.py` so `sitemap.xml` / `sitemap.html` stay in sync.
 
 To submit a game, use the **Game Submission** form linked from the site (Tally). Please read [Game Rules 5.0.0](game_rules.html) first — in particular clause **4.6 (Mandatory Legal Agreements)**: link submissions must provide their own EULA / privacy / terms URLs, while code submissions may use the platform's generic agreements. Missing agreements block review.
 

@@ -2,7 +2,7 @@
 
 > **读者**：一个对本仓库**零上下文**的 AI（或人类协作者）。通读本文后，你应该能独立理解架构、数据契约、前后端边界、部署链路、历史遗留问题，并安全地接手任何改造任务。
 > **维护**：本文件由 AI 维护，描述「项目**现在**是什么样」。每次大改动完成后，更新本文相关章节，并在 `historymd/` 新增一篇记录（见 0.3）。
-> **版本基准**：2026-11-18 · 站点 `4.3.0` ·《游戏守则》`5.0.0` · SW 缓存 `lelele-pwa-v1.13` · 32 款游戏（17 local / 12 external / 3 internal）/ 10 位作者 / 15 条公告 / 16 条开发者告示。
+> **版本基准**：2026-11-18 · 站点 `4.3.0` ·《游戏守则》`5.0.0` · SW 缓存 `lelele-pwa-v1.14` · 32 款游戏（17 local / 12 external / 3 internal）/ 10 位作者 / 15 条公告 / 16 条开发者告示。
 > **准确性**：本文所有标识符、常量、字段、域名、表单 ID 均逐文件核实过。行号会随改动漂移，故正文以「文件 + 函数名 / 常量名」定位，不依赖行号。若发现描述与代码冲突，**以代码为准**并顺手修正本文。
 
 ---
@@ -25,7 +25,7 @@
 | `plan.md` | 4.0.14 审计基线产生的 170 项全站问题清单，状态已全标「本轮已修」，属**历史档案** | ✅ |
 | `AUTHOR_CERTIFICATION.md` | 官方认证等级规则（Lv.1–6）、徽章定义、申请流程 | ✅ |
 | `GAME_ENTRY_TEMPLATE.md` | 给 AI 用的「新增外网游戏 JSON 输出规范」（含中英分类对照、视频规则、完整示例） | ✅ |
-| `README.md` | 面向访客/贡献者的**英文**项目说明（2026-11-15 全量重写）：当前数据快照（31 游戏 / 10 作者 / 25 根页面 / SW v1.12）、功能、架构、目录树、数据契约、投稿流程、admin 控制台、部署、文档索引、隐私与 License，含 Star History 图表 | ✅ |
+| `README.md` | 面向访客/贡献者的**英文**项目说明（2026-11-15 全量重写）：当前数据快照（32 游戏 / 10 作者 / 25 根页面 / 站点 4.3.0 / SW v1.14）、功能、架构、目录树、数据契约、投稿流程、admin 控制台、部署、文档索引、隐私与 License，含 Star History 图表 | ✅ |
 | `LSFP-NOTICE.txt` | 内置 `lsfp.js` 的上游 NOTICE + Apache-2.0 全文，合规留存 | ✅ |
 | `github/vertified-application-form.md` | 认证申请表相关留档 | ✅ |
 | `github/admin.html` | 站长**内部**管理控制台（可公开部署，但仅站长持 PAT 可用）：六动作全可用 → 填空/选题或粘贴 JSON → 效果预览 → 触发 Action 落库；文件零密钥、PAT 只存浏览器 | ✅ |
@@ -131,9 +131,9 @@ flowchart TB
 
 | 口径 | 当前值 | 权威位置 | 说明 |
 | --- | --- | --- | --- |
-| **站点版本** | `4.1.0` | `changelog.json` 数组第 1 条 | 三段式 `主.中.微`，规则见 9.1 |
+| **站点版本** | `4.3.0` | `changelog.json` 数组第 1 条 | 三段式 `主.中.微`，规则见 9.1 |
 | **规则版本** | `5.0.0` | `game_rules.html` 版本头 | 《游戏守则》，2026-11-15 生效；**不是站点版本** |
-| **SW 缓存名** | `lelele-pwa-v1.12` | `sw.js` 的 `CACHE_NAME` | 只是缓存版本号，改字节才升，与上面两个无关 |
+| **SW 缓存名** | `lelele-pwa-v1.14` | `sw.js` 的 `CACHE_NAME` | 只是缓存版本号，改字节才升，与上面两个无关 |
 
 历史快照：`game_rules4-0-0.html` / `game_rules4-0-1.html` / `game_rules4-0-2.html`，由 `game_rules.html` 页尾「📚 历史版本」索引互相链接。
 
@@ -187,7 +187,7 @@ flowchart TB
 | 文件 | 职责 | 对外全局 |
 | --- | --- | --- |
 | `boot.js` | 引导层：脚本加载、统一 fetch 超时、作者清单、Tally iframe、日志、内联事件提升、analytics 注入 | `loadScript` `leleleFetch` `onReady` `fetchAuthorsLocal` `fetchAuthorsFresh` `fetchAuthors` `mountTallyIframe` `leleleLog` `leleleLiftInlineClicks` `leleleLastAuthorsError` |
-| `common.js` | 全站共享层（最大，约 78 KB）：多语言、主题、灵动岛、公告、认证徽章、埋点、鉴权注入、PWA、冬季雪天、设置面板 | `leleleTrack` `leleleAuthorBadges` `LELELE_AUTHOR_LEVELS` `setLang` `toggleTheme` `sanitizeAnnouncementHtml` `escapeHtml` `fetchAuthors*` 等 |
+| `common.js` | 全站共享层（最大，约 86 KB）：多语言、主题、灵动岛、公告、认证徽章、埋点、鉴权注入、PWA、冬季雪天、设置面板 | `leleleTrack` `leleleAuthorBadges` `LELELE_AUTHOR_LEVELS` `setLang` `toggleTheme` `sanitizeAnnouncementHtml` `escapeHtml` `fetchAuthors*` 等 |
 | `index.js` | 首页逻辑：列表/筛选/搜索/分页/收藏/预览/投稿/排行榜/随机游玩 | `openModal` `closeModal` `removeFavorite` `renderGames` `toggleFavFromPreview` `toggleRankFav` |
 | `search.js` | 拼音/首字母搜索与高亮 | `leleleSearch` `leleleSearchAuthors` |
 | `notice.js` | **开发者专用定向告示**：登录态 → 作者身份 → 过滤 → 队列弹窗 | `leleleShowNotices` |
@@ -216,7 +216,7 @@ flowchart TB
 
 ### 2.4 子目录
 
-- `game/data/` — **30 个** `1.json`–`30.json`，每个是一款游戏的详情数据（见 3.3）。
+- `game/data/` — **32 个** `1.json`–`32.json`，每个是一款游戏的详情数据（见 3.3）。
 - `game/<slug>/` — 12 个本地游戏本体目录，各含 `index.html`（+ 同目录 `style.css` / `game.js` 等）：`2048_1`、`3Dshooting`、`MCpointygame`、`deleting_bombs`、`eat_planet`、`happycorn`、`leveleating`、`old_happyfarmer`、`popping_banana`、`space_shooting`、`universal_evolution`、`others/2026_7_7/point_the_button`。这些页面通过 `https://game.leleleling.site/common.js` 引全站脚本。
 - `authors/` — `index.json`（**权威源，10 条，id 1–10，由 admin 控制台写入**）+ `data/1.json`–`data/10.json`（各 `{"games_count": n}`，由 `admin-apply.mjs` 的 `recomputeAuthorCounts()` 重算）。两者都不建议手改，见 3.4。
 - `vendor/` — 自托管 UMD：`supabase-js.js`、`pinyin-pro.js`、`echarts.min.js`（4.0.12 起，当前**在用**，旧手册说「已 revert」是错的）。
@@ -224,6 +224,7 @@ flowchart TB
 - `.github/scripts/admin-apply.mjs`（+`.test.mjs`）— `admin-apply.yml` 调用的校验/生成脚本，纯 Node 内置模块，不依赖第三方包。
 - `github/` — `vertified-application-form.md` 留档；`admin.html` 是站长内部管理控制台（见 4.14），可公开部署，不进玩家导航。
 - `historymd/` — 里程碑记录，被忽略，见 0.3。
+- `scripts/` — `check-precache.mjs`（SW 预缓存清单自检，缺文件即报错）、`gen-sitemap.py`（从 `lelegame_data.json` / `authors/index.json` / 根页面重建 `sitemap.xml` 与 `sitemap.html`，新增游戏或作者后跑一次即可，见 7.10）。
 
 ### 2.5 脚本引入矩阵
 
@@ -249,9 +250,9 @@ flowchart TB
 
 ### 3.2 `lelegame_data.json` — 游戏主列表
 
-- 顶层是**数组**（不是 `{games:[…]}`），当前 **30 条，id 1–30 连续**。
-- 字段（11 个，全部必需）：`id`(number)、`name_zh`、`name_en`、`icon`(emoji)、`category_zh`、`category_en`、`type`(`'local'` 本站代码 / `'external'` 外链)、`ageRating_zh`、`ageRating_en`、`author`(数字字符串，指向 `authors/index.json` 的 id)、`url`(可玩地址)。
-- **注意**：`GAME_ENTRY_TEMPLATE.md` 规范要求主列表也带 `version`，但实际文件里**没有** `version` 字段；版本号只在 `game/data/{id}.json`。改数据时以实际文件为准。
+- 顶层是**数组**（不是 `{games:[…]}`），当前 **32 条，id 1–32 连续**。
+- 字段（**12 个，全部现存**）：`id`(number)、`name_zh`、`name_en`、`icon`(emoji)、`category_zh`、`category_en`、`type`(`'local'` 本站代码 / `'external'` 外链 / `'internal'` 站内独立站)、`ageRating_zh`、`ageRating_en`、`author`(数字字符串，指向 `authors/index.json` 的 id)、`url`(可玩地址)、`tags`(`{zh:[], en:[]}`，首页标签多选筛选的数据源)。
+- **注意**：`GAME_ENTRY_TEMPLATE.md` 规范要求主列表也带 `version`，但实际文件里**没有** `version` 字段；版本号只在 `game/data/{id}.json`。改数据时以实际文件为准。`tags` 在实测 32 条里全部非空，属必需语义字段（空可写 `{zh:[],en:[]}`）。
 - 消费者：`index.js` 的 `getCatalog()`（与排行榜共享）、`game.html` 的 `id.json` 404 兜底、`author.html` 的 `loadGames()`、`dashboard.html`、`common.js` 的直链探针、`admin-apply.mjs` 的 `recomputeAuthorCounts()` 统计 `games_count`、`pager-nav.js` 的 id 全集、`sw.js` 的 DATA_PATH_RE。
 - 分类中英对照（来自模板，6 组）：休闲/Casual、冒险/Adventure、射击/Shooter、益智/Puzzle、动作/Action、模拟经营/Simulation。
 - `url` 可以是空串：详情页「开始游戏」会提示「该游戏暂无可用链接」，不崩溃。**收录代码投稿但尚未部署时允许留空，拿到地址后必须同时改主列表与详情 json 两处**。
@@ -259,7 +260,7 @@ flowchart TB
 ### 3.3 `game/data/{id}.json` — 游戏详情
 
 - 每个 id 一个文件，`game.html` 请求 `/game/data/${id}.json`；404 时回退用主列表构造最小详情。
-- 核心字段：`id` `name_zh` `name_en` `icon` `category_zh` `category_en` `type` `ageRating_zh` `ageRating_en` `version`(如 `"v1.0.0"`) `author` `url` `banner` `screenshots`(string[]) `videos`(string[]) `description_zh` `description_en`（可含 `\n\n`）`updateLog_zh` / `updateLog_en`（`{version,date,content}[]`）。
+- 核心字段：`id` `name_zh` `name_en` `icon` `category_zh` `category_en` `type` `ageRating_zh` `ageRating_en` `version`(如 `"v1.0.0"`) `author` `url` `tags`(`{zh:[],en:[]}`，与主列表一致) `banner` `screenshots`(string[]) `videos`(string[]) `description_zh` `description_en`（可含 `\n\n`）`updateLog_zh` / `updateLog_en`（`{version,date,content}[]`）。
 - 可选字段（历史投稿带过，渲染时会按需读取）：`summary` / `summary_en`（一句话简介）、`authorName`（投稿署名）、`recommender`、`extra`、`contactOther`、`email`。
   - ⚠️ **不要写投稿邮箱**：公开仓库，按 0.4 的隐私最小化原则。历史上 `25.json` 有 `email`，属遗留。
 - **`legal_urls`**：`{eula, privacy, terms}` 三个字符串。
@@ -289,14 +290,14 @@ fetchAuthors()       → 先 Fresh，失败才 Local
 
 ### 3.5 `announcements.json` — 全站公告
 
-- 数组，**13 条**。字段：`id`、`title_zh`/`title_en`、`content_zh`/`content_en`（可含 HTML）、`publishDate`、`expireDate`（`YYYY-MM-DD`）。
+- 数组，**15 条**。字段：`id`、`title_zh`/`title_en`、`content_zh`/`content_en`（可含 HTML）、`publishDate`、`expireDate`（`YYYY-MM-DD`）。
 - `common.js` 过滤：`publishDate ≤ 今天 ≤ expireDate`，按 `publishDate` 降序取**前 3 条**。
 - 弹窗缓存键 `lelele_ann_modal_cache`，**3 天**内除非出现新 id 不弹；单条关闭静音 **24h**；每 5 分钟清理过期关闭记录。
 - 富文本必须经 `sanitizeAnnouncementHtml()`（白名单见 4.2）。正文里可以有 `<video>`，但**白名单不含 `IMG`**，所以别在公告正文里放 `<img>`。
 
 ### 3.6 `noticetodeveloper.json` — 开发者专用定向告示
 
-- 顶层对象：`version`(当前 **7**)、`updatedAt`（ISO 8601 +08:00）、`_readme`（中文键说明对象，**程序忽略**）、`notices`(数组，当前 **12 条**)。
+- 顶层对象：`version`(当前 **11**)、`updatedAt`（ISO 8601 +08:00）、`_readme`（中文键说明对象，**程序忽略**）、`notices`(数组，当前 **16 条**)。
 - `notices[]` 字段：`id`(唯一)、`enabled`(默认 true)、`author`（`'all'` / `'*'` / 单个 id 字符串 / id 数组）、`priority`(number，降序弹出)、`startAt` / `endAt`(ISO 时间窗)、`title_zh`/`title_en`、`body_zh`/`body_en`、`media[]`、`buttons[]`、`dismissible`、`oncePerUser`。
   - `media[]`：`{type: 'image'|'video'|'embed', src, poster, alt}`。图片 `src` 走 LSFP 复合后缀。
   - `buttons[]`：`{text_zh, text_en, url, style: 'primary'|'ghost', target: '_blank'|'_self'}`，`url` 必须是站内存在的页面。
@@ -317,9 +318,9 @@ fetchAuthors()       → 先 Fresh，失败才 Local
 | --- | --- |
 | `activity_whole.json` | `forceEnable:false`、`specialPeriod{start:"2026-10-21",end:"2027-01-31"}`、`yearlyPeriod{start:"11-01",end:"01-31"}`、`assets{background,favicon,logo,banner,snowman,tree}`（6 个 `https://game.leleleling.site/*-winter.*`）、`enableSnowfall:true`。冬季雪天主题只改这个 JSON，逻辑在 `common.js` |
 | `special_common.json` | `skip_effects_domains`[3]（`levil-evil.surge.sh` 等）、`skip_effects_paths`[1]（`/game/levil_evil/`）。这些域/路径跳过特效注入 |
-| `changelog.json` | 数组 **50 条**，头部 `"4.1.0"`（`date:"2026-11-11"`），末条 `"1.0.0"`。每条 `{version, date, content_zh, content_en}`。发版时 `unshift` 到头部 |
+| `changelog.json` | 数组 **54 条**，头部 `"4.3.0"`（`date:"2026-11-18"`），末条 `"1.0.0"`。每条 `{version, date, content_zh, content_en}`。发版时 `unshift` 到头部 |
 | `manifest-zh.json` / `manifest-en.json` | 各 9 键：`name`(「了了了游」/「Lelele Game」)、`short_name`、`description`、`start_url`(`"/"` / `"/?lang=en"`)、`display:"standalone"`、`background_color`(`#f0f4f9` / `#0f172a`)、`theme_color:"#4f46e5"`、`icons[2]`(192/512，`purpose:"any maskable"`)。⚠️ `game/3Dshooting/index.html` 提到 `manifest-ja.json` / `manifest-fr.json`，**仓库里没有这两个文件**，属遗留死链 |
-| `sitemap.xml` | 当前只收录到 `game.html?id=22`（23–30 未收录）。若新增游戏想进 SEO，需同步 `sitemap.xml` 与 `sitemap.html`，并更新 `sitemap.html` 里的条目计数 |
+| `sitemap.xml` / `sitemap.html` | 由 `scripts/gen-sitemap.py` 从真实数据生成，**不要再手改**：当前 **147 个 URL**，覆盖全部 32 款游戏（中英详情页）、10 位作者页、站内游戏本体页与根页面。新增游戏/作者/页面后跑 `python3 scripts/gen-sitemap.py` 并提交两份文件；`--lastmod` 默认取当天 |
 | `robots.txt` | `Disallow: /dashboard.html`、`/login.html`、`/gamecheck.html` |
 | `CNAME` | `https://game.leleleling.site` |
 
@@ -442,7 +443,7 @@ fetchAuthors()       → 先 Fresh，失败才 Local
 
 ### 4.12 `sw.js` — Service Worker
 
-- `CACHE_NAME='lelele-pwa-v1.12'`；`ASSETS_TO_CACHE` **50 项**（含新增 `/pager-nav.js`）。
+- `CACHE_NAME='lelele-pwa-v1.14'`；`ASSETS_TO_CACHE` **53 项**（含 `/pager-nav.js`，以及 v1.14 补入的 `/play.html` `/stats.html` `/favgames.html`）。
 - `DATA_PATH_RE` 匹配：`lelegame_data.json`、`authors/index.json`、`authors/data/\d+.json`、`game/data/\d+.json`、`announcements.json`、`noticetodeveloper.json`、`activity_whole.json`、`special_common.json`、`changelog.json`、`manifest-(zh|en).json`。
 - install：`Promise.allSettled` 逐项 `cache.add().catch(()=>{})` + `skipWaiting()`；activate：删除非当前 CACHE_NAME + `clients.claim()`。
 - **三分支 fetch（不要改结构）**：
@@ -452,7 +453,7 @@ fetchAuthors()       → 先 Fresh，失败才 Local
   4. 其余 → `staleWhileRevalidate()`（命中缓存立即返回 + `waitUntil(network)` 后台 `cache.put`；导航失败仅 `/` 或 `/index.html` 回退首页缓存，否则返回 Offline HTML 200）。
 - `isBasicOk(res)` = `status===200 && type==='basic'`；`cacheKeyFor(req)` 对导航/`.html`/`/` 只取 `origin+pathname`，其余删除 `['t','_','ts','cb','nocache','cacheBust']` 参数后返回 `origin+pathname+search`（所以 `?t=Date.now()` 不会撑爆缓存）。
 - **升版规则**：只要改了预缓存清单里的文件字节（新增脚本、改 `common.css` 等），必须递增 `CACHE_NAME` 并在文件头补一段说明，否则老用户不会重新 install、拿不到新文件。
-- 头部注释沿革：v1.3(SWR+1.5s) → v1.4(4.0.13) → v1.5(4.0.14) → v1.6(4.0.15) → v1.7(4.0.16) → v1.8(4.1.0/规则5.0.0) → v1.9(bugfix) → v1.10(LSFP) → v1.11(pager-nav) → v1.12(播放器/收藏/视频等新页面预缓存) → v1.13(排行榜收藏/游玩事件归一化加权修正)。**旧手册写 v1.7 是过时的**。
+- 头部注释沿革：v1.3(SWR+1.5s) → v1.4(4.0.13) → v1.5(4.0.14) → v1.6(4.0.15) → v1.7(4.0.16) → v1.8(4.1.0/规则5.0.0) → v1.9(bugfix) → v1.10(LSFP) → v1.11(pager-nav) → v1.12(播放器/收藏/视频等新页面预缓存) → v1.13(排行榜收藏/游玩事件归一化加权修正) → v1.14(authorlevel 语言修复 + sitemap 重建 + 预缓存补 3 项)。**旧手册写 v1.7 是过时的**。
 
 ### 4.13 关键页面实现要点
 
@@ -460,7 +461,7 @@ fetchAuthors()       → 先 Fresh，失败才 Local
 - **`play.html`**（4.2.1 新增，零外部依赖）：读 `?id=`（+`?lang=`）→ `fetch('/lelegame_data.json')` 找游戏 → 自建**干净浏览器外壳**（红黄绿圆点 + 地址栏 + 顶栏「语言/重载/全屏/关闭」+ 底部栏 + **站点页脚栏**：返回首页 / 游戏守则 / 用户协议 / 隐私 / 条款 / 版权 / © 2026），全部 `.zh-inline`/`.en-inline` 双语；`localStorage['lelele_lang']` 记忆语言并 `postMessage({type:'lelele:setLang'})` 同步 iframe 内的 `common.js`；同源游戏 iframe src = 游戏 URL + `?embed=1&lang=…`，**外链游戏显示橙棕底白字 15px 的高对比兜底条 +「在新标签页打开 ↗」按钮**（旧淡黄小字对比度不足已修）；**iframe 不设 sandbox**，保证游戏自身 localStorage 存档可用；**全屏改为对 `#gameFrame` 自身 `requestFullscreen()`**（外壳顶栏/底栏/页脚全部消失，只留游戏画面，`#gameFrame:fullscreen` 铺满 100vw/100vh），外链游戏全屏前 `window.confirm()` 中英双语确认「可能不适合嵌入，仍要全屏吗？」，取消则不进；监听 `fullscreenchange` 更新「全屏/退出全屏」；背景渐变只在最底层，外壳不引 `common.css`/`effects.css`。
   - **协议三按钮**（2026-11-17 修正：早期误做成「主列表/详情/源文件」，用户澄清是**该游戏的三个法律协议**）：底部「📄 用户协议 / 🔒 隐私政策 / 📜 服务条款」→ `#fileModal` 弹窗，逻辑与 `game.html` 4.1.0 **完全同契约**：`loadGame()` 同时拉 `game/data/<id>.json` 存 `legalUrls`；`safeLegalUrl()` 只接受合法 https 直链（拒绝空白/控制字符/`https:///path`），命中则创建隐藏 `<a target=_blank>` 打开游戏方协议；缺失/空串/非法则 `renderLegal()` 用 `window.LELELE_GENERIC_AGREEMENTS[lang][kind]`（`/legal_generic.js` defer 引入，与 static 协议页同源）以 DOM API + textContent 渲染title/subtitle/notice/sections/完整协议链接。弹窗内切语言经 `langChanged` + `MutationObserver(data-lang)` 双通道（60ms 去重）重绘。点遮罩 / ✕ / Esc 关闭；**Esc 优先关弹窗**，无弹窗时才 `closePlay()`。
 - **`common.js` 的 `isEmbedMode`**（`new URLSearchParams(location.search).get('embed')==='1'`）：`initActivityTheme()` / `injectFooter()` / `initAnnouncements()` 在 embed 模式直接 return —— 解决「游戏子页引 `common.js` 导致外壳里出现雪人/圣诞树/飘雪/页脚」的问题；并通过 `message` 监听 `lelele:setLang` 同步语言。
-- **`author.html`**：`initAuthorPage()` 无 `?id=` 时 `showEmpty()`；`loadGames()` 拉主列表按 `String(g.author)===String(authorId)` 过滤；作者清单同源缓存 + 最新校正两阶段 `applyAuthorList()`（幂等）；Supabase `profiles` 单条查询覆盖 `display_name` / `bio` / `avatar_url` / `role`；`authors/data/<id>.json` 取作品数。注意 `authorlevel.html?level=4&lang=en` 实测仍显示中文，是该老页面既有的语言切换缺陷，未修。
+- **`author.html`**：`initAuthorPage()` 无 `?id=` 时 `showEmpty()`；`loadGames()` 拉主列表按 `String(g.author)===String(authorId)` 过滤；作者清单同源缓存 + 最新校正两阶段 `applyAuthorList()`（幂等）；Supabase `profiles` 单条查询覆盖 `display_name` / `bio` / `avatar_url` / `role`；`authors/data/<id>.json` 取作品数。`authorlevel.html` 的 `?lang=en` 早期不生效（缺 head 语言脚本），**2026-11-18 已修**：补上与其它根页面同一套早期内联脚本（`?lang=` → `localStorage` → 系统语言），并按语言重绘标题与申请链接。
 - **`dashboard.html`**：资料编辑（`profiles` upsert/update）、头像 `storage.from('avatars')`、`rpc('delete_user')`、更新游戏弹窗（Tally）、认证申请入口、analytics 数据看板（`SITE_ID=1`）。
 - **`404.html`**：GitHub Pages 会用根 `404.html` 响应**任意层级**的不存在 URL，所以 `<head>` 最前面有 `<base href="/">`，所有关键资源与首页链接都是根绝对路径，且所有 `var(--x)` 都带 fallback —— 即使 `common.css` 和 `common.js` 全挂也能完整渲染。另有不依赖 JS 的 `/sitemap.html` 备用出口。
 - **`legal_templates.html`**：见 4.8。
@@ -610,7 +611,7 @@ fetchAuthorsFresh() / fetchAuthorsLocal() 均读同源 /authors/index.json
 
 ### 6.3 SW 缓存升版
 
-改了 `ASSETS_TO_CACHE` 里任何文件的字节 → 必须递增 `CACHE_NAME` 并在 `sw.js` 头部补一段说明（当前 `lelele-pwa-v1.13`）。否则老用户 SW 不会重新 install，会一直用旧缓存的 CSS/JS。push 后建议硬刷新一次确认。
+改了 `ASSETS_TO_CACHE` 里任何文件的字节 → 必须递增 `CACHE_NAME` 并在 `sw.js` 头部补一段说明（当前 `lelele-pwa-v1.14`）。否则老用户 SW 不会重新 install，会一直用旧缓存的 CSS/JS。push 后建议硬刷新一次确认。
 
 ### 6.4 LSFP 资源上传
 
@@ -628,13 +629,13 @@ fetchAuthorsFresh() / fetchAuthorsLocal() 均读同源 /authors/index.json
 
 > 💡 不想手改 JSON？用 `github/admin.html` 管理控制台「➕ 新增游戏」动作（见 4.14）：填空/选题后由 Action 校验并落库，主列表与详情两处自动同步。下面步骤是手动等价的底层 SOP。
 
-1. **定 id**：`max(id in lelegame_data.json) + 1`（当前最大 **30**，下一个用 31）。确认 `game/data/` 里该 id 文件不存在。
+1. **定 id**：`max(id in lelegame_data.json) + 1`（当前最大 **32**，下一个用 **33**）。确认 `game/data/` 里该 id 文件不存在。
 2. **定作者**：在 `authors/index.json` 按署名找 `id`。名字拼写可能不完全一致（例「廖宸翰(Kevil Liao)」→ Kevin Liao = id 3），全库搜一遍再定，别新建作者。
 3. **改 `lelegame_data.json`**：在数组末尾**纯文本追加**一条 11 字段记录（用 `json.dumps` 重排整个文件会产生大 diff）。`type`：代码投稿 → `local`，外链 → `external`；`url` 暂无部署地址时可留空串。
 4. **建 `game/data/<id>.json`**：字段照 3.3；版本号、一句话简介、详细玩法、首发更新日志（`date` 用当天）、投稿署名都写上；`legal_urls` 按表单选择填三条直链或三个空串（自动挂官方版协议）；`banner` 与 `screenshots` 用投稿截图 URL。
    - **不要写投稿邮箱/个人官网/资质截图**。
 5. **改 `noticetodeveloper.json`**：`version` +1、`updatedAt` 更新、新增一条定向告示（`author` 填作者 id 字符串、`priority` 400 级以压过全体告示、14 天时间窗、中英双语、按钮站内可达）。正文用**纯文本**，别写 `**`。
-6. **可选**：`sitemap.xml` / `sitemap.html` 补 `game.html?id=<id>`（注意当前 sitemap 落后到 id=22，若决定补，要连 23–30 一起补并更新计数）。
+6. **sitemap**：跑 `python3 scripts/gen-sitemap.py` 自动把新游戏（中英详情页）纳入 `sitemap.xml` / `sitemap.html`，不要手改这两份文件（见 7.10）。
 7. **不要动**：`changelog.json`（除非是发版级变更）、`announcements.json`。
 8. **验证**：`game.html?id=<id>` 全字段渲染、截图无破图、协议侧栏降级正确、`url` 空时「开始游戏」提示而非崩溃；首页卡片数 +1；`JSON` 全量合法；告示模拟登录后弹出且排首位。
 9. 提交但不 push；告知用户还需在 surge 上传图片 / 部署游戏代码等站外事项。
@@ -664,7 +665,7 @@ fetchAuthorsFresh() / fetchAuthorsLocal() 均读同源 /authors/index.json
 
 ### 7.5 改规则版本
 
-见 6.5。注意规则版本（`5.0.0`）与站点版本（`4.1.0`）是两套。
+见 6.5。注意规则版本（`5.0.0`）与站点版本（`4.3.0`）是两套。
 
 ### 7.6 新增脚本 / 改 SW
 
@@ -709,6 +710,15 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 - 静态校验脚本套路：`node --check *.js`、正则抽出 HTML 内联 `<script>` 逐个 `node --check`、`json.load` 全量 JSON、`xml.etree` 解析 sitemap、CSS 花括号计数、正则扫 `href/src` 检查文件存在性。
 - 清理：`playwright-cli close`、`pkill -f "http.server 8899"`、`rm -rf .playwright-cli`、删 `/tmp` 临时脚本与截图、`git checkout -- .DS_Store`（若被改动）。
 
+### 7.10 重建站点地图（`scripts/gen-sitemap.py`）
+
+1. 触发时机：新增/下架游戏、新增作者、新增根页面，或发现 `sitemap.*` 与真实数据不一致。
+2. 执行：`python3 scripts/gen-sitemap.py`（默认 `lastmod` 取当天；需要固定日期用 `--lastmod 2026-11-18`）。
+3. 数据来源：`lelegame_data.json`（游戏与站内本体页）、`authors/index.json`（作者页）、脚本里的 `STATIC_PAGES` / `LANG_EN_PAGES`（根页面与英文入口清单）。**新增根页面必须手动加进这两个清单**，否则不会进 sitemap。
+4. 脚本只写 `sitemap.xml` 与 `sitemap.html`，不碰其它文件；生成的 `sitemap.html` 各分区括号内计数与顶部总数（当前 147）由脚本自动算，无需手改。
+5. 验证：`python3 -c "import xml.etree.ElementTree as ET;ET.parse('sitemap.xml')"`，并确认 URL 数没减少（可用 `git diff --stat` 与 `git show HEAD:sitemap.xml | grep -c '<loc>'` 对比）。
+6. `sitemap.html` 在 SW 预缓存清单里，**改了要升 `CACHE_NAME`**（见 6.3）。
+
 ---
 
 ## 8. 已知坑与历史故障（防重蹈覆辙）
@@ -740,7 +750,7 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 ### 8.6 缓存与版本
 - `?t=Date.now()` 破缓存靠 `cacheKeyFor()` 归一化，别改它。
 - 改了预缓存文件字节却不升 `CACHE_NAME` → 老用户永远拿不到新版本。
-- `changelog.json` 头部是 `4.1.0`，站点版本与规则 `5.0.0` 无关。
+- `changelog.json` 头部是 `4.3.0`，站点版本与规则 `5.0.0` 无关。
 
 ### 8.7 安全
 - 公告富文本消毒白名单不含 IMG；`href/src` 必须 https/mailto/根路径/#。
@@ -756,10 +766,10 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 
 ### 8.9 已知遗留 / 待办（不阻塞，但别误判为 bug）
 
-- `sitemap.xml` / `sitemap.html` 只收录到 `game.html?id=22`，23–30 未进 SEO。
-- `authorlevel.html?level=4&lang=en` 实测仍显示中文，是该老页面的语言切换缺陷。
+- `sitemap.xml` / `sitemap.html` 曾长期落后（只到 `id=22`、作者只到 7、缺 play/stats/favgames），**2026-11-18 已由 `scripts/gen-sitemap.py` 全量重建**（147 URL，32 游戏 + 10 作者 + 全部根页面）；以后新增内容记得重跑脚本，别再手改。
+- `authorlevel.html?level=4&lang=en` 曾显示中文，**2026-11-18 已修**（补 head 早期语言脚本）。
 - `game/3Dshooting/index.html` 引用了仓库不存在的 `manifest-ja.json` / `manifest-fr.json`。
-- `GAME_ENTRY_TEMPLATE.md` 里的示例写「当前已占用 1–22，本次用 23」，实际已到 **30**；模板规范要求主列表带 `version`，实际文件没有 —— 以 `lelegame_data.json` 为准。
+- `GAME_ENTRY_TEMPLATE.md` 的示例 id 与「下一个可用 id」已于 2026-11-18 同步到 **33**；模板不再要求主列表带 `version`（实际文件也没有）—— 以 `lelegame_data.json` 为准。
 - `25.json` 等历史详情里存过投稿 `email`，属遗留隐私数据，不要新增同类字段。
 - `historymd/` 被忽略，克隆仓库的 AI 看不到；本手册是唯一随仓库同步的接手资料。
 - `gamepic.surge.sh` 的 `.lsfp` 文件尚未上传，线上图片目前全部走旧图回退。
@@ -772,10 +782,10 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 
 采用「苹果 macOS 式」`主.中.微`：
 - **A（Major）**：重大架构/体验重构。**做任何 A 升级前必须先征求用户（David）同意**，首位 +1、次/微归零。4.0.0「超级 UI 大重构（苹果风 + 灵动岛）」已获授权。
-- **B（Minor）**：功能级升级，AI 可自行决定，不要太频繁（当前 `4.1.0` 就是 B）。
+- **B（Minor）**：功能级升级，AI 可自行决定，不要太频繁（当前 `4.3.0` 就是 B）。
 - **C（Patch）**：修修补补。
 
-> ⚠️ **版本号双轨**：`5.0.0` 是《游戏守则》`game_rules.html` 的**规则版本号**，不受「A 升级须经 David 同意」约束；站点版本号与 `changelog.json` 走独立三段式。SW 的 `lelele-pwa-v1.13` 只是缓存名，与两者都无关。
+> ⚠️ **版本号双轨**：`5.0.0` 是《游戏守则》`game_rules.html` 的**规则版本号**，不受「A 升级须经 David 同意」约束；站点版本号与 `changelog.json` 走独立三段式。SW 的 `lelele-pwa-v1.14` 只是缓存名，与两者都无关。
 
 每次发版在 `changelog.json` 数组**头部** `unshift` 一条 `{version, date, content_zh, content_en}`。
 
@@ -819,6 +829,7 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 | 2026-11-18 | 本次（排行榜卡片 UX） | 用户反馈"窄屏查看详情按钮没了、字变小夸张、名次板块没大小差、要显示可点作者名+收藏按钮"。**修复**：①`index.js` mapped 带作者 id/名/主页链接（`authorsData` 空时 `fetchAuthors()` 兜底，避免并行启动拿到 id）；Top3 卡外层 `<button>`→`<div role=link>` 避免嵌套按钮，加 `.rank-author`（跳 `author.html?id=`）+ `.rank-fav-btn`（`window.toggleRankFav(id)` 就地刷新所有同 id 按钮，与 `trackFavorite` 埋点同口径），弹窗行同样加作者+收藏（`.rank-modal-game`/`.rank-modal-actions`）。②根因 `.home-side .rank-card.rank-N { width:100%; min-height:unset }` 无条件清掉梯度 → 侧栏改宽 100%/91%/85%、高 214/182/162（1→2 差 > 2→3），并修窄屏：1024 断点不再 `rank-meta display:none`、字号 0.78→0.9rem、按钮保留；640 断点按钮不换行防撑高。实测：宽 W 282/257/240、高 H 214/182/175（差 25>17、32>7），作者名 Kevin Liao/Emolingo games/Wheat 可点、收藏切换 + 弹窗作者/收藏、窄屏 meta:flex+按钮可见+14.4px、零 JS 错误 |
 | 2026-11-18 | 本次（4.3.0 大功能批） | 按 new.md 清单完成 29 项（跳过玩家用户系统）：**#3** analytics 仓库新增免登录/CORS* 的 `/api/public/stats?game=&range=&cmp=`（单游戏游玩/净收藏趋势+对比），本仓库新增数据大屏 `stats.html`、开发者文档 API 专章、**`llms.txt`**（面向 AI agent 的接入说明，无需读源码）；**#4-8** 首页本周更新轮播/标签多选筛选/收藏分组+拖动排序/详情页相似推荐/作者页统计概览（作品数/总收藏/最受欢迎）；**#9-18** 视频占位封面+点击才载、搜索历史、随机范围筛选、长简介折叠、公告已读未读筛选、全站图片懒加载+分类 emoji 兜底、两榜 CSV 导出；**#19-33** 排行点千分位、无障碍 aria、作者链接带语言、视频按钮 aria-pressed、favgames 列头排序、错误文案区分、外链 rel 全量检查、SW 预缓存自检脚本 `scripts/check-precache.mjs`、深色模式对比度、返回顶部。三条 changelog（4.2.1/4.2.2/4.3.0）+ 两类公告（玩家 15 / 开发者 16 条）。全量语法与自检脚本通过；实测见各功能段 |
 | 2026-11-18 | 本次（排行榜加权修复） | 用户反馈"总榜还写次、收藏量 1 的 levil-evil 排行点和游玩次数一样"：根因 `fav-game_<id>` 用游戏 id、`play-game_<name>` 用游戏名，两套命名空间在合并前没归一，收藏分挂在 id 项、游玩分挂在名称项，总榜没加上。**修复**：缓存原始 events，目录加载后先把两者统一归一到游戏 id 再合并（总榜=收藏×5+游玩）；弹窗总榜量词由「次」改「排行点 / rank points」（游玩榜保留「次」、收藏榜「收藏」）；SW v1.12→**v1.13** 强制清旧缓存让用户拿到新 index.js。实测真实数据：levil-evil 136 游玩+1 收藏 → **141 排行点**，总榜/收藏榜量词与数值均正确、零 JS 错误 |
+| 2026-11-18 | 本次（文档一致性批） | ①`authorlevel.html` 补 head 早期语言脚本，修 `?lang=en` 不生效，标题/申请链接按语言切换；②`sitemap.xml` / `sitemap.html` 改由新脚本 `scripts/gen-sitemap.py` 从真实数据重建（110 → **147** URL，补齐 id 23–32、作者 8–10、`play/stats/favgames/authorlevel/apply-certification` 等页面，零 URL 丢失，分区计数自动生成）；③`sw.js` 预缓存补漏 `/play.html` `/stats.html` `/favgames.html`（50 → 53 项）并升 `CACHE_NAME` v1.13 → **v1.14**；④`foraisthings.md` 全量对齐真值（站点 4.3.0 / SW v1.14 / 32 详情 / 15 公告 / 告示 v11·16 条 / changelog 54 条），新增 7.10 重建 sitemap SOP；⑤`GAME_ENTRY_TEMPLATE.md` 下一个 id 32→33、统一 `author` 字符串写法；⑥`thoughts.md` 基准与已完成条目同步；⑦`plan.md` 首行明确「历史档案」。验证：SW 语法 + 53 项预缓存自检、两份 sitemap XML 解析与 URL 集合比对、JSON 全量合法 |
 | 2026-11-18 | 本次（4.2.0 中版本+文档适配） | **站点升 4.2.0**：changelog.json 头部新增 4.2.0（版本总数 51）；**两类公告分开**：announcements.json 新增 `20261118-site-420-player-update`（玩家视角：播放器/收藏榜/视频/双语，14 条）、noticetodeveloper.json version 10 新增 `notice-2026-11-18-v420-favorites-dashboard`（作者视角：后台收藏数/统计口径/排行榜/播放器/作者源，15 条，priority 400）并修正 `_readme` 的 surge 过时说明。**排行点文案**：Top3 预览改为只显示「N 排行点 / N rank points」，不再显示 `收藏×5+游玩` 公式。**about.html 全量适配**：关于段改为可选登录 + 收藏榜 + 排行点说明、致开发者补后台自助/作者源在本仓库/守则 5.0.0 三类协议必备/协议模板中心、工作室段删「官网重做中」。**全站文档基准对齐真值**：foraisthings/thoughts 版本基准→4.2.0 / SW v1.12 / 32 游戏（17 local+12 external+3 internal）/ 10 作者 / 14 公告 / 15 告示，README 三处 31→32，GAME_ENTRY_TEMPLATE 示例 id 23→31。实测 JSON 全有效、排行点文案中英正确、about 文案渲染、零 JS 错误 |
 
 ---
@@ -835,7 +846,7 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 | stale-while-revalidate | 先给缓存、后台更新（SW 静态分支）；也用于作者清单「同源缓存先渲染、带时间戳的最新结果后覆盖」 |
 | fail-open / 熔断 | 验证服务不可用时放行而非阻塞登录，见 5.3 |
 | 权威源 | **本仓库 `/authors/index.json`**（2026-11-14 起；admin 控制台写入，无外部源覆盖）。图片床 `gamepic.surge.sh` 仍是站外源 |
-| 三段式 / 双轨 | 站点版本 `4.1.0` 与规则版本 `5.0.0` 各自独立 |
+| 三段式 / 双轨 | 站点版本 `4.3.0` 与规则版本 `5.0.0` 各自独立 |
 | `?t=` | 破浏览器缓存的时间戳参数，SW `cacheKeyFor()` 会剔除 |
 | 管理控制台 / admin-apply | 站长内部工具（`github/admin.html`）+ Action（`admin-apply.yml`/`admin-apply.mjs`）。选动作、填空/选题、预览后触发 `repository_dispatch`，远端校验并落库；只限本地使用，密钥只存浏览器、绝不硬编码 |
 | 草稿 PR 模式 | `admin-apply` 默认不开直接推送，而是开草稿 PR 等人工合并；页面「直接推送 main」开关可切直推 |

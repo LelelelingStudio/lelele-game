@@ -3,7 +3,7 @@
 > Read this file first. It explains the platform from a **game developer / integrator** point of view.
 > You do NOT need to read the repository source code to build or integrate a game here.
 > Site: https://game.leleleling.site · Analytics: https://analytics.leleleling.site
-> Version baseline: 4.2.0 · Game rules 5.0.0 · Data: 32 games / 10 authors.
+> Version baseline: 4.3.0 · Game rules 5.0.0 · Data: 32 games / 10 authors.
 
 ## What this site is
 

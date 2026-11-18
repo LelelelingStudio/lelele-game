@@ -1,6 +1,6 @@
 # 了了了游 · 新增游戏 JSON 输出规范（交给 AI 用）
 
-你要为一款**外网游戏**生成两份 JSON 文件，用于加入「了了了游」平台。
+你要为一款游戏（外网链接或站内代码托管）生成两份 JSON 文件，用于加入「了了了游」平台。
 
 ---
 
@@ -19,7 +19,7 @@
 
 ```json
 {
-  "id": 31,
+  "id": 33,
   "name_zh": "中文名",
   "name_en": "English Name",
   "icon": "🎮",
@@ -29,7 +29,8 @@
   "ageRating_zh": "全年龄",
   "ageRating_en": "All Ages",
   "author": "4",
-  "url": "https://example.com/game/"
+  "url": "https://example.com/game/",
+  "tags": { "zh": ["休闲"], "en": ["Casual"] }
 }
 ```
 
@@ -37,7 +38,7 @@
 
 | 字段 | 必填 | 类型 | 说明 |
 |---|---|---|---|
-| `id` | ✅ | number | 数字。下一个 id = 当前 `lelegame_data.json` 最大 id + 1（当前最大 **30**，下一个用 **31**）；确认 `game/data/<id>.json` 不存在 |
+| `id` | ✅ | number | 数字。下一个 id = 当前 `lelegame_data.json` 最大 id + 1（当前最大 **32**，下一个用 **33**）；确认 `game/data/<id>.json` 不存在 |
 | `name_zh` | ✅ | string | 中文名 |
 | `name_en` | ✅ | string | 英文名 |
 | `icon` | ✅ | string | 单个 emoji |
@@ -48,6 +49,7 @@
 | `ageRating_en` | ✅ | string | `All Ages` / `6+` / `12+`（同上） |
 | `author` | ✅ | string | 开发者 ID，**字符串**（如 `"4"`）；主列表与详情统一用字符串 |
 | `url` | ✅ | string | 游戏可玩地址，外网完整 URL；暂无部署地址可留 `""` |
+| `tags` | 推荐 | object | `{ "zh": [], "en": [] }`，首页「标签多选筛选」的数据源；中英各 1–3 个自由标签，无标签填空数组 |
 
 分类对照表（`category_zh` / `category_en` 必须成对使用）：
 
@@ -62,13 +64,13 @@
 
 ---
 
-## 文件二：`game/data/31.json`（详情记录，文件名 = id 号）
+## 文件二：`game/data/33.json`（详情记录，文件名 = id 号）
 
 **一个 JSON 对象**（不是数组）。
 
 ```json
 {
-  "id": 31,
+  "id": 33,
   "name_zh": "中文名",
   "name_en": "English Name",
   "icon": "🎮",
@@ -103,9 +105,9 @@
 }
 ```
 
-> ⚠️ 注意大小写差异：这里 `type` 必须是字符串 `"external"`；
-> `author` 现在可以是数字 `4`，也可以是字符串 `"4"` 或开发者名字，字符串写法更安全。
-> `recommender` 是本项目新增的推荐者字段。
+> ⚠️ 注意大小写与类型差异：这里 `type` 必须是字符串 `"external"`；
+> `author` 一律写成**字符串** `"4"`（主列表与详情保持同一写法，避免按数字/名称比较时匹配失败），不要写数字或开发者名字。
+> 推荐者信息只写进投稿表单，**不进任何 JSON 字段**。
 
 字段说明（在文件一基础上多出的部分）：
 
@@ -121,6 +123,7 @@
 | `updateLog_en` | ✅ | object[] | 同上，英文版 |
 | `summary` | 推荐 | string | 一句话简介（中文） |
 | `summary_en` | 推荐 | string | 一句话简介（英文） |
+| `tags` | 推荐 | object | 同文件一，`{ "zh": [], "en": [] }`，两处保持一致 |
 | `authorName` | ✅ | string | 作者展示名（如 `廖宸翰(Kevil Liao)`），由 `authors/index.json` 的 id 推导 |
 | `legal_urls` | ✅ | object | 三项 `{eula, privacy, terms}`：**全空串 `""` 表示自动挂载「了了了游官方版」协议**；填则用你给的三条 https 直链 |
 | `recommender` | ❌ | — | **当前数据契约不含此字段，请勿生成**（历史模板残留） |
@@ -152,7 +155,7 @@
 
 ```json
 {
-  "id": 31,
+  "id": 33,
   "name_zh": "星际清扫员",
   "name_en": "Star Sweeper",
   "icon": "🛰️",
@@ -164,7 +167,7 @@
   "version": "v1.2.0",
   "author": "4",
   "url": "https://starsweeper.example.com/",
-  "banner": "https://starsweeper.example.com/banner.mp4",
+  "tags": { "zh": ["射击", "街机"], "en": ["Shooter", "Arcade"] },  "banner": "https://starsweeper.example.com/banner.mp4",
   "screenshots": [
     "https://starsweeper.example.com/shot1.png",
     "https://starsweeper.example.com/shot2.png"
@@ -195,7 +198,7 @@
 
 - 游戏名称：**（在此填写）**
 - 游戏地址：**（在此填写）**
-- 推荐者：**（在此填写）**
+- 推荐者：**（在此填写，仅用于投稿记录，不写入 JSON）**
 - 其他已知信息：**（在此填写，可留空）**
 
 生成后请**分别标注**哪个是「文件一」，哪个是「文件二」。
