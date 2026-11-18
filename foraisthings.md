@@ -171,6 +171,7 @@ flowchart TB
 | `developer_docs.html` | 开发者文档 |
 | `sitemap.html` | 人类可读站点地图 |
 | `gamecheck.html` | 游戏实时数据看板（analytics API） |
+| `favgames.html` | 游戏收藏排行榜（analytics API）：`fav-game_<id> - unfav-game_<id>` 净收藏，时间范围/Top N/全量表，游戏名映射；**analytics 域 `/favgames` 也有同款页**（独立仓库 `edgemetry-analytics`） |
 | `404.html` | GitHub Pages 404 页（含 `<base href="/">` 与全 fallback，见 8.1） |
 | `game_rules.html` | 《游戏守则》当前版 5.0.0 |
 | `game_rules4-0-0.html` / `game_rules4-0-1.html` / `game_rules4-0-2.html` | 规则历史快照 |
@@ -811,6 +812,7 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 | 2026-11-17 | 本次（播放器 UX） | `play.html` 四项改进：①外链兜底条改橙棕底白字 15px + 醒目「在新标签页打开 ↗」按钮；②底栏三按钮（初版误做「主列表/详情/源文件」，当日按用户澄清改为**用户协议/隐私政策/服务条款**，逻辑同 game.html：legal_urls 合法 https 新标签打开，否则弹窗渲染 legal_generic.js 万能协议，支持弹窗内切语言重绘）；③底栏下加站点页脚栏（返回首页 / 游戏守则 / 用户协议 / 隐私 / 条款 / 版权 / © 2026）；④**全屏改为 iframe 自身全屏**（外壳完全消失只留游戏画面），外链游戏全屏前中英双语确认；实测三按钮协议弹窗中英正文 + Esc 关闭 + 外链 confirm + 全屏、零 JS 错误 |
 | 2026-11-17 | 本次（视频适配修复） | `about.html` 修 YouTube embed 脚本报错（`content-youtube-embed.js` 抛错、iframe load 不来）导致一直"正在加载视频"：超时 30s→**8s**、备用 mp4 `http`→**https**（原 http 被 Chrome 自动升级触发 Mixed Content，已核实 https 200 + CORS `*`）、iframe 域改 `youtube-nocookie.com`、mp4 出错自动切回 YouTube、文案同步 8 秒；`game.html` 灯箱 iframe `allow` 补齐 YouTube 权限。实测 #23 真实 YouTube 宣传片经 `parseEmbedVideo` 转 `youtube-nocookie.com/embed/pv1OtS5TZRs` 并成功打开灯箱；about 视频与协议按钮全绿 |
 | 2026-11-17 | 本次（删除视频加载遮罩） | 用户反馈"视频已加载但前面还显示正在加载+半透明遮罩"：根因 `.video-loading { display:flex }` 优先级高于 UA `[hidden]{display:none}`，JS 设 `hidden=true` 不生效。按用户第二个选项**彻底删除遮罩**（DOM / CSS / JS 引用全清），视频加载出来即直接可见；实测 `hasOverlay:false`、load 显示 YouTube、8s 超时换 mp4、手动切回 src 恢复、零 JS 错误 |
+| 2026-11-18 | 本次（收藏体系） | **收藏埋点**：`common.js` 加 `trackFavorite()`（fav-game_<id>/unfav-game_<id>，每游戏每天 3 轮上限仅限埋点）、`migrateFavoritesOnce()`（11/26 前一次性存量补报，localStorage 标记）、`loadFavCounts()`；三处收藏动作接通。**每游戏收藏数**：author.html 游戏卡 + dashboard.html「我的游戏收藏数」卡片（本页不引 common.js，内联查询）。**排行榜**：Top3 改收藏×5+游玩加权，弹窗加总榜/收藏榜/游玩榜三 Tab（各前 25，0 值过滤）。**favgames.html**：本仓库 + analytics 域 `/favgames` 双站，净收藏=fav-unfav + 游戏名映射。analytics 仓库（`edgemetry-analytics`）提交 `de59fb0` 已 push；本仓库 `f05afdc`。实测加权 150/100/50、三 Tab、存量迁移、favgames 净收藏、零 JS 错误 |
 
 ---
 
