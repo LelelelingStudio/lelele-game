@@ -8,3 +8,6 @@ historymd/
 
 # playwright 本地测试缓存（含控制台日志/页面快照），勿纳入版本控制
 .playwright-cli/
+
+# 个人新点子草稿（本地可见，不随 push 同步；正式点子请写进 thoughts.md）
+new.md
