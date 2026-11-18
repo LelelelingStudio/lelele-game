@@ -81,6 +81,11 @@
                 <button class="action-btn random-play-btn" id="randomPlayBtn" type="button">
                     <span class="zh-inline">🎲 随机游玩</span><span class="en-inline">🎲 Random</span>
                 </button>
+                <select class="action-btn random-filter" id="randomFilter" aria-label="Random filter / 随机范围">
+                    <option value="all"><span class="zh-inline">全部</span><span class="en-inline">All</span></option>
+                    <option value="local"><span class="zh-inline">本站</span><span class="en-inline">Local</span></option>
+                    <option value="external"><span class="zh-inline">外网</span><span class="en-inline">External</span></option>
+                </select>
                 <a class="action-btn studio-link" href="https://leleleling.site/index.html" target="_blank" rel="noopener noreferrer">
                     <span class="zh-inline">工作室</span><span class="en-inline">Studio</span>
                 </a>
@@ -112,6 +117,7 @@
                     <span class="search-icon">🔍</span>
                     <input type="text" id="searchInput" placeholder="搜索游戏名 / 分类 / 作者 / 拼音..." autocomplete="off" aria-label="Search games">
                     <span class="search-clear" id="searchClearBtn">×</span>
+                    <div class="search-history" id="searchHistory" hidden></div>
                 </div>
             </div>
         </div>
@@ -121,6 +127,10 @@
             <div class="category-nav" id="categoryNav">
                 <!-- 动态填充 -->
             </div>
+        </div>
+        <!-- 第四行：标签多选筛选 (JS动态生成) -->
+        <div class="tag-nav-wrapper" id="tagNavWrapper" hidden>
+            <div class="tag-nav" id="tagNav"><!-- 动态填充 --></div>
         </div>
     </div>
 
@@ -159,6 +169,15 @@
 
             <!-- 左侧主区：游戏列表 -->
             <div class="home-main">
+
+        <!-- 本周新游/更新轮播（JS 动态填充，无数据时自动隐藏） -->
+        <div class="weekly-carousel" id="weeklyCarousel" hidden>
+            <div class="weekly-head">
+                <span class="weekly-title"><span class="zh-inline">🆕 本周新游与更新</span><span class="en-inline">🆕 New & Updated This Week</span></span>
+                <div class="weekly-nav"><button type="button" id="weeklyPrev" aria-label="Previous / 上一组">‹</button><button type="button" id="weeklyNext" aria-label="Next / 下一组">›</button></div>
+            </div>
+            <div class="weekly-track" id="weeklyTrack"></div>
+        </div>
 
         <!-- 游戏列表 -->
         <div class="games-container">
@@ -231,6 +250,7 @@
                 <span class="zh-inline">⭐ 我的收藏</span>
                 <span class="en-inline">⭐ My Favorites</span>
             </div>
+            <div class="fav-group-tabs" id="favGroupTabs"></div>
             <div id="favListContainer"></div>
         </div>
     </div>
@@ -550,5 +570,11 @@
     <script src="/common.js" defer></script>
     <script src="/search.js" defer></script>
     <script src="/index.js" defer></script>
+    <button type="button" id="backToTop" class="back-to-top" aria-label="Back to top / 返回顶部" title="返回顶部">↑</button>
+    <style>
+        .back-to-top { position: fixed; right: 22px; bottom: 24px; z-index: 90; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(79,70,229,.35); background: #4f46e5; color: #fff; font-size: 1.3rem; font-weight: 800; cursor: pointer; box-shadow: 0 8px 24px rgba(79,70,229,.28); opacity: 0; visibility: hidden; transition: opacity .2s, transform .2s; transform: translateY(8px); }
+        .back-to-top.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        .back-to-top:hover { background: #4338ca; }
+    </style>
 </body>
 </html>

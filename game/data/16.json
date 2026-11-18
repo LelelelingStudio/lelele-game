@@ -29,5 +29,15 @@
       "date": "2026-10-22",
       "content": "Initial release!"
     }
-  ]
+  ],
+  "tags": {
+    "zh": [
+      "休闲",
+      "本站游戏"
+    ],
+    "en": [
+      "Casual",
+      "Local"
+    ]
+  }
 }

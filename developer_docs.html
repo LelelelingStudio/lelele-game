@@ -413,6 +413,23 @@
             <li>审核周期为 5 个工作日，无论通过与否，我们都会通过邮件通知您。</li>
         </ol>
 
+        <h3>3.3 公开统计 API（开发者可自由调用）</h3>
+        <p>平台开放只读统计接口，开发者可用它查询自己游戏的游玩量与净收藏数，用于自己的网站、数据大屏或 AI agent。无需登录、无需 API key、支持跨域（CORS <code>*</code>）。</p>
+        <p><strong>接口：</strong><code>GET https://analytics.leleleling.site/api/public/stats?game=&lt;游戏名或ID&gt;&amp;range=30d&amp;cmp=1</code></p>
+        <ul>
+            <li><code>game</code>：游戏名称（游玩事件按名）或数字 ID（收藏事件按 ID），两者都可传。</li>
+            <li><code>range</code>：<code>today</code> / <code>7d</code> / <code>30d</code> / <code>90d</code> / <code>12mo</code>，默认 30d。</li>
+            <li><code>cmp=1</code>：附带上一时段总量 <code>prevTotal</code>。</li>
+        </ul>
+        <p><strong>返回示例：</strong></p>
+        <pre><code>{
+  "game": "12",
+  "range": { "id": "30d", "from": "…", "to": "…" },
+  "plays": { "series": [{"label":"…","value":12}], "total": 136, "prevTotal": 120 },
+  "favorites": { "series": [{"label":"…","value":1}], "total": 5, "prevTotal": 3 }
+}</code></pre>
+        <p>其中 <code>series</code> 是按时间粒度排列的 <code>{label, value}</code> 数组；<code>favorites</code> 为净收藏（收藏 − 取消）。另有通用接口 <code>/api/breakdown?site=1&amp;dim=event&amp;range=30d</code> 可拉全站事件分布。可视化大屏见 <a href="stats.html">stats.html</a>；给 AI agent 的接入说明见 <a href="llms.txt">llms.txt</a>。</p>
+
         <h2>第四章 常见问题 (FAQ)</h2>
         <p><strong>Q: 为什么我在后台看不到我的游戏？</strong></p>
         <p>A: 请检查您填写的“显示名称”是否与 `lelegame_data.json` 中的 `author` 字段完全一致（区分大小写与空格）。</p>
@@ -506,6 +523,23 @@
             <li>Fill out the Tally form (game name, category, code upload/link, etc.).</li>
             <li>Review takes 5 business days. We will notify you by email whether it passes or not.</li>
         </ol>
+
+        <h3>3.3 Public Statistics API (open to all developers)</h3>
+        <p>We expose a read-only stats endpoint so developers can query play counts and net favorites for their games - use it on your own site, a dashboard, or an AI agent. No login, no API key, CORS enabled (<code>*</code>).</p>
+        <p><strong>Endpoint:</strong> <code>GET https://analytics.leleleling.site/api/public/stats?game=&lt;name-or-id&gt;&amp;range=30d&amp;cmp=1</code></p>
+        <ul>
+            <li><code>game</code>: the game name (plays are keyed by name) or numeric id (favorites are keyed by id); either works.</li>
+            <li><code>range</code>: <code>today</code> / <code>7d</code> / <code>30d</code> / <code>90d</code> / <code>12mo</code>, default 30d.</li>
+            <li><code>cmp=1</code>: include <code>prevTotal</code> for the previous period.</li>
+        </ul>
+        <p><strong>Example response:</strong></p>
+        <pre><code>{
+  "game": "12",
+  "range": { "id": "30d", "from": "…", "to": "…" },
+  "plays": { "series": [{"label":"…","value":12}], "total": 136, "prevTotal": 120 },
+  "favorites": { "series": [{"label":"…","value":1}], "total": 5, "prevTotal": 3 }
+}</code></pre>
+        <p><code>series</code> is a time-ordered <code>{label, value}</code> array; <code>favorites</code> is net favorites (favorites minus unfavorites). A general endpoint <code>/api/breakdown?site=1&amp;dim=event&amp;range=30d</code> returns all event breakdowns. See the visual dashboard at <a href="stats.html">stats.html</a> and the AI-agent guide at <a href="llms.txt">llms.txt</a>.</p>
 
         <h2>Chapter 4 FAQ</h2>
         <p><strong>Q: Why can't I see my game in the Dashboard?</strong></p>

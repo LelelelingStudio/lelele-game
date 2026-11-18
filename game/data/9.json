@@ -29,5 +29,17 @@
       "date": "2026-10-19",
       "content": "Initial release!"
     }
-  ]
+  ],
+  "tags": {
+    "zh": [
+      "射击",
+      "本站游戏",
+      "12+"
+    ],
+    "en": [
+      "Shooter",
+      "Local",
+      "12+"
+    ]
+  }
 }

@@ -278,6 +278,11 @@
             <div class="games-section-title">
                 <span class="zh-inline">🎮 TA 的游戏</span><span class="en-inline">🎮 Games by this Author</span>
             </div>
+            <div class="author-stats" id="authorStats" style="display:none; gap:10px; flex-wrap:wrap; margin:0 0 16px; padding:12px 16px; border-radius:14px; background:rgba(79,70,229,.06);">
+                <span class="astat" id="astatGames">🎮 —</span>
+                <span class="astat" id="astatFavs">⭐ —</span>
+                <span class="astat" id="astatTop">🏆 —</span>
+            </div>
             <div class="games-grid" id="gamesGrid"></div>
         </div>
 
@@ -601,10 +606,21 @@
                 // 异步填充每个游戏的收藏数（作者可见自己作品的收藏表现）
                 if (typeof window.loadFavCounts === 'function') {
                     window.loadFavCounts().then(function(counts) {
+                        let total = 0, best = null, bestN = -1;
                         document.querySelectorAll('#gamesGrid [data-fav-game]').forEach(function(el) {
                             const n = Math.max(0, Number(counts[el.getAttribute('data-fav-game')]) || 0);
+                            total += n;
+                            if (n > bestN) { bestN = n; best = el.closest('.game-card')?.querySelector('.game-name')?.textContent || ''; }
                             el.innerHTML = '<span class="zh-inline">⭐ 收藏 ' + n + '</span><span class="en-inline">⭐ Favorites ' + n + '</span>';
                         });
+                        const box = document.getElementById('authorStats');
+                        if (box) {
+                            const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+                            box.style.display = 'flex';
+                            document.getElementById('astatGames').textContent = (isEn ? '🎮 Works: ' : '🎮 作品 ') + currentGamesList.length;
+                            document.getElementById('astatFavs').textContent = (isEn ? '⭐ Total favorites: ' : '⭐ 总收藏 ') + total;
+                            document.getElementById('astatTop').textContent = (isEn ? '🏆 Most loved: ' : '🏆 最受欢迎 ') + (best || '—');
+                        }
                     });
                 }
             }

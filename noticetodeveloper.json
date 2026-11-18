@@ -1,6 +1,6 @@
 {
-  "version": 10,
-  "updatedAt": "2026-11-18T09:00:00.000Z",
+  "version": 11,
+  "updatedAt": "2026-11-18T10:00:00.000Z",
   "_readme": {
     "说明": "本文件是「开发者定向告示」数据源，由 notice.js 读取。JSON 标准不支持 // 注释，所以字段说明都写在 _readme 里，程序会忽略它。",
     "文件结构": "{ version, updatedAt, _readme, notices: [告示对象, ...] }。真正生效的只有 notices 数组。",
@@ -31,6 +31,44 @@
     "新增告示": "在 notices 数组末尾追加对象，复制现有示例改字段即可，注意 id 不要重复。"
   },
   "notices": [
+    {
+      "id": "notice-2026-11-18-v430-public-api-agents",
+      "enabled": true,
+      "author": "all",
+      "priority": 410,
+      "startAt": "2026-11-18T00:00:00+08:00",
+      "endAt": "2026-12-18T23:59:59+08:00",
+      "title_zh": "🆕 站点 4.3.0：公开统计 API + AI Agent 接入说明",
+      "title_en": "🆕 Site v4.3.0: Public Stats API + AI Agent Guide",
+      "body_zh": "本次升级与开发者最相关的是数据开放与接入便利：\n\n① 公开统计 API：`GET https://analytics.leleleling.site/api/public/stats?game=<游戏名或ID>&range=30d&cmp=1`，免登录、免 API key、支持跨域，返回单游戏的游玩与净收藏趋势（series）、总量（total）与上一时段（prevTotal）。详细字段与示例见开发者文档。\n\n② 数据大屏 stats.html：输入游戏名或 ID 即可看到总游玩、净收藏、排行点（收藏×5+游玩）与每日趋势，并可一键导出 CSV。\n\n③ llms.txt：一份面向 AI agent 的站点说明，涵盖投稿流程、三文件数据契约（lelegame_data.json / game/data/<id>.json / authors/index.json）、事件命名与统计口径、播放器内嵌规则。你可以把它交给任意 agent，让它了解如何为本站开发游戏，无需阅读我们的源码。\n\n④ 作者页新增作品数/总收藏/最受欢迎作品概览；详情页新增相似推荐，让同标签作品互相曝光；收藏弹窗支持分组与拖动排序。\n\n⑤ 提醒：所有游戏仍须具备用户协议/隐私政策/服务条款三类协议（守则 5.0.0），否则无法通过审核。",
+      "body_en": "This release opens up data and simplifies integration for developers:\n\n(1) Public stats API: `GET https://analytics.leleleling.site/api/public/stats?game=<name-or-id>&range=30d&cmp=1` - no login, no key, CORS enabled. It returns per-game play and net-favorite series, totals and previous-period totals. Fields and examples are in the developer guide.\n\n(2) Stats dashboard (stats.html): enter a game name or ID to see total plays, net favorites, rank points (favorites x5 + plays) and daily trends, with one-click CSV export.\n\n(3) llms.txt: an AI-agent-friendly description of the platform - submission flow, the three-file data contract (lelegame_data.json / game/data/<id>.json / authors/index.json), event naming and counting rules, and player embedding. Hand it to any agent so it can build games for our platform without reading our source code.\n\n(4) Author pages now show work count / total favorites / most-loved work; game pages show similar titles by shared tags; favorites can be grouped and drag-sorted.\n\n(5) Reminder: every game still needs EULA, Privacy Policy and Terms of Service (Game Rules v5.0.0) to pass review.",
+      "media": [],
+      "buttons": [
+        {
+          "text_zh": "查看开发者文档",
+          "text_en": "Developer Docs",
+          "url": "https://game.leleleling.site/developer_docs.html",
+          "style": "primary",
+          "target": "_self"
+        },
+        {
+          "text_zh": "打开数据大屏",
+          "text_en": "Open Stats Dashboard",
+          "url": "https://game.leleleling.site/stats.html",
+          "style": "ghost",
+          "target": "_blank"
+        },
+        {
+          "text_zh": "llms.txt",
+          "text_en": "llms.txt",
+          "url": "https://game.leleleling.site/llms.txt",
+          "style": "ghost",
+          "target": "_blank"
+        }
+      ],
+      "dismissible": true,
+      "oncePerUser": true
+    },
     {
       "id": "notice-2026-11-18-v420-favorites-dashboard",
       "enabled": true,

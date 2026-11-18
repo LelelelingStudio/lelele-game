@@ -10,7 +10,17 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "author": "1",
-    "url": "https://happyfarmer.surge.sh"
+    "url": "https://happyfarmer.surge.sh",
+    "tags": {
+      "zh": [
+        "休闲",
+        "本站游戏"
+      ],
+      "en": [
+        "Casual",
+        "Local"
+      ]
+    }
   },
   {
     "id": 2,
@@ -23,7 +33,17 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "author": "1",
-    "url": "/game/old_happyfarmer/index.html"
+    "url": "/game/old_happyfarmer/index.html",
+    "tags": {
+      "zh": [
+        "休闲",
+        "本站游戏"
+      ],
+      "en": [
+        "Casual",
+        "Local"
+      ]
+    }
   },
   {
     "id": 3,
@@ -36,7 +56,19 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "author": "1",
-    "url": "/game/3Dshooting/index.html"
+    "url": "/game/3Dshooting/index.html",
+    "tags": {
+      "zh": [
+        "射击",
+        "本站游戏",
+        "12+"
+      ],
+      "en": [
+        "Shooter",
+        "Local",
+        "12+"
+      ]
+    }
   },
   {
     "id": 4,
@@ -49,7 +81,17 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "author": "1",
-    "url": "/game/deleting_bombs/index.html"
+    "url": "/game/deleting_bombs/index.html",
+    "tags": {
+      "zh": [
+        "益智",
+        "本站游戏"
+      ],
+      "en": [
+        "Puzzle",
+        "Local"
+      ]
+    }
   },
   {
     "id": 5,
@@ -62,7 +104,17 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "author": "1",
-    "url": "/game/happycorn/index.html"
+    "url": "/game/happycorn/index.html",
+    "tags": {
+      "zh": [
+        "休闲",
+        "本站游戏"
+      ],
+      "en": [
+        "Casual",
+        "Local"
+      ]
+    }
   },
   {
     "id": 6,
@@ -75,7 +127,17 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "author": "1",
-    "url": "/game/leveleating/index.html"
+    "url": "/game/leveleating/index.html",
+    "tags": {
+      "zh": [
+        "冒险",
+        "本站游戏"
+      ],
+      "en": [
+        "Adventure",
+        "Local"
+      ]
+    }
   },
   {
     "id": 7,
@@ -88,7 +150,17 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "author": "2",
-    "url": "/game/others/2026_7_7/point_the_button/index.html"
+    "url": "/game/others/2026_7_7/point_the_button/index.html",
+    "tags": {
+      "zh": [
+        "休闲",
+        "本站游戏"
+      ],
+      "en": [
+        "Casual",
+        "Local"
+      ]
+    }
   },
   {
     "id": 8,
@@ -101,7 +173,17 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "author": "1",
-    "url": "/game/popping_banana/index.html"
+    "url": "/game/popping_banana/index.html",
+    "tags": {
+      "zh": [
+        "休闲",
+        "本站游戏"
+      ],
+      "en": [
+        "Casual",
+        "Local"
+      ]
+    }
   },
   {
     "id": 9,
@@ -114,7 +196,19 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "author": "1",
-    "url": "/game/space_shooting/index.html"
+    "url": "/game/space_shooting/index.html",
+    "tags": {
+      "zh": [
+        "射击",
+        "本站游戏",
+        "12+"
+      ],
+      "en": [
+        "Shooter",
+        "Local",
+        "12+"
+      ]
+    }
   },
   {
     "id": 10,
@@ -127,7 +221,17 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "author": "1",
-    "url": "/game/universal_evolution/index.html"
+    "url": "/game/universal_evolution/index.html",
+    "tags": {
+      "zh": [
+        "冒险",
+        "本站游戏"
+      ],
+      "en": [
+        "Adventure",
+        "Local"
+      ]
+    }
   },
   {
     "id": 11,
@@ -140,7 +244,17 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "author": "1",
-    "url": "/game/eat_planet/index.html"
+    "url": "/game/eat_planet/index.html",
+    "tags": {
+      "zh": [
+        "休闲",
+        "本站游戏"
+      ],
+      "en": [
+        "Casual",
+        "Local"
+      ]
+    }
   },
   {
     "id": 12,
@@ -154,7 +268,17 @@
     "ageRating_en": "All Ages",
     "author": "3",
     "url": "https://levil-evil.lelelegame.surge.sh/",
-    "version": "v2.1.0"
+    "version": "v2.1.0",
+    "tags": {
+      "zh": [
+        "冒险",
+        "本站游戏"
+      ],
+      "en": [
+        "Adventure",
+        "Local"
+      ]
+    }
   },
   {
     "id": 13,
@@ -167,7 +291,19 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "author": "4",
-    "url": "https://jonathanxu-games.netlify.app/games/wilds-survival.html"
+    "url": "https://jonathanxu-games.netlify.app/games/wilds-survival.html",
+    "tags": {
+      "zh": [
+        "冒险",
+        "外网游戏",
+        "12+"
+      ],
+      "en": [
+        "Adventure",
+        "External",
+        "12+"
+      ]
+    }
   },
   {
     "id": 14,
@@ -180,7 +316,19 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "author": "4",
-    "url": "https://jonathanxu-games.netlify.app/games/army-war-3d.html"
+    "url": "https://jonathanxu-games.netlify.app/games/army-war-3d.html",
+    "tags": {
+      "zh": [
+        "射击",
+        "外网游戏",
+        "12+"
+      ],
+      "en": [
+        "Shooter",
+        "External",
+        "12+"
+      ]
+    }
   },
   {
     "id": 15,
@@ -193,7 +341,17 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "author": "1",
-    "url": "https://starseed-3fgwyvi5.manus.game/"
+    "url": "https://starseed-3fgwyvi5.manus.game/",
+    "tags": {
+      "zh": [
+        "冒险",
+        "本站游戏"
+      ],
+      "en": [
+        "Adventure",
+        "Local"
+      ]
+    }
   },
   {
     "id": 16,
@@ -206,7 +364,17 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "author": "5",
-    "url": "/game/MCpointygame/index.html"
+    "url": "/game/MCpointygame/index.html",
+    "tags": {
+      "zh": [
+        "休闲",
+        "本站游戏"
+      ],
+      "en": [
+        "Casual",
+        "Local"
+      ]
+    }
   },
   {
     "id": 17,
@@ -219,7 +387,17 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "author": "6",
-    "url": "https://swordmasters.io"
+    "url": "https://swordmasters.io",
+    "tags": {
+      "zh": [
+        "动作",
+        "外网游戏"
+      ],
+      "en": [
+        "Action",
+        "External"
+      ]
+    }
   },
   {
     "id": 18,
@@ -232,7 +410,19 @@
     "ageRating_zh": "6+",
     "ageRating_en": "6+",
     "author": "7",
-    "url": "https://farmrise-nkwhymwt.manus.game"
+    "url": "https://farmrise-nkwhymwt.manus.game",
+    "tags": {
+      "zh": [
+        "休闲",
+        "外网游戏",
+        "6+"
+      ],
+      "en": [
+        "Casual",
+        "External",
+        "6+"
+      ]
+    }
   },
   {
     "id": 19,
@@ -245,7 +435,19 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "author": "5",
-    "url": "https://archive.lelelegame.surge.sh/"
+    "url": "https://archive.lelelegame.surge.sh/",
+    "tags": {
+      "zh": [
+        "冒险",
+        "外网游戏",
+        "12+"
+      ],
+      "en": [
+        "Adventure",
+        "External",
+        "12+"
+      ]
+    }
   },
   {
     "id": 20,
@@ -258,7 +460,19 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "author": "5",
-    "url": "https://snowfield-embers.lelelegame.surge.sh/"
+    "url": "https://snowfield-embers.lelelegame.surge.sh/",
+    "tags": {
+      "zh": [
+        "冒险",
+        "本站游戏",
+        "12+"
+      ],
+      "en": [
+        "Adventure",
+        "Local",
+        "12+"
+      ]
+    }
   },
   {
     "id": 21,
@@ -271,7 +485,19 @@
     "ageRating_zh": "6+",
     "ageRating_en": "6+",
     "author": "7",
-    "url": "https://cozystay-8pt7va63.manus.game/"
+    "url": "https://cozystay-8pt7va63.manus.game/",
+    "tags": {
+      "zh": [
+        "休闲",
+        "外网游戏",
+        "6+"
+      ],
+      "en": [
+        "Casual",
+        "External",
+        "6+"
+      ]
+    }
   },
   {
     "id": 22,
@@ -284,7 +510,19 @@
     "ageRating_zh": "6+",
     "ageRating_en": "6+",
     "author": "3",
-    "url": "https://upclean.lelelegame.surge.sh/"
+    "url": "https://upclean.lelelegame.surge.sh/",
+    "tags": {
+      "zh": [
+        "模拟经营",
+        "外网游戏",
+        "6+"
+      ],
+      "en": [
+        "Simulation",
+        "External",
+        "6+"
+      ]
+    }
   },
   {
     "id": 23,
@@ -297,7 +535,19 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "author": "Unept",
-    "url": "https://playleveldevil.com/play/"
+    "url": "https://playleveldevil.com/play/",
+    "tags": {
+      "zh": [
+        "动作",
+        "外网游戏",
+        "12+"
+      ],
+      "en": [
+        "Action",
+        "External",
+        "12+"
+      ]
+    }
   },
   {
     "id": 24,
@@ -310,7 +560,19 @@
     "ageRating_zh": "6+",
     "ageRating_en": "6+",
     "author": "4",
-    "url": "https://jonathanxu-games.netlify.app/games/science-quest/"
+    "url": "https://jonathanxu-games.netlify.app/games/science-quest/",
+    "tags": {
+      "zh": [
+        "益智",
+        "外网游戏",
+        "6+"
+      ],
+      "en": [
+        "Puzzle",
+        "External",
+        "6+"
+      ]
+    }
   },
   {
     "id": 25,
@@ -323,7 +585,19 @@
     "ageRating_zh": "6+",
     "ageRating_en": "6+",
     "author": "8",
-    "url": "https://ramp-monopoly.netlify.app"
+    "url": "https://ramp-monopoly.netlify.app",
+    "tags": {
+      "zh": [
+        "休闲",
+        "外网游戏",
+        "6+"
+      ],
+      "en": [
+        "Casual",
+        "External",
+        "6+"
+      ]
+    }
   },
   {
     "id": 26,
@@ -336,7 +610,19 @@
     "ageRating_zh": "6+",
     "ageRating_en": "6+",
     "author": "1",
-    "url": "https://miniparkour.lelelegame.surge.sh/"
+    "url": "https://miniparkour.lelelegame.surge.sh/",
+    "tags": {
+      "zh": [
+        "休闲",
+        "站内游戏",
+        "6+"
+      ],
+      "en": [
+        "Casual",
+        "Internal",
+        "6+"
+      ]
+    }
   },
   {
     "id": 27,
@@ -349,7 +635,19 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "author": "4",
-    "url": "https://wilds-survival.pages.dev/"
+    "url": "https://wilds-survival.pages.dev/",
+    "tags": {
+      "zh": [
+        "冒险",
+        "外网游戏",
+        "12+"
+      ],
+      "en": [
+        "Adventure",
+        "External",
+        "12+"
+      ]
+    }
   },
   {
     "id": 28,
@@ -362,7 +660,19 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "author": "4",
-    "url": "https://fortress-gqznmnck.manus.game"
+    "url": "https://fortress-gqznmnck.manus.game",
+    "tags": {
+      "zh": [
+        "射击",
+        "外网游戏",
+        "12+"
+      ],
+      "en": [
+        "Shooter",
+        "External",
+        "12+"
+      ]
+    }
   },
   {
     "id": 29,
@@ -375,7 +685,17 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "author": "9",
-    "url": "https://mr6sgamebyjoy-games.leleleling.site/"
+    "url": "https://mr6sgamebyjoy-games.leleleling.site/",
+    "tags": {
+      "zh": [
+        "动作",
+        "本站游戏"
+      ],
+      "en": [
+        "Action",
+        "Local"
+      ]
+    }
   },
   {
     "id": 30,
@@ -388,7 +708,19 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "author": "3",
-    "url": "https://gunfire3d-games.leleleling.site/"
+    "url": "https://gunfire3d-games.leleleling.site/",
+    "tags": {
+      "zh": [
+        "射击",
+        "本站游戏",
+        "12+"
+      ],
+      "en": [
+        "Shooter",
+        "Local",
+        "12+"
+      ]
+    }
   },
   {
     "id": 31,
@@ -401,7 +733,17 @@
     "ageRating_zh": "全年龄",
     "ageRating_en": "All Ages",
     "author": "10",
-    "url": "https://explore-the-realm-games.leleleling.site"
+    "url": "https://explore-the-realm-games.leleleling.site",
+    "tags": {
+      "zh": [
+        "休闲",
+        "站内游戏"
+      ],
+      "en": [
+        "Casual",
+        "Internal"
+      ]
+    }
   },
   {
     "id": 32,
@@ -414,6 +756,18 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "author": "10",
-    "url": "https://warehousedistrict-pages.leleleling.site/"
+    "url": "https://warehousedistrict-pages.leleleling.site/",
+    "tags": {
+      "zh": [
+        "射击",
+        "站内游戏",
+        "12+"
+      ],
+      "en": [
+        "Shooter",
+        "Internal",
+        "12+"
+      ]
+    }
   }
 ]

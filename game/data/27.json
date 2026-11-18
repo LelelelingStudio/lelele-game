@@ -31,5 +31,17 @@
       "date": "2026-11-06",
       "content": "Updated to v2.0.0: new URL; added Regular Wilderness / Winter Wilderness / Scorching Desert modes; added quiz for Knowledge Points, camp shop, and crafting/building."
     }
-  ]
+  ],
+  "tags": {
+    "zh": [
+      "冒险",
+      "外网游戏",
+      "12+"
+    ],
+    "en": [
+      "Adventure",
+      "External",
+      "12+"
+    ]
+  }
 }

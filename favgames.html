@@ -54,6 +54,7 @@
                 <option value="20">Top 20</option>
                 <option value="all">查看全部</option>
             </select>
+            <button type="button" id="exportCsvBtn" style="padding:8px 14px;border-radius:10px;border:1px solid rgba(79,70,229,.3);background:rgba(79,70,229,.08);color:#4f46e5;font-weight:700;cursor:pointer;">⬇ CSV</button>
         </div>
     </div>
     <div id="loading" class="loading">数据加载中...</div>
@@ -63,7 +64,7 @@
         <div class="card"><h2>🧊 冷门收藏</h2><div id="bottomList"></div></div>
     </div>
     <div class="table-container" id="tableContainer" style="display:none;">
-        <table><thead><tr><th>排名</th><th>游戏名称</th><th>净收藏数</th><th>占比</th></tr></thead><tbody id="tableBody"></tbody></table>
+        <table><thead><tr><th>排名</th><th data-sort="name" style="cursor:pointer;">游戏名称 ↕</th><th data-sort="count" style="cursor:pointer;">净收藏数 ↕</th><th>占比</th></tr></thead><tbody id="tableBody"></tbody></table>
     </div>
     <div class="foot"><a href="/gamecheck.html">📊 查看游玩榜</a> · <a href="/index.html">返回首页</a></div>
 </div>
@@ -135,7 +136,12 @@
         } catch (err) {
             console.error(err);
             document.getElementById('loading').style.display = 'none';
-            document.getElementById('error').style.display = 'block';
+            const msg = document.getElementById('error');
+            const noData = err && /no data|empty|暂无/i.test(String(err.message || err));
+            msg.textContent = noData
+                ? (document.documentElement.getAttribute('data-lang') === 'en' ? 'No data for this range yet.' : '该时间范围暂无数据。')
+                : (document.documentElement.getAttribute('data-lang') === 'en' ? 'Network error - please check the analytics backend and CORS.' : '网络请求失败，请检查统计后端是否可用或跨域设置。');
+            msg.style.display = 'block';
         }
     }
 
@@ -179,6 +185,40 @@
     }
 
     fetchData();
+
+    // 导出当前表格为 CSV（#18）
+    function exportCsv() {
+        const rows = [...document.querySelectorAll('#tableBody tr')];
+        if (!rows.length) return;
+        const esc = s => '"' + String(s || '').replace(/"/g, '""') + '"';
+        const lines = [['排名','游戏名称','净收藏数','占比'].map(esc).join(',')];
+        rows.forEach(r => lines.push([...r.querySelectorAll('td')].map(td => esc(td.textContent.trim())).join(',')));
+        const blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'favgames-' + new Date().toISOString().slice(0,10) + '.csv';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    document.getElementById('exportCsvBtn')?.addEventListener('click', exportCsv);
+
+    // 列头排序（#27）
+    let sortKey = '', sortAsc = false;
+    document.querySelectorAll('th[data-sort]').forEach(th => th.addEventListener('click', () => {
+        const k = th.getAttribute('data-sort');
+        sortAsc = (sortKey === k) ? !sortAsc : false;
+        sortKey = k;
+        const body = document.getElementById('tableBody');
+        const rows = [...body.querySelectorAll('tr')];
+        rows.sort((a, b) => {
+            const ta = a.querySelectorAll('td')[k === 'name' ? 1 : 2]?.textContent.trim() || '';
+            const tb = b.querySelectorAll('td')[k === 'name' ? 1 : 2]?.textContent.trim() || '';
+            const na = parseFloat(ta.replace(/[^0-9.]/g,'')), nb = parseFloat(tb.replace(/[^0-9.]/g,''));
+            const cmp = k === 'name' ? ta.localeCompare(tb, 'zh') : (na - nb);
+            return sortAsc ? cmp : -cmp;
+        });
+        rows.forEach(r => body.appendChild(r));
+    }));
 </script>
 </body>
 </html>

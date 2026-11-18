@@ -442,7 +442,14 @@
         }
 
 
-    </style>
+    
+        .similar-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; }
+        .similar-card { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; border-radius: 14px; border: 1px solid var(--card-border); background: var(--card-bg); text-decoration: none; color: var(--text-main); transition: transform .18s, box-shadow .18s; }
+        .similar-card:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(79,70,229,.14); }
+        .similar-icon { font-size: 1.8rem; }
+        .similar-name { font-size: .82rem; font-weight: 700; text-align: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        @media (max-width: 640px) { .similar-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+</style>
 </head>
 <body>
 
@@ -519,6 +526,13 @@
                         <span class="zh-inline">📝 更新日志</span><span class="en-inline">📝 Update Log</span>
                     </div>
                     <div class="timeline" id="timeline"></div>
+                </div>
+
+                <div id="similarGames" style="display:none;">
+                    <div class="section-title">
+                        <span class="zh-inline">🎯 玩过这个的人也喜欢</span><span class="en-inline">🎯 Players also like</span>
+                    </div>
+                    <div class="similar-grid" id="similarGrid"></div>
                 </div>
             </div>
         </div>
@@ -913,7 +927,25 @@
             if (!descText) {
                 descText = en ? 'No description provided yet.' : '这个游戏很神秘，作者还没有写详细简介。';
             }
-            document.getElementById('gameDesc').textContent = descText;
+            const descEl = document.getElementById('gameDesc');
+            descEl.textContent = descText;
+            // 长简介折叠（#13）：超过 300 字默认收起
+            descEl.classList.remove('desc-collapsed');
+            const descWrap = descEl.closest('.game-desc-wrap') || descEl.parentElement;
+            let moreBtn = document.getElementById('descMoreBtn');
+            if (descText.length > 300) {
+                descEl.classList.add('desc-collapsed');
+                if (!moreBtn) {
+                    moreBtn = document.createElement('button');
+                    moreBtn.type = 'button'; moreBtn.id = 'descMoreBtn'; moreBtn.className = 'desc-more-btn';
+                    descEl.insertAdjacentElement('afterend', moreBtn);
+                }
+                moreBtn.textContent = en ? '展开全文 ▾' : '展开全文 ▾';
+                moreBtn.onclick = () => {
+                    const collapsed = descEl.classList.toggle('desc-collapsed');
+                    moreBtn.textContent = collapsed ? (en ? '展开全文 ▾' : '展开全文 ▾') : (en ? '收起 ▴' : '收起 ▴');
+                };
+            } else if (moreBtn) { moreBtn.remove(); }
 
             const screenshotList = [
                 ...(Array.isArray(game.screenshots) ? game.screenshots : []),
@@ -928,10 +960,10 @@
                     const safe = escapeHtml(src);
                     const isVid = isVideoUrl(src);
                     if (isVid) {
-                        // 直链视频用静音预览帧；平台链接用播放角标占位
+                        // 直链视频用静音预览帧；平台链接（B站/YouTube）用统一占位封面 + 播放角标，点击才加载 iframe（#9）
                         const inner = isDirectVideo(src)
-                            ? `<video muted playsinline preload="metadata" src="${safe}"></video>`
-                            : `<div style="width:100%;height:100%;background:linear-gradient(135deg,#111827,#374151);"></div>`;
+                            ? `<video muted playsinline preload="metadata" loading="lazy" src="${safe}"></video>`
+                            : `<div class="video-poster" role="img" aria-label="Video / 视频"><span class="video-poster-icon">▶</span><span class="video-poster-label">${en ? 'Click to play' : '点击播放'}</span></div>`;
                         return `<div class="video-thumb" onclick="openLightbox('${safe}')" title="${en ? 'Click to play' : '点击播放'}">
                             ${inner}
                             <span class="video-play-icon">▶</span>
@@ -1204,6 +1236,32 @@
             });
             
             init();
+
+            // 相似推荐（#7）：按同分类 + 同标签匹配，取 4 款（排除自己）
+            (async function loadSimilarGames() {
+                if (!currentGameData) return;
+                try {
+                    const res = await fetch('/lelegame_data.json', { cache: 'no-store' });
+                    if (!res.ok) return;
+                    const list = await res.json();
+                    const me = currentGameData;
+                    const myTags = (me.tags && me.tags.zh) || [];
+                    const scored = list.filter(g => String(g.id) !== String(me.id)).map(g => {
+                        let score = 0;
+                        if (g.category_zh === me.category_zh) score += 3;
+                        const gt = (g.tags && g.tags.zh) || [];
+                        gt.forEach(t => { if (myTags.includes(t)) score += 2; });
+                        return { g, score };
+                    }).filter(x => x.score > 0).sort((a, b) => b.score - a.score).slice(0, 4);
+                    if (!scored.length) return;
+                    const box = document.getElementById('similarGames');
+                    const grid = document.getElementById('similarGrid');
+                    if (!box || !grid) return;
+                    const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+                    grid.innerHTML = scored.map(({ g }) => `<a class="similar-card" href="game.html?id=${encodeURIComponent(g.id)}"><span class="similar-icon">${g.icon || '🎮'}</span><span class="similar-name">${(isEn ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en)) || g.name}</span></a>`).join('');
+                    box.style.display = 'block';
+                } catch (e) {}
+            })();
 
             window.addEventListener('langChanged', () => {
                 updateLinks();

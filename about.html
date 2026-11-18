@@ -529,7 +529,7 @@
             <p class="video-note">
                 <span class="zh-inline">若 YouTube 8 秒内无响应，将自动切换备用视频（国内可直连）；也可随时手动切换：</span>
                 <span class="en-inline">If YouTube does not respond within 8 seconds, a backup video loads automatically. You can also switch manually:</span>
-                <button type="button" class="video-alt-btn" id="videoAltBtn">
+                <button type="button" class="video-alt-btn" id="videoAltBtn" aria-pressed="false">
                     <span class="zh-inline" id="videoAltZh">切换备用视频</span><span class="en-inline" id="videoAltEn">Use backup video</span>
                 </button>
             </p>
@@ -549,6 +549,7 @@
                 </ul>
                 <p>我们不会向独立开发者收取任何上架费用，只希望为您提供一个纯粹的展示窗口。已登录的开发者可在后台自助提交新游戏、更新版本与截图，并按作者身份查看自己每款游戏的收藏表现；作者权威信息以本仓库 <code>authors/index.json</code> 为准。</p>
                 <p>在投稿前，请务必阅读 <a href="game_rules.html" class="content-link">《了了了游游戏守则》5.0.0</a>，了解平台的内容规范与审核标准（审核周期通常为 7 个工作日）。自 2026 年 11 月 15 日起，所有游戏都须具备「用户协议 / 隐私政策 / 服务条款」三类协议：外链游戏填写 https 直链，代码游戏可自带或使用平台<a href="generic_eula.html" class="content-link">万能协议</a>；没有协议的游戏无法通过审核。可通过<a href="legal_templates.html" class="content-link">协议模板中心</a>免费生成三套中英双语协议。</p>
+                <p>平台还开放了免登录、支持跨域的<a href="developer_docs.html" class="content-link">公开统计 API</a>与<a href="stats.html" class="content-link">数据大屏</a>，你可以查询自己游戏的游玩与收藏趋势；<a href="llms.txt" class="content-link">llms.txt</a> 则让 AI agent 无需阅读源码就能了解如何为本站开发游戏。</p>
             </div>
             <div class="en-text">
                 <p>We know that indie development is a lonely and difficult path. Every pixel and every line of code embodies the creator's hard work. Therefore, at lelele Game, we always put developers' rights first and solemnly promise you:</p>
@@ -558,6 +559,8 @@
                 </ul>
                 <p>We do not charge indie developers any listing fees; we just want to provide a pure showcase window. Signed-in developers can submit new games, update versions and screenshots in the dashboard, and see favorite counts for each of their games. The authoritative author registry lives in this repository at <code>authors/index.json</code>.</p>
                 <p>Before submitting, please read the <a href="game_rules.html?lang=en" class="content-link">lelele Game Rules v5.0.0</a> for content standards and review criteria (typically 7 business days). Since November 15, 2026, every game must provide an EULA, a Privacy Policy and Terms of Service: link-based games supply https URLs, code-based games may include their own or use the Platform's <a href="generic_eula.html?lang=en" class="content-link">generic agreements</a>. Games without agreements cannot pass review. You can generate all three bilingual agreements for free in the <a href="legal_templates.html?lang=en" class="content-link">Legal Template Center</a>.</p>
+                <p>We also expose a <a href="developer_docs.html?lang=en" class="content-link">public stats API</a> (no login, CORS enabled) and a <a href="stats.html?lang=en" class="content-link">dashboard</a> so you can track plays and favorites for your games. <a href="llms.txt" class="content-link">llms.txt</a> lets AI agents understand how to build for our platform without reading source code.</p>
+
             </div>
             <div class="dev-cta" style="margin-top:16px;">
                 <a class="btn btn-primary" href="apply-certification.html" style="display:inline-block;text-decoration:none;border-radius:12px;padding:10px 16px;font-weight:700;">
@@ -663,6 +666,7 @@
                 if (frame.getAttribute('src') !== ORIGINAL_SRC) frame.src = ORIGINAL_SRC;
                 frame.hidden = false;
                 if (altZh) altZh.textContent = '切换备用视频';
+                if (altBtn) altBtn.setAttribute('aria-pressed','false');
                 if (altEn) altEn.textContent = 'Use backup video';
             }
             function showBackup() {
@@ -672,6 +676,7 @@
                 frame.src = 'about:blank'; // 停掉 YouTube 请求，避免国内用户一直挂着重试
                 backup.play().catch(function () {}); // 浏览器拦截自动播放时用户仍可点原生控件
                 if (altZh) altZh.textContent = '切回 YouTube';
+                if (altBtn) altBtn.setAttribute('aria-pressed','true');
                 if (altEn) altEn.textContent = 'Back to YouTube';
             }
             function settleAuto(toBackup) {

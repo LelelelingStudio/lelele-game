@@ -128,6 +128,33 @@ function leleleOnReady(fn) {
             try { localStorage.setItem('lelele_favs', JSON.stringify(favs)); } catch (e) {}
         };
     }
+    // 收藏分组：lelele_fav_groups = { "分组名": ["id", ...] }；默认分组「默认」容纳未分配项
+    window.FAV_GROUPS_KEY = 'lelele_fav_groups';
+    window.getFavGroups = function () {
+        try {
+            const raw = JSON.parse(localStorage.getItem(window.FAV_GROUPS_KEY) || '{}');
+            return (raw && typeof raw === 'object' && !Array.isArray(raw)) ? raw : {};
+        } catch (e) { return {}; }
+    };
+    window.saveFavGroups = function (groups) {
+        try { localStorage.setItem(window.FAV_GROUPS_KEY, JSON.stringify(groups)); } catch (e) {}
+    };
+    window.getFavGroupOf = function (gameId) {
+        const groups = window.getFavGroups();
+        for (const name of Object.keys(groups)) {
+            if (Array.isArray(groups[name]) && groups[name].map(String).includes(String(gameId))) return name;
+        }
+        return '默认';
+    };
+    window.setFavGroup = function (gameId, groupName) {
+        const id = String(gameId);
+        const groups = window.getFavGroups();
+        Object.keys(groups).forEach(k => { groups[k] = (groups[k] || []).filter(x => String(x) !== id); });
+        const name = groupName || '默认';
+        if (!Array.isArray(groups[name])) groups[name] = [];
+        if (!groups[name].map(String).includes(id)) groups[name].push(id);
+        window.saveFavGroups(groups);
+    };
 
     // ==================== 全局配置 ====================
     const GAME_PATH_KEY = '/game/';
@@ -1170,7 +1197,12 @@ function leleleOnReady(fn) {
         overlay.innerHTML = `
             <div class="common-modal" style="max-width: 800px;">
                 <button class="common-modal-close" onclick="document.getElementById('commonAllAnnounceModal').classList.remove('active')">×</button>
-                <div class="modal-header" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem;">${isEn ? '📢 All Announcements' : '📢 全部公告'}</div>
+                <div class="modal-header" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.6rem;">${isEn ? '📢 All Announcements' : '📢 全部公告'}</div>
+                <div class="announce-filter-bar" id="announceFilterBar" style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+                    <button type="button" class="announce-filter-btn active" data-af="all">${isEn ? 'All' : '全部'}</button>
+                    <button type="button" class="announce-filter-btn" data-af="unread">${isEn ? 'Unread' : '未读'}</button>
+                    <button type="button" class="announce-filter-btn" data-af="read">${isEn ? 'Read' : '已读'}</button>
+                </div>
                 <div class="common-announce-all-box">
                     <div class="common-announce-sidebar" id="commonAnnounceSidebar"></div>
                     <div class="common-announce-detail-area" id="commonAnnounceDetail"></div>
@@ -1181,13 +1213,31 @@ function leleleOnReady(fn) {
         const sidebar = document.getElementById('commonAnnounceSidebar');
         const detail = document.getElementById('commonAnnounceDetail');
 
-        sidebar.innerHTML = allData.map((item, index) => {
-            const title = isEn ? (item.title_en || item.title) : (item.title_zh || item.title);
-            return `<div class="common-announce-menu-item ${index === 0 ? 'active' : ''}" data-index="${index}"><div class="common-announce-menu-title">${escapeHtml(title)}</div><div class="common-announce-menu-date">${escapeHtml(item.publishDate)}</div></div>`;
-        }).join('');
+        let announceFilter = 'all';
+        let filteredData = allData;
+        const renderSidebar = () => {
+            const rl = (() => { try { return JSON.parse(localStorage.getItem('leleleAnnounceRead') || '[]'); } catch (e) { return []; } })();
+            filteredData = allData.filter(item => announceFilter === 'all' ? true
+                : announceFilter === 'read' ? rl.includes(item.id) : !rl.includes(item.id));
+            sidebar.innerHTML = filteredData.length ? filteredData.map((item, index) => {
+                const title = isEn ? (item.title_en || item.title) : (item.title_zh || item.title);
+                return `<div class="common-announce-menu-item ${index === 0 ? 'active' : ''}" data-index="${index}"><div class="common-announce-menu-title">${escapeHtml(title)}</div><div class="common-announce-menu-date">${escapeHtml(item.publishDate)}</div></div>`;
+            }).join('') : `<div style="padding:16px;color:#64748b;font-size:.85rem;">${isEn ? 'No announcements here.' : '这里暂无公告。'}</div>`;
+        };
+        renderSidebar();
+        const fbar = document.getElementById('announceFilterBar');
+        if (fbar) fbar.addEventListener('click', e => {
+            const b = e.target.closest('[data-af]');
+            if (!b) return;
+            announceFilter = b.getAttribute('data-af');
+            fbar.querySelectorAll('[data-af]').forEach(x => x.classList.toggle('active', x === b));
+            renderSidebar();
+            if (filteredData.length) { renderDetail(0); sidebar.querySelector('[data-index="0"]')?.classList.add('active'); }
+        });
 
         const renderDetail = (index) => {
-            const item = allData[index];
+            const item = filteredData[index];
+            if (!item) { detail.innerHTML = ''; return; }
             const title = isEn ? (item.title_en || item.title) : (item.title_zh || item.title);
             const rawContent = isEn ? (item.content_en || item.content) : (item.content_zh || item.content);
             const formattedContent = sanitizeAnnouncementHtml((rawContent || '').replace(/\n/g, '<br>'));

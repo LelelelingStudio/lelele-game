@@ -29,5 +29,15 @@
       "date": "2026-10-19",
       "content": "Initial release!"
     }
-  ]
+  ],
+  "tags": {
+    "zh": [
+      "冒险",
+      "本站游戏"
+    ],
+    "en": [
+      "Adventure",
+      "Local"
+    ]
+  }
 }

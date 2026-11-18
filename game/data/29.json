@@ -31,10 +31,20 @@
       "date": "2026-11-11",
       "content": "Initial release!"
     }
-  ], 
+  ],
   "legal_urls": {
     "eula": "",
     "privacy": "",
     "terms": ""
+  },
+  "tags": {
+    "zh": [
+      "动作",
+      "本站游戏"
+    ],
+    "en": [
+      "Action",
+      "Local"
+    ]
   }
 }

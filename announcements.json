@@ -1,5 +1,14 @@
 [
   {
+    "id": "20261118-site-430-developer-api-browse",
+    "title_zh": "🎉 站点 4.3.0：标签筛选、收藏分组与开发者数据开放",
+    "title_en": "🎉 Site v4.3.0: Tag Filters, Favorite Groups & Open Developer Data",
+    "content_zh": "站点升级到 4.3.0，带来一批浏览与创作者相关的新功能：\n\n🏷️ 更好找游戏：首页新增「本周新游与更新」轮播、标签多选筛选、搜索历史，随机游玩也能指定范围。\n\n⭐ 收藏更好用：收藏弹窗支持分组与拖动排序；详情页新增「玩过这个的人也喜欢」相似推荐和长简介折叠；作者页现在能看到作品数、总收藏与最受欢迎作品。\n\n📊 面向开发者：平台开放公开统计 API（无需登录、支持跨域），开发者可在开发者文档看到用法，也可在数据大屏 stats.html 直接查询；我们还提供了 llms.txt，帮助 AI agent 快速理解如何接入与开发游戏，无需阅读我们的源码。\n\n📢 公告弹窗支持已读/未读筛选；收藏榜与游玩榜可导出 CSV、点列头排序。\n\n感谢每一位玩家与开发者，祝玩得开心！",
+    "content_en": "Site v4.3.0 is here with a batch of discovery and creator features:\n\n🏷️ Find games faster: a weekly new/updated carousel, multi-select tag filters, search history, and a scope filter for random play.\n\n⭐ Better favorites: group and drag-to-reorder your favorites; game pages now show similar recommendations and collapsible long descriptions; author pages show work count, total favorites and the most-loved title.\n\n📊 For developers: a public stats API (no login, CORS open) documented in the developer guide, a visual dashboard at stats.html, and llms.txt so AI agents can understand how to integrate and build games here without reading our source.\n\n📢 Announcements can be filtered read/unread; leaderboards support CSV export and sortable columns.\n\nThanks to every player and developer - have fun!",
+    "publishDate": "2026-11-18",
+    "expireDate": "2026-12-18"
+  },
+  {
     "id": "20261118-site-420-player-update",
     "title_zh": "🎉 站点 4.2.0：全新游戏播放器、收藏榜与宣传视频",
     "title_en": "🎉 Site v4.2.0: New Player, Favorites Leaderboard & Promo Video",

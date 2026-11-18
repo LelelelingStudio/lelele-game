@@ -29,5 +29,17 @@
       "date": "2026-10-21",
       "content": "Initial release!"
     }
-  ]
+  ],
+  "tags": {
+    "zh": [
+      "冒险",
+      "外网游戏",
+      "12+"
+    ],
+    "en": [
+      "Adventure",
+      "External",
+      "12+"
+    ]
+  }
 }

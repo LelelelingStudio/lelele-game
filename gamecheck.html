@@ -65,6 +65,7 @@
                 <option value="20">Top 20</option>
                 <option value="all">查看全部</option>
             </select>
+            <button type="button" id="exportCsvBtn" style="padding:8px 14px;border-radius:10px;border:1px solid rgba(79,70,229,.3);background:rgba(79,70,229,.08);color:#4f46e5;font-weight:700;cursor:pointer;">⬇ CSV</button>
         </div>
     </div>
     <div id="loading" class="loading">数据加载中...</div>
@@ -131,7 +132,12 @@
         } catch (err) {
             console.error(err);
             document.getElementById('loading').style.display = 'none';
-            document.getElementById('error').style.display = 'block';
+            const msg = document.getElementById('error');
+            const noData = err && /no data|empty|暂无/i.test(String(err.message || err));
+            msg.textContent = noData
+                ? (document.documentElement.getAttribute('data-lang') === 'en' ? 'No data for this range yet.' : '该时间范围暂无数据。')
+                : (document.documentElement.getAttribute('data-lang') === 'en' ? 'Network error - please check the analytics backend and CORS.' : '网络请求失败，请检查统计后端是否可用或跨域设置。');
+            msg.style.display = 'block';
         }
     }
 
@@ -160,6 +166,22 @@
     }
 
     fetchData();
+
+    // 导出当前表格为 CSV（#18）
+    function exportCsv() {
+        const rows = [...document.querySelectorAll('#tableBody tr')];
+        if (!rows.length) return;
+        const esc = s => '"' + String(s || '').replace(/"/g, '""') + '"';
+        const lines = [['排名','游戏名称','访问次数','占比'].map(esc).join(',')];
+        rows.forEach(r => lines.push([...r.querySelectorAll('td')].map(td => esc(td.textContent.trim())).join(',')));
+        const blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'gamecheck-' + new Date().toISOString().slice(0,10) + '.csv';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    document.getElementById('exportCsvBtn')?.addEventListener('click', exportCsv);
 </script>
 
 <div style="margin:28px 0 10px;text-align:center;font-size:.88rem;color:#64748b">

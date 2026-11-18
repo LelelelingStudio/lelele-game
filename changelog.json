@@ -1,5 +1,23 @@
 [
   {
+    "version": "4.3.0",
+    "date": "2026-11-18",
+    "content_zh": "中版本 4.3.0：开发者能力与浏览体验升级。① 新增公开统计 API `/api/public/stats?game=&range=&cmp=`（免登录、CORS 开放），返回单游戏游玩/净收藏趋势与对比时段；新增开发者数据大屏 stats.html 与 llms.txt（让 AI agent 无需读源码即可理解平台的游戏接入与数据契约），开发者文档新增专章。② 首页新增「本周新游与更新」轮播、标签多选筛选、搜索历史；随机游玩支持范围筛选。③ 收藏弹窗支持分组与拖动排序；详情页新增相似推荐与长简介折叠；作者页显示作品数/总收藏/最受欢迎作品。④ 公告弹窗支持已读/未读筛选；收藏榜与游玩榜支持 CSV 导出与列头排序；全站图片懒加载与分类 emoji 兜底、返回顶部按钮。⑤ SW 预缓存自检脚本，确保新增页面不会出现离线白屏。",
+    "content_en": "Minor version 4.3.0: developer capabilities and browsing upgrades. (1) New public stats API `/api/public/stats?game=&range=&cmp=` (no login, CORS open) returning per-game plays/net-favorites series with previous-period comparison; new developer dashboard stats.html and llms.txt (so AI agents understand game integration and data contracts without reading source); developer docs gain a dedicated chapter. (2) Homepage gains a weekly new/updated carousel, multi-select tag filters, search history and a scope filter for random play. (3) Favorites dialog supports groups and drag-to-reorder; game detail pages gain similar-game recommendations and collapsible long descriptions; author pages show work count / total favorites / most-loved work. (4) Announcement dialog supports read/unread filtering; favorites and play leaderboards support CSV export and sortable columns; site-wide image lazy-loading with category emoji fallback and a back-to-top button. (5) A precache self-check script keeps new pages available offline."
+  },
+  {
+    "version": "4.2.2",
+    "date": "2026-11-18",
+    "content_zh": "小版本 4.2.2：播放器与文档细节。play.html 全屏失败时回退整窗全屏，外链游戏确认后必定能进全屏；游戏信息条作者名支持悬停查看全名；about 视频切换按钮补无障碍状态；开发者文档补公开统计 API 用法。",
+    "content_en": "Patch 4.2.2: player and documentation polish. play.html now falls back to whole-window fullscreen if the iframe cannot go fullscreen, so external games always enter fullscreen after confirmation; the player info bar shows the full author name on hover; the About video switch has an accessibility state; developer docs document the public stats API."
+  },
+  {
+    "version": "4.2.1",
+    "date": "2026-11-18",
+    "content_zh": "小版本 4.2.1：排行榜细节修正。Top3 预览与总榜量词统一为「排行点」，不再展示计算公式；修复收藏事件（按游戏 id）与游玩事件（按游戏名）命名空间不一致导致的总榜未加权问题（levil-evil 136 游玩 + 1 收藏 → 141 排行点）；SW 缓存升 v1.13 强制清旧缓存，确保玩家看到修正后的榜单。",
+    "content_en": "Patch 4.2.1: ranking polish. Top3 and the Overall tab now consistently show \"rank points\" with the formula hidden; fixed the namespace mismatch between favorite events (keyed by game id) and play events (keyed by name) that left the overall ranking unweighted (levil-evil 136 plays + 1 favorite -> 141 rank points); SW cache bumped to v1.13 to clear stale scripts."
+  },
+  {
     "version": "4.2.0",
     "date": "2026-11-18",
     "content_zh": "播放器、收藏体系与全站文档适配（站点 4.2.0）。① 新增独立播放器 `play.html`（`?id=` 直查主列表、零外部依赖）：自建干净浏览器外壳（地址栏 + 语言/重载/全屏/关闭 + 底部栏），同源游戏以 `?embed=1&lang=` 内嵌，`common.js` 在 embed 模式跳过页脚/节日装饰/公告弹窗（解决外壳里出现雪人/树/飘雪的问题），外链游戏给「在新标签打开」兜底；iframe 不设 sandbox 以保留游戏 localStorage 存档，全屏改为对 iframe 自身沉浸全屏、外链全屏前中英双语确认。`game.html` 的「开始游戏」改为跳转 play.html，旧外壳 CSS/DOM/JS 全删。\n② 收藏体系：收藏/取消各发一个 analytics 事件（`fav-game_<id>` / `unfav-game_<id>`），每游戏每天最多 3 轮（仅限制埋点，不影响收藏功能）；11/26 前一次性把存量本地收藏补报（localStorage 标记永不重发）；作者页与开发者后台显示自己每个游戏的收藏数；首页 Top3 改为「收藏×5+游玩」的排行点排序，「查看更多」弹窗加总榜/收藏榜/游玩榜前三榜各前 25；新建 `favgames.html` 收藏榜（本站与 analytics 域双站），净收藏=fav−unfav，支持时间范围/Top N/全量表。\n③ `about.html` 新增宣传视频（YouTube 优先、8s 无响应自动切国内可直连 https mp4、可手动切换）；修复搜索框英文态 placeholder 仍显示中文、外壳按钮未双语等问题。\n④ 作者权威源已于 11/14 迁回本仓库 `authors/index.json`（surge 退役），admin 六动作与作者生成器全量可用；README 全量重写为英文详细版并加入 Star History 明暗双主题图表。\n⑤ 新增中版本专属公告与开发者专属告示（侧重点分开），全站介绍性页面与文档同步到当前架构；SW 缓存 `lelele-pwa-v1.12`。",

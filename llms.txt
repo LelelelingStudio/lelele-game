@@ -1,0 +1,94 @@
+# Lelele Game (了了了游) — LLM / Agent Setup
+
+> Read this file first. It explains the platform from a **game developer / integrator** point of view.
+> You do NOT need to read the repository source code to build or integrate a game here.
+> Site: https://game.leleleling.site · Analytics: https://analytics.leleleling.site
+> Version baseline: 4.2.0 · Game rules 5.0.0 · Data: 32 games / 10 authors.
+
+## What this site is
+
+A bilingual (Chinese / English) indie game portal. Players browse games, favorite them, and play them
+in a standalone player. Developers submit games and read per-game statistics. Everything is a static
+site (GitHub Pages) plus a Cloudflare Worker backend for analytics.
+
+## For game developers — how to submit
+
+1. Read the rules: https://game.leleleling.site/game_rules.html (v5.0.0).
+2. Every game MUST provide three legal agreements: EULA, Privacy Policy, Terms of Service.
+   - External/embedded games: provide https URLs in `legal_urls` of `game/data/<id>.json`.
+   - Code games: ship your own, or use the platform's generic agreements
+     (`generic_eula.html`, `generic_privacy.html`, `generic_tos.html`).
+   - Free bilingual generator: https://game.leleleling.site/legal_templates.html
+3. Submission form: the "投稿" button on the homepage; author identity is matched by the developer
+   display name against the `author` field of the catalog.
+4. Review takes ~7 business days; you will be notified by email.
+5. Full guide: https://game.leleleling.site/developer_docs.html
+
+## Data model (the only three files an integration needs)
+
+- `lelegame_data.json` — master catalog. Fields: `id`, `name_zh`, `name_en`, `icon`,
+  `category_zh`, `category_en`, `type` (`local` | `external` | `internal`), `ageRating_zh/en`,
+  `author` (author id), `url`, `tags` (`{zh:[], en:[]}`).
+- `game/data/<id>.json` — details: `banner`, `screenshots[]`, `videos[]`, `description_zh/en`,
+  `updateLog_zh/en` (`[{version,date,content}]`), `legal_urls` (`{eula, privacy, terms}`).
+- `authors/index.json` — author registry (`id`, `uuid`, `name_zh`, `name_en`, avatar, badges).
+
+## Public statistics API (no key, no login, CORS `*`)
+
+Per-game plays and net favorites:
+
+```
+GET https://analytics.leleleling.site/api/public/stats?game=<name-or-id>&range=30d&cmp=1
+```
+
+- `game`: game name (plays) or numeric id (favorites); either is accepted.
+- `range`: `today`, `7d`, `30d`, `90d`, `12mo` (default `30d`).
+- `cmp=1`: adds `prevTotal` for the previous period.
+- Returns: `{ game, range, plays: {series,total,prevTotal}, favorites: {series,total,prevTotal} }`.
+  `series` is `[{label, value}]`; `favorites` = favorites minus unfavorites.
+
+All-event breakdown (advanced):
+
+```
+GET https://analytics.leleleling.site/api/breakdown?site=1&cmp=1&limit=1000&dim=event&range=30d
+```
+
+Event naming conventions (important):
+- `play-game_<game name>` — one event each time a game starts.
+- `fav-game_<game id>` / `unfav-game_<game id>` — favorite / unfavorite actions.
+- Ranking score ("rank points") = net favorites × 5 + plays.
+
+## Pages an agent should link to
+
+- Game catalog / discovery: `/index.html`
+- Game detail: `/game.html?id=<id>`
+- Standalone player: `/play.html?id=<id>` (games load as `?embed=1` inside a clean shell)
+- Favorites leaderboard: `/favgames.html`
+- Play/visit leaderboard: `/gamecheck.html`
+- Visual stats dashboard: `/stats.html`
+- Developer docs: `/developer_docs.html`
+- Game rules: `/game_rules.html` · Legal templates: `/legal_templates.html`
+- About: `/about.html`
+
+## Embedding / player notes
+
+- The standalone `play.html` embeds same-origin games with `?embed=1&lang=zh|en`; the game page
+  detects embed mode and hides site footers, seasonal decorations and announcement popups.
+- Games that block embedding show a prominent "Open in new tab" bar; fullscreen targets the iframe
+  (with a whole-window fallback) and asks for confirmation first on external games.
+- Game saves use browser `localStorage`; the player deliberately does not sandbox the iframe.
+
+## For AI agents
+
+- Prefer consuming the public API and the JSON data files above instead of scraping HTML.
+- Respect the favorite-rate limit: each game allows at most 3 favorite/unfavorite cycles per day
+  per user for analytics counting (the UI itself is never blocked).
+- All user-facing strings are bilingual; switch with `?lang=en` or `localStorage['lelele_lang']`.
+- Do not attempt to access authenticated developer endpoints (`/api/*` outside the public paths).
+
+## Further reading
+
+- Developer guide: https://game.leleleling.site/developer_docs.html
+- Stats dashboard: https://game.leleleling.site/stats.html
+- Source repository: https://github.com/LelelelingStudio/lelele-game
+- Analytics worker: https://github.com/LelelelingStudio/edgemetry-analytics

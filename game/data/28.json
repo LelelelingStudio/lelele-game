@@ -31,5 +31,17 @@
       "date": "2026-11-09",
       "content": "Initial release!"
     }
-  ]
+  ],
+  "tags": {
+    "zh": [
+      "射击",
+      "外网游戏",
+      "12+"
+    ],
+    "en": [
+      "Shooter",
+      "External",
+      "12+"
+    ]
+  }
 }

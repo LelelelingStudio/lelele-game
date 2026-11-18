@@ -24,6 +24,8 @@ window.leleleSearch = function(query, games, lang, scope = 'all') {
             { str: game.name_en || '', type: 'name' },
             { str: game.category_zh || '', type: 'category' },
             { str: game.category_en || '', type: 'category' },
+            ...((game.tags && Array.isArray(game.tags.zh) ? game.tags.zh : []).map(s => ({ str: s, type: 'tag' }))),
+            ...((game.tags && Array.isArray(game.tags.en) ? game.tags.en : []).map(s => ({ str: s, type: 'tag' }))),
             { str: game.author || '', type: 'author' }
         ].filter(t => t.str);
 
@@ -56,7 +58,7 @@ window.leleleSearch = function(query, games, lang, scope = 'all') {
             }
 
             // 字段权重：标题 > 分类/标签 > 作者
-            const weight = target.type === 'name' ? 1 : (target.type === 'category' ? 0.75 : 0.6);
+            const weight = target.type === 'name' ? 1 : (target.type === 'category' ? 0.75 : (target.type === 'tag' ? 0.7 : 0.6));
             currentScore = Math.round(currentScore * weight);
 
             if (currentScore > maxScore) {

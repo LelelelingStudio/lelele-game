@@ -2,7 +2,7 @@
 
 > **读者**：一个对本仓库**零上下文**的 AI（或人类协作者）。通读本文后，你应该能独立理解架构、数据契约、前后端边界、部署链路、历史遗留问题，并安全地接手任何改造任务。
 > **维护**：本文件由 AI 维护，描述「项目**现在**是什么样」。每次大改动完成后，更新本文相关章节，并在 `historymd/` 新增一篇记录（见 0.3）。
-> **版本基准**：2026-11-18 · 站点 `4.2.0` ·《游戏守则》`5.0.0` · SW 缓存 `lelele-pwa-v1.13` · 32 款游戏（17 local / 12 external / 3 internal）/ 10 位作者 / 14 条公告 / 15 条开发者告示。
+> **版本基准**：2026-11-18 · 站点 `4.3.0` ·《游戏守则》`5.0.0` · SW 缓存 `lelele-pwa-v1.13` · 32 款游戏（17 local / 12 external / 3 internal）/ 10 位作者 / 15 条公告 / 16 条开发者告示。
 > **准确性**：本文所有标识符、常量、字段、域名、表单 ID 均逐文件核实过。行号会随改动漂移，故正文以「文件 + 函数名 / 常量名」定位，不依赖行号。若发现描述与代码冲突，**以代码为准**并顺手修正本文。
 
 ---
@@ -168,7 +168,9 @@ flowchart TB
 | `login.html` | 开发者登录/注册（邮箱 + OAuth + 密码找回） |
 | `about.html` | 关于我们 + `changelog.json` 渲染 + **宣传视频**：`youtube-nocookie.com/embed/Ty5BQUiSlts` iframe 优先，`PROMO_VIDEO_TIMEOUT`（默认 **8s**）无 `load` 响应自动切 **`https://gamepic.surge.sh/lelelegamevideo.mp4`**（原 http 会触发 Chrome 混合内容自动升级 + 警告，已改 https；已核实 200 + CORS `*`）；mp4 `<source>`/`video` 出错自动切回 YouTube；**无加载遮罩**（原 `.video-loading` 全屏遮罩因 CSS `display:flex` 优先级高于 `[hidden]` 导致视频加载后仍盖住画面，已彻底删除 DOM/CSS/JS 引用）；视频下方按钮双向切换；切备用时把 iframe src 置 `about:blank` 停请求，切回恢复 `ORIGINAL_SRC` 防黑框 |
 | `docs.html` | 站点导航 / 文档中心 |
-| `developer_docs.html` | 开发者文档 |
+| `developer_docs.html` | 开发者文档（4.3.0 起含公开统计 API 专章：端点/参数/返回示例/agent 说明链接） |
+| `stats.html` | 开发者数据大屏：输入游戏名/ID 查 `https://analytics.leleleling.site/api/public/stats`，显示总游玩/净收藏/排行点（收藏×5+游玩）与每日趋势，带 CSV 导出与接入说明 |
+| `llms.txt` | 面向 AI agent 的站点说明（游戏开发者/集成者视角）：投稿流程、三文件数据契约、公开 API 与事件命名、播放器内嵌规则、页面索引；agent 无需读源码即可理解如何接入 |
 | `sitemap.html` | 人类可读站点地图 |
 | `gamecheck.html` | 游戏实时数据看板（analytics API） |
 | `favgames.html` | 游戏收藏排行榜（analytics API）：`fav-game_<id> - unfav-game_<id>` 净收藏，时间范围/Top N/全量表，游戏名映射；**analytics 域 `/favgames` 也有同款页**（独立仓库 `edgemetry-analytics`） |
@@ -815,6 +817,7 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 | 2026-11-18 | 本次（收藏体系） | **收藏埋点**：`common.js` 加 `trackFavorite()`（fav-game_<id>/unfav-game_<id>，每游戏每天 3 轮上限仅限埋点）、`migrateFavoritesOnce()`（11/26 前一次性存量补报，localStorage 标记）、`loadFavCounts()`；三处收藏动作接通。**每游戏收藏数**：author.html 游戏卡 + dashboard.html「我的游戏收藏数」卡片（本页不引 common.js，内联查询）。**排行榜**：Top3 改收藏×5+游玩加权，弹窗加总榜/收藏榜/游玩榜三 Tab（各前 25，0 值过滤）。**favgames.html**：本仓库 + analytics 域 `/favgames` 双站，净收藏=fav-unfav + 游戏名映射。analytics 仓库（`edgemetry-analytics`）提交 `de59fb0` 已 push；本仓库 `f05afdc`。实测加权 150/100/50、三 Tab、存量迁移、favgames 净收藏、零 JS 错误 |
 | 2026-11-18 | 本次（播放器入口统一+信息条+全屏修复） | ①首页预览弹窗「直接进入游戏」（`index.js showPreview()` 的 `#btnPlay`）由 `window.open(game.url)` 改为跳 `play.html?id=N&lang=`（与详情页一致），埋点保留。②`play.html` 新增简略版详情信息条 `.gameinfo`（游戏名 + 作者名〈查 `/authors/index.json`〉+ ⭐收藏按钮 + 📄跳 `game.html?id=N` 详情按钮），收藏读写/埋点内联实现（本页零依赖不引 common.js，与 `common.js` 同口径：lelele_favs + em:fav-rounds:v1 每游戏每天 3 轮上限、fav-game_/unfav-game_ 事件），语言切换重绘作者名。③修外链游戏全屏：原 `iframeFull()` 吞掉 Promise 拒绝且无兜底，点确认后 iframe 全屏被拒就毫无反应；现失败回退整窗 `#playRoot` 全屏（`iframeFull().catch(rootFull)`），确认后一定能进全屏。实测语法全绿；route 拦截环境不稳改用代码审查 + push 后线上验证 |
 | 2026-11-18 | 本次（排行榜卡片 UX） | 用户反馈"窄屏查看详情按钮没了、字变小夸张、名次板块没大小差、要显示可点作者名+收藏按钮"。**修复**：①`index.js` mapped 带作者 id/名/主页链接（`authorsData` 空时 `fetchAuthors()` 兜底，避免并行启动拿到 id）；Top3 卡外层 `<button>`→`<div role=link>` 避免嵌套按钮，加 `.rank-author`（跳 `author.html?id=`）+ `.rank-fav-btn`（`window.toggleRankFav(id)` 就地刷新所有同 id 按钮，与 `trackFavorite` 埋点同口径），弹窗行同样加作者+收藏（`.rank-modal-game`/`.rank-modal-actions`）。②根因 `.home-side .rank-card.rank-N { width:100%; min-height:unset }` 无条件清掉梯度 → 侧栏改宽 100%/91%/85%、高 214/182/162（1→2 差 > 2→3），并修窄屏：1024 断点不再 `rank-meta display:none`、字号 0.78→0.9rem、按钮保留；640 断点按钮不换行防撑高。实测：宽 W 282/257/240、高 H 214/182/175（差 25>17、32>7），作者名 Kevin Liao/Emolingo games/Wheat 可点、收藏切换 + 弹窗作者/收藏、窄屏 meta:flex+按钮可见+14.4px、零 JS 错误 |
+| 2026-11-18 | 本次（4.3.0 大功能批） | 按 new.md 清单完成 29 项（跳过玩家用户系统）：**#3** analytics 仓库新增免登录/CORS* 的 `/api/public/stats?game=&range=&cmp=`（单游戏游玩/净收藏趋势+对比），本仓库新增数据大屏 `stats.html`、开发者文档 API 专章、**`llms.txt`**（面向 AI agent 的接入说明，无需读源码）；**#4-8** 首页本周更新轮播/标签多选筛选/收藏分组+拖动排序/详情页相似推荐/作者页统计概览（作品数/总收藏/最受欢迎）；**#9-18** 视频占位封面+点击才载、搜索历史、随机范围筛选、长简介折叠、公告已读未读筛选、全站图片懒加载+分类 emoji 兜底、两榜 CSV 导出；**#19-33** 排行点千分位、无障碍 aria、作者链接带语言、视频按钮 aria-pressed、favgames 列头排序、错误文案区分、外链 rel 全量检查、SW 预缓存自检脚本 `scripts/check-precache.mjs`、深色模式对比度、返回顶部。三条 changelog（4.2.1/4.2.2/4.3.0）+ 两类公告（玩家 15 / 开发者 16 条）。全量语法与自检脚本通过；实测见各功能段 |
 | 2026-11-18 | 本次（排行榜加权修复） | 用户反馈"总榜还写次、收藏量 1 的 levil-evil 排行点和游玩次数一样"：根因 `fav-game_<id>` 用游戏 id、`play-game_<name>` 用游戏名，两套命名空间在合并前没归一，收藏分挂在 id 项、游玩分挂在名称项，总榜没加上。**修复**：缓存原始 events，目录加载后先把两者统一归一到游戏 id 再合并（总榜=收藏×5+游玩）；弹窗总榜量词由「次」改「排行点 / rank points」（游玩榜保留「次」、收藏榜「收藏」）；SW v1.12→**v1.13** 强制清旧缓存让用户拿到新 index.js。实测真实数据：levil-evil 136 游玩+1 收藏 → **141 排行点**，总榜/收藏榜量词与数值均正确、零 JS 错误 |
 | 2026-11-18 | 本次（4.2.0 中版本+文档适配） | **站点升 4.2.0**：changelog.json 头部新增 4.2.0（版本总数 51）；**两类公告分开**：announcements.json 新增 `20261118-site-420-player-update`（玩家视角：播放器/收藏榜/视频/双语，14 条）、noticetodeveloper.json version 10 新增 `notice-2026-11-18-v420-favorites-dashboard`（作者视角：后台收藏数/统计口径/排行榜/播放器/作者源，15 条，priority 400）并修正 `_readme` 的 surge 过时说明。**排行点文案**：Top3 预览改为只显示「N 排行点 / N rank points」，不再显示 `收藏×5+游玩` 公式。**about.html 全量适配**：关于段改为可选登录 + 收藏榜 + 排行点说明、致开发者补后台自助/作者源在本仓库/守则 5.0.0 三类协议必备/协议模板中心、工作室段删「官网重做中」。**全站文档基准对齐真值**：foraisthings/thoughts 版本基准→4.2.0 / SW v1.12 / 32 游戏（17 local+12 external+3 internal）/ 10 作者 / 14 公告 / 15 告示，README 三处 31→32，GAME_ENTRY_TEMPLATE 示例 id 23→31。实测 JSON 全有效、排行点文案中英正确、about 文案渲染、零 JS 错误 |
 

@@ -30,5 +30,17 @@
       "date": "2026-10-26",
       "content": "Initial release!"
     }
-  ]
+  ],
+  "tags": {
+    "zh": [
+      "休闲",
+      "外网游戏",
+      "6+"
+    ],
+    "en": [
+      "Casual",
+      "External",
+      "6+"
+    ]
+  }
 }

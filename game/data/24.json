@@ -31,5 +31,17 @@
       "date": "2026-10-30",
       "content": "Initial release!"
     }
-  ]
+  ],
+  "tags": {
+    "zh": [
+      "益智",
+      "外网游戏",
+      "6+"
+    ],
+    "en": [
+      "Puzzle",
+      "External",
+      "6+"
+    ]
+  }
 }

@@ -36,5 +36,17 @@
       "date": "2026-10-30",
       "content": "Recommended and listed!"
     }
-  ]
+  ],
+  "tags": {
+    "zh": [
+      "动作",
+      "外网游戏",
+      "12+"
+    ],
+    "en": [
+      "Action",
+      "External",
+      "12+"
+    ]
+  }
 }

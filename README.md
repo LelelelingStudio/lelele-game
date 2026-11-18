@@ -74,7 +74,7 @@
 <picture>
    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=lelelelingstudio/lelele-game&type=date&theme=dark&legend=top-left" />
    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=lelelelingstudio/lelele-game&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=lelelelingstudio/lelele-game&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=lelelelingstudio/lelele-game&type=date&legend=top-left" / loading="lazy">
 </picture>
 </a>
 
@@ -226,6 +226,9 @@ The only build-adjacent concern is the **Service Worker**: when cached asset lis
 | [`AUTHOR_CERTIFICATION.md`](AUTHOR_CERTIFICATION.md) | Certification levels, badge semantics, application flow |
 | [`changelog.json`](changelog.json) / [`about.html`](about.html) | Full bilingual release history |
 | [`docs.html`](docs.html) | Human-facing docs index |
+| [`developer_docs.html`](developer_docs.html) | Developer guide, including the public stats API chapter |
+| [`llms.txt`](llms.txt) | Agent-facing platform brief: data contracts, public API, event names, embedding rules - no source reading needed |
+| [`stats.html`](stats.html) / [`favgames.html`](favgames.html) / [`gamecheck.html`](gamecheck.html) | Live stats dashboard / favorites leaderboard / play leaderboard (CSV export on both) |
 | [`thoughts.md`](thoughts.md) / [`plan.md`](plan.md) | Prioritised upgrade backlog / historical audit archive |
 | [`LSFP-NOTICE.txt`](LSFP-NOTICE.txt) | Upstream notice and Apache-2.0 text for the bundled `lsfp.js` |
 

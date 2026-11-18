@@ -29,5 +29,15 @@
       "date": "2026-10-22",
       "content": "Game listed in LeleleGame!"
     }
-  ]
+  ],
+  "tags": {
+    "zh": [
+      "动作",
+      "外网游戏"
+    ],
+    "en": [
+      "Action",
+      "External"
+    ]
+  }
 }

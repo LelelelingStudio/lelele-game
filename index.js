@@ -43,6 +43,11 @@ window.removeFavorite = function(id, event) {
     let favs = getFavorites();
     favs = favs.filter(f => f !== String(id));
     saveFavorites(favs);
+    if (typeof window.getFavGroups === 'function') {
+        const groups = window.getFavGroups();
+        Object.keys(groups).forEach(k => { groups[k] = (groups[k] || []).filter(x => String(x) !== String(id)); });
+        window.saveFavGroups(groups);
+    }
     renderFavoritesList();
     if (typeof window.trackFavorite === 'function') window.trackFavorite(id, 'unfav');
 };
@@ -52,40 +57,101 @@ document.getElementById('openFavBtn').addEventListener('click', () => {
     openModal('favoritesModal');
 });
 
+let _activeFavGroup = '全部';
 function renderFavoritesList() {
     const container = document.getElementById('favListContainer');
+    const tabsEl = document.getElementById('favGroupTabs');
     const favs = getFavorites();
     const isEn = document.documentElement.getAttribute('data-lang') === 'en';
     const langSuffix = isEn ? '&lang=en' : '';
-    
+
     if (favs.length === 0) {
+        if (tabsEl) tabsEl.innerHTML = '';
         container.innerHTML = `<div class="status-message"><span class="zh-inline">你还没有收藏任何游戏哦，快去逛逛吧！</span><span class="en-inline">You have no favorites yet.</span></div>`;
         return;
     }
 
-    const favGames = gameData.filter(g => favs.includes(String(g.id)));
+    // 分组 tab：全部 + 已建分组 + 默认
+    const groups = (typeof window.getFavGroups === 'function' ? window.getFavGroups() : {});
+    const groupNames = ['全部', '默认', ...Object.keys(groups).filter(n => n !== '默认')];
+    if (groupNames.indexOf(_activeFavGroup) < 0) _activeFavGroup = '全部';
+    if (tabsEl) {
+        tabsEl.innerHTML = groupNames.map(n => `<button type="button" class="fav-group-tab${n === _activeFavGroup ? ' active' : ''}" data-fav-group="${escapeHtml(n)}">${n === '全部' ? (isEn ? 'All' : '全部') : escapeHtml(n)}</button>`).join('') +
+            `<button type="button" class="fav-group-add" id="favGroupAdd" title="${isEn ? 'New group' : '新建分组'}">＋${isEn ? 'Group' : '分组'}</button>`;
+        tabsEl.querySelectorAll('[data-fav-group]').forEach(btn => btn.addEventListener('click', () => { _activeFavGroup = btn.getAttribute('data-fav-group'); renderFavoritesList(); }));
+        const addBtn = document.getElementById('favGroupAdd');
+        if (addBtn) addBtn.addEventListener('click', () => {
+            const name = (window.prompt(isEn ? 'New group name:' : '新分组名称：') || '').trim();
+            if (!name || name === '全部') return;
+            const g = (typeof window.getFavGroups === 'function' ? window.getFavGroups() : {});
+            if (!Array.isArray(g[name])) g[name] = [];
+            if (typeof window.saveFavGroups === 'function') window.saveFavGroups(g);
+            _activeFavGroup = name; renderFavoritesList();
+        });
+    }
+
+    // 按当前分组过滤 id（保持 lelele_favs 的既有顺序 = 用户拖动后的顺序）
+    let visibleIds = favs.slice();
+    if (_activeFavGroup !== '全部' && typeof window.getFavGroupOf === 'function') {
+        visibleIds = favs.filter(id => window.getFavGroupOf(id) === _activeFavGroup);
+    }
+    const favGames = gameData.filter(g => visibleIds.includes(String(g.id)));
 
     if (favGames.length === 0) {
-        container.innerHTML = `<div class="status-message"><span class="zh-inline">收藏的游戏似乎已下架。</span><span class="en-inline">Favorited games seem to be removed.</span></div>`;
+        container.innerHTML = `<div class="status-message"><span class="zh-inline">该分组还没有收藏。</span><span class="en-inline">No favorites in this group.</span></div>`;
         return;
     }
 
-    container.innerHTML = `<div class="fav-list">
-        ${favGames.map(game => {
+    container.innerHTML = `<div class="fav-list" id="favSortable">
+        ${favGames.map((game, idx) => {
             const gameName = isEn ? (game.name_en || game.name_zh || game.name) : (game.name_zh || game.name_en || game.name);
             const gameCat = isEn ? (game.category_en || game.category_zh || game.category || 'Uncategorized') : (game.category_zh || game.category_en || game.category || '未分类');
-            
+            const grp = (typeof window.getFavGroupOf === 'function' ? window.getFavGroupOf(game.id) : '默认');
             return `
-            <div class="fav-item" onclick="window.location.href='game.html?id=${game.id}${langSuffix}'">
+            <div class="fav-item" draggable="true" data-fav-id="${game.id}" data-drag-index="${idx}" onclick="window.location.href='game.html?id=${game.id}${langSuffix}'">
+                <span class="fav-drag" title="${isEn ? 'Drag to reorder' : '拖动排序'}">⋮⋮</span>
                 <div class="fav-item-icon">${game.icon || '🎮'}</div>
                 <div class="fav-item-info">
                     <div class="fav-item-name">${escapeHtml(gameName)}</div>
                     <div class="fav-item-cat">${escapeHtml(gameCat)}</div>
                 </div>
+                <select class="fav-group-select" data-fav-group-select="${game.id}" onclick="event.stopPropagation()" title="${isEn ? 'Move to group' : '移动到分组'}">
+                    ${groupNames.filter(n => n !== '全部').map(n => `<option value="${escapeHtml(n)}"${n === grp ? ' selected' : ''}>${escapeHtml(n)}</option>`).join('')}
+                </select>
                 <button class="fav-item-remove" onclick="removeFavorite('${game.id}', event)" title="取消收藏">×</button>
             </div>
         `}).join('')}
     </div>`;
+    // 分组下拉
+    container.querySelectorAll('[data-fav-group-select]').forEach(sel => sel.addEventListener('change', () => {
+        if (typeof window.setFavGroup === 'function') window.setFavGroup(sel.getAttribute('data-fav-group-select'), sel.value);
+        renderFavoritesList();
+    }));
+    // 拖动排序：只重排 lelele_favs 顺序（可见子集的相对顺序写回全局列表）
+    initFavDragSort(container);
+}
+
+function initFavDragSort(container) {
+    const list = container.querySelector('#favSortable');
+    if (!list) return;
+    let dragId = null;
+    list.querySelectorAll('.fav-item[draggable]').forEach(item => {
+        item.addEventListener('dragstart', e => { dragId = item.getAttribute('data-fav-id'); e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', dragId); } catch (err) {} });
+        item.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+        item.addEventListener('drop', e => {
+            e.preventDefault();
+            const targetId = item.getAttribute('data-fav-id');
+            if (!dragId || dragId === targetId) return;
+            const favs = getFavorites().slice();
+            const from = favs.indexOf(dragId), to = favs.indexOf(targetId);
+            if (from < 0 || to < 0) return;
+            favs.splice(to, 0, favs.splice(from, 1)[0]);
+            saveFavorites(favs);
+            dragId = null;
+            renderFavoritesList();
+        });
+        item.addEventListener('dragend', () => { dragId = null; });
+    });
 }
 
 // ==================== 游戏数据与渲染 ====================
@@ -162,6 +228,8 @@ async function loadGames() {
     
     renderCategories();
     renderGames();
+    // 本周更新轮播异步加载（不阻塞游戏列表）
+    loadWeeklyCarousel().catch(() => {});
 }
 
 function renderCategories() {
@@ -191,6 +259,96 @@ function renderCategories() {
     });
     
     categoryNav.innerHTML = html;
+    renderTagNav();
+}
+
+// 本周新游/更新轮播（#4）：从 game/data/<id>.json 的 updateLog 取近 7 天有更新的游戏
+let _weeklyItems = null, _weeklyOffset = 0;
+function normalizeDay(s) { return String(s || '').replace(/[.\/]/g, '-').slice(0, 10); }
+async function loadWeeklyCarousel() {
+    const wrap = document.getElementById('weeklyCarousel');
+    if (!wrap || !gameData.length) return;
+    if (_weeklyItems) { renderWeekly(); return; }
+    const cutoff = Date.now() - 7 * 24 * 3600 * 1000;
+    const items = [];
+    // 并发上限 6，避免一次 32 个请求打爆
+    const queue = gameData.slice();
+    async function worker() {
+        while (queue.length) {
+            const g = queue.shift();
+            try {
+                const res = await fetch('game/data/' + encodeURIComponent(g.id) + '.json', { cache: 'no-store' });
+                if (!res.ok) continue;
+                const d = await res.json();
+                const logs = [].concat(d.updateLog_zh || [], d.updateLog_en || []);
+                const latest = logs.map(x => normalizeDay(x.date)).filter(Boolean).sort().pop();
+                if (latest && new Date(latest + 'T00:00:00').getTime() >= cutoff) {
+                    items.push({ ...g, updateDate: latest, updateText: (d.updateLog_zh || d.updateLog_en || [])[0]?.content || '' });
+                }
+            } catch (e) {}
+        }
+    }
+    await Promise.all(Array.from({ length: 6 }, worker));
+    items.sort((a, b) => String(b.updateDate).localeCompare(String(a.updateDate)));
+    _weeklyItems = items;
+    renderWeekly();
+}
+function renderWeekly() {
+    const wrap = document.getElementById('weeklyCarousel');
+    const track = document.getElementById('weeklyTrack');
+    if (!wrap || !track) return;
+    if (!_weeklyItems || !_weeklyItems.length) { wrap.hidden = true; return; }
+    wrap.hidden = false;
+    const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+    const perPage = 4;
+    const start = ((_weeklyOffset % _weeklyItems.length) + _weeklyItems.length) % _weeklyItems.length;
+    const shown = Array.from({ length: Math.min(perPage, _weeklyItems.length) }, (_, i) => _weeklyItems[(start + i) % _weeklyItems.length]);
+    track.innerHTML = shown.map(g => {
+        const name = isEn ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en);
+        return `<a class="weekly-card" href="game.html?id=${encodeURIComponent(g.id)}${isEn ? '&lang=en' : ''}">
+            <span class="weekly-icon">${g.icon || '🎮'}</span>
+            <span class="weekly-name">${escapeHtml(name)}</span>
+            <span class="weekly-date">${escapeHtml(g.updateDate)}</span>
+        </a>`;
+    }).join('');
+}
+function bindWeeklyNav() {
+    const p = document.getElementById('weeklyPrev'), n = document.getElementById('weeklyNext');
+    if (p) p.addEventListener('click', () => { _weeklyOffset -= 4; renderWeekly(); });
+    if (n) n.addEventListener('click', () => { _weeklyOffset += 4; renderWeekly(); });
+}
+
+// 标签多选筛选（#5）
+let selectedTags = [];
+function renderTagNav() {
+    const wrap = document.getElementById('tagNavWrapper');
+    const nav = document.getElementById('tagNav');
+    if (!wrap || !nav) return;
+    const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+    const tagSet = new Set();
+    gameData.forEach(g => {
+        const arr = (g.tags && Array.isArray(g.tags[isEn ? 'en' : 'zh'])) ? g.tags[isEn ? 'en' : 'zh'] : [];
+        arr.forEach(t => tagSet.add(t));
+    });
+    if (!tagSet.size) { wrap.hidden = true; return; }
+    wrap.hidden = false;
+    let html = '';
+    if (selectedTags.length) html += `<button type="button" class="tag-chip clear" data-tag="__clear__">${isEn ? '✕ Clear tags' : '✕ 清除标签'}</button>`;
+    Array.from(tagSet).forEach(tag => {
+        html += `<button type="button" class="tag-chip${selectedTags.includes(tag) ? ' active' : ''}" data-tag="${escapeHtml(tag)}">#${escapeHtml(tag)}</button>`;
+    });
+    nav.innerHTML = html;
+    nav.querySelectorAll('[data-tag]').forEach(btn => btn.addEventListener('click', () => {
+        const tag = btn.getAttribute('data-tag');
+        if (tag === '__clear__') selectedTags = [];
+        else {
+            const i = selectedTags.indexOf(tag);
+            if (i >= 0) selectedTags.splice(i, 1); else selectedTags.push(tag);
+        }
+        searchPage = 1;
+        renderTagNav();
+        renderGames();
+    }));
 }
 
 window.renderGames = function() {
@@ -246,7 +404,9 @@ window.renderGames = function() {
         const matchType = (currentType === 'all') || (g.type === currentType);
         const cat = isEn ? g.category_en : g.category_zh;
         const matchCat = (currentCategory === 'all') || (cat === currentCategory);
-        return matchType && matchCat;
+        const gTags = (g.tags && Array.isArray(g.tags[isEn ? 'en' : 'zh'])) ? g.tags[isEn ? 'en' : 'zh'] : [];
+        const matchTags = !selectedTags.length || selectedTags.every(t => gTags.includes(t));
+        return matchType && matchCat && matchTags;
     });
 
     if (filtered.length === 0) {
@@ -267,11 +427,14 @@ function renderGameCard(item, isEn, showAuthor) {
     if (showAuthor && g.author) {
         authorHtml = `<div class="game-author">${escapeHtml(g.author)}</div>`;
     }
+    // 分类 emoji 兜底（#32）
+    const CAT_EMOJI = { '射击': '🔫', 'Shooter': '🔫', '益智': '🧩', 'Puzzle': '🧩', '冒险': '🗺️', 'Adventure': '🗺️', '动作': '⚔️', 'Action': '⚔️', '模拟经营': '🏗️', 'Simulation': '🏗️', '休闲': '🎯', 'Casual': '🎯' };
+    const fallbackIcon = CAT_EMOJI[g.category_zh] || CAT_EMOJI[g.category_en] || '🎮';
     const card = document.createElement('div');
     card.className = 'game-card';
     card.setAttribute('tabindex', '0');
     card.innerHTML = `
-        <div class="game-icon">${escapeHtml(g.icon || '🎮')}</div>
+        <div class="game-icon">${escapeHtml(g.icon || fallbackIcon)}</div>
         <div class="game-name">${finalHtmlName}</div>
         ${authorHtml}
     `;
@@ -287,7 +450,7 @@ function renderAuthorCard(authorResult, isEn) {
     const a = authorResult.author;
     const name = authorResult.matchHtml || escapeHtml(isEn ? (a.name_en || a.name_zh) : (a.name_zh || a.name_en));
     const count = authorResult.games.length;
-    const avatar = a.avatar ? `<img class="author-avatar" src="${escapeHtml(a.avatar)}" alt="" onerror="this.style.display='none'">` : '<div class="author-avatar author-avatar-fallback">🧑‍💻</div>';
+    const avatar = a.avatar ? `<img class="author-avatar lazy-img" src="${escapeHtml(a.avatar)}" alt="" loading="lazy" onerror="this.style.display='none'; if(this.nextElementSibling)this.nextElementSibling.style.display='flex';"><div class="author-avatar author-avatar-fallback" style="display:none">🧑‍💻</div>` : '<div class="author-avatar author-avatar-fallback">🧑‍💻</div>';
     const card = document.createElement('div');
     card.className = 'author-card';
     card.setAttribute('tabindex', '0');
@@ -334,6 +497,32 @@ const renderGames = window.renderGames;
 const searchInput = document.getElementById('searchInput');
 const searchClearBtn = document.getElementById('searchClearBtn');
 
+const SEARCH_HISTORY_KEY = 'lelele_search_history';
+function getSearchHistory() { try { const v = JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+function pushSearchHistory(kw) {
+    const k = String(kw || '').trim();
+    if (!k) return;
+    const list = getSearchHistory().filter(x => x !== k);
+    list.unshift(k);
+    try { localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(list.slice(0, 8))); } catch (e) {}
+}
+function renderSearchHistory() {
+    const box = document.getElementById('searchHistory');
+    if (!box) return;
+    const list = getSearchHistory();
+    if (!list.length || document.activeElement !== searchInput) { box.hidden = true; return; }
+    const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+    box.innerHTML = `<div class="search-history-head"><span>${isEn ? 'Recent searches' : '搜索历史'}</span><button type="button" id="clearSearchHistory">${isEn ? 'Clear' : '清空'}</button></div>` +
+        list.map(k => `<button type="button" class="search-history-item" data-kw="${escapeHtml(k)}">🔍 ${escapeHtml(k)}</button>`).join('');
+    box.hidden = false;
+    box.querySelectorAll('[data-kw]').forEach(b => b.addEventListener('mousedown', e => {
+        e.preventDefault(); searchInput.value = b.getAttribute('data-kw'); searchKeyword = searchInput.value; searchPage = 1; box.hidden = true; renderGames();
+    }));
+    const clr = document.getElementById('clearSearchHistory');
+    if (clr) clr.addEventListener('mousedown', e => { e.preventDefault(); try { localStorage.removeItem(SEARCH_HISTORY_KEY); } catch (err) {} box.hidden = true; });
+}
+searchInput.addEventListener('focus', renderSearchHistory);
+searchInput.addEventListener('blur', () => { const box = document.getElementById('searchHistory'); if (box) setTimeout(() => { box.hidden = true; }, 150); });
 searchInput.addEventListener('input', (e) => {
     const val = e.target.value;
     if (val.trim().length > 0) {
@@ -343,10 +532,11 @@ searchInput.addEventListener('input', (e) => {
     }
 
     clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => { 
-        searchKeyword = val; 
+    searchTimer = setTimeout(() => {
+        searchKeyword = val;
         searchPage = 1;
-        renderGames(); 
+        renderGames();
+        if (val.trim()) pushSearchHistory(val.trim());
     }, 200);
 });
 
@@ -627,7 +817,7 @@ window.addEventListener("message", function(event) {
         const favs = getFavorites();
         const isFav = favs.includes(String(item.id));
         const id = String(item.id);
-        return `<button type="button" class="rank-fav-btn${isFav ? ' is-fav' : ''}" data-rank-fav="${id}" aria-pressed="${isFav ? 'true' : 'false'}" title="${t('favUnit')}" onclick="event.stopPropagation(); window.toggleRankFav('${id}');"><span class="zh-inline">${isFav ? '🌟 已收藏' : '⭐ 收藏'}</span><span class="en-inline">${isFav ? '🌟 Favorited' : '⭐ Favorite'}</span></button>`;
+        return `<button type="button" class="rank-fav-btn${isFav ? ' is-fav' : ''}" data-rank-fav="${id}" aria-pressed="${isFav ? 'true' : 'false'}" aria-label="${escapeHtml(item.name || '')} - ${t('favUnit')}" title="${t('favUnit')}" onclick="event.stopPropagation(); window.toggleRankFav('${id}');"><span class="zh-inline">${isFav ? '🌟 已收藏' : '⭐ 收藏'}</span><span class="en-inline">${isFav ? '🌟 Favorited' : '⭐ Favorite'}</span></button>`;
     }
     // 可点击作者名（跳作者主页）
     function rankAuthor(item) {
@@ -653,7 +843,7 @@ window.addEventListener("message", function(event) {
                     <div class="rank-card-header"><div class="rank-medal">${medal}</div><div class="rank-tag">No.${rankLevel}</div></div>
                     <div class="rank-main"><div class="rank-icon">${item.icon || '🎮'}</div><div class="rank-name">${escapeHtml(name)}</div></div>
                     <div class="rank-author-row">${rankAuthor(item)}</div>
-                    <div class="rank-meta"><div class="rank-count">${item.count} <small>${t('points')}</small></div><div class="rank-actions">${rankFavBtn(item)}<a href="${detailUrl}" class="rank-link" onclick="event.stopPropagation();">${t('view')}</a></div></div>
+                    <div class="rank-meta"><div class="rank-count">${Number(item.count).toLocaleString()} <small>${t('points')}</small></div><div class="rank-actions">${rankFavBtn(item)}<a href="${detailUrl}" class="rank-link" onclick="event.stopPropagation();">${t('view')}</a></div></div>
                 </div>
             `;
         }).join('');
@@ -673,7 +863,7 @@ window.addEventListener("message", function(event) {
                         <div class="rank-modal-name">${escapeHtml(item.name || 'Unknown')}</div>
                         <div class="rank-modal-author">${rankAuthor(item)}</div>
                     </div>
-                    <div class="rank-modal-count">${item.count} <small>${unit}</small></div>
+                    <div class="rank-modal-count">${Number(item.count).toLocaleString()} <small>${unit}</small></div>
                     <div class="rank-modal-actions">${rankFavBtn(item)}<a href="${detailUrl}" class="rank-modal-link" onclick="event.stopPropagation();">${t('view')}</a></div>
                 </li>
             `;
@@ -790,7 +980,7 @@ window.addEventListener("message", function(event) {
                     url: g ? getGameDetailUrl(g.id) : null,
                     authorId: authorId != null ? String(authorId) : null,
                     authorName: authorObj ? (isEn ? (authorObj.name_en || authorObj.name_zh) : (authorObj.name_zh || authorObj.name_en)) : (authorId != null ? String(authorId) : null),
-                    authorUrl: authorId != null ? `author.html?id=${encodeURIComponent(authorId)}` : null
+                    authorUrl: authorId != null ? `author.html?id=${encodeURIComponent(authorId)}${isEn ? '&lang=en' : ''}` : null
                 };
             }).filter(item => item.name && item.url).sort((a, b) => b.count - a.count);
 
@@ -831,15 +1021,30 @@ leleleOnReady( () => {
         });
     }
 
+    bindWeeklyNav();
+
     // 随机游玩：从已加载的游戏数据中随机挑一个跳转到详情页
     const randomBtn = document.getElementById('randomPlayBtn');
     if (randomBtn) {
         randomBtn.addEventListener('click', () => {
             if (!gameData || !gameData.length) { if (window.toast) window.toast('数据加载中…'); return; }
-            const item = gameData[Math.floor(Math.random() * gameData.length)];
+            const scope = (document.getElementById('randomFilter') || {}).value || 'all';
+            const pool = scope === 'all' ? gameData : gameData.filter(g => g.type === scope);
+            if (!pool.length) { if (window.toast) window.toast('该范围内暂无游戏'); return; }
+            const item = pool[Math.floor(Math.random() * pool.length)];
             const isEn = document.documentElement.getAttribute('data-lang') === 'en';
             window.location.href = 'game.html?id=' + encodeURIComponent(item.id) + (isEn ? '&lang=en' : '');
         });
     }
 
 });
+
+// 返回顶部按钮（#33）
+(function initBackToTop() {
+    const btn = document.getElementById('backToTop');
+    if (!btn) return;
+    const sync = () => btn.classList.toggle('show', window.scrollY > 400);
+    window.addEventListener('scroll', sync, { passive: true });
+    sync();
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+})();

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh" data-lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>开发者数据大屏 · Developer Stats</title>
+<meta name="description" content="了了了游开发者公开统计数据大屏。Public statistics dashboard for Lelele Game developers.">
+<link rel="stylesheet" href="/common.css">
+<style>
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: linear-gradient(135deg,#eef2ff,#fdf2f8); color: #1e293b; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 28px 18px 60px; }
+    .hd { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+    .hd h1 { margin: 0; font-size: 1.5rem; }
+    .hd a { color: #4f46e5; text-decoration: none; font-weight: 700; font-size: .9rem; }
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+    .controls select, .controls input { padding: 9px 12px; border: 1px solid rgba(148,163,184,.5); border-radius: 10px; background: #fff; font-family: inherit; font-size: .9rem; }
+    .controls input { flex: 1; min-width: 200px; }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; margin-bottom: 20px; }
+    .card { padding: 18px; border-radius: 16px; background: rgba(255,255,255,.9); border: 1px solid rgba(148,163,184,.25); box-shadow: 0 8px 24px rgba(79,70,229,.08); }
+    .card .k { color: #64748b; font-size: .82rem; font-weight: 700; }
+    .card .v { font-size: 1.9rem; font-weight: 800; margin-top: 6px; }
+    .card .d { font-size: .8rem; margin-top: 4px; color: #16a34a; }
+    .panel { padding: 18px; border-radius: 16px; background: rgba(255,255,255,.9); border: 1px solid rgba(148,163,184,.25); }
+    .panel h2 { margin: 0 0 12px; font-size: 1.05rem; }
+    .rows { display: flex; flex-direction: column; gap: 6px; }
+    .row { display: flex; justify-content: space-between; padding: 7px 10px; border-radius: 8px; background: rgba(79,70,229,.05); font-size: .85rem; }
+    .msg { color: #64748b; font-size: .9rem; }
+    @media (max-width: 640px) { .cards { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="hd">
+        <h1><span class="zh-inline">📊 开发者数据大屏</span><span class="en-inline">📊 Developer Stats</span></h1>
+        <div>
+            <a href="developer_docs.html"><span class="zh-inline">开发者文档</span><span class="en-inline">Developer docs</span></a> ·
+            <a href="llms.txt">llms.txt</a> ·
+            <a href="favgames.html"><span class="zh-inline">收藏榜</span><span class="en-inline">Favorites</span></a>
+        </div>
+    </div>
+    <div class="controls">
+        <input type="text" id="gameInput" list="gameList" placeholder="游戏名 / ID，如 12 或 levil-evil" aria-label="Game">
+        <datalist id="gameList"></datalist>
+        <select id="rangeSel" aria-label="Range">
+            <option value="today">今天 / Today</option>
+            <option value="7d">近 7 天 / 7d</option>
+            <option value="30d" selected>近 30 天 / 30d</option>
+            <option value="90d">近 90 天 / 90d</option>
+            <option value="12mo">近 12 月 / 12mo</option>
+        </select>
+        <button id="loadBtn" style="padding:9px 18px;border:0;border-radius:10px;background:#4f46e5;color:#fff;font-weight:700;cursor:pointer;">🔍 <span class="zh-inline">查询</span><span class="en-inline">Query</span></button>
+    </div>
+    <div id="msg" class="msg"><span class="zh-inline">输入游戏名或 ID 后点查询。数据来自公开统计 API，无需登录。</span><span class="en-inline">Enter a game name or ID and query. Data comes from the public stats API - no login needed.</span></div>
+    <div class="cards" id="cards" style="display:none;">
+        <div class="card"><div class="k"><span class="zh-inline">总游玩</span><span class="en-inline">Total plays</span></div><div class="v" id="vPlay">—</div><div class="d" id="dPlay"></div></div>
+        <div class="card"><div class="k"><span class="zh-inline">净收藏</span><span class="en-inline">Net favorites</span></div><div class="v" id="vFav">—</div><div class="d" id="dFav"></div></div>
+        <div class="card"><div class="k"><span class="zh-inline">排行点</span><span class="en-inline">Rank points</span></div><div class="v" id="vRank">—</div><div class="d"><span class="zh-inline">收藏 ×5 + 游玩</span><span class="en-inline">Favorites ×5 + plays</span></div></div>
+    </div>
+    <div class="panel" id="trendPanel" style="display:none; margin-bottom:18px;">
+        <h2><span class="zh-inline">每日趋势</span><span class="en-inline">Daily trend</span></h2>
+        <div class="rows" id="trendRows"></div>
+    </div>
+    <div class="panel" style="background:rgba(79,70,229,.08);">
+        <h2><span class="zh-inline">如何在自己的项目里接入</span><span class="en-inline">Use it in your own project</span></h2>
+        <p style="font-size:.9rem;line-height:1.7;margin:0;">
+            <code>GET https://analytics.leleleling.site/api/public/stats?game=&lt;name-or-id&gt;&amp;range=30d&amp;cmp=1</code><br>
+            <span class="zh-inline">无需 API key、无需登录、支持跨域。返回 <code>plays</code> 与 <code>favorites</code> 两组 <code>{series, total, prevTotal}</code>。完整说明见</span>
+            <span class="en-inline">No key, no login, CORS enabled. Returns <code>plays</code> and <code>favorites</code>, each with <code>{series, total, prevTotal}</code>. Full docs at</span>
+            <a href="developer_docs.html">developer_docs.html</a> / <a href="llms.txt">llms.txt</a>.
+        </p>
+    </div>
+</div>
+<script>
+const API = 'https://analytics.leleleling.site/api/public/stats';
+const $ = id => document.getElementById(id);
+const n = v => Number(v || 0).toLocaleString();
+
+async function loadGameList() {
+    try {
+        const res = await fetch('/lelegame_data.json', { cache: 'no-store' });
+        const list = res.ok ? await res.json() : [];
+        $('gameList').innerHTML = list.map(g => `<option value="${g.id}">${g.name_zh || g.name_en}</option>`).join('');
+    } catch (e) {}
+}
+
+async function query() {
+    const game = $('gameInput').value.trim();
+    if (!game) { $('msg').textContent = document.documentElement.dataset.lang === 'en' ? 'Please enter a game name or ID.' : '请输入游戏名或 ID。'; return; }
+    $('msg').textContent = document.documentElement.dataset.lang === 'en' ? 'Loading…' : '加载中…';
+    try {
+        const res = await fetch(`${API}?game=${encodeURIComponent(game)}&range=${$('rangeSel').value}&cmp=1`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const d = await res.json();
+        const plays = n(d.plays?.total), favs = n(d.favorites?.total);
+        const pPrev = Number(d.plays?.prevTotal || 0), fPrev = Number(d.favorites?.prevTotal || 0);
+        const delta = (cur, prev) => prev > 0 ? ((cur - prev) / prev * 100).toFixed(1) + '%' : '—';
+        $('vPlay').textContent = plays; $('dPlay').textContent = delta(Number(d.plays?.total || 0), pPrev);
+        $('vFav').textContent = favs; $('dFav').textContent = delta(Number(d.favorites?.total || 0), fPrev);
+        $('vRank').textContent = n(Number(d.plays?.total || 0) + Number(d.favorites?.total || 0) * 5);
+        $('cards').style.display = 'grid';
+        const series = d.plays?.series || [];
+        $('trendRows').innerHTML = series.length ? series.slice(-14).map(b => `<div class="row"><span>${b.label}</span><span>${n(b.value)}</span></div>`).join('') : '<div class="msg">—</div>';
+        $('trendPanel').style.display = 'block';
+        $('msg').textContent = (document.documentElement.dataset.lang === 'en' ? 'Game: ' : '游戏：') + d.game;
+    } catch (e) {
+        $('msg').textContent = (document.documentElement.dataset.lang === 'en' ? 'Query failed: ' : '查询失败：') + e.message;
+    }
+}
+$('loadBtn').addEventListener('click', query);
+$('gameInput').addEventListener('keydown', e => { if (e.key === 'Enter') query(); });
+loadGameList();
+</script>
+</body>
+</html>

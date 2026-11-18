@@ -197,7 +197,7 @@
     if (!game) return;
     if ($('gameInfo')) $('gameInfo').style.display = 'flex';
     if ($('giName')) $('giName').textContent = (isEn() ? (game.name_en || game.name_zh || game.name) : (game.name_zh || game.name_en || game.name)) || ('#' + game.id);
-    if ($('giAuthor')) $('giAuthor').textContent = (isEn() ? 'Author: ' : '作者：') + (authorName || String(game.author || '—'));
+    if ($('giAuthor')) { $('giAuthor').textContent = (isEn() ? 'Author: ' : '作者：') + (authorName || String(game.author || '—')); $('giAuthor').title = authorName || String(game.author || ''); }
     updateFavBtn();
   }
   function updateFavBtn() {

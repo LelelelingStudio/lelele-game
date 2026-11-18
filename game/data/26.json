@@ -31,5 +31,17 @@
       "date": "2026-11-04",
       "content": "Initial release! Added both Classic Parkour and Free World modes. Supports Chinese/English, mobile touch, and PC keyboard/mouse. Added coin revival, item shop, in-game checkpoints, and portal systems."
     }
-  ]
+  ],
+  "tags": {
+    "zh": [
+      "休闲",
+      "站内游戏",
+      "6+"
+    ],
+    "en": [
+      "Casual",
+      "Internal",
+      "6+"
+    ]
+  }
 }

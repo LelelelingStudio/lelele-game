@@ -28,5 +28,17 @@
       "date": "2026-10-27",
       "content": "Initial release!"
     }
-  ]
+  ],
+  "tags": {
+    "zh": [
+      "模拟经营",
+      "外网游戏",
+      "6+"
+    ],
+    "en": [
+      "Simulation",
+      "External",
+      "6+"
+    ]
+  }
 }
