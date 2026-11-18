@@ -1,6 +1,11 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.13 (排行榜修正) —— index.js 修复收藏事件（fav-game_<id>，按游戏 id）
+ *   与游玩事件（play-game_<name>，按游戏名）命名空间不一致导致总榜未加权的问题：
+ *   现先统一归一到游戏 id 再合并，总榜 = 收藏×5 + 游玩；弹窗总榜量词改「排行点」。
+ *   升 CACHE_NAME 清 v1.12 旧缓存，确保用户拿到新 index.js。三分支 fetch 策略、预缓存清单未改动。
+ *
  * ★ v1.12 (admin 富媒体) —— common.js 公告消毒白名单新增 IMG/alt，支持公告正文
  *   插入图片链接；.lsfp 图片经 promoteLsfpImages 抬升后由适配层水合。本文件仅因
  *   common.js 字节变化触发重新 install/activate、清理 v1.11 旧缓存；三分支 fetch
@@ -67,7 +72,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.12';
+const CACHE_NAME = 'lelele-pwa-v1.13';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。

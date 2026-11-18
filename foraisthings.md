@@ -2,7 +2,7 @@
 
 > **读者**：一个对本仓库**零上下文**的 AI（或人类协作者）。通读本文后，你应该能独立理解架构、数据契约、前后端边界、部署链路、历史遗留问题，并安全地接手任何改造任务。
 > **维护**：本文件由 AI 维护，描述「项目**现在**是什么样」。每次大改动完成后，更新本文相关章节，并在 `historymd/` 新增一篇记录（见 0.3）。
-> **版本基准**：2026-11-18 · 站点 `4.2.0` ·《游戏守则》`5.0.0` · SW 缓存 `lelele-pwa-v1.12` · 32 款游戏（17 local / 12 external / 3 internal）/ 10 位作者 / 14 条公告 / 15 条开发者告示。
+> **版本基准**：2026-11-18 · 站点 `4.2.0` ·《游戏守则》`5.0.0` · SW 缓存 `lelele-pwa-v1.13` · 32 款游戏（17 local / 12 external / 3 internal）/ 10 位作者 / 14 条公告 / 15 条开发者告示。
 > **准确性**：本文所有标识符、常量、字段、域名、表单 ID 均逐文件核实过。行号会随改动漂移，故正文以「文件 + 函数名 / 常量名」定位，不依赖行号。若发现描述与代码冲突，**以代码为准**并顺手修正本文。
 
 ---
@@ -450,7 +450,7 @@ fetchAuthors()       → 先 Fresh，失败才 Local
   4. 其余 → `staleWhileRevalidate()`（命中缓存立即返回 + `waitUntil(network)` 后台 `cache.put`；导航失败仅 `/` 或 `/index.html` 回退首页缓存，否则返回 Offline HTML 200）。
 - `isBasicOk(res)` = `status===200 && type==='basic'`；`cacheKeyFor(req)` 对导航/`.html`/`/` 只取 `origin+pathname`，其余删除 `['t','_','ts','cb','nocache','cacheBust']` 参数后返回 `origin+pathname+search`（所以 `?t=Date.now()` 不会撑爆缓存）。
 - **升版规则**：只要改了预缓存清单里的文件字节（新增脚本、改 `common.css` 等），必须递增 `CACHE_NAME` 并在文件头补一段说明，否则老用户不会重新 install、拿不到新文件。
-- 头部注释沿革：v1.3(SWR+1.5s) → v1.4(4.0.13) → v1.5(4.0.14) → v1.6(4.0.15) → v1.7(4.0.16) → v1.8(4.1.0/规则5.0.0) → v1.9(bugfix) → v1.10(LSFP) → v1.11(pager-nav) → v1.12(播放器/收藏/视频等新页面预缓存)。**旧手册写 v1.7 是过时的**。
+- 头部注释沿革：v1.3(SWR+1.5s) → v1.4(4.0.13) → v1.5(4.0.14) → v1.6(4.0.15) → v1.7(4.0.16) → v1.8(4.1.0/规则5.0.0) → v1.9(bugfix) → v1.10(LSFP) → v1.11(pager-nav) → v1.12(播放器/收藏/视频等新页面预缓存) → v1.13(排行榜收藏/游玩事件归一化加权修正)。**旧手册写 v1.7 是过时的**。
 
 ### 4.13 关键页面实现要点
 
@@ -608,7 +608,7 @@ fetchAuthorsFresh() / fetchAuthorsLocal() 均读同源 /authors/index.json
 
 ### 6.3 SW 缓存升版
 
-改了 `ASSETS_TO_CACHE` 里任何文件的字节 → 必须递增 `CACHE_NAME` 并在 `sw.js` 头部补一段说明（当前 `lelele-pwa-v1.12`）。否则老用户 SW 不会重新 install，会一直用旧缓存的 CSS/JS。push 后建议硬刷新一次确认。
+改了 `ASSETS_TO_CACHE` 里任何文件的字节 → 必须递增 `CACHE_NAME` 并在 `sw.js` 头部补一段说明（当前 `lelele-pwa-v1.13`）。否则老用户 SW 不会重新 install，会一直用旧缓存的 CSS/JS。push 后建议硬刷新一次确认。
 
 ### 6.4 LSFP 资源上传
 
@@ -773,7 +773,7 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 - **B（Minor）**：功能级升级，AI 可自行决定，不要太频繁（当前 `4.1.0` 就是 B）。
 - **C（Patch）**：修修补补。
 
-> ⚠️ **版本号双轨**：`5.0.0` 是《游戏守则》`game_rules.html` 的**规则版本号**，不受「A 升级须经 David 同意」约束；站点版本号与 `changelog.json` 走独立三段式。SW 的 `lelele-pwa-v1.12` 只是缓存名，与两者都无关。
+> ⚠️ **版本号双轨**：`5.0.0` 是《游戏守则》`game_rules.html` 的**规则版本号**，不受「A 升级须经 David 同意」约束；站点版本号与 `changelog.json` 走独立三段式。SW 的 `lelele-pwa-v1.13` 只是缓存名，与两者都无关。
 
 每次发版在 `changelog.json` 数组**头部** `unshift` 一条 `{version, date, content_zh, content_en}`。
 
@@ -813,6 +813,7 @@ python3 -m http.server 8899 &          # 纯静态，必须起服务器（file:/
 | 2026-11-17 | 本次（视频适配修复） | `about.html` 修 YouTube embed 脚本报错（`content-youtube-embed.js` 抛错、iframe load 不来）导致一直"正在加载视频"：超时 30s→**8s**、备用 mp4 `http`→**https**（原 http 被 Chrome 自动升级触发 Mixed Content，已核实 https 200 + CORS `*`）、iframe 域改 `youtube-nocookie.com`、mp4 出错自动切回 YouTube、文案同步 8 秒；`game.html` 灯箱 iframe `allow` 补齐 YouTube 权限。实测 #23 真实 YouTube 宣传片经 `parseEmbedVideo` 转 `youtube-nocookie.com/embed/pv1OtS5TZRs` 并成功打开灯箱；about 视频与协议按钮全绿 |
 | 2026-11-17 | 本次（删除视频加载遮罩） | 用户反馈"视频已加载但前面还显示正在加载+半透明遮罩"：根因 `.video-loading { display:flex }` 优先级高于 UA `[hidden]{display:none}`，JS 设 `hidden=true` 不生效。按用户第二个选项**彻底删除遮罩**（DOM / CSS / JS 引用全清），视频加载出来即直接可见；实测 `hasOverlay:false`、load 显示 YouTube、8s 超时换 mp4、手动切回 src 恢复、零 JS 错误 |
 | 2026-11-18 | 本次（收藏体系） | **收藏埋点**：`common.js` 加 `trackFavorite()`（fav-game_<id>/unfav-game_<id>，每游戏每天 3 轮上限仅限埋点）、`migrateFavoritesOnce()`（11/26 前一次性存量补报，localStorage 标记）、`loadFavCounts()`；三处收藏动作接通。**每游戏收藏数**：author.html 游戏卡 + dashboard.html「我的游戏收藏数」卡片（本页不引 common.js，内联查询）。**排行榜**：Top3 改收藏×5+游玩加权，弹窗加总榜/收藏榜/游玩榜三 Tab（各前 25，0 值过滤）。**favgames.html**：本仓库 + analytics 域 `/favgames` 双站，净收藏=fav-unfav + 游戏名映射。analytics 仓库（`edgemetry-analytics`）提交 `de59fb0` 已 push；本仓库 `f05afdc`。实测加权 150/100/50、三 Tab、存量迁移、favgames 净收藏、零 JS 错误 |
+| 2026-11-18 | 本次（排行榜加权修复） | 用户反馈"总榜还写次、收藏量 1 的 levil-evil 排行点和游玩次数一样"：根因 `fav-game_<id>` 用游戏 id、`play-game_<name>` 用游戏名，两套命名空间在合并前没归一，收藏分挂在 id 项、游玩分挂在名称项，总榜没加上。**修复**：缓存原始 events，目录加载后先把两者统一归一到游戏 id 再合并（总榜=收藏×5+游玩）；弹窗总榜量词由「次」改「排行点 / rank points」（游玩榜保留「次」、收藏榜「收藏」）；SW v1.12→**v1.13** 强制清旧缓存让用户拿到新 index.js。实测真实数据：levil-evil 136 游玩+1 收藏 → **141 排行点**，总榜/收藏榜量词与数值均正确、零 JS 错误 |
 | 2026-11-18 | 本次（4.2.0 中版本+文档适配） | **站点升 4.2.0**：changelog.json 头部新增 4.2.0（版本总数 51）；**两类公告分开**：announcements.json 新增 `20261118-site-420-player-update`（玩家视角：播放器/收藏榜/视频/双语，14 条）、noticetodeveloper.json version 10 新增 `notice-2026-11-18-v420-favorites-dashboard`（作者视角：后台收藏数/统计口径/排行榜/播放器/作者源，15 条，priority 400）并修正 `_readme` 的 surge 过时说明。**排行点文案**：Top3 预览改为只显示「N 排行点 / N rank points」，不再显示 `收藏×5+游玩` 公式。**about.html 全量适配**：关于段改为可选登录 + 收藏榜 + 排行点说明、致开发者补后台自助/作者源在本仓库/守则 5.0.0 三类协议必备/协议模板中心、工作室段删「官网重做中」。**全站文档基准对齐真值**：foraisthings/thoughts 版本基准→4.2.0 / SW v1.12 / 32 游戏（17 local+12 external+3 internal）/ 10 作者 / 14 公告 / 15 告示，README 三处 31→32，GAME_ENTRY_TEMPLATE 示例 id 23→31。实测 JSON 全有效、排行点文案中英正确、about 文案渲染、零 JS 错误 |
 
 ---

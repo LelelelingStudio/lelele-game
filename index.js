@@ -655,7 +655,7 @@ window.addEventListener("message", function(event) {
         const list = _activeRankTab === 'fav' ? _rankMapped.filter(x => x.fav > 0).map(x => ({ ...x, count: x.fav })).sort((a, b) => b.count - a.count)
             : _activeRankTab === 'play' ? _rankMapped.filter(x => x.play > 0).map(x => ({ ...x, count: x.play })).sort((a, b) => b.count - a.count)
             : _rankMapped;
-        renderModal(list, _activeRankTab === 'fav' ? 'favUnit' : 'played');
+        renderModal(list, _activeRankTab === 'fav' ? 'favUnit' : (_activeRankTab === 'play' ? 'played' : 'points'));
     }
 
     function bindModal() {
@@ -692,36 +692,12 @@ window.addEventListener("message", function(event) {
                 clearTimeout(timer);
                 if (!res.ok) throw new Error('fetch failed');
                 const json = await res.json();
-                const events = json.breakdowns?.event || [];
-                // 收藏榜：fav-game_<id> 减去 unfav-game_<id>；游玩榜：play-game_<name>
-                const playCounts = new Map(), favCounts = new Map();
-                events.forEach(item => {
-                    const name = String(item?.name || '');
-                    const value = Number(item?.value || 0);
-                    if (/^play-game[_\s-]/i.test(name)) {
-                        const key = name.replace(/^play-game[_\s-]*/i, '').trim();
-                        if (key) playCounts.set(key, (playCounts.get(key) || 0) + value);
-                    }
-                    if (/^fav-game_/i.test(name)) {
-                        const key = name.slice(9);
-                        if (key) favCounts.set(key, (favCounts.get(key) || 0) + value);
-                    } else if (/^unfav-game_/i.test(name)) {
-                        const key = name.slice(11);
-                        if (key) favCounts.set(key, (favCounts.get(key) || 0) - value);
-                    }
-                });
-                const allKeys = new Set([...playCounts.keys(), ...favCounts.keys()]);
-                rawList = Array.from(allKeys).map(key => ({
-                    name: key,
-                    play: Math.max(0, playCounts.get(key) || 0),
-                    fav: Math.max(0, favCounts.get(key) || 0),
-                    count: Math.max(0, favCounts.get(key) || 0) * 5 + Math.max(0, playCounts.get(key) || 0)
-                })).filter(item => item.name).sort((a, b) => b.count - a.count);
-                _analyticsCache = rawList;
+                // 缓存原始事件：id→名称映射依赖游戏目录，必须在目录加载后统一归一化再合并
+                _analyticsCache = json.breakdowns?.event || [];
                 _analyticsTime = now;
             }
 
-            if (!rawList.length) { _rankMapped = []; renderEmpty(); return; }
+            if (!_analyticsCache.length) { _rankMapped = []; renderEmpty(); return; }
 
             if (!catalogCache.length) catalogCache = await fetchCatalog();
 
@@ -732,20 +708,41 @@ window.addEventListener("message", function(event) {
                 if (game.id) lookup.set(String(game.id), game);
             });
 
+            // 核心修复：收藏事件用游戏 id，游玩事件用游戏名 —— 先都归一到同一「游戏 id」，再合并计数
+            const playCounts = new Map(), favCounts = new Map();
+            const keyOf = (raw) => {
+                const g = lookup.get(String(raw)) || lookup.get(normalizeName(raw));
+                return g ? String(g.id) : String(raw);
+            };
+            _analyticsCache.forEach(item => {
+                const name = String(item?.name || '');
+                const value = Number(item?.value || 0);
+                if (/^play-game[_\s-]/i.test(name)) {
+                    const raw = name.replace(/^play-game[_\s-]*/i, '').trim();
+                    if (raw) { const k = keyOf(raw); playCounts.set(k, (playCounts.get(k) || 0) + value); }
+                } else if (/^fav-game_/i.test(name)) {
+                    const raw = name.slice(9);
+                    if (raw) { const k = keyOf(raw); favCounts.set(k, (favCounts.get(k) || 0) + value); }
+                } else if (/^unfav-game_/i.test(name)) {
+                    const raw = name.slice(11);
+                    if (raw) { const k = keyOf(raw); favCounts.set(k, (favCounts.get(k) || 0) - value); }
+                }
+            });
+            const allKeys = new Set([...playCounts.keys(), ...favCounts.keys()]);
             const isEn = getCurrentLang() === 'en';
-            const mapped = rawList.map(entry => {
-                const normalized = normalizeName(entry.name);
-                const matchedGame = lookup.get(normalized) || lookup.get(entry.name);
+            const mapped = Array.from(allKeys).map(key => {
+                const g = lookup.get(key);
+                const fav = Math.max(0, favCounts.get(key) || 0);
+                const play = Math.max(0, playCounts.get(key) || 0);
                 return {
-                    id: matchedGame ? matchedGame.id : null,
-                    name: matchedGame ? (isEn ? (matchedGame.name_en || matchedGame.name_zh || matchedGame.name) : (matchedGame.name_zh || matchedGame.name_en || matchedGame.name)) : entry.name,
-                    icon: matchedGame ? (matchedGame.icon || '🎮') : '🎮',
-                    count: entry.count,
-                    play: entry.play,
-                    fav: entry.fav,
-                    url: matchedGame ? getGameDetailUrl(matchedGame.id) : null
+                    id: g ? g.id : null,
+                    name: g ? (isEn ? (g.name_en || g.name_zh || g.name) : (g.name_zh || g.name_en || g.name)) : key,
+                    icon: g ? (g.icon || '🎮') : '🎮',
+                    count: fav * 5 + play,
+                    play, fav,
+                    url: g ? getGameDetailUrl(g.id) : null
                 };
-            }).filter(item => item.name && item.url);
+            }).filter(item => item.name && item.url).sort((a, b) => b.count - a.count);
 
             _rankMapped = mapped;
             renderTop3(mapped);
