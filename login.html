@@ -215,13 +215,13 @@
             </div>
 
             <div id="formGroupEmail" class="form-group">
-                <label><span class="zh-inline">邮箱地址</span><span class="en-inline">Email Address</span></label>
-                <input type="email" id="inputEmail" placeholder="you@example.com" autocomplete="email">
+                <label for="inputEmail"><span class="zh-inline">邮箱地址</span><span class="en-inline">Email Address</span></label>
+                <input type="email" id="inputEmail" name="email" placeholder="you@example.com" autocomplete="username" spellcheck="false" required>
             </div>
 
             <div id="formGroupPassword" class="form-group">
-                <label><span class="zh-inline">密码</span><span class="en-inline">Password</span></label>
-                <input type="password" id="inputPassword" placeholder="••••••••" autocomplete="current-password">
+                <label for="inputPassword"><span class="zh-inline">密码</span><span class="en-inline">Password</span></label>
+                <input type="password" id="inputPassword" name="password" placeholder="••••••••" autocomplete="current-password" required>
             </div>
 
             <div id="formGroupOtp" class="form-group" style="display: none;">
@@ -618,10 +618,26 @@
             }, 1500);
         }
 
-        // 登录成功：直接跳，不弹"已登录"提示（用户刚登录，无需告知）
-        function redirectAfterLogin() {
+        // 判断当前登录账号是否为已登记作者（authors/index.json 里 uuid 匹配）
+        async function checkIsAuthor(uid) {
+            if (!uid || typeof window.fetchAuthors !== 'function') return false;
+            try {
+                const authors = await window.fetchAuthors();
+                return Array.isArray(authors) && authors.some(a => a.uuid === uid);
+            } catch (e) { return false; }
+        }
+
+        // 登录成功：作者进开发者后台，普通玩家进个人中心
+        async function redirectAfterLogin() {
+            let target = buildDashboardUrl();
+            try {
+                const sb = window.supabaseClient;
+                const { data } = await sb.auth.getSession();
+                const uid = data && data.session && data.session.user && data.session.user.id;
+                if (uid && !(await checkIsAuthor(uid))) target = 'profile.html';
+            } catch (e) {}
             setTimeout(() => {
-                window.location.replace(buildDashboardUrl());
+                window.location.replace(target);
             }, 800);
         }
 

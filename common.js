@@ -364,22 +364,21 @@ function leleleOnReady(fn) {
                     .catch(() => console.warn('Captcha reminder unavailable'));
             }
             
-            // 1. 注入右上角头像和开发者面板按钮
+            // 1. 注入右上角登录/头像入口：未登录 → 玩家登录 + 开发者入口；
+            //    已登录作者 → 头像/面板进后台；已登录普通玩家 → 头像进个人中心。
             const rightActions = document.querySelector('.right-actions');
             if (rightActions) {
-                // 插入开发者面板按钮
-                const devPanelBtn = document.createElement('a');
-                devPanelBtn.href = 'dashboard.html';
-                devPanelBtn.className = 'action-btn';
-                devPanelBtn.style.background = 'rgba(79, 70, 229, 0.1)';
-                devPanelBtn.style.color = 'var(--primary)';
-                devPanelBtn.innerHTML = '<span class="zh-inline">💻 开发者面板</span><span class="en-inline">💻 Dashboard</span>';
-                rightActions.insertBefore(devPanelBtn, rightActions.firstChild);
+                let isAuthor = false;
+                if (session && typeof window.fetchAuthors === 'function') {
+                    try {
+                        const authors = await window.fetchAuthors();
+                        isAuthor = Array.isArray(authors) && authors.some(a => a.uuid === session.user.id);
+                    } catch (e) { isAuthor = false; }
+                }
 
-                // 如果登录了，插入头像
-                if (session) {
+                function buildAvatarBtn(href) {
                     const userBtn = document.createElement('a');
-                    userBtn.href = 'dashboard.html';
+                    userBtn.href = href;
                     userBtn.className = 'action-btn';
                     userBtn.style.padding = '4px';
                     userBtn.style.borderRadius = '50%';
@@ -394,17 +393,51 @@ function leleleOnReady(fn) {
                     userBtn.style.background = 'var(--card-border)';
                     rightActions.insertBefore(userBtn, rightActions.firstChild);
 
-                    supabaseClient.from('profiles').select('avatar_url, display_name').eq('id', session.user.id).single()
-                        .then(({ data: profile }) => {
-                            if (!profile || !profile.avatar_url) return;
-                            const avatar = document.createElement('img');
-                            avatar.src = profile.avatar_url;
-                            avatar.alt = '';
-                            avatar.style.cssText = 'width:100%; height:100%; object-fit:cover;';
-                            userBtn.replaceChildren(avatar);
-                            userBtn.style.background = 'transparent';
-                        })
-                        .catch(() => {});
+                    if (session) {
+                        supabaseClient.from('profiles').select('avatar_url, display_name').eq('id', session.user.id).single()
+                            .then(({ data: profile }) => {
+                                if (!profile || !profile.avatar_url) return;
+                                const avatar = document.createElement('img');
+                                avatar.src = profile.avatar_url;
+                                avatar.alt = '';
+                                avatar.style.cssText = 'width:100%; height:100%; object-fit:cover;';
+                                userBtn.replaceChildren(avatar);
+                                userBtn.style.background = 'transparent';
+                            })
+                            .catch(() => {});
+                    }
+                    return userBtn;
+                }
+
+                if (!session) {
+                    // 玩家登录/注册主入口
+                    const loginBtn = document.createElement('a');
+                    loginBtn.href = 'user-login.html';
+                    loginBtn.className = 'action-btn';
+                    loginBtn.style.background = 'rgba(79, 70, 229, 0.1)';
+                    loginBtn.style.color = 'var(--primary)';
+                    loginBtn.innerHTML = '<span class="zh-inline">登录 / 注册</span><span class="en-inline">Sign in</span>';
+                    rightActions.insertBefore(loginBtn, rightActions.firstChild);
+
+                    // 开发者入口（次要）
+                    const devEntry = document.createElement('a');
+                    devEntry.href = 'login.html';
+                    devEntry.className = 'action-btn';
+                    devEntry.innerHTML = '<span class="zh-inline">开发者</span><span class="en-inline">Dev</span>';
+                    rightActions.insertBefore(devEntry, rightActions.firstChild);
+                } else if (isAuthor) {
+                    // 开发者面板按钮
+                    const devPanelBtn = document.createElement('a');
+                    devPanelBtn.href = 'dashboard.html';
+                    devPanelBtn.className = 'action-btn';
+                    devPanelBtn.style.background = 'rgba(79, 70, 229, 0.1)';
+                    devPanelBtn.style.color = 'var(--primary)';
+                    devPanelBtn.innerHTML = '<span class="zh-inline">💻 开发者面板</span><span class="en-inline">💻 Dashboard</span>';
+                    rightActions.insertBefore(devPanelBtn, rightActions.firstChild);
+                    buildAvatarBtn('dashboard.html');
+                } else {
+                    // 普通玩家：头像进个人中心
+                    buildAvatarBtn('profile.html');
                 }
             }
 

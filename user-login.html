@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 · 了了了游</title>
+    <meta name="description" content="了了了游玩家登录与注册。Sign in or sign up as a Lelele Game player.">
+
+    <link rel="stylesheet" href="/common.css">
+    <link rel="stylesheet" href="recaptcha.css">
+    <script src="/boot.js"></script>
+    <script defer src="/vendor/supabase-js.js"></script>
+
+    <style>
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text { display: block; }
+        html[data-lang="zh"] .zh-inline { display: inline; }
+        html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="en"] .en-inline { display: inline; }
+        html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+        html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%; max-width: 420px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px; padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--card-border);
+            position: relative;
+        }
+
+        .back-home {
+            position: absolute; top: 20px; left: 20px;
+            text-decoration: none; color: var(--text-muted);
+            font-size: 14px; font-weight: 600; transition: color 0.2s;
+        }
+        .back-home:hover { color: var(--primary); }
+
+        .lang-switch {
+            position: absolute; top: 20px; right: 20px;
+            display: flex; gap: 2px; background: rgba(148, 163, 184, 0.12);
+            border-radius: 30px; padding: 3px;
+        }
+        .lang-btn {
+            padding: 4px 10px; border: none; border-radius: 24px; background: transparent;
+            font-size: 0.75rem; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s;
+        }
+        .lang-btn.active { background: #4f46e5; color: #fff; }
+
+        .auth-header { text-align: center; margin-bottom: 30px; margin-top: 10px; }
+        .auth-header h1 { font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
+        .auth-header p { font-size: 0.9rem; color: var(--text-muted); }
+
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 8px; }
+        .form-group input {
+            width: 100%; padding: 14px 16px; border-radius: 12px;
+            border: 1px solid var(--card-border); background: rgba(255, 255, 255, 0.6);
+            font-size: 1rem; color: var(--text-main); outline: none; transition: all 0.2s;
+            font-family: inherit;
+        }
+        .form-group input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15); background: #fff; }
+        html.dark-mode .form-group input { background: rgba(0, 0, 0, 0.2); }
+        html.dark-mode .form-group input:focus { background: rgba(0, 0, 0, 0.4); }
+
+        .btn-main {
+            width: 100%; padding: 14px; border-radius: 12px; border: none;
+            background: var(--primary); color: white; font-size: 1rem; font-weight: 700;
+            cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center;
+            font-family: inherit;
+        }
+        .btn-main:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-main:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .btn-secondary {
+            width: 100%; padding: 12px; border-radius: 12px;
+            border: 1px solid var(--card-border); background: transparent;
+            color: var(--text-muted); font-size: 0.9rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; font-family: inherit;
+        }
+        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* 第三方登录 */
+        .oauth-divider {
+            display: flex; align-items: center; gap: 12px;
+            margin: 22px 0 16px;
+            color: var(--text-muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;
+        }
+        .oauth-divider::before, .oauth-divider::after {
+            content: ''; flex: 1; height: 1px; background: var(--card-border);
+        }
+
+        .oauth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .btn-oauth {
+            width: 100%; padding: 12px 14px; border-radius: 12px;
+            border: 1px solid var(--card-border); background: #fff;
+            color: #1f2937; font-size: 0.9rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; font-family: inherit;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            min-width: 0;
+        }
+        .btn-oauth:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08); border-color: rgba(148, 163, 184, 0.6); }
+        .btn-oauth:active { transform: scale(0.99); }
+        .btn-oauth:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-oauth svg { width: 18px; height: 18px; flex-shrink: 0; }
+        .btn-oauth span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .btn-oauth.oauth-google { grid-column: 1 / -1; }
+        html.dark-mode .btn-oauth { background: rgba(255, 255, 255, 0.08); color: #e2e8f0; }
+        html.dark-mode .btn-oauth:hover { background: rgba(255, 255, 255, 0.14); }
+
+        .auth-links {
+            margin-top: 20px; display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.85rem; font-weight: 600;
+        }
+        .auth-links a { color: var(--primary); text-decoration: none; cursor: pointer; transition: opacity 0.2s; }
+        .auth-links a:hover { opacity: 0.8; text-decoration: underline; }
+
+        .rules-links {
+            margin-top: 24px; text-align: center; font-size: 0.8rem; color: var(--text-muted);
+            line-height: 1.6; border-top: 1px dashed var(--card-border); padding-top: 20px;
+        }
+        .rules-links a { color: var(--primary); text-decoration: none; font-weight: 600; }
+        .rules-links a:hover { text-decoration: underline; }
+
+        .msg-box {
+            margin-top: 16px; padding: 12px 16px; border-radius: 12px;
+            font-size: 0.85rem; font-weight: 600; display: none; text-align: center;
+        }
+        .msg-error { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); display: block; }
+        .msg-success { background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); display: block; }
+
+        .otp-input {
+            letter-spacing: 12px; text-align: center;
+            font-size: 24px; font-weight: 800; font-family: 'Courier New', monospace;
+        }
+
+        /* 会话状态面板 */
+        .auth-container[data-state="checking"] .auth-body,
+        .auth-container[data-state="loggedin"] .auth-body { display: none; }
+        .auth-container[data-state="form"] .session-panel { display: none; }
+        .auth-container[data-state="checking"] #sessionChecking { display: block; }
+        .auth-container[data-state="loggedin"] #sessionLoggedIn { display: block; }
+        #sessionChecking, #sessionLoggedIn { display: none; }
+        .session-panel { text-align: center; padding-top: 10px; }
+
+        .spinner {
+            width: 30px; height: 30px; margin: 8px auto 18px;
+            border: 3px solid rgba(79, 70, 229, 0.15);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .check-badge {
+            width: 52px; height: 52px; margin: 8px auto 18px;
+            border-radius: 50%; background: rgba(16, 185, 129, 0.12);
+            color: #10b981;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px; font-weight: 800;
+        }
+
+        .session-title { font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
+        .session-text { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container" id="authContainer" data-state="checking">
+        <a href="/index.html" class="back-home">← <span class="zh-inline">返回</span><span class="en-inline">Back</span></a>
+
+        <div class="lang-switch">
+            <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh'); updateLangBtn();">中文</button>
+            <button class="lang-btn" data-lang-btn="en" onclick="setLang('en'); updateLangBtn();">English</button>
+        </div>
+
+        <!-- 表单主体 -->
+        <div class="auth-body">
+            <div class="auth-header">
+                <h1 id="authTitle"><span class="zh-inline">欢迎回来</span><span class="en-inline">Welcome Back</span></h1>
+                <p id="authSub"><span class="zh-inline">登录您的玩家账号，收藏喜欢的游戏</span><span class="en-inline">Sign in to save your favorite games</span></p>
+            </div>
+
+            <div id="formGroupEmail" class="form-group">
+                <label for="inputEmail"><span class="zh-inline">邮箱地址</span><span class="en-inline">Email Address</span></label>
+                <input type="email" id="inputEmail" name="email" placeholder="you@example.com" autocomplete="username" spellcheck="false" required>
+            </div>
+
+            <div id="formGroupPassword" class="form-group">
+                <label for="inputPassword"><span class="zh-inline">密码</span><span class="en-inline">Password</span></label>
+                <input type="password" id="inputPassword" name="password" placeholder="••••••••" autocomplete="current-password" required>
+            </div>
+
+            <div id="formGroupOtp" class="form-group" style="display: none;">
+                <label><span class="zh-inline">验证码</span><span class="en-inline">Verification Code</span></label>
+                <input type="text" id="inputOtp" class="otp-input" maxlength="8" placeholder="000000" autocomplete="one-time-code">
+            </div>
+
+            <div id="formGroupCaptcha" class="recaptcha-inline" aria-live="polite">
+                <p class="recaptcha-inline-status"><span class="zh-inline">请完成人机验证</span><span class="en-inline">Please complete the security check</span></p>
+                <div class="recaptcha-v2-host"></div>
+            </div>
+
+            <p class="recaptcha-terms">
+                <span class="zh-inline">本网站受 reCAPTCHA 保护，并适用 <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google 隐私权政策</a> 和 <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">服务条款</a>。</span>
+                <span class="en-inline">This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a> apply.</span>
+            </p>
+
+            <button class="btn-main" id="submitBtn" onclick="handleSubmit()">
+                <span class="zh-inline" id="btnTextZh">登 录</span>
+                <span class="en-inline" id="btnTextEn">Sign In</span>
+            </button>
+
+            <div class="oauth-divider" id="oauthDivider">
+                <span class="zh-inline">或</span><span class="en-inline">OR</span>
+            </div>
+
+            <div class="oauth-grid" id="oauthGrid">
+                <button class="btn-oauth oauth-google" id="oauthBtn-google" type="button" onclick="handleOAuthLogin('google')">
+                    <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24s.92 7.54 2.56 10.78l7.97-6.19z"/>
+                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                    </svg>
+                    <span class="zh-inline" data-oauth-text>使用 Google 账号继续</span>
+                    <span class="en-inline" data-oauth-text>Continue with Google</span>
+                </button>
+                <button class="btn-oauth" id="oauthBtn-github" type="button" onclick="handleOAuthLogin('github')">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#181717" d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.27-.01-1.17-.02-2.12-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.75 2.69 1.25 3.35.95.1-.74.4-1.25.72-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.69 5.38-5.25 5.67.41.35.77 1.05.77 2.12 0 1.53-.01 2.76-.01 3.14 0 .31.21.67.8.56A10.52 10.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+                    <span class="zh-inline" data-oauth-text>GitHub 登录</span>
+                    <span class="en-inline" data-oauth-text>GitHub</span>
+                </button>
+                <button class="btn-oauth" id="oauthBtn-discord" type="button" onclick="handleOAuthLogin('discord')">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#5865F2" d="M20.317 4.369a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.128 12.3 12.3 0 0 1-1.873.891.077.077 0 0 0-.041.107c.36.698.772 1.363 1.225 1.993a.076.076 0 0 0 .084.029 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.055c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.029zM8.02 15.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.095 2.157 2.418 0 1.334-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.095 2.157 2.418 0 1.334-.947 2.419-2.157 2.419z"/></svg>
+                    <span class="zh-inline" data-oauth-text>Discord 登录</span>
+                    <span class="en-inline" data-oauth-text>Discord</span>
+                </button>
+                <button class="btn-oauth" id="oauthBtn-gitlab" type="button" onclick="handleOAuthLogin('gitlab')">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#FC6D26" d="m23.6 9.593-.034-.086L20.3.98a.851.851 0 0 0-.336-.405.875.875 0 0 0-1 .054.875.875 0 0 0-.29.44l-2.205 6.748H7.537L5.332 1.069a.857.857 0 0 0-.29-.441.875.875 0 0 0-1-.054.859.859 0 0 0-.336.405L.433 9.501l-.033.086a6.066 6.066 0 0 0 2.012 7.011l.011.008.03.021 4.976 3.726 2.462 1.863 1.499 1.133a1.009 1.009 0 0 0 1.22 0l1.499-1.133 2.462-1.863 5.006-3.752.013-.01a6.068 6.068 0 0 0 2.009-7.002z"/></svg>
+                    <span class="zh-inline" data-oauth-text>GitLab 登录</span>
+                    <span class="en-inline" data-oauth-text>GitLab</span>
+                </button>
+                <button class="btn-oauth" id="oauthBtn-twitter" type="button" onclick="handleOAuthLogin('twitter')">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="#0f1419" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    <span class="zh-inline" data-oauth-text>X (Twitter) 登录</span>
+                    <span class="en-inline" data-oauth-text>X (Twitter)</span>
+                </button>
+            </div>
+
+            <div class="msg-box" id="msgBox"></div>
+
+            <div class="auth-links" id="authLinks">
+                <a id="linkToggleMode" onclick="toggleMode()">
+                    <span class="zh-inline">没有账号？去注册</span><span class="en-inline">No account? Sign up</span>
+                </a>
+                <a id="linkForgot" onclick="toggleForgotMode()">
+                    <span class="zh-inline">忘记密码？</span><span class="en-inline">Forgot password?</span>
+                </a>
+            </div>
+
+            <div class="rules-links">
+                <span class="zh-inline">注册/登录即代表您同意 <a href="game_rules.html" target="_blank" rel="noopener noreferrer">《游戏守则》</a>、<a href="developer_docs.html" target="_blank" rel="noopener noreferrer">《开发者文档》</a> 与 <a href="terms.html" target="_blank" rel="noopener noreferrer">《服务条款》</a></span>
+                <span class="en-inline">By signing up/in, you agree to the <a href="game_rules.html" target="_blank" rel="noopener noreferrer">Game Rules</a>, <a href="developer_docs.html" target="_blank" rel="noopener noreferrer">Developer Docs</a> and <a href="terms.html" target="_blank" rel="noopener noreferrer">Terms of Service</a>.</span>
+            </div>
+        </div>
+
+        <!-- 会话检查 / 已登录 面板 -->
+        <div class="session-panel">
+            <div id="sessionChecking">
+                <div class="spinner"></div>
+                <p class="session-text">
+                    <span class="zh-inline">正在检查登录状态…</span>
+                    <span class="en-inline">Checking your session…</span>
+                </p>
+            </div>
+            <div id="sessionLoggedIn">
+                <div class="check-badge">✓</div>
+                <h2 class="session-title">
+                    <span class="zh-inline">您已登录</span>
+                    <span class="en-inline">Already Signed In</span>
+                </h2>
+                <p class="session-text">
+                    <span class="zh-inline">无需重复登录，正在前往个人中心…</span>
+                    <span class="en-inline">No need to sign in again. Redirecting to your profile…</span>
+                </p>
+                <button class="btn-secondary" onclick="handleSwitchAccount()">
+                    <span class="zh-inline">不是我，切换账号</span>
+                    <span class="en-inline">Use another account</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="recaptcha-config.js"></script>
+    <script src="recaptcha.js"></script>
+    <script src="supabase-client.js" defer></script>
+    <script>
+        // ===== setLang 兜底（本页未引 common.js，避免语言切换报错）=====
+        if (typeof window.setLang !== 'function') {
+            window.setLang = function(lang) {
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+                try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
+                window.dispatchEvent(new Event('langChanged'));
+            };
+        }
+
+        let currentMode = 'login';
+        let targetEmail = '';
+        let hasSubmitted = false;
+        let authSubmissionInProgress = false;
+        let pendingCaptchaTicket = null;
+        let redirectTimer = null;
+        let oauthHandling = false;
+
+        const authContainer = document.getElementById('authContainer');
+        const titleEl = document.getElementById('authTitle');
+        const subEl = document.getElementById('authSub');
+        const pwdGroup = document.getElementById('formGroupPassword');
+        const otpGroup = document.getElementById('formGroupOtp');
+        const captchaGroup = document.getElementById('formGroupCaptcha');
+        const msgBox = document.getElementById('msgBox');
+        const submitBtn = document.getElementById('submitBtn');
+        const linkToggle = document.getElementById('linkToggleMode');
+        const linkForgot = document.getElementById('linkForgot');
+        const inputEmail = document.getElementById('inputEmail');
+        const inputPassword = document.getElementById('inputPassword');
+        const inputOtp = document.getElementById('inputOtp');
+        const oauthDivider = document.getElementById('oauthDivider');
+        const oauthGrid = document.getElementById('oauthGrid');
+        const checkingText = document.querySelector('#sessionChecking .session-text');
+
+        function setState(state) {
+            authContainer.setAttribute('data-state', state);
+        }
+
+        function setCheckingMessage(zh, en) {
+            if (!checkingText) return;
+            checkingText.innerHTML = `<span class="zh-inline">${zh}</span><span class="en-inline">${en}</span>`;
+        }
+
+        function setOAuthSectionVisible(visible) {
+            const display = visible ? '' : 'none';
+            if (oauthGrid) oauthGrid.style.display = display;
+            if (oauthDivider) oauthDivider.style.display = visible ? 'flex' : 'none';
+        }
+
+        const OAUTH_PROVIDER_LABELS = {
+            google:  ['使用 Google 账号继续', 'Continue with Google'],
+            github:  ['GitHub 登录', 'GitHub'],
+            discord: ['Discord 登录', 'Discord'],
+            gitlab:  ['GitLab 登录', 'GitLab'],
+            twitter: ['X (Twitter) 登录', 'X (Twitter)']
+        };
+
+        function setOAuthBusy(provider, busy) {
+            if (!oauthGrid) return;
+            const buttons = oauthGrid.querySelectorAll('.btn-oauth');
+            buttons.forEach(btn => { btn.disabled = busy; });
+            const active = oauthGrid.querySelector(`#oauthBtn-${provider}`);
+            if (!active) return;
+            const spans = active.querySelectorAll('[data-oauth-text]');
+            const busyText = busy
+                ? { zh: '正在跳转…', en: 'Redirecting…' }
+                : { zh: OAUTH_PROVIDER_LABELS[provider][0], en: OAUTH_PROVIDER_LABELS[provider][1] };
+            spans.forEach(span => {
+                if (span.classList.contains('zh-inline')) span.textContent = busyText.zh;
+                else span.textContent = busyText.en;
+            });
+        }
+
+        function updateLangBtn() {
+            const lang = document.documentElement.getAttribute('data-lang');
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.langBtn === lang);
+            });
+        }
+
+        function showMsg(text, type) {
+            msgBox.textContent = text;
+            msgBox.className = `msg-box msg-${type}`;
+            msgBox.style.display = 'block';
+        }
+
+        function hideMsg() {
+            msgBox.style.display = 'none';
+            msgBox.className = 'msg-box';
+        }
+
+        function applyMode(mode) {
+            currentMode = mode;
+            hideMsg();
+            setOAuthSectionVisible(mode === 'login' || mode === 'register');
+            if (mode !== 'otp') pendingCaptchaTicket = null;
+            captchaGroup.classList.remove('active');
+            captchaGroup.removeAttribute('data-state');
+            const captchaHost = captchaGroup.querySelector('.recaptcha-v2-host');
+            if (captchaHost) captchaHost.innerHTML = '';
+
+            if (mode === 'login') {
+                titleEl.innerHTML = '<span class="zh-inline">欢迎回来</span><span class="en-inline">Welcome Back</span>';
+                subEl.innerHTML = '<span class="zh-inline">登录您的玩家账号，收藏喜欢的游戏</span><span class="en-inline">Sign in to save your favorite games</span>';
+                document.getElementById('btnTextZh').textContent = '登 录';
+                document.getElementById('btnTextEn').textContent = 'Sign In';
+                linkToggle.innerHTML = '<span class="zh-inline">没有账号？去注册</span><span class="en-inline">No account? Sign up</span>';
+                linkForgot.style.display = 'block';
+                pwdGroup.style.display = 'block';
+                otpGroup.style.display = 'none';
+
+            } else if (mode === 'register') {
+                titleEl.innerHTML = '<span class="zh-inline">创建玩家账号</span><span class="en-inline">Create Account</span>';
+                subEl.innerHTML = '<span class="zh-inline">加入我们，收藏和游玩更多游戏</span><span class="en-inline">Join us to save and play more games</span>';
+                document.getElementById('btnTextZh').textContent = '注册并获取验证码';
+                document.getElementById('btnTextEn').textContent = 'Register & Get Code';
+                linkToggle.innerHTML = '<span class="zh-inline">已有账号？去登录</span><span class="en-inline">Already have an account? Sign in</span>';
+                linkForgot.style.display = 'none';
+                pwdGroup.style.display = 'block';
+                otpGroup.style.display = 'none';
+
+            } else if (mode === 'otp') {
+                titleEl.innerHTML = '<span class="zh-inline">输入验证码</span><span class="en-inline">Enter Verification Code</span>';
+                subEl.innerHTML = '<span class="zh-inline">验证码已发送至 </span><b></b><span class="en-inline">Code sent to </span><b></b>';
+                const bs = subEl.querySelectorAll('b');
+                if (bs[0]) bs[0].textContent = targetEmail;
+                if (bs[1]) bs[1].textContent = targetEmail;
+                document.getElementById('btnTextZh').textContent = '确认注册';
+                document.getElementById('btnTextEn').textContent = 'Verify & Register';
+                linkToggle.innerHTML = '<span class="zh-inline">重新填写邮箱</span><span class="en-inline">Change email</span>';
+                linkForgot.style.display = 'none';
+                pwdGroup.style.display = 'none';
+                otpGroup.style.display = 'block';
+                inputOtp.value = '';
+                setTimeout(() => inputOtp.focus(), 0);
+
+            } else if (mode === 'reset') {
+                titleEl.innerHTML = '<span class="zh-inline">重置密码</span><span class="en-inline">Reset Password</span>';
+                subEl.innerHTML = '<span class="zh-inline">输入邮箱，我们将发送重置链接</span><span class="en-inline">Enter your email to receive a reset link</span>';
+                document.getElementById('btnTextZh').textContent = '发送重置邮件';
+                document.getElementById('btnTextEn').textContent = 'Send Reset Link';
+                linkToggle.innerHTML = '<span class="zh-inline">返回登录</span><span class="en-inline">Back to login</span>';
+                linkForgot.style.display = 'none';
+                pwdGroup.style.display = 'none';
+                otpGroup.style.display = 'none';
+            }
+        }
+
+        function toggleMode() {
+            if (currentMode === 'otp') applyMode('register');
+            else if (currentMode === 'reset') applyMode('login');
+            else if (currentMode === 'login') applyMode('register');
+            else applyMode('login');
+        }
+
+        function toggleForgotMode() {
+            if (currentMode === 'reset') applyMode('login');
+            else applyMode('reset');
+        }
+
+        // 跳转地址：清掉 token/error 类参数，保留 type/lang 等
+        function buildDashboardUrl() {
+            const params = new URLSearchParams(window.location.search);
+            params.delete('code');
+            params.delete('error');
+            params.delete('error_description');
+            params.delete('error_code');
+            const qs = params.toString();
+            return 'profile.html' + (qs ? '?' + qs : '');
+        }
+
+        // ===== 第三方 OAuth 登录（Google / GitHub / Discord / GitLab / X）=====
+        const OAUTH_FLAG = 'lelele_oauth_google';
+
+        function setOAuthFlag(on) {
+            try {
+                if (on) sessionStorage.setItem(OAUTH_FLAG, '1');
+                else sessionStorage.removeItem(OAUTH_FLAG);
+            } catch (e) {}
+        }
+
+        function readOAuthFlag() {
+            try { return sessionStorage.getItem(OAUTH_FLAG) === '1'; } catch (e) { return false; }
+        }
+
+        // 标记存在，或 URL 上还挂着 OAuth 回调参数，都视为 OAuth 回跳
+        function isOAuthCallback(params) {
+            return readOAuthFlag() || params.has('code') || params.has('provider');
+        }
+
+        function buildOAuthRedirectUrl() {
+            const origin = (window.location.origin && window.location.origin !== 'null')
+                ? window.location.origin
+                : window.location.href.replace(/\/user-login\.html.*$/, '');
+            return origin + '/user-login.html';
+        }
+
+        function describeOAuthError(provider, error) {
+            const raw = (error && (error.error_description || error.message)) || '';
+            const providerName = (OAUTH_PROVIDER_LABELS[provider] || [provider])[0];
+            const base = raw
+                ? `${providerName}登录失败：${raw} / ${providerName} sign-in failed: ${raw}`
+                : `${providerName}登录失败，请重试（若该方式尚未在后台开启，请联系站长）/ ${providerName} sign-in failed (contact us if this provider is not enabled)`;
+            if (/redirect|回调/i.test(raw)) {
+                return base + '（请确认登录页已加入 Supabase Redirect URLs 白名单 / Make sure the login page is allowlisted in Supabase Redirect URLs）';
+            }
+            return base;
+        }
+
+        async function handleOAuthLogin(provider) {
+            if (!window.supabaseClient) {
+                showMsg('Supabase 加载失败 / Failed to load Supabase', 'error');
+                return;
+            }
+            if (!OAUTH_PROVIDER_LABELS[provider]) return;
+            hideMsg();
+            setOAuthBusy(provider, true);
+            setOAuthFlag(true);
+
+            const options = { redirectTo: buildOAuthRedirectUrl() };
+            if (provider === 'google') options.queryParams = { prompt: 'select_account' };
+
+            const { error } = await window.supabaseClient.auth.signInWithOAuth({ provider, options });
+
+            if (error) {
+                setOAuthFlag(false);
+                showMsg(describeOAuthError(provider, error), 'error');
+                setOAuthBusy(provider, false);
+            }
+        }
+
+        // 回跳后补做一次人机验证，避免进后台立刻弹“安全复验”
+        async function completeOAuthVerification(session) {
+            if (!window.LeleleCaptcha || !session) return false;
+            try {
+                const captcha = await window.LeleleCaptcha.ensure('login');
+                await window.LeleleCaptcha.consume(captcha.ticket, 'login', session);
+                return true;
+            } catch (e) {
+                console.warn('OAuth 会话安全验证未当场完成，交给后台兜底 / OAuth captcha deferred:', e);
+                return false;
+            }
+        }
+
+        async function handleOAuthReturn() {
+            oauthHandling = true;
+            setOAuthFlag(false);
+            setState('checking');
+            setCheckingMessage('正在完成第三方登录…', 'Finalizing sign-in…');
+
+            if (!window.supabaseClient) {
+                oauthHandling = false;
+                setState('form');
+                return;
+            }
+
+            let session = null;
+            try {
+                const { data } = await window.supabaseClient.auth.getSession();
+                session = (data && data.session) || null;
+            } catch (e) {}
+
+            if (!session) {
+                oauthHandling = false;
+                setState('form');
+                showMsg('第三方登录未完成，请重试 / Sign-in did not complete. Please try again.', 'error');
+                return;
+            }
+
+            setCheckingMessage('正在完成安全验证…', 'Running security check…');
+            await completeOAuthVerification(session);
+
+            hasSubmitted = true;
+            oauthHandling = false;
+            setCheckingMessage('登录成功，正在前往个人中心…', 'Signed in. Redirecting to your profile…');
+            redirectAfterLogin();
+        }
+
+        // 已登录状态：显示提示 → 传标志给 dashboard → 跳转
+        function showLoggedIn() {
+            clearTimeout(redirectTimer);
+            setState('loggedin');
+            try { sessionStorage.setItem('lelele_already_logged_in', '1'); } catch (e) {}
+            redirectTimer = setTimeout(() => {
+                window.location.replace(buildDashboardUrl());
+            }, 1500);
+        }
+
+        // 登录成功：直接跳，不弹"已登录"提示（用户刚登录，无需告知）
+        function redirectAfterLogin() {
+            setTimeout(() => {
+                window.location.replace(buildDashboardUrl());
+            }, 800);
+        }
+
+        async function handleSwitchAccount() {
+            clearTimeout(redirectTimer);
+            setState('checking');
+            try {
+                if (window.supabaseClient) await window.supabaseClient.auth.signOut();
+            } catch (e) {}
+            try { sessionStorage.removeItem('lelele_already_logged_in'); } catch (e) {}
+            applyMode('login');
+            setState('form');
+        }
+
+        function setupAuthListener() {
+            if (!window.supabaseClient) return;
+            window.supabaseClient.auth.onAuthStateChange((event, session) => {
+                if (event !== 'SIGNED_IN' || !session) return;
+                if (oauthHandling) return;
+                if (hasSubmitted || authSubmissionInProgress) return;
+                if (currentMode === 'register' || currentMode === 'otp') return;
+                showLoggedIn();
+            });
+        }
+
+        async function initSessionCheck() {
+            // 1. 先看 URL 里的错误（过期/已使用的 token 等）
+            const params = new URLSearchParams(window.location.search);
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const urlError = params.get('error') || hashParams.get('error');
+            const urlErrorDesc = params.get('error_description') || hashParams.get('error_description');
+
+            if (urlError) {
+                setOAuthFlag(false);
+                setState('form');
+                showMsg((urlErrorDesc || urlError).replace(/\+/g, ' '), 'error');
+                try {
+                    const clean = new URLSearchParams(window.location.search);
+                    clean.delete('error');
+                    clean.delete('error_description');
+                    clean.delete('error_code');
+                    const qs = clean.toString();
+                    history.replaceState(null, '', window.location.pathname + (qs ? '?' + qs : ''));
+                } catch (e) {}
+                return;
+            }
+
+            // 2. Google OAuth 回跳：完成会话 → 补安全验证 → 进后台
+            if (isOAuthCallback(params)) {
+                await handleOAuthReturn();
+                return;
+            }
+
+            // 3. 无 client → 直接显示表单
+            if (!window.supabaseClient) {
+                setState('form');
+                return;
+            }
+
+            // 4. getSession（含 4s 兜底）
+            let settled = false;
+            const guard = setTimeout(() => { if (!settled) setState('form'); }, 4000);
+            try {
+                const { data } = await window.supabaseClient.auth.getSession();
+                settled = true;
+                clearTimeout(guard);
+                if (data && data.session) showLoggedIn();
+                else setState('form');
+            } catch (e) {
+                settled = true;
+                clearTimeout(guard);
+                setState('form');
+            }
+        }
+
+        async function completeCaptchaForSession(ticket, action, session, allowRefresh) {
+            if (!window.LeleleCaptcha || !session) {
+                throw new Error('安全验证组件不可用 / Security verification is unavailable');
+            }
+            try {
+                await window.LeleleCaptcha.consume(ticket, action, session);
+            } catch (error) {
+                if (allowRefresh && (error.code === 'expired_ticket' || error.code === 'invalid_ticket')) {
+                    const refreshed = await window.LeleleCaptcha.ensure(action, { container: captchaGroup });
+                    await window.LeleleCaptcha.consume(refreshed.ticket, action, session);
+                    return;
+                }
+                if (error.code === 'ticket_already_used') {
+                    try {
+                        const status = await window.LeleleCaptcha.getStatus(session, { force: true });
+                        if (!status.due) return;
+                    } catch (statusError) {}
+                }
+                try { await window.supabaseClient.auth.signOut(); } catch (e) {}
+                throw error;
+            }
+        }
+
+        async function handleSubmit() {
+            if (!window.supabaseClient) {
+                showMsg('Supabase 加载失败 / Failed to load Supabase', 'error');
+                return;
+            }
+            if (!window.LeleleCaptcha) {
+                showMsg('安全验证加载失败 / Failed to load security verification', 'error');
+                return;
+            }
+            hideMsg();
+            submitBtn.disabled = true;
+
+            const email = inputEmail.value.trim();
+            const password = inputPassword.value;
+            const otpCode = inputOtp.value.trim();
+
+            try {
+                if (currentMode === 'login') {
+                    if (!email || !password) throw new Error('请输入邮箱和密码 / Enter email and password');
+                    const captcha = await window.LeleleCaptcha.ensure('login', { container: captchaGroup });
+                    authSubmissionInProgress = true;
+                    const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                    await completeCaptchaForSession(captcha.ticket, 'login', data.session, false);
+                    hasSubmitted = true;
+                    showMsg('登录成功，正在跳转... / Success, redirecting...', 'success');
+                    redirectAfterLogin();
+
+                } else if (currentMode === 'register') {
+                    if (!email || !password) throw new Error('请输入邮箱和密码 / Enter email and password');
+                    if (password.length < 6) throw new Error('密码至少需要 6 位 / Password must be at least 6 characters');
+
+                    const captcha = await window.LeleleCaptcha.ensure('register', { container: captchaGroup });
+                    pendingCaptchaTicket = captcha.ticket;
+                    authSubmissionInProgress = true;
+                    const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
+                    if (error) throw error;
+
+                    targetEmail = email;
+
+                    // 邮箱确认关闭：signUp 直接返回 session，跳过 OTP
+                    if (data && data.session) {
+                        await completeCaptchaForSession(pendingCaptchaTicket, 'register', data.session, false);
+                        pendingCaptchaTicket = null;
+                        hasSubmitted = true;
+                        showMsg('注册成功，正在跳转... / Success, redirecting...', 'success');
+                        redirectAfterLogin();
+                        return;
+                    }
+
+                    applyMode('otp');
+                    showMsg('验证码已发送，请查收邮件 / Code sent, check your email', 'success');
+
+                } else if (currentMode === 'otp') {
+                    if (!otpCode || otpCode.length < 6) throw new Error('请输入完整验证码 / Enter full code');
+                    if (!pendingCaptchaTicket) {
+                        const captcha = await window.LeleleCaptcha.ensure('register', { container: captchaGroup });
+                        pendingCaptchaTicket = captcha.ticket;
+                    }
+
+                    authSubmissionInProgress = true;
+                    const { data, error } = await window.supabaseClient.auth.verifyOtp({
+                        email: targetEmail,
+                        token: otpCode,
+                        type: 'signup'
+                    });
+                    if (error) throw error;
+                    await completeCaptchaForSession(pendingCaptchaTicket, 'register', data.session, true);
+                    pendingCaptchaTicket = null;
+
+                    hasSubmitted = true;
+                    showMsg('注册成功，正在跳转... / Success, redirecting...', 'success');
+                    redirectAfterLogin();
+
+                } else if (currentMode === 'reset') {
+                    if (!email) throw new Error('请输入邮箱 / Enter email');
+
+                    const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
+                        redirectTo: window.location.origin + '/profile.html?type=recovery'
+                    });
+                    if (error) throw error;
+
+                    showMsg('重置邮件已发送，请查收 / Reset email sent, check your inbox', 'success');
+                    applyMode('login');
+                }
+            } catch (err) {
+                showMsg(err.message || '发生错误，请重试 / Error, please try again', 'error');
+            } finally {
+                authSubmissionInProgress = false;
+                submitBtn.disabled = false;
+            }
+        }
+
+        window.onReady( () => {
+            updateLangBtn();
+            window.addEventListener('langChanged', () => updateLangBtn());
+            setupAuthListener();
+            initSessionCheck();
+        });
+
+        // bfcache：从 dashboard 后退回来时重新判定
+        window.addEventListener('pageshow', (e) => {
+            if (e.persisted) {
+                hasSubmitted = false;
+                clearTimeout(redirectTimer);
+                setState('checking');
+                initSessionCheck();
+            }
+        });
+    </script>
+</body>
+</html>

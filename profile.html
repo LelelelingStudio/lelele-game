@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en') lang = 'en';
+                else if (storedLang === 'zh') lang = 'zh';
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <title>个人中心 · 了了了游</title>
+    <meta name="description" content="了了了游玩家个人中心：查看资料与收藏的游戏。Lelele Game player profile and favorites.">
+
+    <link rel="stylesheet" href="/common.css">
+    <script src="/boot.js"></script>
+    <script defer src="/vendor/supabase-js.js"></script>
+
+    <style>
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text { display: block; }
+        html[data-lang="zh"] .zh-inline { display: inline; }
+        html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="en"] .en-inline { display: inline; }
+        html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+        html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px 60px;
+        }
+
+        .page-wrap { width: 100%; max-width: 640px; }
+
+        .top-bar {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .back-link:hover { color: var(--primary); }
+        .lang-switch { display: flex; gap: 2px; background: rgba(148,163,184,0.12); border-radius: 30px; padding: 3px; }
+        .lang-btn {
+            padding: 4px 10px; border: none; border-radius: 24px; background: transparent;
+            font-size: 0.75rem; font-weight: 600; color: #64748b; cursor: pointer;
+        }
+        .lang-btn.active { background: #4f46e5; color: #fff; }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 16px 36px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .profile-head { display: flex; align-items: center; gap: 18px; }
+        .avatar {
+            width: 64px; height: 64px; border-radius: 50%;
+            background: rgba(79,70,229,0.12); color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; font-weight: 800; overflow: hidden; flex-shrink: 0;
+        }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-name { font-size: 1.3rem; font-weight: 800; margin-bottom: 4px; }
+        .profile-email { font-size: 0.88rem; color: var(--text-muted); }
+
+        .role-badge {
+            display: inline-flex; align-items: center; margin-top: 8px;
+            padding: 3px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700;
+            background: rgba(16,185,129,0.12); color: #10b981;
+        }
+
+        .section-title { font-size: 1.05rem; font-weight: 800; margin-bottom: 14px; }
+
+        .fav-list { display: flex; flex-direction: column; gap: 10px; }
+        .fav-row {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            padding: 14px 16px; border: 1px solid var(--card-border); border-radius: 14px;
+            text-decoration: none; color: var(--text-main); transition: all 0.2s;
+            background: rgba(255,255,255,0.4);
+        }
+        html.dark-mode .fav-row { background: rgba(0,0,0,0.18); }
+        .fav-row:hover { border-color: var(--primary); transform: translateY(-1px); }
+        .fav-name { font-weight: 600; }
+        .fav-meta { font-size: 0.78rem; color: var(--text-muted); }
+
+        .empty-tip { color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 24px 0; }
+
+        .btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
+        .btn-main {
+            flex: 1; min-width: 160px; padding: 13px; border-radius: 12px; border: none;
+            background: var(--primary); color: #fff; font-size: 0.95rem; font-weight: 700;
+            cursor: pointer; font-family: inherit;
+        }
+        .btn-main:hover { background: var(--primary-hover); }
+        .btn-ghost {
+            flex: 1; min-width: 160px; padding: 13px; border-radius: 12px;
+            border: 1px solid var(--card-border); background: transparent;
+            color: var(--text-muted); font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: inherit;
+            text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+
+        .loading { text-align: center; color: var(--text-muted); padding: 40px 0; }
+    </style>
+</head>
+<body>
+    <div class="page-wrap">
+        <div class="top-bar">
+            <a href="/index.html" class="back-link">← <span class="zh-inline">返回首页</span><span class="en-inline">Back to home</span></a>
+            <div class="lang-switch">
+                <button class="lang-btn" data-lang-btn="zh" onclick="setLang('zh'); updateLangBtn();">中文</button>
+                <button class="lang-btn" data-lang-btn="en" onclick="setLang('en'); updateLangBtn();">English</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loadingBox">
+            <span class="zh-inline">正在加载…</span><span class="en-inline">Loading…</span>
+        </div>
+
+        <div id="profileRoot" hidden>
+            <!-- 资料卡 -->
+            <div class="card">
+                <div class="profile-head">
+                    <div class="avatar" id="avatarBox"><span id="avatarFallback">?</span></div>
+                    <div>
+                        <div class="profile-name" id="profileName">—</div>
+                        <div class="profile-email" id="profileEmail">—</div>
+                        <span class="role-badge" id="roleBadge" hidden></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作 -->
+            <div class="card">
+                <div class="btn-row">
+                    <a class="btn-ghost" id="devPanelLink" href="dashboard.html" hidden>
+                        <span class="zh-inline">💻 进入开发者后台</span><span class="en-inline">💻 Open dashboard</span>
+                    </a>
+                    <button class="btn-main" id="logoutBtn" type="button">
+                        <span class="zh-inline">退出登录</span><span class="en-inline">Sign out</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 我的收藏 -->
+            <div class="card">
+                <div class="section-title">
+                    <span class="zh-inline">我的收藏</span><span class="en-inline">My Favorites</span>
+                </div>
+                <div class="fav-list" id="favList"></div>
+                <div class="empty-tip" id="favEmpty" hidden>
+                    <span class="zh-inline">还没有收藏任何游戏，去首页逛逛吧～</span><span class="en-inline">No favorites yet. Browse the home page!</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/common.js" defer></script>
+    <script src="supabase-client.js" defer></script>
+    <script>
+        if (typeof window.setLang !== 'function') {
+            window.setLang = function(lang) {
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+                try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
+                window.dispatchEvent(new Event('langChanged'));
+            };
+        }
+        function isEn() { return document.documentElement.getAttribute('data-lang') === 'en'; }
+        function updateLangBtn() {
+            const lang = document.documentElement.getAttribute('data-lang');
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.langBtn === lang);
+            });
+        }
+
+        let currentUser = null;
+
+        function escapeHtml(s) {
+            return String(s == null ? '' : s)
+                .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        async function loadSession() {
+            if (typeof supabaseClient === 'undefined' || !supabaseClient) return null;
+            try {
+                const { data } = await supabaseClient.auth.getSession();
+                return (data && data.session) || null;
+            } catch (e) { return null; }
+        }
+
+        async function isAuthorAccount(userId) {
+            if (!userId || typeof window.fetchAuthors !== 'function') return false;
+            try {
+                const authors = await window.fetchAuthors();
+                return Array.isArray(authors) && authors.some(a => a.uuid === userId);
+            } catch (e) { return false; }
+        }
+
+        async function renderFavorites() {
+            const list = document.getElementById('favList');
+            const empty = document.getElementById('favEmpty');
+            const favs = (typeof window.getFavorites === 'function' ? window.getFavorites() : []) || [];
+            list.innerHTML = '';
+
+            let games = [];
+            try {
+                const r = await fetch('/lelegame_data.json', { cache: 'force-cache' });
+                if (r.ok) games = await r.json();
+            } catch (e) { games = []; }
+
+            const matched = favs
+                .map(id => games.find(g => String(g.id) === String(id)))
+                .filter(Boolean);
+
+            if (!matched.length) { empty.hidden = false; return; }
+            empty.hidden = true;
+
+            const langSuffix = isEn() ? '&lang=en' : '';
+            matched.forEach(g => {
+                const a = document.createElement('a');
+                a.className = 'fav-row';
+                a.href = 'game.html?id=' + encodeURIComponent(g.id) + langSuffix;
+                const name = isEn() ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en);
+                const meta = g.icon ? g.icon + ' ' + (isEn() ? (g.category_en || '') : (g.category_zh || '')) : '';
+                a.innerHTML =
+                    '<span><span class="fav-name">' + escapeHtml(name) + '</span></span>' +
+                    '<span class="fav-meta">' + escapeHtml(meta.trim()) + '</span>';
+                list.appendChild(a);
+            });
+        }
+
+        async function init() {
+            updateLangBtn();
+            window.addEventListener('langChanged', updateLangBtn);
+
+            const session = await loadSession();
+            if (!session) {
+                window.location.replace('user-login.html');
+                return;
+            }
+            currentUser = session.user;
+
+            let profile = null;
+            try {
+                const { data } = await supabaseClient.from('profiles')
+                    .select('display_name, username, avatar_url')
+                    .eq('id', currentUser.id).single();
+                profile = data;
+            } catch (e) { profile = null; }
+
+            const email = currentUser.email || '';
+            const fallbackName = (email ? email.split('@')[0] : '') || (isEn() ? 'Player' : '玩家');
+            const name = (profile && (profile.display_name || profile.username)) || fallbackName;
+
+            document.getElementById('profileName').textContent = name;
+            document.getElementById('profileEmail').textContent = email || '—';
+
+            const avatarBox = document.getElementById('avatarBox');
+            const avatarFallback = document.getElementById('avatarFallback');
+            if (profile && profile.avatar_url) {
+                avatarBox.innerHTML = '<img src="' + escapeHtml(profile.avatar_url) + '" alt="">';
+            } else {
+                avatarFallback.textContent = name.trim().charAt(0).toUpperCase() || '?';
+                avatarBox.innerHTML = '';
+                avatarBox.appendChild(avatarFallback);
+            }
+
+            const author = await isAuthorAccount(currentUser.id);
+            const badge = document.getElementById('roleBadge');
+            const devLink = document.getElementById('devPanelLink');
+            if (author) {
+                badge.hidden = false;
+                badge.innerHTML = '<span class="zh-inline">开发者</span><span class="en-inline">Developer</span>';
+                devLink.hidden = false;
+            } else {
+                badge.hidden = true;
+                devLink.hidden = true;
+            }
+
+            document.getElementById('loadingBox').hidden = true;
+            document.getElementById('profileRoot').hidden = false;
+
+            await renderFavorites();
+        }
+
+        async function onLogout() {
+            try {
+                if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                    await supabaseClient.auth.signOut();
+                }
+            } catch (e) {}
+            window.location.replace('/index.html');
+        }
+
+        window.onReady(() => {
+            init();
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) logoutBtn.addEventListener('click', onLogout);
+        });
+    </script>
+</body>
+</html>

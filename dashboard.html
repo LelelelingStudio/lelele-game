@@ -885,6 +885,9 @@
                     authorLookupState = 'ok';
                 } else {
                     authorLookupState = 'unlinked';
+                    // 普通玩家不进入开发者后台，跳个人中心
+                    window.location.replace('profile.html');
+                    return;
                 }
             } else {
                 authorLookupState = 'failed';
