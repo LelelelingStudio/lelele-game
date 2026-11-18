@@ -449,19 +449,6 @@
         .similar-icon { font-size: 1.8rem; }
         .similar-name { font-size: .82rem; font-weight: 700; text-align: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         @media (max-width: 640px) { .similar-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
-
-        /* 评分组件 */
-        .rating-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
-        .rating-label { font-size: 0.9rem; font-weight: 600; color: var(--text-muted, var(--text-main)); }
-        .stars { display: inline-flex; gap: 4px; }
-        .star {
-            background: none; border: none; cursor: pointer; font-size: 1.5rem; line-height: 1;
-            color: rgba(148,163,184,0.4); padding: 2px; font-family: inherit; transition: transform .15s, color .15s;
-        }
-        .star:hover { transform: scale(1.15); }
-        .star.on { color: #f59e0b; }
-        .star:disabled { cursor: not-allowed; opacity: 0.6; }
-        .rating-msg { font-size: 0.82rem; color: var(--text-muted, var(--text-main)); }
 </style>
 </head>
 <body>
@@ -519,19 +506,6 @@
                         <button class="btn btn-play" id="playBtn" onclick="playGame()">
                             <span class="zh-inline">🎮 开始游戏</span><span class="en-inline">🎮 Play Game</span>
                         </button>
-                    </div>
-                    <div class="rating-row" id="ratingRow" hidden>
-                        <span class="rating-label">
-                            <span class="zh-inline">我的评分</span><span class="en-inline">My rating</span>
-                        </span>
-                        <div class="stars" id="starsGroup" role="group" aria-label="Rating 1 to 5 stars">
-                            <button type="button" class="star" data-score="1" aria-label="1 star / 1 星">★</button>
-                            <button type="button" class="star" data-score="2" aria-label="2 stars / 2 星">★</button>
-                            <button type="button" class="star" data-score="3" aria-label="3 stars / 3 星">★</button>
-                            <button type="button" class="star" data-score="4" aria-label="4 stars / 4 星">★</button>
-                            <button type="button" class="star" data-score="5" aria-label="5 stars / 5 星">★</button>
-                        </div>
-                        <span class="rating-msg" id="ratingMsg" aria-live="polite"></span>
                     </div>
                 </div>
 
@@ -601,7 +575,6 @@
 
     <script src="/common.js" defer></script>
     <script src="supabase-client.js" defer></script>
-    <script src="/user-actions.js" defer></script>
     <script src="/lsfp-adapter.js" defer></script>
     <script src="/notice.js" defer></script>
     <script src="legal_generic.js" defer></script>
@@ -819,85 +792,8 @@
                 const gameName = currentGameData.name_zh || currentGameData.name;
                 edgemetry('play-game_' + gameName);
             }
-            // 记录最近游玩（静默失败，不阻塞进入游戏；游戏未入库时自动跳过）
-            if (typeof window.leleleUser !== 'undefined' && window.leleleUser) {
-                window.leleleUser.recordRecentPlay(currentGameData).catch(() => {});
-            }
             window.location.href = '/play.html?id=' + encodeURIComponent(currentGameData.id) + '&lang=' + (isEn() ? 'en' : 'zh');
         };
-
-        // ---------- 评分（1~5 星） ----------
-        let myRating = null;
-        let ratingBusy = false;
-
-        function paintStars() {
-            const group = document.getElementById('starsGroup');
-            if (!group) return;
-            group.querySelectorAll('.star').forEach(btn => {
-                const s = Number(btn.dataset.score);
-                btn.classList.toggle('on', myRating !== null && s <= myRating);
-                btn.setAttribute('aria-pressed', String(myRating === s));
-            });
-        }
-
-        function setStarsDisabled(dis) {
-            const group = document.getElementById('starsGroup');
-            if (!group) return;
-            group.querySelectorAll('.star').forEach(btn => { btn.disabled = dis; });
-        }
-
-        function setRatingMsg(msg) {
-            const el = document.getElementById('ratingMsg');
-            if (el) el.textContent = msg || '';
-        }
-
-        async function initRatingWidget() {
-            const row = document.getElementById('ratingRow');
-            if (!row || !currentGameData) return;
-            if (typeof window.leleleUser === 'undefined' || !window.leleleUser) { row.hidden = true; return; }
-
-            // 游戏尚未在 Supabase games 表入库时，不显示评分入口（表补齐后自动出现）
-            const gameId = await window.leleleUser.resolveGameUuid(currentGameData);
-            if (!gameId) { row.hidden = true; return; }
-
-            row.hidden = false;
-            myRating = null;
-            ratingBusy = false;
-            setRatingMsg('');
-
-            const session = await window.leleleUser.getSession();
-            if (session) {
-                const r = await window.leleleUser.getMyRating(currentGameData);
-                if (r.known) myRating = r.score;
-            }
-            paintStars();
-        }
-
-        async function onStarClick(e) {
-            const btn = e.target.closest('.star');
-            if (!btn || ratingBusy) return;
-            if (typeof window.leleleUser === 'undefined' || !window.leleleUser) return;
-            const score = Number(btn.dataset.score);
-
-            const session = await window.leleleUser.getSession();
-            if (!session) { window.location.href = 'login.html'; return; }
-
-            ratingBusy = true;
-            setStarsDisabled(true);
-            setRatingMsg(isEn() ? 'Submitting…' : '提交中…');
-
-            const res = await window.leleleUser.submitRating(currentGameData, score);
-            ratingBusy = false;
-            setStarsDisabled(false);
-
-            if (res.ok) {
-                myRating = score;
-                paintStars();
-                setRatingMsg(isEn() ? 'Rating saved' : '评分已提交');
-            } else {
-                setRatingMsg(isEn() ? 'Failed, please retry.' : '提交失败，请稍后重试');
-            }
-        }
 
         // 异步查询作者信息并渲染链接
         async function updateAuthorBar(authorData) {
@@ -1101,7 +997,6 @@
             }
 
             updateFavBtn();
-            initRatingWidget();
         }
 
 
@@ -1339,10 +1234,7 @@
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.langBtn === currentLang);
             });
-
-            const starsGroup = document.getElementById('starsGroup');
-            if (starsGroup) starsGroup.addEventListener('click', onStarClick);
-
+            
             init();
 
             // 相似推荐（#7）：按同分类 + 同标签匹配，取 4 款（排除自己）
