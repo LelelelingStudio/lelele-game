@@ -1,6 +1,12 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.14 (文档/站点地图一致性) —— authorlevel.html 补 head 早期语言脚本（修
+ *   ?lang=en 不生效）、sitemap.xml / sitemap.html 由 scripts/gen-sitemap.py 全量重建
+ *   （补齐 id 23–32、作者 8–10、play/stats/favgames 等页面）。预缓存清单同时补上
+ *   之前漏掉的 /play.html、/stats.html、/favgames.html（50 → 53 项，均真实存在）。
+ *   字节已变故升 CACHE_NAME 清 v1.13 旧缓存；三分支 fetch 策略与 cacheKeyFor() 未改动。
+ *
  * ★ v1.13 (排行榜修正) —— index.js 修复收藏事件（fav-game_<id>，按游戏 id）
  *   与游玩事件（play-game_<name>，按游戏名）命名空间不一致导致总榜未加权的问题：
  *   现先统一归一到游戏 id 再合并，总榜 = 收藏×5 + 游玩；弹窗总榜量词改「排行点」。
@@ -72,7 +78,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.13';
+const CACHE_NAME = 'lelele-pwa-v1.14';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。
@@ -82,6 +88,7 @@ const ASSETS_TO_CACHE = [
     '/about.html',
     '/docs.html',
     '/game.html',
+    '/play.html',
     '/author.html',
     '/dashboard.html',
     '/login.html',
@@ -89,6 +96,8 @@ const ASSETS_TO_CACHE = [
     '/apply-certification.html',
     '/authorlevel.html',
     '/gamecheck.html',
+    '/stats.html',
+    '/favgames.html',
     '/sitemap.html',
     '/game_rules4-0-0.html',
     '/game_rules4-0-1.html',

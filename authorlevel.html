@@ -1,6 +1,27 @@
 <!DOCTYPE html>
-<html lang="zh" data-lang="zh">
+<html lang="zh-CN" data-lang="zh">
 <head>
+    <!-- 防止语言闪烁 + 让 ?lang=en 生效：与其它根页面同一套早期脚本 -->
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>认证等级说明 · 了了了游</title>
@@ -137,8 +158,8 @@
             document.getElementById('lvTagline').textContent = L.tagline;
             document.getElementById('lvReq').innerHTML = L.req.map(function (r) { return '<li>' + r + '</li>'; }).join('');
             document.getElementById('lvBenefit').innerHTML = L.benefit.map(function (b) { return '<li>' + b + '</li>'; }).join('');
-            document.getElementById('lvApplyBtn').href = 'apply-certification.html?level=' + lvl;
-            document.title = L.name + ' · 了了了游认证';
+            document.getElementById('lvApplyBtn').href = 'apply-certification.html?level=' + lvl + (getLang() === 'en' ? '&lang=en' : '');
+            document.title = getLang() === 'en' ? (L.name + ' · Lelele Game Certification') : (L.name + ' · 了了了游认证');
         }
 
         function syncLangBtns() {
