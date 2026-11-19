@@ -821,8 +821,11 @@ window.addEventListener("message", function(event) {
     }
     // 可点击作者名（跳作者主页）
     function rankAuthor(item) {
-        if (!item.authorUrl || !item.authorName) return '';
-        return `<a class="rank-author" href="${item.authorUrl}" onclick="event.stopPropagation();"><span class="zh-inline">作者：</span><span class="en-inline">By </span>${escapeHtml(item.authorName)}</a>`;
+        if (!item.authorName) return '';
+        const label = '<span class="zh-inline">作者：</span><span class="en-inline">By </span>' + escapeHtml(item.authorName);
+        // 外部原作者（字符串名）无作者主页：显示纯文本，不给死链
+        if (!item.authorUrl) return `<span class="rank-author rank-author-plain">${label}</span>`;
+        return `<a class="rank-author" href="${item.authorUrl}" onclick="event.stopPropagation();">${label}</a>`;
     }
 
     function renderTop3(items) {
@@ -980,7 +983,8 @@ window.addEventListener("message", function(event) {
                     url: g ? getGameDetailUrl(g.id) : null,
                     authorId: authorId != null ? String(authorId) : null,
                     authorName: authorObj ? (isEn ? (authorObj.name_en || authorObj.name_zh) : (authorObj.name_zh || authorObj.name_en)) : (authorId != null ? String(authorId) : null),
-                    authorUrl: authorId != null ? `author.html?id=${encodeURIComponent(authorId)}${isEn ? '&lang=en' : ''}` : null
+                    // 外部原作者（字符串名，无平台作者档案）不生成死链，只显示纯文本
+                    authorUrl: authorObj ? `author.html?id=${encodeURIComponent(authorObj.id)}${isEn ? '&lang=en' : ''}` : null
                 };
             }).filter(item => item.name && item.url).sort((a, b) => b.count - a.count);
 

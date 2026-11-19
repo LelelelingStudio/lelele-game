@@ -1,0 +1,49 @@
+{
+  "id": 40,
+  "name_zh": "搭塔游戏",
+  "name_en": "Tower Building Game",
+  "icon": "🏗️",
+  "category_zh": "休闲",
+  "category_en": "Casual",
+  "ageRating_zh": "全年龄",
+  "ageRating_en": "All Ages",
+  "version": "v1.0.0",
+  "author": "BMQB, Inc",
+  "url": "/game/towerminecraft/index.html",
+  "banner": "",
+  "screenshots": [],
+  "description_zh": "基于 Canvas 的搭塔小游戏，精准落块，把塔盖得越高越好。",
+  "description_en": "A Canvas tower-stacking game. Drop blocks precisely and build as tall as you can.",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-19",
+      "content": "由了了了游收录上线。"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-19",
+      "content": "Added to lelele Game."
+    }
+  ],
+  "tags": {
+    "zh": [
+      "休闲",
+      "本站游戏"
+    ],
+    "en": [
+      "Casual",
+      "Local"
+    ]
+  },
+  "legal_urls": {
+    "eula": "",
+    "privacy": "",
+    "terms": ""
+  },
+  "originalAuthor": "BMQB, Inc",
+  "license": "MIT (© 2018 BMQB, Inc)",
+  "source": "https://github.com/iamkun/tower_game"
+}

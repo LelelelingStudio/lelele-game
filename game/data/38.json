@@ -1,0 +1,49 @@
+{
+  "id": 38,
+  "name_zh": "六边形消除",
+  "name_en": "Hextris",
+  "icon": "⬡",
+  "category_zh": "益智",
+  "category_en": "Puzzle",
+  "ageRating_zh": "全年龄",
+  "ageRating_en": "All Ages",
+  "version": "v1.0.0",
+  "author": "Team Snowman",
+  "url": "/game/hextris/index.html",
+  "banner": "",
+  "screenshots": [],
+  "description_zh": " hexagonal 拼图：方块向中心坠落，旋转六边形让同色方块相连消除。",
+  "description_en": "A hexagonal puzzle: blocks fall toward the center - rotate the hexagon to match and clear colors.",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-19",
+      "content": "由了了了游收录上线。"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-19",
+      "content": "Added to lelele Game."
+    }
+  ],
+  "tags": {
+    "zh": [
+      "益智",
+      "本站游戏"
+    ],
+    "en": [
+      "Puzzle",
+      "Local"
+    ]
+  },
+  "legal_urls": {
+    "eula": "",
+    "privacy": "",
+    "terms": ""
+  },
+  "originalAuthor": "Team Snowman",
+  "license": "GPL-3.0 (© 2014 Team Snowman)",
+  "source": "https://github.com/Hextris/hextris"
+}

@@ -1,0 +1,49 @@
+{
+  "id": 39,
+  "name_zh": "小恐龙跑酷",
+  "name_en": "T-Rex Runner",
+  "icon": "🦖",
+  "category_zh": "休闲 / 跑酷",
+  "category_en": "Casual / Parkour",
+  "ageRating_zh": "全年龄",
+  "ageRating_en": "All Ages",
+  "version": "v1.0.0",
+  "author": "牛さん",
+  "url": "/game/trexrunner/index.html",
+  "banner": "",
+  "screenshots": [],
+  "description_zh": "经典 Chrome 断网小恐龙游戏的独立版，跳过仙人掌、躲过翼龙。",
+  "description_en": "The classic Chrome offline dinosaur game, standalone. Jump over cacti and dodge pterodactyls.",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-19",
+      "content": "由了了了游收录上线。"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-19",
+      "content": "Added to lelele Game."
+    }
+  ],
+  "tags": {
+    "zh": [
+      "休闲 / 跑酷",
+      "本站游戏"
+    ],
+    "en": [
+      "Casual / Parkour",
+      "Local"
+    ]
+  },
+  "legal_urls": {
+    "eula": "",
+    "privacy": "",
+    "terms": ""
+  },
+  "originalAuthor": "牛さん",
+  "license": "BSD-3-Clause (© 2022 牛さん)",
+  "source": "https://github.com/wayou/t-rex-runner"
+}

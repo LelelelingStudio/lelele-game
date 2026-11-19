@@ -1,0 +1,49 @@
+{
+  "id": 37,
+  "name_zh": "新冠跑酷",
+  "name_en": "Corona Runner",
+  "icon": "🦠",
+  "category_zh": "休闲 / 跑酷",
+  "category_en": "Casual / Parkour",
+  "ageRating_zh": "全年龄",
+  "ageRating_en": "All Ages",
+  "version": "v1.0.0",
+  "author": "zouariste",
+  "url": "/game/coronarunner/index.html",
+  "banner": "",
+  "screenshots": [],
+  "description_zh": "改编自 Chrome 离线页小游戏的跑酷作品，跳跃躲避障碍。",
+  "description_en": "A runner adapted from the Chrome offline-page game. Jump over obstacles and keep running.",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-19",
+      "content": "由了了了游收录上线。"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-19",
+      "content": "Added to lelele Game."
+    }
+  ],
+  "tags": {
+    "zh": [
+      "休闲 / 跑酷",
+      "本站游戏"
+    ],
+    "en": [
+      "Casual / Parkour",
+      "Local"
+    ]
+  },
+  "legal_urls": {
+    "eula": "",
+    "privacy": "",
+    "terms": ""
+  },
+  "originalAuthor": "zouariste",
+  "license": "无开源许可证（来源已注明）",
+  "source": "https://github.com/zouariste/corona-runner"
+}

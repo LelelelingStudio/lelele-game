@@ -769,5 +769,189 @@
         "12+"
       ]
     }
+  },
+  {
+    "id": 33,
+    "name_zh": "2048",
+    "name_en": "2048",
+    "icon": "🔢",
+    "category_zh": "益智",
+    "category_en": "Puzzle",
+    "type": "local",
+    "ageRating_zh": "全年龄",
+    "ageRating_en": "All Ages",
+    "author": "Gabriele Cirulli",
+    "url": "/game/g2048/index.html",
+    "tags": {
+      "zh": [
+        "益智",
+        "本站游戏"
+      ],
+      "en": [
+        "Puzzle",
+        "Local"
+      ]
+    }
+  },
+  {
+    "id": 34,
+    "name_zh": "迷宫冒险",
+    "name_en": "Astray",
+    "icon": "🌀",
+    "category_zh": "冒险",
+    "category_en": "Adventure",
+    "type": "local",
+    "ageRating_zh": "6+",
+    "ageRating_en": "6+",
+    "author": "wwwtyro",
+    "url": "/game/astray/index.html",
+    "tags": {
+      "zh": [
+        "冒险",
+        "本站游戏"
+      ],
+      "en": [
+        "Adventure",
+        "Local"
+      ]
+    }
+  },
+  {
+    "id": 35,
+    "name_zh": "纸片我的世界",
+    "name_en": "Paper Minecraft",
+    "icon": "⛏️",
+    "category_zh": "模拟经营",
+    "category_en": "Simulation",
+    "type": "local",
+    "ageRating_zh": "6+",
+    "ageRating_en": "6+",
+    "author": "Paper Minecraft 社区",
+    "url": "/game/papermc/index.html",
+    "tags": {
+      "zh": [
+        "模拟经营",
+        "本站游戏"
+      ],
+      "en": [
+        "Simulation",
+        "Local"
+      ]
+    }
+  },
+  {
+    "id": 36,
+    "name_zh": "笨拙小鸟",
+    "name_en": "Clumsy Bird",
+    "icon": "🐦",
+    "category_zh": "休闲",
+    "category_en": "Casual",
+    "type": "local",
+    "ageRating_zh": "全年龄",
+    "ageRating_en": "All Ages",
+    "author": "Ellison Leão",
+    "url": "/game/clumsybird/index.html",
+    "tags": {
+      "zh": [
+        "休闲",
+        "本站游戏"
+      ],
+      "en": [
+        "Casual",
+        "Local"
+      ]
+    }
+  },
+  {
+    "id": 37,
+    "name_zh": "新冠跑酷",
+    "name_en": "Corona Runner",
+    "icon": "🦠",
+    "category_zh": "休闲 / 跑酷",
+    "category_en": "Casual / Parkour",
+    "type": "local",
+    "ageRating_zh": "全年龄",
+    "ageRating_en": "All Ages",
+    "author": "zouariste",
+    "url": "/game/coronarunner/index.html",
+    "tags": {
+      "zh": [
+        "休闲 / 跑酷",
+        "本站游戏"
+      ],
+      "en": [
+        "Casual / Parkour",
+        "Local"
+      ]
+    }
+  },
+  {
+    "id": 38,
+    "name_zh": "六边形消除",
+    "name_en": "Hextris",
+    "icon": "⬡",
+    "category_zh": "益智",
+    "category_en": "Puzzle",
+    "type": "local",
+    "ageRating_zh": "全年龄",
+    "ageRating_en": "All Ages",
+    "author": "Team Snowman",
+    "url": "/game/hextris/index.html",
+    "tags": {
+      "zh": [
+        "益智",
+        "本站游戏"
+      ],
+      "en": [
+        "Puzzle",
+        "Local"
+      ]
+    }
+  },
+  {
+    "id": 39,
+    "name_zh": "小恐龙跑酷",
+    "name_en": "T-Rex Runner",
+    "icon": "🦖",
+    "category_zh": "休闲 / 跑酷",
+    "category_en": "Casual / Parkour",
+    "type": "local",
+    "ageRating_zh": "全年龄",
+    "ageRating_en": "All Ages",
+    "author": "牛さん",
+    "url": "/game/trexrunner/index.html",
+    "tags": {
+      "zh": [
+        "休闲 / 跑酷",
+        "本站游戏"
+      ],
+      "en": [
+        "Casual / Parkour",
+        "Local"
+      ]
+    }
+  },
+  {
+    "id": 40,
+    "name_zh": "搭塔游戏",
+    "name_en": "Tower Building Game",
+    "icon": "🏗️",
+    "category_zh": "休闲",
+    "category_en": "Casual",
+    "type": "local",
+    "ageRating_zh": "全年龄",
+    "ageRating_en": "All Ages",
+    "author": "BMQB, Inc",
+    "url": "/game/towerminecraft/index.html",
+    "tags": {
+      "zh": [
+        "休闲",
+        "本站游戏"
+      ],
+      "en": [
+        "Casual",
+        "Local"
+      ]
+    }
   }
 ]

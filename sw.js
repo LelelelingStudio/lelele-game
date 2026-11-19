@@ -1,6 +1,14 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.26 (新增 8 款本站游戏) —— 收录 2048 / Astray / Paper Minecraft / Clumsy Bird /
+ *   Corona Runner / Hextris / T-Rex Runner / Tower Game（id 33-40，type=local）。本体放
+ *   game/<目录>/，URL /game/<目录>/index.html；作者为外部开源作者（字符串名，无 uuid，
+ *   不进 authors.json），原作者/许可/来源写进 game/data/<id>.json；有 LICENSE 的提取
+ *   Copyright 作者，无 LICENSE 的只注明来源。游戏详情页/首页排行榜对字符串作者不生成
+ *   死链，改显示纯文本（game.html/index.js/common.css）。站点地图重新生成（171 URL）。
+ *   上述代码文件字节变故升 CACHE_NAME 清 v1.25 旧缓存。
+ *
  * ★ v1.25 (4.4.0 高分榜 SDK) —— 新增 lelele-sdk.js（window.LeleleSDK.submitScore(score,
  *   {name}) 通过 postMessage 上报分数）；play.html 引入 Supabase 客户端，监听 message
  *   （校验 e.source === 游戏 iframe），写 game_scores 表并在「全服高分榜 Top10」卡片展示；
@@ -128,7 +136,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.25';
+const CACHE_NAME = 'lelele-pwa-v1.26';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。

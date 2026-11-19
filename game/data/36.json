@@ -1,0 +1,49 @@
+{
+  "id": 36,
+  "name_zh": "笨拙小鸟",
+  "name_en": "Clumsy Bird",
+  "icon": "🐦",
+  "category_zh": "休闲",
+  "category_en": "Casual",
+  "ageRating_zh": "全年龄",
+  "ageRating_en": "All Ages",
+  "version": "v1.0.0",
+  "author": "Ellison Leão",
+  "url": "/game/clumsybird/index.html",
+  "banner": "",
+  "screenshots": [],
+  "description_zh": "用 MelonJS 制作的 Flappy Bird 风格小游戏，点击/空格让小鸟振翅，穿越管道。",
+  "description_en": "A Flappy Bird-style game made with MelonJS. Tap or press space to flap through the pipes.",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-19",
+      "content": "由了了了游收录上线。"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-19",
+      "content": "Added to lelele Game."
+    }
+  ],
+  "tags": {
+    "zh": [
+      "休闲",
+      "本站游戏"
+    ],
+    "en": [
+      "Casual",
+      "Local"
+    ]
+  },
+  "legal_urls": {
+    "eula": "",
+    "privacy": "",
+    "terms": ""
+  },
+  "originalAuthor": "Ellison Leão",
+  "license": "GPL-3.0 (© Clumsy Bird contributors)",
+  "source": "https://github.com/ellisonleao/clumsy-bird"
+}

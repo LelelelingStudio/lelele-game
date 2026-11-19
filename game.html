@@ -215,6 +215,7 @@
             transition: opacity 0.2s;
         }
         .author-link:hover { opacity: 0.8; text-decoration: underline; }
+        .author-name-plain { color: var(--primary); font-weight: 700; }
         .author-follow { display: inline-flex; align-items: center; gap: 8px; margin-left: 4px; }
         .author-follow .follow-btn { font-size: 0.76rem; padding: 4px 11px; }
         .author-follow .follow-count { font-size: 0.75rem; }
@@ -828,6 +829,13 @@
                 }
             }
 
+            // 数字 id 的平台作者才有作者主页/关注；外部原作者（字符串名，如开源游戏作者）
+            // 只显示纯文本，不生成会 404 的链接，也不挂关注（其无平台 uuid）。
+            const isPlatformAuthor = typeof authorData === 'number' || /^\d+$/.test(authorData);
+            if (!isPlatformAuthor) {
+                authorBar.innerHTML = `${authorLabel}: <span class="author-name-plain">${escapeHtml(finalName)}</span>`;
+                return;
+            }
             const url = `author.html?id=${finalId}`;
             const langSuffix = en ? '&lang=en' : '';
             authorBar.innerHTML = `${authorLabel}: <a href="${url}${langSuffix}" class="author-link">${escapeHtml(finalName)}</a><span class="author-badges">${window.leleleAuthorBadges ? window.leleleAuthorBadges(matchedAuthor) : ''}</span><span class="author-follow" id="authorFollowBox"></span>`;

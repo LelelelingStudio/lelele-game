@@ -1,0 +1,49 @@
+{
+  "id": 35,
+  "name_zh": "纸片我的世界",
+  "name_en": "Paper Minecraft",
+  "icon": "⛏️",
+  "category_zh": "模拟经营",
+  "category_en": "Simulation",
+  "ageRating_zh": "6+",
+  "ageRating_en": "6+",
+  "version": "v1.0.0",
+  "author": "Paper Minecraft 社区",
+  "url": "/game/papermc/index.html",
+  "banner": "",
+  "screenshots": [],
+  "description_zh": "经典的 2D 沙盒生存游戏，采矿、建造、合成，探索属于你的方块世界。（社区开源项目的 TurboWarp 打包版）",
+  "description_en": "A classic 2D sandbox survival game: mine, craft and build in your own blocky world (TurboWarp build of a community project).",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-19",
+      "content": "由了了了游收录上线。"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-19",
+      "content": "Added to lelele Game."
+    }
+  ],
+  "tags": {
+    "zh": [
+      "模拟经营",
+      "本站游戏"
+    ],
+    "en": [
+      "Simulation",
+      "Local"
+    ]
+  },
+  "legal_urls": {
+    "eula": "",
+    "privacy": "",
+    "terms": ""
+  },
+  "originalAuthor": "Paper Minecraft 社区",
+  "license": "无开源许可证（来源已注明）",
+  "source": "Scratch 项目「Paper Minecraft」的 TurboWarp 打包版"
+}

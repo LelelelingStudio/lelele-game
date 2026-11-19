@@ -1108,6 +1108,7 @@ html.dark-mode .lelele-settings-card { background: rgba(30,41,59,0.92); }
         .rank-author-row { margin-top: 6px; min-height: 18px; }
         .rank-author { display: inline-flex; align-items: center; gap: 2px; max-width: 100%; color: #4f46e5; text-decoration: none; font-weight: 700; font-size: 0.78rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .rank-author:hover { text-decoration: underline; }
+        .rank-author-plain { color: #64748b; }
         .rank-empty { width: 100%; min-height: 120px; display: flex; align-items: center; justify-content: center; border: 1px dashed rgba(148,163,184,0.45); border-radius: 18px; color: #64748b; background: rgba(255,255,255,0.45); font-size: 0.95rem; }
         .rank-tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
         .rank-tab { border: 1px solid rgba(79,70,229,0.25); background: rgba(79,70,229,0.06); color: #4f46e5; font-weight: 700; font-size: 0.9rem; padding: 7px 16px; border-radius: 999px; cursor: pointer; font-family: inherit; transition: all 0.2s; }

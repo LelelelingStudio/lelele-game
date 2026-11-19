@@ -1,5 +1,11 @@
 [
   {
+    "version": "4.4.1",
+    "date": "2026-11-19",
+    "content_zh": "小版本 4.4.1：新增 8 款本站游戏——2048、Astray（迷宫冒险）、纸片我的世界（Paper Minecraft）、笨拙小鸟（Clumsy Bird）、新冠跑酷（Corona Runner）、六边形消除（Hextris）、小恐龙跑酷（T-Rex Runner）、搭塔游戏（Tower Game）。这些是收录的社区开源作品，作者为原作者（非本站作者、无作者主页），游戏本体已放到本站，打开即玩。",
+    "content_en": "Minor version 4.4.1: eight new local games - 2048, Astray, Paper Minecraft, Clumsy Bird, Corona Runner, Hextris, T-Rex Runner and Tower Game. These are community open-source titles hosted on-site; credit goes to their original authors (no platform author page). Just open and play."
+  },
+  {
     "version": "4.4.0",
     "date": "2026-11-19",
     "content_zh": "中版本 4.4.0：全服高分榜 SDK。开发者在游戏里引入 lelele-sdk.js 并调用 LeleleSDK.submitScore(分数)，即可把分数上报到平台「全服高分榜 Top 10」。播放器新增高分榜卡片与开关，支持匿名参与（本地随机昵称），榜单由 Supabase 统一存储与展示，开发者无需后端。该榜单为荣誉展示，分数由客户端上报。开发者文档与 llms.txt 同步接入说明。",

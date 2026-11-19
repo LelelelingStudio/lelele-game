@@ -1,0 +1,49 @@
+{
+  "id": 33,
+  "name_zh": "2048",
+  "name_en": "2048",
+  "icon": "🔢",
+  "category_zh": "益智",
+  "category_en": "Puzzle",
+  "ageRating_zh": "全年龄",
+  "ageRating_en": "All Ages",
+  "version": "v1.0.0",
+  "author": "Gabriele Cirulli",
+  "url": "/game/g2048/index.html",
+  "banner": "",
+  "screenshots": [],
+  "description_zh": "经典数字合成游戏。用方向键滑动方块，相同数字相遇会合并，目标是合成 2048。",
+  "description_en": "The classic number puzzle. Slide tiles with arrow keys; matching numbers merge - reach 2048!",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-19",
+      "content": "由了了了游收录上线。"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-19",
+      "content": "Added to lelele Game."
+    }
+  ],
+  "tags": {
+    "zh": [
+      "益智",
+      "本站游戏"
+    ],
+    "en": [
+      "Puzzle",
+      "Local"
+    ]
+  },
+  "legal_urls": {
+    "eula": "",
+    "privacy": "",
+    "terms": ""
+  },
+  "originalAuthor": "Gabriele Cirulli",
+  "license": "MIT (© 2014 Gabriele Cirulli)",
+  "source": "https://github.com/gabrielecirulli/2048"
+}

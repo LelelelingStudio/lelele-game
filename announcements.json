@@ -1,5 +1,14 @@
 [
   {
+    "id": "20261119-site-441-new-games",
+    "title_zh": "🎮 8 款新游戏上线了了游！",
+    "title_en": "🎮 8 New Games Added to lelele Game!",
+    "content_zh": "本站新增 8 款好玩的游戏，点开就能玩：\n\n🔢 2048 —— 经典数字合成\n🌀 迷宫冒险（Astray）—— 3D 迷宫滚球\n⛏️ 纸片我的世界 —— 2D 沙盒生存\n🐦 笨拙小鸟 —— Flappy Bird 风格\n🦠 新冠跑酷 —— 跳跃闯关\n⬡ 六边形消除 —— 六边形拼图\n🦖 小恐龙跑酷 —— Chrome 断网小恐龙\n🏗️ 搭塔游戏 —— 精准叠塔\n\n这些是收录的社区开源作品，版权归各自原作者所有，感谢他们让这些好游戏继续被玩到！",
+    "content_en": "Eight new games are live on lelele Game - just open and play:\n\n🔢 2048 - the classic number puzzle\n🌀 Astray - 3D WebGL maze\n⛏️ Paper Minecraft - 2D sandbox survival\n🐦 Clumsy Bird - Flappy Bird style\n🦠 Corona Runner - jump & run\n⬡ Hextris - hexagonal puzzle\n🦖 T-Rex Runner - the Chrome offline dino\n🏗️ Tower Building Game - stack it high\n\nThese are community open-source titles; credit goes to their original authors. Thanks for keeping great games playable!",
+    "publishDate": "2026-11-19",
+    "expireDate": "2026-12-19"
+  },
+  {
     "id": "20261119-site-440-scoreboard-sdk",
     "title_zh": "🏆 站点 4.4.0：全服高分榜上线，玩游戏就能冲榜！",
     "title_en": "🏆 Site v4.4.0: Global High-Score Leaderboard Is Live!",

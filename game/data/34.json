@@ -1,0 +1,49 @@
+{
+  "id": 34,
+  "name_zh": "迷宫冒险",
+  "name_en": "Astray",
+  "icon": "🌀",
+  "category_zh": "冒险",
+  "category_en": "Adventure",
+  "ageRating_zh": "6+",
+  "ageRating_en": "6+",
+  "version": "v1.0.0",
+  "author": "wwwtyro",
+  "url": "/game/astray/index.html",
+  "banner": "",
+  "screenshots": [],
+  "description_zh": "基于 Three.js 与 Box2D 的 3D 迷宫滚球游戏，控制小球穿过迷宫抵达终点。",
+  "description_en": "A 3D WebGL maze game built with Three.js and Box2D. Roll your ball through the maze to the goal.",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-19",
+      "content": "由了了了游收录上线。"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-19",
+      "content": "Added to lelele Game."
+    }
+  ],
+  "tags": {
+    "zh": [
+      "冒险",
+      "本站游戏"
+    ],
+    "en": [
+      "Adventure",
+      "Local"
+    ]
+  },
+  "legal_urls": {
+    "eula": "",
+    "privacy": "",
+    "terms": ""
+  },
+  "originalAuthor": "wwwtyro",
+  "license": "Public Domain (CC0)",
+  "source": "https://github.com/wwwtyro/astray"
+}

@@ -30,12 +30,12 @@
 
 | | |
 | --- | --- |
-| Games in catalog | **32** (17 local · 12 external · 3 internal) |
+| Games in catalog | **40** (25 local · 12 external · 3 internal) |
 | Registered authors | **10** (id 1–10) |
 | Pages | **25** root HTML pages + **12** bundled game directories |
 | Languages | Chinese (zh) + English (en), full UI |
 | Site version (changelog) | **4.3.0** · [Game Rules](game_rules.html) **5.0.0** |
-| Service Worker cache | `lelele-pwa-v1.25` |
+| Service Worker cache | `lelele-pwa-v1.26` |
 | Build step | **None.** No framework, no bundler, no `package.json`, no server-side code |
 | Deployment | Push to `main` → GitHub Pages → Cloudflare (`CNAME`) |
 
