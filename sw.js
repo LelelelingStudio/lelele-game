@@ -1,6 +1,14 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.24 (关注连点/重复绑定修复) —— 根因：mount() 是 async，addEventListener 在多个
+ *   await 之后才执行；页面重绘（占位→数据→langChanged）多次调用 mount 导致同一按钮
+ *   被绑 N 个 handler：早点是「点了没反应」，晚点是「一次点击 N 个并发 toggle 把
+ *   day_op_count 推满、连弹 N 次上限、弹完状态才变」。修复：用 WeakMap 保证同一容器
+ *   同一作者只挂一次；handler 同步注册（闭包持有 btn/uuid/uid，不依赖 await 闭包变量）；
+ *   加 loading/busy 双守卫防加载中点击与连点。实测 3×mount→1 handler、连点2次→1 upsert、
+ *   零弹窗、状态正确。
+ *
  * ★ v1.23 (关注去重+告示修复) —— follow.js 改用 upsert(onConflict: follower_id,author_id,op_date)
  *   修复同日重复关注撞唯一约束 duplicate key；关注状态按当天最新行判定；id 永远新生成防主键冲突。
  *   notice.js：告示一展示即 markSeen（点操作按钮跳走也会标记）+ 一次登录只弹优先级最高一条，
@@ -114,7 +122,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.23';
+const CACHE_NAME = 'lelele-pwa-v1.24';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。

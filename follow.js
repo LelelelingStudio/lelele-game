@@ -16,6 +16,10 @@
     'use strict';
 
     const DAILY_LIMIT = 3;
+    // 每个容器只挂一个 click handler。页面重绘会多次调用 mount()，若每次都在 await
+    // 之后 addEventListener，同一按钮会被绑 N 个 handler：早点是「点了没反应」，晚点
+    // 是「一次点击弹 N 次上限 + day_op_count 被并发推满」。
+    const mounted = new WeakMap();
     const AUTHORS_URL = '/authors/index.json';
     let authorsCache = null;
 
@@ -110,41 +114,48 @@
         }
     }
 
-    // 把一个容器挂成关注组件；组件自己渲染按钮 + 粉丝数
+    // 把一个容器挂成关注组件。关键：用 WeakMap 保证同一容器/同一作者只绑定一次，
+    // 且 click handler 用闭包持有的 btn/uid/uuid，不再每次 querySelector + 依赖 await 闭包变量。
     async function mount(container, authorNumericId, options) {
         if (!container) return;
+        const key = String(authorNumericId);
+        const prev = mounted.get(container);
+        // 同一容器同一作者：若已绑定则跳过（仅重绘状态），绝不再 addEventListener
+        if (prev && prev.key === key) {
+            // 若 DOM 被外部整体重建（如 game.html 重渲染作者栏），旧 btn 已脱离文档，需重挂
+            if (container.contains(prev.btn)) return;
+        }
+
         const opts = options || {};
         container.innerHTML = '<button type="button" class="follow-btn" disabled>' + tr('加载中…', 'Loading…') + '</button>' +
             '<span class="follow-count" hidden></span>';
+        const btn = container.querySelector('.follow-btn');
+        const cnt = container.querySelector('.follow-count');
+        const ctx = { key, btn, busy: false, loading: true, uuid: null, uid: null };
+        mounted.set(container, ctx);
 
-        const uuid = await resolveUuid(authorNumericId);
-        const session = await getSession();
-        const uid = session && session.user && session.user.id;
-
-        const render = (state) => {
-            const btn = container.querySelector('.follow-btn');
-            const cnt = container.querySelector('.follow-count');
-            if (!btn || !cnt) return;
-            btn.disabled = false;
-            btn.textContent = state.following ? tr('✓ 已关注', '✓ Following') : tr('＋ 关注', '＋ Follow');
-            btn.classList.toggle('following', !!state.following);
+        const render = (s) => {
+            if (!container.contains(btn)) return;
+            btn.disabled = ctx.busy;
+            btn.textContent = s.following ? tr('✓ 已关注', '✓ Following') : tr('＋ 关注', '＋ Follow');
+            btn.classList.toggle('following', !!s.following);
             cnt.hidden = false;
-            cnt.textContent = state.count + tr(' 粉丝', ' followers');
+            cnt.textContent = s.count + tr(' 粉丝', ' followers');
         };
 
-        const state = await getState(uuid, uid);
-        render(state);
-
-        container.querySelector('.follow-btn').addEventListener('click', async (e) => {
+        // 绑定唯一 click handler：同步注册，不放在任何 await 之后，避免"第一次点击没反应"
+        btn.addEventListener('click', async (e) => {
             e.preventDefault(); e.stopPropagation();
-            if (!uid) {
+            if (ctx.loading || ctx.busy) return; // 加载中/处理中一律忽略（按钮此时也是 disabled）
+            if (!ctx.uid) {
                 window.location.href = 'user-login.html?return=' + encodeURIComponent(window.location.pathname + window.location.search);
                 return;
             }
-            const btn = container.querySelector('.follow-btn');
+            ctx.busy = true;
             btn.disabled = true;
-            const result = await toggle(uuid, uid);
+            const result = await toggle(ctx.uuid, ctx.uid);
             if (!result.ok) {
+                ctx.busy = false;
                 btn.disabled = false;
                 if (result.reason === 'auth-required') {
                     window.location.href = 'user-login.html?return=' + encodeURIComponent(window.location.pathname + window.location.search);
@@ -154,7 +165,16 @@
                 return;
             }
             render({ following: result.following, count: result.count });
+            ctx.busy = false;
+            btn.disabled = false;
         });
+
+        // 异步拉取身份与状态（在 handler 绑定之后，UI 从"加载中"刷新）
+        ctx.uuid = await resolveUuid(authorNumericId);
+        const session = await getSession();
+        ctx.uid = session && session.user && session.user.id;
+        ctx.loading = false;
+        render(await getState(ctx.uuid, ctx.uid));
     }
 
     window.FollowUI = { mount, toggle, getState, resolveUuid, getSession };
