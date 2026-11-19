@@ -1,5 +1,5 @@
 {
-  "version": 11,
+  "version": 12,
   "updatedAt": "2026-11-18T10:00:00.000Z",
   "_readme": {
     "说明": "本文件是「开发者定向告示」数据源，由 notice.js 读取。JSON 标准不支持 // 注释，所以字段说明都写在 _readme 里，程序会忽略它。",
@@ -171,7 +171,7 @@
     },
     {
       "id": "notice-2026-10-30-science-quest",
-      "enabled": true,
+      "enabled": false,
       "author": "4",
       "priority": 100,
       "startAt": "2026-10-30T00:00:00+08:00",
@@ -208,7 +208,7 @@
     },
     {
       "id": "notice-2026-10-31-v310-update",
-      "enabled": true,
+      "enabled": false,
       "author": "all",
       "priority": 150,
       "startAt": "2026-10-31T00:00:00+08:00",
@@ -238,7 +238,7 @@
     },
     {
       "id": "notice-2026-11-06-wilds-survival-v200",
-      "enabled": true,
+      "enabled": false,
       "author": "4",
       "priority": 100,
       "startAt": "2026-11-06T00:00:00+08:00",
@@ -305,7 +305,7 @@
     },
     {
       "id": "notice-2026-11-09-fortress-breakout",
-      "enabled": true,
+      "enabled": false,
       "author": "4",
       "priority": 100,
       "startAt": "2026-11-09T00:00:00+08:00",
@@ -342,7 +342,7 @@
     },
     {
       "id": "notice-2026-11-11-sneaky-little-game",
-      "enabled": true,
+      "enabled": false,
       "author": "9",
       "priority": 100,
       "startAt": "2026-11-11T00:00:00+08:00",
@@ -439,7 +439,7 @@
     },
     {
       "id": "notice-2026-11-13-explore-the-realm",
-      "enabled": true,
+      "enabled": false,
       "author": "10",
       "priority": 100,
       "startAt": "2026-11-13T00:00:00+08:00",
@@ -517,7 +517,7 @@
     },
     {
       "id": "202611171",
-      "enabled": true,
+      "enabled": false,
       "author": [
         1,
         10

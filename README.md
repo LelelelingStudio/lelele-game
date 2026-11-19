@@ -35,7 +35,7 @@
 | Pages | **25** root HTML pages + **12** bundled game directories |
 | Languages | Chinese (zh) + English (en), full UI |
 | Site version (changelog) | **4.3.0** · [Game Rules](game_rules.html) **5.0.0** |
-| Service Worker cache | `lelele-pwa-v1.22` |
+| Service Worker cache | `lelele-pwa-v1.23` |
 | Build step | **None.** No framework, no bundler, no `package.json`, no server-side code |
 | Deployment | Push to `main` → GitHub Pages → Cloudflare (`CNAME`) |
 

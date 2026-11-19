@@ -58,10 +58,12 @@
             count = c || 0;
         } catch (e) {}
         try {
+            // 取本人对该作者的全部历史行，按 op_date 取最新一天（关注状态以当天为准）
             const { data } = await client.from('follows')
                 .select('id, follower_id, is_following, day_op_count, op_date')
-                .eq('author_id', authorUuid).eq('follower_id', uid);
-            record = (data && data.find(r => r.is_following)) || (data && data[0]) || null;
+                .eq('author_id', authorUuid).eq('follower_id', uid)
+                .order('op_date', { ascending: false });
+            record = (data && data[0]) || null;
         } catch (e) {}
         return { following: !!(record && record.is_following), count, record, uid };
     }
@@ -90,16 +92,17 @@
         };
 
         try {
-            if (rec && rec.id) {
-                const { error } = await client.from('follows').update(patch).eq('id', rec.id);
-                if (error) throw error;
-            } else {
-                const { error } = await client.from('follows').insert(Object.assign({
-                    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-                    created_at: new Date().toISOString()
-                }, patch));
-                if (error) throw error;
-            }
+            // 原子 upsert：表有唯一约束 (follower_id, author_id, op_date)，
+            // 同一天同作者同关注者只能一行。原「先查再 INSERT」在查询无结果但行已存在时
+            // 会撞 duplicate key；upsert 按唯一键冲突即改，彻底避免该错误。
+            // id 永远新生成：rec 可能是昨天的行，复用它的 id 会在插今天新行时撞主键
+            const row = Object.assign({
+                id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+                created_at: new Date().toISOString()
+            }, patch);
+            const { error } = await client.from('follows')
+                .upsert(row, { onConflict: 'follower_id,author_id,op_date' });
+            if (error) throw error;
             const after = await getState(authorUuid, uid);
             return { ok: true, following: next, count: after.count };
         } catch (e) {

@@ -134,6 +134,7 @@ if (typeof window.leleleFetch !== 'function') {
         }
         if (n.endAt) {
             const t = Date.parse(n.endAt);
+            // 过期（含解析成功但已过去）一律过滤；无 endAt 视为不过期（兼容老数据）
             if (!isNaN(t) && now > t) return false;
         }
         return true;
@@ -251,6 +252,11 @@ if (typeof window.leleleFetch !== 'function') {
         if (window.LeleleLsfp) window.LeleleLsfp.hydrate(mask);
         requestAnimationFrame(() => mask.classList.add('show'));
 
+        // 只要展示过就算已读：点操作按钮（跳后台/收藏榜）会导航离开，原逻辑只在 close()
+        // 里 markSeen，导致这些路径从不写标记、每次登录都重新弹。
+        markSeen(notice);
+        mask.querySelectorAll('.llnotice-btn').forEach(a => a.addEventListener('click', markSeen.bind(null, notice)));
+
         let closed = false;
         let onKey = null;
         const close = () => {
@@ -262,7 +268,7 @@ if (typeof window.leleleFetch !== 'function') {
             mask.classList.remove('show');
             setTimeout(() => {
                 mask.remove();
-                if (queue[index + 1]) setTimeout(() => showNotice(queue[index + 1], queue, index + 1), 260);
+                // 一次登录只弹优先级最高的一条，不再自动连播整条队列（用户反馈"全给我来一遍"）
             }, 240);
         };
 

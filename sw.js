@@ -1,6 +1,11 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.23 (关注去重+告示修复) —— follow.js 改用 upsert(onConflict: follower_id,author_id,op_date)
+ *   修复同日重复关注撞唯一约束 duplicate key；关注状态按当天最新行判定；id 永远新生成防主键冲突。
+ *   notice.js：告示一展示即 markSeen（点操作按钮跳走也会标记）+ 一次登录只弹优先级最高一条，
+ *   不再连播整个队列；noticetodeveloper.json 禁用 7 条过期告示（version 12）。
+ *
  * ★ v1.22 (作者关注) —— 新增 follow.js（纯前端关注模块，走 Supabase follows 表 +
  *   现有 RLS，不改后端）：按 authors/index.json 把作者数字 id 换成 uuid，关注=INSERT
  *   /取关=UPDATE is_following（软删除），粉丝数=count(is_following=true)，每日上限 3 次
@@ -109,7 +114,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.22';
+const CACHE_NAME = 'lelele-pwa-v1.23';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。
