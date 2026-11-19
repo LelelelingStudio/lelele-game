@@ -215,6 +215,9 @@
             transition: opacity 0.2s;
         }
         .author-link:hover { opacity: 0.8; text-decoration: underline; }
+        .author-follow { display: inline-flex; align-items: center; gap: 8px; margin-left: 4px; }
+        .author-follow .follow-btn { font-size: 0.76rem; padding: 4px 11px; }
+        .author-follow .follow-count { font-size: 0.75rem; }
 
         .section-title {
             font-size: 1.2rem; font-weight: 700; color: var(--text-main);
@@ -575,6 +578,7 @@
 
     <script src="/common.js" defer></script>
     <script src="supabase-client.js" defer></script>
+    <script src="/follow.js" defer></script>
     <script src="/lsfp-adapter.js" defer></script>
     <script src="/notice.js" defer></script>
     <script src="legal_generic.js" defer></script>
@@ -826,7 +830,12 @@
 
             const url = `author.html?id=${finalId}`;
             const langSuffix = en ? '&lang=en' : '';
-            authorBar.innerHTML = `${authorLabel}: <a href="${url}${langSuffix}" class="author-link">${escapeHtml(finalName)}</a><span class="author-badges">${window.leleleAuthorBadges ? window.leleleAuthorBadges(matchedAuthor) : ''}</span>`;
+            authorBar.innerHTML = `${authorLabel}: <a href="${url}${langSuffix}" class="author-link">${escapeHtml(finalName)}</a><span class="author-badges">${window.leleleAuthorBadges ? window.leleleAuthorBadges(matchedAuthor) : ''}</span><span class="author-follow" id="authorFollowBox"></span>`;
+            // 关注作者（follow.js）：同一 authors/index.json 数字 id → uuid
+            const box = document.getElementById('authorFollowBox');
+            if (box && typeof window.FollowUI === 'object') {
+                window.FollowUI.mount(box, finalId, { compact: true });
+            }
         }
 
         function renderGamePage(game) {

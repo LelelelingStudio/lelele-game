@@ -1,6 +1,12 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.22 (作者关注) —— 新增 follow.js（纯前端关注模块，走 Supabase follows 表 +
+ *   现有 RLS，不改后端）：按 authors/index.json 把作者数字 id 换成 uuid，关注=INSERT
+ *   /取关=UPDATE is_following（软删除），粉丝数=count(is_following=true)，每日上限 3 次
+ *   （day_op_count/op_date）。作者页作者卡与游戏详情页作者栏各挂一个关注组件。
+ *   预缓存清单加 /follow.js，字节变故升 CACHE_NAME 清 v1.21 旧缓存。
+ *
  * ★ v1.21 (登录/安全修复) —— profile.html 补玩家密码重置落地（?type=recovery 与
  *   PASSWORD_RECOVERY 事件，弹窗 updateUser 改密）；dashboard.html 全部外部数据
  *   （OAuth 昵称/头像 URL/作者名/游戏名）加 escHtml+safeUrl 防 stored XSS；作者清单
@@ -103,7 +109,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.21';
+const CACHE_NAME = 'lelele-pwa-v1.22';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。
@@ -152,6 +158,7 @@ const ASSETS_TO_CACHE = [
     '/lsfp-adapter.js',
     '/pager-nav.js',
     '/supabase-client.js',
+    '/follow.js',
     '/recaptcha.js',
     '/recaptcha.css',
     '/recaptcha-config.js',

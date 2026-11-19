@@ -266,7 +266,8 @@
                     <span class="en-inline">This author hasn't set up their profile yet.</span>
                 </div>
             </div>
-            <div class="author-apply" style="margin-top:14px;">
+            <div class="author-apply" style="margin-top:14px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                <div id="followBox" style="display:flex; align-items:center; gap:10px;"></div>
                 <a class="btn btn-primary" href="apply-certification.html" style="display:inline-block;text-decoration:none;border-radius:12px;padding:9px 14px;font-weight:700;">
                     <span class="zh-inline">🏅 申请官方认证</span><span class="en-inline">🏅 Apply for Certification</span>
                 </a>
@@ -296,6 +297,7 @@
 
     <script src="/common.js" defer></script>
     <script src="supabase-client.js" defer></script>
+    <script src="/follow.js" defer></script>
     <script src="/lsfp-adapter.js" defer></script>
     <script src="/notice.js" defer></script>
     <script src="/pager-nav.js" defer></script>
@@ -336,6 +338,7 @@
 
             // 占位数据：先让作者卡 + 游戏区可见，杜绝三个区块永久 display:none
             currentAuthorData = {
+                id: authorId,
                 name_zh: '', name_en: '',
                 avatar_url: null, bio: null,
                 role: 'External / Unregistered', isRegistered: false,
@@ -430,6 +433,7 @@
             // 保留并行任务已填好的 games_count，避免被覆盖回 0
             const gamesCount = (currentAuthorData && currentAuthorData.games_count) || 0;
             currentAuthorData = {
+                id: authorId,
                 name_zh: defaultNameZh, name_en: defaultNameEn,
                 avatar_url: null, bio: null,
                 role: uuid ? 'developer' : 'External / Unregistered',
@@ -623,6 +627,11 @@
                         }
                     });
                 }
+            }
+            // 作者关注（follow.js）：按数字 id 解析 uuid 后挂载关注/粉丝数
+            const followBox = document.getElementById('followBox');
+            if (followBox && typeof window.FollowUI === 'object' && currentAuthorData && currentAuthorData.id != null) {
+                window.FollowUI.mount(followBox, currentAuthorData.id);
             }
         }
 
