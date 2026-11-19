@@ -1,6 +1,12 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.27 (改名) —— id=32 中文名「打僵尸」→「集装箱特区」（英文 3D Warehouse District
+ *   不变）：lelegame_data.json / game/data/32.json 的 name_zh、noticetodeveloper.json 一条
+ *   历史告示标题与正文的《打僵尸》、站点地图（脚本重建）同步；详情 updateLog 里「让僵尸
+ *   死的更快」是玩法描述非游戏名，保留。数据 json 走 network-first 运行时缓存，升版本号
+ *   清旧缓存确保改名即时生效。
+ *
  * ★ v1.26 (新增 8 款本站游戏) —— 收录 2048 / Astray / Paper Minecraft / Clumsy Bird /
  *   Corona Runner / Hextris / T-Rex Runner / Tower Game（id 33-40，type=local）。本体放
  *   game/<目录>/，URL /game/<目录>/index.html；作者为外部开源作者（字符串名，无 uuid，
@@ -136,7 +142,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.26';
+const CACHE_NAME = 'lelele-pwa-v1.27';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。
