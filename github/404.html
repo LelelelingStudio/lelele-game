@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <!-- GitHub Pages 404 兜底页：用于 leleleling.site 系列游戏的 GitHub Pages 辅助托管。
+         完全自包含（无外部样式与脚本），任何路径下都能独立显示。 -->
+    <base href="/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4f46e5">
+    <title>404 · 了了了岭工作室</title>
+    <meta name="description" content="页面未找到 · 本网站由了了了岭工作室与 GitHub Pages 辅助托管。Page not found - hosted by Leleleling Studio with GitHub Pages.">
+    <script>
+        (function () {
+            try {
+                var q = new URLSearchParams(window.location.search).get('lang');
+                var s = localStorage.getItem('lelele_lang');
+                var lang;
+                if (q === 'en' || q === 'zh') lang = q;
+                else if (s === 'en' || s === 'zh') lang = s;
+                else lang = (navigator.language || 'zh').toLowerCase().indexOf('en') === 0 ? 'en' : 'zh';
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <style>
+        :root { color-scheme: light dark; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { min-height: 100%; }
+        body {
+            min-height: 100vh; min-height: 100dvh;
+            display: flex; align-items: center; justify-content: center;
+            padding: 24px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+            background: linear-gradient(145deg, #f0f4f9 0%, #e8ecf5 100%);
+            color: #1e293b;
+        }
+        @media (prefers-color-scheme: dark) {
+            body { background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 100%); color: #e2e8f0; }
+            .card { background: rgba(2, 6, 23, .82) !important; border-color: rgba(148,163,184,.18) !important; }
+            .desc, .host, .tip { color: #94a3b8 !important; }
+            .btn-outline { background: rgba(148,163,184,.12) !important; color: #e2e8f0 !important; border-color: rgba(148,163,184,.3) !important; }
+        }
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text, html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="zh"] .zh-inline, html[data-lang="en"] .en-inline { display: inline; }
+        html[data-lang="zh"] .en-inline, html[data-lang="en"] .zh-inline { display: none; }
+
+        .card {
+            width: 100%; max-width: 520px; text-align: center;
+            padding: 3.4rem 2rem 2.4rem;
+            background: rgba(255, 255, 255, .9);
+            border: 1px solid rgba(148, 163, 184, .22);
+            border-radius: 28px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .06);
+            animation: floatIn .5s ease-out both;
+        }
+        @keyframes floatIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+        .icon { font-size: 4.2rem; line-height: 1; margin-bottom: .6rem; animation: bob 2.4s ease-in-out infinite; }
+        @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .code {
+            font-size: 4.6rem; font-weight: 900; line-height: 1; letter-spacing: -2px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: .8rem;
+        }
+        h1 { font-size: 1.4rem; margin-bottom: .7rem; }
+        .desc { color: #64748b; font-size: .98rem; line-height: 1.65; margin-bottom: 1.4rem; }
+        .host { display: inline-block; margin-bottom: 2rem; padding: 7px 14px; border-radius: 999px;
+            background: rgba(79,70,229,.08); color: #4f46e5; font-size: .82rem; font-weight: 700; }
+        .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 12px 22px; border-radius: 999px; font-size: .96rem; font-weight: 700;
+            text-decoration: none; transition: transform .18s, box-shadow .18s, background .18s;
+        }
+        .btn-primary { background: #4f46e5; color: #fff; box-shadow: 0 8px 20px rgba(79,70,229,.28); }
+        .btn-primary:hover { background: #4338ca; transform: translateY(-2px); box-shadow: 0 12px 26px rgba(79,70,229,.38); }
+        .btn-outline { background: #fff; color: #4f46e5; border: 1px solid rgba(79,70,229,.35); }
+        .btn-outline:hover { background: rgba(79,70,229,.08); transform: translateY(-2px); }
+        .tip { color: #94a3b8; font-size: .78rem; margin-top: 1.8rem; }
+        .tip a { color: #4f46e5; text-decoration: none; font-weight: 600; }
+        .tip a:hover { text-decoration: underline; }
+        @media (max-width: 520px) {
+            .card { padding: 2.4rem 1.3rem 1.8rem; }
+            .icon { font-size: 3.4rem; } .code { font-size: 3.8rem; } h1 { font-size: 1.2rem; }
+            .actions { flex-direction: column; } .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon">🛸</div>
+        <div class="code">404</div>
+
+        <div class="zh-text">
+            <h1>页面走丢了</h1>
+            <div class="desc">你访问的页面不存在、已被移动，或者链接出错了。<br>别担心，下面的按钮可以带你回去。</div>
+            <div class="host">本网站由了了了岭工作室 &amp; GitHub Pages 辅助托管</div>
+        </div>
+
+        <div class="en-text">
+            <h1>Page Not Found</h1>
+            <div class="desc">The page you're looking for doesn't exist, has moved, or the link is broken.<br>No worries - the buttons below will get you back.</div>
+            <div class="host">Hosted by Leleleling Studio &amp; GitHub Pages</div>
+        </div>
+
+        <div class="actions">
+            <a href="/index.html" class="btn btn-primary">🏠 <span class="zh-inline">回到首页</span><span class="en-inline">Back to Home</span></a>
+            <a href="https://leleleling.site" target="_blank" rel="noopener noreferrer" class="btn btn-outline">🌐 <span class="zh-inline">探索了了了岭工作室</span><span class="en-inline">Explore Leleleling Studio</span></a>
+        </div>
+
+        <div class="tip">
+            <span class="zh-inline">也可以查看 <a href="/sitemap.html">站点地图</a> 找到正确入口</span>
+            <span class="en-inline">Or browse the <a href="/sitemap.html">sitemap</a> to find your way</span>
+        </div>
+    </div>
+</body>
+</html>
