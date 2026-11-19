@@ -288,6 +288,8 @@
         });
     }
 
+    const ENSURE_TIMEOUT_MS = 15000; // 连不上 Google / 验证服务时的最长等待，超时自动跳过
+
     async function ensure(action, options = {}) {
         if (!ACTIONS.has(action)) throw new Error('Unsupported captcha action');
         const container = options.container || null;
@@ -295,48 +297,77 @@
         onState('checking');
         setInlineState(container, 'checking', text('正在进行安全验证…', 'Running security check…'));
 
-        const remoteConfig = await getRemoteConfig();
-        if (!remoteConfig.required) {
-            const bypass = await verifyToken('', action, 'bypass');
-            if (bypass.decision !== 'pass') throw new Error(text('地区验证状态确认失败', 'Failed to confirm regional verification status'));
-            onState('passed');
-            return bypass;
+        const bypass = (reason) => ({ decision: 'pass', mode: 'bypass', ticket: null, skipped: true, reason });
+
+        async function run() {
+            const remoteConfig = await getRemoteConfig();
+            if (!remoteConfig.required) {
+                const bypassCfg = await verifyToken('', action, 'bypass');
+                if (bypassCfg.decision !== 'pass') throw new Error(text('地区验证状态确认失败', 'Failed to confirm regional verification status'));
+                onState('passed');
+                return bypassCfg;
+            }
+
+            let result;
+            try {
+                const token = await executeV3(action);
+                result = await verifyToken(token, action, 'v3');
+            } catch (error) {
+                // 熔断开启或服务/网络故障：降级放行，不再阻塞登录
+                if (isBreakerOpen() || isServerError(error)) {
+                    recordFailure();
+                    return bypass(isBreakerOpen() ? 'breaker_open' : 'server_failopen');
+                }
+                setInlineState(container, 'error', '');
+                throw error;
+            }
+
+            // 熔断放行（v3 正常返回路径）：直接通过，不再校验 ticket
+            if (result && result.skipped) {
+                onState('passed');
+                return result;
+            }
+
+            if (result.decision === 'pass' && result.ticket) {
+                setInlineState(container, 'passed', text('验证已通过', 'Verification passed'));
+                onState('passed');
+                return result;
+            }
+
+            if (result.decision === 'need_v2') {
+                onState('v2');
+                const v2Result = await executeV2(action, container);
+                onState('passed');
+                return v2Result;
+            }
+
+            throw new Error(text('安全验证未通过，请重试', 'Security verification failed. Please retry.'));
         }
 
-        let result;
+        // 15s 超时兜底：Google 脚本 / 接口长时间无响应时，按服务不可用自动跳过
+        let timeoutHandle;
+        const timeoutPromise = new Promise((resolve) => {
+            timeoutHandle = setTimeout(() => resolve(bypass('timeout')), ENSURE_TIMEOUT_MS);
+        });
+        const runPromise = run().catch((error) => ({ __error: error }));
+
         try {
-            const token = await executeV3(action);
-            result = await verifyToken(token, action, 'v3');
+            const result = await Promise.race([runPromise, timeoutPromise]);
+            clearTimeout(timeoutHandle);
+            if (result && result.__error) throw result.__error;
+            onState('passed');
+            return result;
         } catch (error) {
-            // 熔断开启时，将本次验证降级为放行
-            if (isBreakerOpen()) {
+            clearTimeout(timeoutHandle);
+            // 服务端 / 网络故障或熔断：放行；用户真实挑战未通过（非服务错误）才报错重试
+            if (isBreakerOpen() || isServerError(error)) {
+                recordFailure();
                 onState('passed');
-                return { decision: 'pass', mode: 'bypass', ticket: null, skipped: true, reason: 'breaker_open' };
+                return bypass('failopen');
             }
             setInlineState(container, 'error', '');
             throw error;
         }
-
-        // 熔断放行（v3 正常返回路径）：直接通过，不再校验 ticket
-        if (result && result.skipped) {
-            onState('passed');
-            return result;
-        }
-
-        if (result.decision === 'pass' && result.ticket) {
-            setInlineState(container, 'passed', text('验证已通过', 'Verification passed'));
-            onState('passed');
-            return result;
-        }
-
-        if (result.decision === 'need_v2') {
-            onState('v2');
-            const v2Result = await executeV2(action, container);
-            onState('passed');
-            return v2Result;
-        }
-
-        throw new Error(text('安全验证未通过，请重试', 'Security verification failed. Please retry.'));
     }
 
     function clearStatusCache() {
@@ -345,6 +376,10 @@
 
     async function consume(ticket, action, session) {
         if (!session?.access_token) throw new Error(text('登录状态无效，请重新登录', 'Invalid session. Please sign in again.'));
+        // 跳过验证（熔断 / 超时 / 服务不可用）时没有 ticket：直接降级放行，不再请求后端
+        if (!ticket) {
+            return { ok: true, degraded: true, skipped: true };
+        }
         try {
             const result = await fetchJson('/consume', {
                 method: 'POST',
