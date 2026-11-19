@@ -430,9 +430,20 @@
 }</code></pre>
         <p>其中 <code>series</code> 是按时间粒度排列的 <code>{label, value}</code> 数组；<code>favorites</code> 为净收藏（收藏 − 取消）。另有通用接口 <code>/api/breakdown?site=1&amp;dim=event&amp;range=30d</code> 可拉全站事件分布。可视化大屏见 <a href="stats.html">stats.html</a>；给 AI agent 的接入说明见 <a href="llms.txt">llms.txt</a>。</p>
 
+        <h3>3.4 全服高分榜 SDK（零服务器成本）</h3>
+        <p>在你的游戏里引入一行脚本，结算时上报分数，即可进入平台「全服高分榜 Top 10」。无需后端、无需 API key。游戏需在平台播放器内打开。该榜单为<strong>荣誉展示</strong>：分数由客户端上报，不做防作弊校验。</p>
+        <pre><code>&lt;script src="https://game.leleleling.site/lelele-sdk.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  // 玩家结算时调用（score 为非负数字）
+  window.LeleleSDK.submitScore(1234);
+  // 可选：自定义昵称；不传则自动生成随机昵称
+  window.LeleleSDK.submitScore(1234, { name: '小明' });
+&lt;/script&gt;</code></pre>
+        <p>接口：<code>LeleleSDK.submitScore(score, { name })</code>。分数与昵称由平台统一存储与展示，开发者无需管理任何数据库。未登录玩家也可参与（昵称保存在本地浏览器）。</p>
+
         <h2>第四章 常见问题 (FAQ)</h2>
         <p><strong>Q: 为什么我在后台看不到我的游戏？</strong></p>
-        <p>A: 请检查您填写的“显示名称”是否与 `lelegame_data.json` 中的 `author` 字段完全一致（区分大小写与空格）。</p>
+        <p>A: 请检查您填写的“显示名称”是否与投稿时登记的开发者名称完全一致（区分大小写与空格）。</p>
 
         <p><strong>Q: 数据看板的数据多久更新一次？</strong></p>
         <p>A: 您的数据会实时更新，图表默认展示近 30 天的趋势。</p>
@@ -541,9 +552,20 @@
 }</code></pre>
         <p><code>series</code> is a time-ordered <code>{label, value}</code> array; <code>favorites</code> is net favorites (favorites minus unfavorites). A general endpoint <code>/api/breakdown?site=1&amp;dim=event&amp;range=30d</code> returns all event breakdowns. See the visual dashboard at <a href="stats.html">stats.html</a> and the AI-agent guide at <a href="llms.txt">llms.txt</a>.</p>
 
+        <h3>3.4 Global High-Score Leaderboard SDK (zero server cost)</h3>
+        <p>Add one script to your game and report a score at game-over to enter the platform's "Global Top 10". No backend, no API key. The game must run inside the platform player. This is an <strong>honor-system</strong> board: scores are client-reported with no anti-cheat.</p>
+        <pre><code>&lt;script src="https://game.leleleling.site/lelele-sdk.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  // call at game over (score is a non-negative number)
+  window.LeleleSDK.submitScore(1234);
+  // optional: custom nickname; auto-generated if omitted
+  window.LeleleSDK.submitScore(1234, { name: 'Alice' });
+&lt;/script&gt;</code></pre>
+        <p>API: <code>LeleleSDK.submitScore(score, { name })</code>. Scores and nicknames are stored and displayed by the platform - developers manage no database. Anonymous players can join (nickname is kept locally).</p>
+
         <h2>Chapter 4 FAQ</h2>
         <p><strong>Q: Why can't I see my game in the Dashboard?</strong></p>
-        <p>A: Please check if your "Display Name" exactly matches the `author` field in `lelegame_data.json` (case and space sensitive).</p>
+        <p>A: Please check if your "Display Name" exactly matches the developer name you registered at submission (case and space sensitive).</p>
 
         <p><strong>Q: How often does the Dashboard data update?</strong></p>
         <p>A: Data updates in real-time. The chart shows the last 30 days by default.</p>

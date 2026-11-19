@@ -1,6 +1,6 @@
 {
-  "version": 12,
-  "updatedAt": "2026-11-18T10:00:00.000Z",
+  "version": 13,
+  "updatedAt": "2026-11-19T00:00:00.000Z",
   "_readme": {
     "说明": "本文件是「开发者定向告示」数据源，由 notice.js 读取。JSON 标准不支持 // 注释，所以字段说明都写在 _readme 里，程序会忽略它。",
     "文件结构": "{ version, updatedAt, _readme, notices: [告示对象, ...] }。真正生效的只有 notices 数组。",
@@ -31,6 +31,37 @@
     "新增告示": "在 notices 数组末尾追加对象，复制现有示例改字段即可，注意 id 不要重复。"
   },
   "notices": [
+    {
+      "id": "notice-2026-11-19-v440-scoreboard-sdk",
+      "enabled": true,
+      "author": "all",
+      "priority": 420,
+      "startAt": "2026-11-19T00:00:00+08:00",
+      "endAt": "2026-12-19T23:59:59+08:00",
+      "title_zh": "🏆 站点 4.4.0：全服高分榜 SDK 已开放",
+      "title_en": "🏆 Site v4.4.0: High-Score Leaderboard SDK Is Live",
+      "body_zh": "新增全服高分榜 SDK，让你的游戏接入平台「Global Top 10」：\n\n① 在游戏里引入 https://game.leleleling.site/lelele-sdk.js。\n② 结算时调用 window.LeleleSDK.submitScore(score)；可选第二参数 { name: '昵称' }。\n③ 平台负责存储与展示分数，你不需要后端、不需要 API key、不需要管理数据库。\n\n说明：榜单为荣誉展示（客户端上报、不防作弊），未登录玩家也能玩（随机昵称）。播放器右下角 🏆 可查看榜单。详见开发者文档 3.4 节与 llms.txt。",
+      "body_en": "New high-score leaderboard SDK - add a Global Top 10 board to your game:\n\n(1) Include https://game.leleleling.site/lelele-sdk.js in your game.\n(2) Call window.LeleleSDK.submitScore(score) at game over; optional second arg { name: 'Nickname' }.\n(3) The platform stores and displays scores - no backend, no API key, no database to manage.\n\nNote: honor-system board (client-reported, no anti-cheat); anonymous players can join with a random nickname. The 🏆 button in the player opens the board. See developer docs section 3.4 and llms.txt.",
+      "media": [],
+      "buttons": [
+        {
+          "text_zh": "查看开发者文档",
+          "text_en": "Developer Docs",
+          "url": "https://game.leleleling.site/developer_docs.html",
+          "style": "primary",
+          "target": "_self"
+        },
+        {
+          "text_zh": "llms.txt",
+          "text_en": "llms.txt",
+          "url": "https://game.leleleling.site/llms.txt",
+          "style": "ghost",
+          "target": "_blank"
+        }
+      ],
+      "dismissible": true,
+      "oncePerUser": true
+    },
     {
       "id": "notice-2026-11-18-v430-public-api-agents",
       "enabled": true,

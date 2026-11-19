@@ -6,6 +6,8 @@
 <title>Lelele Game · Player</title>
 <meta name="robots" content="noindex,nofollow">
 <script src="/legal_generic.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/supabase-client.js" defer></script>
 <style>
   :root { --bar:#1e293b; --bar2:#0f172a; --fg:#e2e8f0; --muted:#94a3b8; --btn:#334155; --btn-h:#475569; --accent:#4f46e5; }
   * { box-sizing:border-box; margin:0; padding:0; }
@@ -62,6 +64,18 @@
   .gameinfo button.fav-btn.is-fav { background:#be123c; }
   .gameinfo button.detail-btn { background:#4f46e5; font-size:12px; padding:6px 12px; }
   .gameinfo button.detail-btn:hover { background:#4338ca; }
+  /* 全服高分榜卡片 */
+  .scoreboard { display:none; position:fixed; right:16px; bottom:56px; z-index:80; width:230px;
+    max-height:52vh; overflow:auto; padding:12px 14px; border-radius:16px;
+    background:rgba(15,23,42,.94); border:1px solid #334155; color:#e2e8f0; box-shadow:0 12px 36px rgba(0,0,0,.35); }
+  .scoreboard.open { display:block; }
+  .scoreboard h4 { font-size:13px; margin:0 0 8px; display:flex; align-items:center; justify-content:space-between; }
+  .scoreboard h4 button { padding:2px 8px; font-size:11px; }
+  .scoreboard ol { margin:0; padding-left:20px; font-size:12px; line-height:1.9; }
+  .scoreboard li span.sc { color:#fbbf24; font-weight:800; margin-left:6px; }
+  .scoreboard .sb-empty, .scoreboard .sb-err { font-size:12px; color:#94a3b8; }
+  .score-toggle { position:fixed; right:16px; bottom:16px; z-index:81; background:#4f46e5; }
+  html.dark .scoreboard { background:rgba(2,6,23,.96); }
   @media (max-width:640px) {
     .gameinfo { gap:6px; padding:6px 8px; font-size:11px; flex-wrap:wrap; }
     .gameinfo .gi-name { font-size:12px; }
@@ -160,6 +174,13 @@
   </div>
 </div>
 
+<div class="scoreboard" id="scoreboard">
+  <h4>🏆 <span class="zh-inline">全服高分榜</span><span class="en-inline">Global Top 10</span>
+    <button type="button" id="sbClose">✕</button></h4>
+  <div id="sbBody"><div class="sb-empty"><span class="zh-inline">加载中…</span><span class="en-inline">Loading…</span></div></div>
+</div>
+<button type="button" class="score-toggle" id="sbToggle">🏆 <span class="zh-inline">高分榜</span><span class="en-inline">Top 10</span></button>
+
 <div class="file-modal" id="fileModal" role="dialog" aria-modal="true" aria-label="Game files / 游戏文件">
   <div class="file-box">
     <div class="file-head"><strong id="fileTitle">—</strong><button type="button" id="fileClose">✕ <span class="zh-inline">关闭</span><span class="en-inline">Close</span></button></div>
@@ -175,6 +196,46 @@
   var params = new URLSearchParams(window.location.search);
   var gameId = params.get('id') || '';
   var game = null, targetUrl = '', sameOrigin = false, legalUrls = {};
+
+  // ===== 全服高分榜（纯荣誉展示，允许匿名）=====
+  var SB_TABLE = 'game_scores', PLAYER_KEY = 'lelele_player_name';
+  function sbEsc(s) { return String(s == null ? '' : s).replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  function sbText(zh, en) { return document.documentElement.getAttribute('data-lang') === 'en' ? en : zh; }
+  function getPlayerName() {
+    try { var n = localStorage.getItem(PLAYER_KEY); if (n) return n; } catch (e) {}
+    n = '玩家' + Math.floor(1000 + Math.random() * 9000);
+    try { localStorage.setItem(PLAYER_KEY, n); } catch (e) {}
+    return n;
+  }
+  function scoreClient() {
+    return (typeof window.supabaseClient !== 'undefined' && window.supabaseClient) ? window.supabaseClient : null;
+  }
+  function loadScoreboard() {
+    var body = $('sbBody'); if (!body) return;
+    var sb = scoreClient();
+    if (!sb || !gameId) { body.innerHTML = '<div class="sb-err">' + sbText('榜单暂不可用', 'Leaderboard unavailable') + '</div>'; return; }
+    sb.from(SB_TABLE).select('player_name,score')
+      .eq('game_id', String(gameId)).order('score', { ascending: false }).limit(10)
+      .then(function (res) {
+        if (res.error) throw res.error;
+        var rows = res.data || [];
+        if (!rows.length) { body.innerHTML = '<div class="sb-empty">' + sbText('还没有成绩，快来抢第一！', 'No scores yet - be the first!') + '</div>'; return; }
+        body.innerHTML = '<ol>' + rows.map(function (r) {
+          return '<li>' + sbEsc(String(r.player_name || '?')) + '<span class="sc">' + Number(r.score || 0).toLocaleString() + '</span></li>';
+        }).join('') + '</ol>';
+      })
+      .catch(function () { body.innerHTML = '<div class="sb-err">' + sbText('榜单加载失败，稍后重试', 'Failed to load leaderboard') + '</div>'; });
+  }
+  function submitScoreToServer(score, name) {
+    var sb = scoreClient();
+    if (!sb || !gameId) return;
+    sb.from(SB_TABLE).insert({
+      game_id: String(gameId),
+      player_name: String(name || getPlayerName()).slice(0, 24),
+      score: Math.floor(Number(score) || 0)
+    }).then(function (res) { if (!res.error) loadScoreboard(); })
+      .catch(function () {}); // 纯荣誉榜：写入失败静默降级，不影响游戏
+  }
 
   // ===== 收藏（play.html 零依赖，内联读写 + 埋点，与 common.js 同口径）=====
   var FAV_KEY = 'lelele_favs', ROUNDS_KEY = 'em:fav-rounds:v1';
@@ -451,7 +512,27 @@
     if (!document.fullscreenElement && !document.webkitFullscreenElement) closePlay();
   });
   window.addEventListener('message', function (e) {
-    if (e.data && e.data.type === 'lelele:langRequest') applyLang(e.data.lang === 'en' ? 'en' : 'zh');
+    var d = e.data;
+    if (!d || typeof d !== 'object') return;
+    if (d.type === 'lelele:langRequest') { applyLang(d.lang === 'en' ? 'en' : 'zh'); return; }
+    if (d.type === 'lelele:score') {
+      // 只认来自本页游戏 iframe 的消息，防外部页面伪造（纯荣誉榜不做更严格校验）
+      var f = $('gameFrame');
+      if (!f || !f.contentWindow || e.source !== f.contentWindow) return;
+      var score = Number(d.score);
+      if (!isFinite(score) || score < 0) return;
+      submitScoreToServer(score, d.playerName || getPlayerName());
+    }
+  });
+
+  // 高分榜开关
+  if ($('sbToggle')) $('sbToggle').addEventListener('click', function () {
+    var b = $('scoreboard'); if (!b) return;
+    b.classList.toggle('open');
+    if (b.classList.contains('open')) loadScoreboard();
+  });
+  if ($('sbClose')) $('sbClose').addEventListener('click', function () {
+    var b = $('scoreboard'); if (b) b.classList.remove('open');
   });
 
   loadGame();

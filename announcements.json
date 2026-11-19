@@ -1,5 +1,14 @@
 [
   {
+    "id": "20261119-site-440-scoreboard-sdk",
+    "title_zh": "🏆 站点 4.4.0：全服高分榜上线，玩游戏就能冲榜！",
+    "title_en": "🏆 Site v4.4.0: Global High-Score Leaderboard Is Live!",
+    "content_zh": "播放器现在有「全服高分榜 Top 10」啦！点右下角的 🏆 按钮就能看到当前游戏的全服高分。\n\n🎮 怎么玩：支持 SDK 的游戏会在你通关结算时自动上报分数；未登录也能参与，系统会给你一个随机昵称（保存在本地）。\n\n🛠️ 开发者：在游戏里引入 lelele-sdk.js，调用 LeleleSDK.submitScore(分数) 即可接入，无需后端。详见开发者文档。\n\n说明：高分榜为荣誉展示，分数由客户端上报，不做防作弊校验，大家图个开心～",
+    "content_en": "The player now has a Global Top 10 leaderboard! Tap the 🏆 button at the bottom right to see the top scores for the game you're playing.\n\n🎮 How it works: games with the SDK report your score automatically at game over. No login needed - a random nickname is generated and kept locally.\n\n🛠️ Developers: add lelele-sdk.js and call LeleleSDK.submitScore(score) to integrate - no backend required. See the developer docs.\n\nNote: this is an honor-system board (client-reported, no anti-cheat) - just for fun!",
+    "publishDate": "2026-11-19",
+    "expireDate": "2026-12-19"
+  },
+  {
     "id": "20261118-site-430-developer-api-browse",
     "title_zh": "🎉 站点 4.3.0：标签筛选、收藏分组与开发者数据开放",
     "title_en": "🎉 Site v4.3.0: Tag Filters, Favorite Groups & Open Developer Data",

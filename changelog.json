@@ -1,5 +1,11 @@
 [
   {
+    "version": "4.4.0",
+    "date": "2026-11-19",
+    "content_zh": "中版本 4.4.0：全服高分榜 SDK。开发者在游戏里引入 lelele-sdk.js 并调用 LeleleSDK.submitScore(分数)，即可把分数上报到平台「全服高分榜 Top 10」。播放器新增高分榜卡片与开关，支持匿名参与（本地随机昵称），榜单由 Supabase 统一存储与展示，开发者无需后端。该榜单为荣誉展示，分数由客户端上报。开发者文档与 llms.txt 同步接入说明。",
+    "content_en": "Minor version 4.4.0: Global high-score leaderboard SDK. Developers add lelele-sdk.js to their game and call LeleleSDK.submitScore(score) to report scores into the platform's Global Top 10. The player gains a leaderboard card and toggle, supports anonymous play (random local nickname), and scores are stored/served by Supabase - no backend for developers. This is an honor-system board (client-reported). Developer docs and llms.txt document the integration."
+  },
+  {
     "version": "4.3.0",
     "date": "2026-11-18",
     "content_zh": "中版本 4.3.0：开发者能力与浏览体验升级。① 新增公开统计 API `/api/public/stats?game=&range=&cmp=`（免登录、CORS 开放），返回单游戏游玩/净收藏趋势与对比时段；新增开发者数据大屏 stats.html 与 llms.txt（让 AI agent 无需读源码即可理解平台的游戏接入与数据契约），开发者文档新增专章。② 首页新增「本周新游与更新」轮播、标签多选筛选、搜索历史；随机游玩支持范围筛选。③ 收藏弹窗支持分组与拖动排序；详情页新增相似推荐与长简介折叠；作者页显示作品数/总收藏/最受欢迎作品。④ 公告弹窗支持已读/未读筛选；收藏榜与游玩榜支持 CSV 导出与列头排序；全站图片懒加载与分类 emoji 兜底、返回顶部按钮。⑤ SW 预缓存自检脚本，确保新增页面不会出现离线白屏。",

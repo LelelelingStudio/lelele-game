@@ -1,6 +1,12 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.25 (4.4.0 高分榜 SDK) —— 新增 lelele-sdk.js（window.LeleleSDK.submitScore(score,
+ *   {name}) 通过 postMessage 上报分数）；play.html 引入 Supabase 客户端，监听 message
+ *   （校验 e.source === 游戏 iframe），写 game_scores 表并在「全服高分榜 Top10」卡片展示；
+ *   允许匿名（本地随机昵称），读写失败静默降级不影响游戏。开发者文档 3.4 与 llms.txt
+ *   加接入说明，并隐藏底层 JSON 文件名/路径。预缓存加 /lelele-sdk.js，升 CACHE_NAME 清旧缓存。
+ *
  * ★ v1.24 (关注连点/重复绑定修复) —— 根因：mount() 是 async，addEventListener 在多个
  *   await 之后才执行；页面重绘（占位→数据→langChanged）多次调用 mount 导致同一按钮
  *   被绑 N 个 handler：早点是「点了没反应」，晚点是「一次点击 N 个并发 toggle 把
@@ -122,7 +128,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.24';
+const CACHE_NAME = 'lelele-pwa-v1.25';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。
@@ -171,6 +177,7 @@ const ASSETS_TO_CACHE = [
     '/lsfp-adapter.js',
     '/pager-nav.js',
     '/supabase-client.js',
+    '/lelele-sdk.js',
     '/follow.js',
     '/recaptcha.js',
     '/recaptcha.css',
