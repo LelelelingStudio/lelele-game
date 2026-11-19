@@ -8,19 +8,22 @@
   "type": "internal",
   "ageRating_zh": "12+",
   "ageRating_en": "12+",
-  "version": "v1.0.0",
+  "version": "v2.0",
   "author": "10",
   "url": "https://warehousedistrict-pages.leleleling.site/",
   "banner": "https://gamepic.surge.sh/zombieapolocase1.lsfp",
   "screenshots": [
-    "https://gamepic.surge.sh/zombieapolocase1.lsfp",
-    "https://gamepic.surge.sh/zombieapolocase2.lsfp",
-    "https://gamepic.surge.sh/zombieapolocase3.lsfp"
+    "https://gamepic.surge.sh/zombieapolocase1.lsfp https://gamepic.surge.sh/zombieapolocase2.lsfp https://gamepic.surge.sh/zombieapolocase3.lsfp"
   ],
   "videos": [],
   "description_zh": "进入游戏查看",
   "description_en": "Inside the Game",
   "updateLog_zh": [
+    {
+      "content": "v2.0大更新! 增加手榴弹, 让僵尸死的更快! 右键来发射.",
+      "date": "2026.11.19",
+      "version": "v2.0"
+    },
     {
       "content": "游戏首发上线！",
       "date": "2026.11.17",
@@ -29,13 +32,18 @@
   ],
   "updateLog_en": [
     {
+      "content": "Added grenades to kill zombies faster! Right-click to fire.",
+      "date": "2026.11.19",
+      "version": "v2.0"
+    },
+    {
       "content": "The first deploy of this game!",
       "date": "2026.11.17",
       "version": "v1.0.0"
     }
   ],
-  "summary": "游戏首发上线！",
-  "summary_en": "The first deploy of this game!",
+  "summary": "v2.0大更新! 增加手榴弹, 让僵尸死的更快! 右键来发射.",
+  "summary_en": "Added grenades to kill zombies faster! Right-click to fire.",
   "authorName": "LukeYang",
   "legal_urls": {
     "eula": "",
