@@ -75,12 +75,13 @@
     }
     function isBreakerOpen() { return getBreakerCount() >= BREAKER_LIMIT; }
 
-    // 判断是否为服务端/internal 错误（应计入熔断、而非用户重试）
+    // 判断是否为服务端错误（计入熔断）。收紧：本地错误（缺少容器/不支持的 action/
+    // 用户未通过挑战）不算服务端故障，避免误触发 fail-open；只有明确的 5xx 或
+    // 显式标记 verification_unavailable 才计入。
     function isServerError(err) {
         if (!err) return false;
         if (err.code === 'verification_unavailable') return true;
         if (err.status && err.status >= 500) return true;
-        if (!err.status) return true; // 网络层失败（无 HTTP 状态）
         return false;
     }
     function makeServerError(code) {
@@ -165,12 +166,17 @@
         googleLoadPromise = new Promise((resolve, reject) => {
             const existing = document.getElementById('lelele-recaptcha-api');
             const script = existing || document.createElement('script');
-            const timeout = setTimeout(() => reject(new Error(text('Google 验证加载超时', 'Google verification timed out'))), 15000);
+            // 超时也要清空 promise，避免后续所有 ensure() 复用同一个 rejected promise 永久 fail-open
+            const timeout = setTimeout(() => {
+                googleLoadPromise = null;
+                reject(makeServerError('google_load_timeout'));
+            }, 15000);
 
             script.onload = () => {
                 if (!window.grecaptcha) {
                     clearTimeout(timeout);
-                    reject(new Error(text('Google 验证加载失败', 'Failed to load Google verification')));
+                    googleLoadPromise = null;
+                    reject(makeServerError('google_load_failed'));
                     return;
                 }
                 window.grecaptcha.ready(() => {
@@ -181,7 +187,7 @@
             script.onerror = () => {
                 clearTimeout(timeout);
                 googleLoadPromise = null;
-                reject(new Error(text('Google 验证加载失败', 'Failed to load Google verification')));
+                reject(makeServerError('google_load_failed'));
             };
 
             if (!existing) {

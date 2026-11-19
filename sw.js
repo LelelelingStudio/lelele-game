@@ -1,6 +1,14 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.21 (登录/安全修复) —— profile.html 补玩家密码重置落地（?type=recovery 与
+ *   PASSWORD_RECOVERY 事件，弹窗 updateUser 改密）；dashboard.html 全部外部数据
+ *   （OAuth 昵称/头像 URL/作者名/游戏名）加 escHtml+safeUrl 防 stored XSS；作者清单
+ *   拉取失败不再放行后台；common.js 首页身份判断统一走 authors uuid（弃用 profiles
+ *   authorlevel/is_author）；login 已登录分支按身份分流、user-login 不再写跨页残留标记；
+ *   recaptcha.js 收紧 fail-open（仅真 5xx/熔断/15s 超时放行，本地错误不再误放行），
+ *   loadGoogle 超时清空 promise 修永久 fail-open。上述文件字节变故升缓存版本清旧脚本。
+ *
  * ★ v1.20 (验证码超时放行) —— recaptcha.js：连不上 Google / 验证服务故障或 15s
  *   无响应时自动跳过验证继续登录注册，不再卡死；空 ticket 不再请求后端 consume。
  *
@@ -95,7 +103,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.20';
+const CACHE_NAME = 'lelele-pwa-v1.21';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。

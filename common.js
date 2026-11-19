@@ -1400,15 +1400,22 @@ function leleleOnReady(fn) {
         supabaseClient.auth.getSession().then(({ data }) => {
             const session = data && data.session;
             if (!session) { decided = { mode: 'hide' }; apply(); return; } // 未登录 → 隐藏
-            supabaseClient.from('profiles').select('authorlevel, is_author').eq('id', session.user.id).single()
-                .then(({ data: profile }) => {
-                    const isAuthor = !!(profile && (Number(profile.authorlevel) > 0 || profile.is_author));
-                    decided = isAuthor
-                        ? { mode: 'show', zh: '🏅 为自己申请', en: '🏅 For Myself' }
-                        : { mode: 'show', zh: '🏅 成为创作者', en: '🏅 Become Creator' };
-                    apply();
-                })
-                .catch(() => { decided = { mode: 'hide' }; apply(); });
+            // 统一身份标准：与登录页/后台/个人中心一致，用 Supabase user.id 对
+            // authors/index.json 的 uuid 判断；不再用 profiles.authorlevel/is_author
+            // （该字段在 authors.json 不存在，会造成首页和认证入口判定不一致）。
+            const decideByAuthors = (authors) => {
+                const isAuthor = Array.isArray(authors) && authors.some(a => a.uuid === session.user.id);
+                decided = { mode: 'show', zh: isAuthor ? '🏅 为自己申请' : '🏅 成为创作者', en: isAuthor ? '🏅 For Myself' : '🏅 Become Creator' };
+                apply();
+            };
+            if (typeof window.fetchAuthors === 'function') {
+                window.fetchAuthors().then(decideByAuthors).catch(() => { decided = { mode: 'hide' }; apply(); });
+            } else {
+                fetch('authors/index.json', { cache: 'no-store' })
+                    .then(r => r.ok ? r.json() : null)
+                    .then(decideByAuthors)
+                    .catch(() => { decided = { mode: 'hide' }; apply(); });
+            }
         }).catch(() => { decided = { mode: 'hide' }; apply(); });
     }
 

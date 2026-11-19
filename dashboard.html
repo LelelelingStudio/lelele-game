@@ -587,6 +587,21 @@
     <script src="/lsfp-adapter.js" defer></script>
     <script src="/notice.js" defer></script>
     <script>
+        // HTML 转义：本页不引 common.js，所有注入 innerHTML 的外部数据（OAuth 昵称、
+        // authors/index.json、lelegame_data.json）必须先过这里，防止 stored XSS 窃取 Supabase 会话。
+        function escHtml(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+        // 仅允许安全 URL（http/https/相对/data:图片），阻断 javascript: 注入
+        function safeUrl(s) {
+            const v = String(s == null ? '' : s).trim();
+            if (!v) return '';
+            if (/^https?:\/\//i.test(v) || v.charAt(0) === '/' || /^data:image\//i.test(v)) return v;
+            return '';
+        }
+
         // 4.0.13：统一 fetch 超时。外部域（analytics）或本地数据挂起时不拖死看板，
         // 8s 后 AbortController 中断，由各调用点的 catch 降级到已有空态/图表错误态。
         function dashFetch(url, ms) {
@@ -818,7 +833,13 @@
 
         // 鉴权与初始化
         async function init() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
+            let session = null;
+            try {
+                const res = await supabaseClient.auth.getSession();
+                session = res && res.data && res.data.session;
+            } catch (e) {
+                console.warn('getSession 失败', e);
+            }
             if (!session) {
                 const params = new URLSearchParams(window.location.search);
                 const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -891,6 +912,10 @@
                 }
             } else {
                 authorLookupState = 'failed';
+                // 清单读取失败时不得放行后台：普通玩家会被误当成作者进入空壳后台，
+                // 作者也可能看到空数据。统一送回个人中心并提示刷新重试。
+                window.location.replace('profile.html?authCheck=failed');
+                return;
             }
 
             let allGames = [];
@@ -941,7 +966,7 @@
                     ${OAUTH_ICONS.email}
                     <div class="identity-info">
                         <div class="identity-name">${isEn ? 'Email & Password' : '邮箱密码'}</div>
-                        <div class="identity-sub">${hasEmail ? (currentUser.email || '') : (isEn ? t('unlinkedLabel') : t('unlinkedLabel'))}</div>
+                        <div class="identity-sub">${escHtml(hasEmail ? (currentUser.email || '') : (isEn ? t('unlinkedLabel') : t('unlinkedLabel')))}</div>
                     </div>
                     ${hasEmail
                         ? `<span style="font-size:0.75rem;font-weight:700;color:#10b981;">${t('linkedLabel')}</span><button class="identity-btn link" onclick="changeEmail()">${isEn ? 'Change' : '更换'}</button>`
@@ -960,10 +985,10 @@
                         ${OAUTH_ICONS[id]}
                         <div class="identity-info">
                             <div class="identity-name">${name}</div>
-                            <div class="identity-sub" title="${(sub || '').replace(/"/g, '&quot;')}">${sub}</div>
+                            <div class="identity-sub" title="${escHtml(sub)}">${escHtml(sub)}</div>
                         </div>
                         ${identity
-                            ? `<button class="identity-btn unlink" onclick="unlinkAccount('${identity.id}')">${isEn ? 'Unlink' : '解绑'}</button>`
+                            ? `<button class="identity-btn unlink" onclick="unlinkAccount('${escHtml(String(identity.id).replace(/'/g, ''))}')">${isEn ? 'Unlink' : '解绑'}</button>`
                             : `<button class="identity-btn link" onclick="linkAccount('${id}')">${isEn ? 'Link' : '绑定'}</button>`}
                     </div>`);
             });
@@ -1085,7 +1110,7 @@
 
             const avatarEl = document.getElementById('sidebarAvatar');
             if (userProfile.avatar_url) {
-                avatarEl.innerHTML = `<img src="${userProfile.avatar_url}" alt="Avatar">`;
+                avatarEl.innerHTML = `<img src="${escHtml(safeUrl(userProfile.avatar_url))}" alt="Avatar" onerror="this.style.display='none'">`;
             } else {
                 avatarEl.innerHTML = '👤';
             }
@@ -1153,7 +1178,7 @@
             const def = DASH_LEVELS.find(x => x.level === lvl) || DASH_LEVELS[0];
             const nameZh = a.name_zh || '';
             const nameEn = a.name_en || a.name_zh || '';
-            const avatar = (userProfile && userProfile.avatar_url) ? '<img src="' + userProfile.avatar_url + '" alt="">' : '👤';
+            const avatar = (userProfile && userProfile.avatar_url) ? '<img src="' + escHtml(safeUrl(userProfile.avatar_url)) + '" alt="" onerror="this.style.display=\'none\'">' : '👤';
             const badges = dashAuthorBadges(a);
             const gamesCount = myGames.length;
             wrap.innerHTML =
@@ -1163,7 +1188,7 @@
                         '<div class="creator-head">' +
                             '<div class="creator-avatar">' + avatar + '</div>' +
                             '<div class="creator-id">' +
-                                '<div class="creator-name"><span class="zh-inline">' + nameZh + '</span><span class="en-inline">' + nameEn + '</span></div>' +
+                                '<div class="creator-name"><span class="zh-inline">' + escHtml(nameZh) + '</span><span class="en-inline">' + escHtml(nameEn) + '</span></div>' +
                                 '<div class="creator-level"><span class="zh-inline">等级 ' + lvl + ' · ' + def.zh + '</span><span class="en-inline">Level ' + lvl + ' · ' + def.en + '</span></div>' +
                             '</div>' +
                         '</div>' +
@@ -1235,8 +1260,8 @@
                     const name = isEn ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en);
                     return `
                         <div class="game-select-card" onclick="selectGame(${g.id})">
-                            <div class="game-select-icon">${g.icon || '🎮'}</div>
-                            <div class="game-select-name">${name}</div>
+                            <div class="game-select-icon">${escHtml(g.icon || '🎮')}</div>
+                            <div class="game-select-name">${escHtml(name)}</div>
                         </div>
                     `;
                 }).join('');
@@ -1273,7 +1298,7 @@
                         const n = Math.max(0, Number(counts[String(g.id)]) || 0);
                         const name = isEn ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en);
                         return '<span style="padding:6px 12px;border-radius:999px;background:rgba(225,29,72,.08);color:#e11d48;font-weight:700;font-size:0.9rem;">' +
-                            (g.icon || '🎮') + ' ' + name + '：' + n + '</span>';
+                            escHtml(g.icon || '🎮') + ' ' + escHtml(name) + '：' + n + '</span>';
                     }).join('');
                 });
             } else if (favBox) { favBox.style.display = 'none'; }
@@ -1284,7 +1309,7 @@
             const isEn = getLang() === 'en';
             sel.innerHTML = myGames.map(g => {
                 const name = isEn ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en);
-                return `<option value="${g.id}" ${String(g.id) === String(activeGameId) ? 'selected' : ''}>${name}</option>`;
+                return `<option value="${escHtml(String(g.id))}" ${String(g.id) === String(activeGameId) ? 'selected' : ''}>${escHtml(name)}</option>`;
             }).join('');
         }
 

@@ -608,13 +608,13 @@
             redirectAfterLogin();
         }
 
-        // 已登录状态：显示提示 → 传标志给 dashboard → 跳转
+        // 已登录状态：显示提示 → 同样按身份分流（作者进后台、玩家进个人中心），
+        // 不再无条件送 dashboard（此前依赖后台闸门二次跳转，清单失败时会空跑甚至被误拦）。
         function showLoggedIn() {
             clearTimeout(redirectTimer);
             setState('loggedin');
-            try { sessionStorage.setItem('lelele_already_logged_in', '1'); } catch (e) {}
             redirectTimer = setTimeout(() => {
-                window.location.replace(buildDashboardUrl());
+                redirectAfterLogin();
             }, 1500);
         }
 

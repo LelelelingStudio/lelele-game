@@ -136,6 +136,12 @@
         .btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
 
         .loading { text-align: center; color: var(--text-muted); padding: 40px 0; }
+        .modal-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 18px; background: rgba(15,23,42,.55); }
+        .modal-overlay[hidden] { display: none; }
+        .reset-card { width: 100%; max-width: 420px; }
+        .reset-card input { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--card-bg); color: var(--text-main); font-family: inherit; }
+        .reset-hint { font-size: 0.9rem; color: var(--text-muted); margin: 0 0 12px; }
+        .reset-msg { margin-top: 10px; font-size: 0.88rem; min-height: 18px; }
     </style>
 </head>
 <body>
@@ -187,6 +193,20 @@
                     <span class="zh-inline">还没有收藏任何游戏，去首页逛逛吧～</span><span class="en-inline">No favorites yet. Browse the home page!</span>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- 密码重置（玩家）：?type=recovery 或 PASSWORD_RECOVERY 事件触发 -->
+    <div class="modal-overlay" id="resetModal" hidden>
+        <div class="card reset-card">
+            <div class="section-title">🔑 <span class="zh-inline">重置密码</span><span class="en-inline">Reset password</span></div>
+            <p class="reset-hint"><span class="zh-inline">请输入新密码（至少 6 位）。</span><span class="en-inline">Enter a new password (at least 6 characters).</span></p>
+            <input type="password" id="resetPwd" autocomplete="new-password" placeholder="新密码 / New password">
+            <input type="password" id="resetPwd2" autocomplete="new-password" placeholder="确认新密码 / Confirm">
+            <div class="btn-row">
+                <button class="btn-main" id="resetSubmit" type="button"><span class="zh-inline">确认修改</span><span class="en-inline">Save</span></button>
+            </div>
+            <div class="reset-msg" id="resetMsg"></div>
         </div>
     </div>
 
@@ -329,10 +349,43 @@
             window.location.replace('/index.html');
         }
 
+        // 密码重置落地（?type=recovery 或 PASSWORD_RECOVERY 事件）
+        function openResetModal() {
+            const m = document.getElementById('resetModal');
+            if (m) m.hidden = false;
+        }
+        function setupPasswordRecovery() {
+            if (typeof supabaseClient === 'undefined' || !supabaseClient || !supabaseClient.auth) return;
+            supabaseClient.auth.onAuthStateChange((event) => {
+                if (event === 'PASSWORD_RECOVERY') openResetModal();
+            });
+            const q = window.location.search + window.location.hash;
+            if (q.indexOf('type=recovery') >= 0) openResetModal();
+        }
+        async function submitReset() {
+            const p1 = document.getElementById('resetPwd').value;
+            const p2 = document.getElementById('resetPwd2').value;
+            const msg = document.getElementById('resetMsg');
+            if (p1.length < 6) { msg.textContent = isEn() ? 'At least 6 characters.' : '密码至少 6 位。'; return; }
+            if (p1 !== p2) { msg.textContent = isEn() ? 'Passwords do not match.' : '两次密码不一致。'; return; }
+            try {
+                const { error } = await supabaseClient.auth.updateUser({ password: p1 });
+                if (error) throw error;
+                msg.textContent = isEn() ? 'Password updated. You can close this page.' : '密码已更新，可关闭本页。';
+                window.history.replaceState(null, '', window.location.pathname);
+                setTimeout(() => { document.getElementById('resetModal').hidden = true; }, 1200);
+            } catch (e) {
+                msg.textContent = (isEn() ? 'Failed: ' : '修改失败：') + (e && e.message ? e.message : 'unknown error');
+            }
+        }
+
         window.onReady(() => {
+            setupPasswordRecovery();
             init();
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) logoutBtn.addEventListener('click', onLogout);
+            const resetBtn = document.getElementById('resetSubmit');
+            if (resetBtn) resetBtn.addEventListener('click', submitReset);
         });
     </script>
 </body>

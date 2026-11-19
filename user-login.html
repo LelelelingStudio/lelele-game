@@ -612,7 +612,8 @@
         function showLoggedIn() {
             clearTimeout(redirectTimer);
             setState('loggedin');
-            try { sessionStorage.setItem('lelele_already_logged_in', '1'); } catch (e) {}
+            // 不再写 lelele_already_logged_in：玩家页跳 profile.html，该标记只有 dashboard 消费，
+            // 残留会导致作者下次打开后台误报「已登录无需重复登录」。
             redirectTimer = setTimeout(() => {
                 window.location.replace(buildDashboardUrl());
             }, 1500);
