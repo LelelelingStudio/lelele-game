@@ -944,5 +944,18 @@
         "Local"
       ]
     }
+  },
+  {
+    "id": 41,
+    "name_zh": "了了了游汉化 SaltLine FPS游戏",
+    "name_en": "Chinese version SaltLine by LeleleGame",
+    "icon": "🔫",
+    "category_zh": "射击",
+    "category_en": "Shooter",
+    "type": "local",
+    "ageRating_zh": "12+",
+    "ageRating_en": "12+",
+    "author": "1",
+    "url": "https://shooty1.surge.sh"
   }
 ]
