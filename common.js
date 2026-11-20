@@ -301,8 +301,9 @@ function leleleOnReady(fn) {
                 const matchedGame = games.find(g => g.url && currentPath.includes(g.url.replace(/^\//, '')));
                 
                 if (matchedGame) {
-                    const gameName = matchedGame.name_zh || matchedGame.name;
-                    window.leleleTrack('play-game_' + gameName);
+                    // 游玩埋点改为按游戏数字 id（play-game_<id>），改名不影响历史归属；
+                    // 排行榜侧兼容旧名事件（play-game_<name>）。
+                    window.leleleTrack('play-game_' + matchedGame.id);
                     sessionStorage.setItem(sessionKey, '1');
                 }
             })

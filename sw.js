@@ -1,6 +1,13 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.28 (排行榜事件改 id + 兼容旧名) —— 游玩埋点从 play-game_<名称> 改为
+ *   play-game_<id>（common.js/index.js/game.html 三处），改名不再切断历史统计。
+ *   index.js 归集查找表注册 lelegame_data.json 的 previousNames 旧名别名，旧名事件
+ *   与新 id 事件合并到同一游戏 id，展示名从 json 读当前名；id32 加 previousNames
+ *   ["打僵尸"]，其历史 52 次旧名游玩重新归位。本地 gamecheck.html + analytics 仓库
+ *   gamecheck.html 同步改为按 id 聚合、兼容旧名事件、展示读 json。字节变升版本清缓存。
+ *
  * ★ v1.27 (改名) —— id=32 中文名「打僵尸」→「集装箱特区」（英文 3D Warehouse District
  *   不变）：lelegame_data.json / game/data/32.json 的 name_zh、noticetodeveloper.json 一条
  *   历史告示标题与正文的《打僵尸》、站点地图（脚本重建）同步；详情 updateLog 里「让僵尸
@@ -142,7 +149,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.27';
+const CACHE_NAME = 'lelele-pwa-v1.28';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。

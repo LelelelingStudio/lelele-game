@@ -214,11 +214,15 @@
             gameNameMap = { byId: {}, byName: {} };
             list.forEach(g => {
                 const entry = {
+                    _id: String(g.id),
                     zh: g.name_zh || g.name_en || g.name || String(g.id),
                     en: g.name_en || g.name_zh || g.name || String(g.id)
                 };
                 gameNameMap.byId[String(g.id)] = entry;
-                [g.name_zh, g.name_en, g.name].forEach(n => {
+                // 旧名也注册，历史 play-game_<旧名> 事件与新 id 事件合并到同一游戏
+                const allNames = [g.name_zh, g.name_en, g.name]
+                    .concat(Array.isArray(g.previousNames) ? g.previousNames : []);
+                allNames.forEach(n => {
                     if (n) gameNameMap.byName[String(n)] = entry;
                 });
             });
@@ -250,21 +254,25 @@
             const names = await loadGameNames();
             const events = data.breakdowns && data.breakdowns.event ? data.breakdowns.event : [];
 
-            let games = events
-                .filter(item => item.name.startsWith('play-game'))
-                .map(item => {
-                    const raw = item.name.replace('play-game_', '').replace('play-game', '');
-                    const entry = (names.byId && names.byId[raw]) || (names.byName && names.byName[raw]) || {
-                        zh: raw || t('未知游戏', 'Unknown'),
-                        en: raw || t('未知游戏', 'Unknown')
-                    };
-                    return {
-                        id: raw,
-                        name: entry[lang] || entry.zh || raw || t('未知游戏', 'Unknown'),
-                        count: Number(item.value || 0)
-                    };
-                })
-                .sort((a, b) => b.count - a.count);
+            // 按游戏 id 聚合：新事件 play-game_<id> 与旧事件 play-game_<name/旧名>
+            // 都归一到同一 id 后累加，避免改名后同一游戏被拆成两行。
+            const agg = new Map();
+            events.filter(item => item.name.startsWith('play-game')).forEach(item => {
+                const raw = item.name.replace('play-game_', '').replace('play-game', '');
+                const key = (names.byId && names.byId[raw]) ? String(raw)
+                    : (names.byName && names.byName[raw] && names.byName[raw]._id) || String(raw);
+                agg.set(key, (agg.get(key) || 0) + Number(item.value || 0));
+            });
+            let games = Array.from(agg.entries()).map(([key, count]) => {
+                const entry = (names.byId && names.byId[key]) || {
+                    zh: key || t('未知游戏', 'Unknown'), en: key || t('未知游戏', 'Unknown')
+                };
+                return {
+                    id: key,
+                    name: entry[lang] || entry.zh || key || t('未知游戏', 'Unknown'),
+                    count
+                };
+            }).sort((a, b) => b.count - a.count);
 
             const totalViews = games.reduce((sum, item) => sum + item.count, 0);
 

@@ -2,6 +2,7 @@
   "id": 32,
   "name_zh": "集装箱特区",
   "name_en": "3D Warehouse District",
+  "previousNames": ["打僵尸"],
   "icon": "🔫",
   "category_zh": "射击",
   "category_en": "Shooter",

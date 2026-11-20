@@ -794,8 +794,7 @@
                 return;
             }
             if (typeof edgemetry !== 'undefined') {
-                const gameName = currentGameData.name_zh || currentGameData.name;
-                edgemetry('play-game_' + gameName);
+                edgemetry('play-game_' + currentGameData.id);
             }
             window.location.href = '/play.html?id=' + encodeURIComponent(currentGameData.id) + '&lang=' + (isEn() ? 'en' : 'zh');
         };

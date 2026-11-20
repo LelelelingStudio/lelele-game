@@ -633,7 +633,7 @@ function showPreview(game) {
     
     document.getElementById('btnPlay').onclick = () => {
         if (window.leleleTrack) {
-            window.leleleTrack('play-game_' + (game.name_zh || game.name));
+            window.leleleTrack('play-game_' + game.id);
         }
         // 统一走独立播放器 play.html（与详情页「开始游戏」一致），不再 window.open 直链
         window.location.href = `play.html?id=${game.id}${isEn ? '&lang=en' : '&lang=zh'}`;
@@ -941,7 +941,11 @@ window.addEventListener("message", function(event) {
 
             const lookup = new Map();
             catalogCache.forEach(game => {
-                const names = [game.name_zh, game.name_en, game.name, game.title].filter(Boolean);
+                // 注册当前名 + 历史旧名（previousNames）→ 游戏；旧名事件（play-game_<旧名>）
+                // 与新 id 事件（play-game_<id>）都能归一到同一 id，改名不再丢失历史游玩数。
+                const names = [game.name_zh, game.name_en, game.name, game.title]
+                    .concat(Array.isArray(game.previousNames) ? game.previousNames : [])
+                    .filter(Boolean);
                 names.forEach(n => lookup.set(normalizeName(n), game));
                 if (game.id) lookup.set(String(game.id), game);
             });
