@@ -1,0 +1,43 @@
+{
+  "id": 42,
+  "name_zh": "SaltLine",
+  "name_en": "SaltLine",
+  "icon": "🔫",
+  "category_zh": "射击",
+  "category_en": "Shooter",
+  "type": "external",
+  "ageRating_zh": "12+",
+  "ageRating_en": "12+",
+  "version": "v1.0.0",
+  "author": "1",
+  "url": "https://claude.ai/artifact/BGY1SztrAYcJQHSsnHHGmp",
+  "banner": "https://gamepic.surge.sh/ninisaltline1.lsfp",
+  "screenshots": [
+    "https://gamepic.surge.sh/ninisaltline1.lsfp"
+  ],
+  "videos": [],
+  "description_zh": "游戏内部",
+  "description_en": "In the game",
+  "updateLog_zh": [
+    {
+      "content": "1",
+      "date": "2026.11.20",
+      "version": "v1.0.0"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "content": "1",
+      "date": "2026.11.20",
+      "version": "v1.0.0"
+    }
+  ],
+  "summary": "Made by Felix Rieseberg",
+  "summary_en": "Made by Felix Rieseberg",
+  "authorName": "了了了岭工作室",
+  "legal_urls": {
+    "eula": "",
+    "privacy": "",
+    "terms": ""
+  }
+}

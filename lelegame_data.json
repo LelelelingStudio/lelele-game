@@ -957,5 +957,18 @@
     "ageRating_en": "12+",
     "author": "1",
     "url": "https://shooty1.surge.sh"
+  },
+  {
+    "id": 42,
+    "name_zh": "SaltLine",
+    "name_en": "SaltLine",
+    "icon": "🔫",
+    "category_zh": "射击",
+    "category_en": "Shooter",
+    "type": "external",
+    "ageRating_zh": "12+",
+    "ageRating_en": "12+",
+    "author": "1",
+    "url": "https://claude.ai/artifact/BGY1SztrAYcJQHSsnHHGmp"
   }
 ]
