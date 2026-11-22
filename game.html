@@ -1026,7 +1026,12 @@
         }
 
         // 只接受 https 直链；字段缺失 / 空串 / 非字符串 / 非法 URL 一律降级到平台万能协议
+        // value 可为字符串，或 {zh,en} 双语对象（按当前语言取对应直链）。
         function safeLegalUrl(value) {
+            if (value && typeof value === 'object' && !Array.isArray(value)) {
+                var lang = isEn() ? 'en' : 'zh';
+                value = value[lang] || value.zh || value.en;
+            }
             if (typeof value !== 'string') return null;
             var s = value.trim();
             // 拒绝内嵌空白与控制字符；new URL() 会把空格静默编码为 %20，需提前拦截

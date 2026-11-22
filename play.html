@@ -436,6 +436,10 @@
   var LEGAL_KINDS = ['eula', 'privacy', 'terms'];
   var legalKind = 'eula';
   function safeLegalUrl(value) {
+    // 可为字符串或 {zh,en} 双语对象，按当前语言取对应直链
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      value = value[isEn() ? 'en' : 'zh'] || value.zh || value.en;
+    }
     if (typeof value !== 'string') return null;
     var s = value.trim();
     if (!s || /[\s\u0000-\u001f\u007f]/.test(s)) return null;

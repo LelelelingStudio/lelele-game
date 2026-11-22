@@ -7,9 +7,9 @@
   "category_en": "Casual",
   "ageRating_zh": "全年龄",
   "ageRating_en": "All Ages",
-  "version": "v1.0.0",
+  "version": "v1.0.10",
   "author": "1",
-  "url": "https://happyfarmer.surge.sh",
+  "url": "https://happyfarmer.game.leleleling.site",
   "banner": "https://happyfarmer.surge.sh/blob.png",
   "screenshots": [
     "https://happyfarmer.surge.sh/blob.png"
@@ -18,12 +18,22 @@
   "description_en": "No detailed description yet. Click the Play button above to experience the game.",
   "updateLog_zh": [
     {
+      "version": "v1.0.10",
+      "date": "2026-11-22",
+      "content": "游戏与用户协议、隐私政策、服务条款迁移至独立站点，协议支持中英文切换。"
+    },
+    {
       "version": "v1.0.0",
       "date": "2026-10-19",
       "content": "游戏首发上线！"
     }
   ],
   "updateLog_en": [
+    {
+      "version": "v1.0.10",
+      "date": "2026-11-22",
+      "content": "Game and its EULA, Privacy Policy and Terms moved to a dedicated site; legal documents now support both Chinese and English."
+    },
     {
       "version": "v1.0.0",
       "date": "2026-10-19",
@@ -39,5 +49,19 @@
       "Casual",
       "Local"
     ]
+  },
+  "legal_urls": {
+    "eula": {
+      "zh": "https://happyfarmer.game.leleleling.site/legal.html?doc=1&lang=zh",
+      "en": "https://happyfarmer.game.leleleling.site/legal.html?doc=1&lang=en"
+    },
+    "privacy": {
+      "zh": "https://happyfarmer.game.leleleling.site/legal.html?doc=2&lang=zh",
+      "en": "https://happyfarmer.game.leleleling.site/legal.html?doc=2&lang=en"
+    },
+    "terms": {
+      "zh": "https://happyfarmer.game.leleleling.site/legal.html?doc=3&lang=zh",
+      "en": "https://happyfarmer.game.leleleling.site/legal.html?doc=3&lang=en"
+    }
   }
 }

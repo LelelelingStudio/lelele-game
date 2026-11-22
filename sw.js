@@ -1,6 +1,11 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.29 (爱种地农民 v1.0.10) —— id=1 游戏链接迁至 https://happyfarmer.game.leleleling.site；
+ *   三类协议改为中英双语直链 {zh,en}（doc=1 用户协议 / doc=2 隐私 / doc=3 条款），
+ *   game.html 与 play.html 的 safeLegalUrl() 支持 {zh,en} 对象按当前语言取值；详情加
+ *   v1.0.10 更新日志。字节变升版本清缓存。
+ *
  * ★ v1.28 (排行榜事件改 id + 兼容旧名) —— 游玩埋点从 play-game_<名称> 改为
  *   play-game_<id>（common.js/index.js/game.html 三处），改名不再切断历史统计。
  *   index.js 归集查找表注册 lelegame_data.json 的 previousNames 旧名别名，旧名事件
@@ -149,7 +154,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.28';
+const CACHE_NAME = 'lelele-pwa-v1.29';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。
