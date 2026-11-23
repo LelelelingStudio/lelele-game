@@ -63,5 +63,7 @@
       "zh": "https://happyfarmer.game.leleleling.site/legal.html?doc=3&lang=zh",
       "en": "https://happyfarmer.game.leleleling.site/legal.html?doc=3&lang=en"
     }
-  }
+  },
+  "cover": "https://happyfarmer.game.leleleling.site/happyfarmer.lsfp",
+  "coverFallback": true
 }

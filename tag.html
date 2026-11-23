@@ -90,26 +90,16 @@
             var cover = (typeof g.cover === 'string' && /^https?:\/\//i.test(g.cover.trim())) ? g.cover.trim() : '';
             if (!cover) return '<span class="tag-game-icon cover-media"><span class="cover-emoji">' + icon + '</span></span>';
             var isLsfp = /\.lsfp(?=[?#]|$)/i.test(cover);
+            var allowFb = g.coverFallback ? ' data-cover-fallback="1"' : '';
             var attr = isLsfp
-                ? 'data-cover-lsfp="' + esc(cover) + '" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"'
+                ? 'data-cover-lsfp="' + esc(cover) + '"' + allowFb + ' src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"'
                 : 'src="' + esc(cover) + '"';
             return '<span class="tag-game-icon cover-media"><span class="cover-emoji">' + icon + '</span><img class="cover-img" ' + attr + ' alt="" loading="lazy" onerror="this.style.display=\'none\'"></span>';
         }
         function hydrateCovers(root) {
-            var list = (root || document).querySelectorAll ? (root || document).querySelectorAll('img[data-cover-lsfp]') : [];
-            Array.prototype.forEach.call(list, function (img) {
-                if (img.dataset.coverDone) return;
-                img.dataset.coverDone = '1';
-                var url = img.getAttribute('data-cover-lsfp');
-                if (!window.LeleleLsfp || typeof window.LeleleLsfp.resolve !== 'function') { img.style.display = 'none'; return; }
-                window.LeleleLsfp.resolve(url).then(function (finalUrl) {
-                    if (!/^(blob:|data:)/i.test(String(finalUrl || ''))) { img.style.display = 'none'; return; }
-                    img.removeAttribute('data-cover-lsfp');
-                    img.onload = function () { img.style.display = ''; };
-                    img.onerror = function () { img.style.display = 'none'; };
-                    img.src = finalUrl;
-                }).catch(function () { img.style.display = 'none'; });
-            });
+            if (window.LeleleLsfp && typeof window.LeleleLsfp.hydrateGameCovers === 'function') {
+                window.LeleleLsfp.hydrateGameCovers(root || document);
+            }
         }
         var params = new URLSearchParams(window.location.search);
         var tag = (params.get('tag') || '').trim().slice(0, 40);

@@ -39,5 +39,7 @@
       "Casual",
       "Local"
     ]
-  }
+  },
+  "cover": "https://happyfarmer.game.leleleling.site/happyfarmer.lsfp",
+  "coverFallback": true
 }

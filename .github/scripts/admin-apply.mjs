@@ -66,6 +66,8 @@ function gameListItem(data, existing) {
   };
   const cover = data.cover || (existing && existing.cover);
   if (cover) item.cover = cover;
+  // 内部特例：id 1/2 的封面允许 lsfp 失败回退旧图（不暴露到投稿表单，更新时保留）
+  if (data.id === 1 || data.id === 2 || (existing && existing.coverFallback)) item.coverFallback = true;
   return item;
 }
 function gameDetail(data, existing) {
@@ -77,6 +79,7 @@ function gameDetail(data, existing) {
     version: data.version || (existing && existing.version) || 'v1.0.0',
     author: String(data.author), url: data.url,
     cover: data.cover || (existing && existing.cover) || '',
+    ...((data.id === 1 || data.id === 2 || (existing && existing.coverFallback)) ? { coverFallback: true } : {}),
     banner: data.banner || '', screenshots: data.screenshots || [],
     videos: data.videos || [], description_zh: data.description_zh || '',
     description_en: data.description_en || '', updateLog_zh: data.updateLog_zh || [],

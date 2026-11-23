@@ -345,31 +345,18 @@ function coverMediaHtml(g, cls) {
     const cover = (typeof g.cover === 'string' && /^https?:\/\//i.test(g.cover.trim())) ? g.cover.trim() : '';
     if (!cover) return `<span class="${cls}"><span class="cover-emoji">${icon}</span></span>`;
     const isLsfp = /\.lsfp(?=[?#]|$)/i.test(cover);
-    // lsfp：先透明占位，交给 hydrateCovers 走适配层解码（失败隐藏 img 露 emoji）；普通图：原生 onerror
+    const allowFb = g.coverFallback ? ' data-cover-fallback="1"' : '';
+    // lsfp：先透明占位，交给适配层解码（默认失败露 emoji，coverFallback 时允许回退旧图）；普通图：原生 onerror
     const attr = isLsfp
-        ? `data-cover-lsfp="${escapeHtml(cover)}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"`
+        ? `data-cover-lsfp="${escapeHtml(cover)}"${allowFb} src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"`
         : `src="${escapeHtml(cover)}"`;
     return `<span class="${cls}"><span class="cover-emoji">${icon}</span><img class="cover-img" ${attr} alt="" loading="lazy" onerror="this.style.display='none'"></span>`;
 }
-// 解码所有 data-cover-lsfp 图片：成功显示，失败隐藏露 emoji（不回退 .png）
+// 统一走适配层：解码成功显示；太慢/失败露 emoji；仅 coverFallback 允许回退旧图
 function hydrateCovers(root) {
-    const scope = root || document;
-    const list = scope.querySelectorAll ? scope.querySelectorAll('img[data-cover-lsfp]') : [];
-    list.forEach(img => {
-        if (img.dataset.coverDone) return;
-        img.dataset.coverDone = '1';
-        const url = img.getAttribute('data-cover-lsfp');
-        if (!window.LeleleLsfp || typeof window.LeleleLsfp.resolve !== 'function') { img.style.display = 'none'; return; }
-        // resolve() 内部失败会自己回退旧图——这里不用它，直接走“仅解码”路径：解码失败即隐藏
-        window.LeleleLsfp.resolve(url).then(finalUrl => {
-            // 只有解码产物（blob:/data:）才算成功；resolve 失败会返回 http 的 .png 旧图——不采用，露 emoji
-            if (!/^(blob:|data:)/i.test(String(finalUrl || ''))) { img.style.display = 'none'; return; }
-            img.removeAttribute('data-cover-lsfp');
-            img.onload = () => { img.style.display = ''; };
-            img.onerror = () => { img.style.display = 'none'; };
-            img.src = finalUrl;
-        }).catch(() => { img.style.display = 'none'; });
-    });
+    if (window.LeleleLsfp && typeof window.LeleleLsfp.hydrateGameCovers === 'function') {
+        window.LeleleLsfp.hydrateGameCovers(root || document);
+    }
 }
 
 // 横排卡片通用 HTML（继续玩/想玩/冷门宝藏/猜你喜欢共用一套视觉）

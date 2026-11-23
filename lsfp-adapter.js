@@ -294,6 +294,42 @@
         });
     }
 
+    // ===== 游戏封面专用：img[data-cover-lsfp]，带超时与可选 png 回退 =====
+    // - 成功解码（blob:/data:）→ 显示图片
+    // - 解码失败：默认露 emoji；若 data-cover-fallback="1"（如 id1/id2）→ 接受 resolve 的 http 旧图
+    // - 超过 COVER_TIMEOUT_MS 仍未完成 → 直接露 emoji（太慢不等）
+    var COVER_TIMEOUT_MS = 2500;
+    function hydrateGameCovers(root) {
+        var scope = root || document;
+        if (!scope || !scope.querySelectorAll) return;
+        var list = scope.querySelectorAll('img[data-cover-lsfp]');
+        Array.prototype.forEach.call(list, function (img) {
+            if (img.getAttribute('data-cover-done')) return;
+            img.setAttribute('data-cover-done', '1');
+            var url = img.getAttribute('data-cover-lsfp');
+            var allowFallback = img.getAttribute('data-cover-fallback') === '1';
+            var settled = false;
+            function fail() { if (settled) return; settled = true; img.style.display = 'none'; }
+            function ok(finalUrl) {
+                if (settled) return;
+                settled = true;
+                img.removeAttribute('data-cover-lsfp');
+                img.onload = function () { img.style.display = ''; };
+                img.onerror = fail;
+                img.src = finalUrl;
+            }
+            var timer = setTimeout(fail, COVER_TIMEOUT_MS); // 太慢 → 露 emoji
+            if (!url || typeof resolve !== 'function') { clearTimeout(timer); fail(); return; }
+            resolve(url).then(function (finalUrl) {
+                clearTimeout(timer);
+                var u = String(finalUrl || '');
+                if (/^(blob:|data:)/i.test(u)) { ok(u); return; }                    // 解码成功
+                if (allowFallback && /^https?:\/\//i.test(u)) { ok(u); return; }     // 特例：允许 png 回退
+                fail();
+            }).catch(function () { clearTimeout(timer); fail(); });
+        });
+    }
+
     function dispose() {
         blobUrls.forEach(function (u) {
             try { URL.revokeObjectURL(u); } catch (e) { /* noop */ }
@@ -306,6 +342,7 @@
     window.LeleleLsfp = {
         resolve: resolve,
         hydrate: hydrate,
+        hydrateGameCovers: hydrateGameCovers,
         fallbackOf: fallbackOf,
         dispose: dispose
     };

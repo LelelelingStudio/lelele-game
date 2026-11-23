@@ -20,7 +20,9 @@
         "Casual",
         "Local"
       ]
-    }
+    },
+    "cover": "https://happyfarmer.game.leleleling.site/happyfarmer.lsfp",
+    "coverFallback": true
   },
   {
     "id": 2,
@@ -43,7 +45,9 @@
         "Casual",
         "Local"
       ]
-    }
+    },
+    "cover": "https://happyfarmer.game.leleleling.site/happyfarmer.lsfp",
+    "coverFallback": true
   },
   {
     "id": 3,
