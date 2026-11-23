@@ -22,6 +22,7 @@
         })();
     </script>
     <script src="/boot.js"></script>
+    <script src="/lsfp-adapter.js" defer></script>
     <link rel="stylesheet" href="/common.css">
     <style>
         .tag-wrap { max-width: 1080px; margin: 0 auto; padding: 28px 18px 60px; }
@@ -38,6 +39,8 @@
         .tag-game { position: relative; display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 20px 10px 16px; border-radius: 18px; border: 1px solid var(--card-border); background: var(--card-bg); text-decoration: none; color: var(--text-main); transition: transform .18s, box-shadow .18s, border-color .18s; }
         .tag-game:hover, .tag-game:focus-visible { transform: translateY(-4px); box-shadow: 0 12px 26px rgba(79,70,229,.14); border-color: var(--primary); outline: none; }
         .tag-game-icon { font-size: 2.1rem; }
+        .tag-game-icon.cover-media { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 2.2em; height: 2.2em; }
+        .tag-game-icon .cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
         .tag-game-name { font-size: .88rem; font-weight: 700; text-align: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .tag-game-cat { font-size: .7rem; color: var(--text-muted); }
         .tag-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
@@ -81,6 +84,33 @@
         function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
         function isEn() { return document.documentElement.getAttribute('data-lang') === 'en'; }
         function t(zh, en) { return isEn() ? en : zh; }
+        // 封面：有 cover 显示图（lsfp 解码失败露 emoji，不回退旧图），无则 emoji
+        function coverHtml(g) {
+            var icon = esc(g.icon || '🎮');
+            var cover = (typeof g.cover === 'string' && /^https?:\/\//i.test(g.cover.trim())) ? g.cover.trim() : '';
+            if (!cover) return '<span class="tag-game-icon cover-media"><span class="cover-emoji">' + icon + '</span></span>';
+            var isLsfp = /\.lsfp(?=[?#]|$)/i.test(cover);
+            var attr = isLsfp
+                ? 'data-cover-lsfp="' + esc(cover) + '" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"'
+                : 'src="' + esc(cover) + '"';
+            return '<span class="tag-game-icon cover-media"><span class="cover-emoji">' + icon + '</span><img class="cover-img" ' + attr + ' alt="" loading="lazy" onerror="this.style.display=\'none\'"></span>';
+        }
+        function hydrateCovers(root) {
+            var list = (root || document).querySelectorAll ? (root || document).querySelectorAll('img[data-cover-lsfp]') : [];
+            Array.prototype.forEach.call(list, function (img) {
+                if (img.dataset.coverDone) return;
+                img.dataset.coverDone = '1';
+                var url = img.getAttribute('data-cover-lsfp');
+                if (!window.LeleleLsfp || typeof window.LeleleLsfp.resolve !== 'function') { img.style.display = 'none'; return; }
+                window.LeleleLsfp.resolve(url).then(function (finalUrl) {
+                    if (!/^(blob:|data:)/i.test(String(finalUrl || ''))) { img.style.display = 'none'; return; }
+                    img.removeAttribute('data-cover-lsfp');
+                    img.onload = function () { img.style.display = ''; };
+                    img.onerror = function () { img.style.display = 'none'; };
+                    img.src = finalUrl;
+                }).catch(function () { img.style.display = 'none'; });
+            });
+        }
         var params = new URLSearchParams(window.location.search);
         var tag = (params.get('tag') || '').trim().slice(0, 40);
         var hero = document.getElementById('tagHero');
@@ -130,8 +160,9 @@
                     '<div class="tag-grid">' + matched.map(function (g) {
                         var name = esc(isEn() ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en));
                         var href = 'game.html?id=' + encodeURIComponent(g.id) + (isEn() ? '&lang=en' : '');
-                        return '<a class="tag-game" href="' + href + '"><span class="tag-game-icon">' + esc(g.icon || '🎮') + '</span><span class="tag-game-name">' + name + '</span><span class="tag-game-cat">' + catLabel(g) + '</span></a>';
+                        return '<a class="tag-game" href="' + href + '">' + coverHtml(g) + '<span class="tag-game-name">' + name + '</span><span class="tag-game-cat">' + catLabel(g) + '</span></a>';
                     }).join('') + '</div>';
+                    hydrateCovers(content);
             })
             .catch(function () { showEmpty([]); });
 

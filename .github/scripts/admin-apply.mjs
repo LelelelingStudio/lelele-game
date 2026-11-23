@@ -48,6 +48,7 @@ function validateGameCommon(data) {
   if (!authorIds().has(String(data.author))) fail('作者 id 不存在: ' + data.author);
   if (!isHttpsOrLocal(data.url)) fail('地址需 https 或站内路径');
   if (data.banner && !isHttpsOrLocal(data.banner)) fail('横幅地址非法');
+  if (data.cover && !/^https:\/\//i.test(data.cover)) fail('封面地址需 https');
   (data.screenshots || []).forEach(s => { if (!isHttpsOrLocal(s)) fail('截图地址非法: ' + s); });
   (data.videos || []).forEach(s => { if (!/^https:\/\//i.test(s)) fail('视频需 https 直链: ' + s); });
   ['eula', 'privacy', 'terms'].forEach(k => {
@@ -56,13 +57,16 @@ function validateGameCommon(data) {
   checkPrivacy(data, 'data');
 }
 
-function gameListItem(data) {
-  return {
+function gameListItem(data, existing) {
+  const item = {
     id: data.id, name_zh: data.name_zh, name_en: data.name_en, icon: data.icon || '🎮',
     category_zh: data.category_zh, category_en: data.category_en, type: data.type,
     ageRating_zh: data.ageRating_zh, ageRating_en: data.ageRating_en,
     author: String(data.author), url: data.url
   };
+  const cover = data.cover || (existing && existing.cover);
+  if (cover) item.cover = cover;
+  return item;
 }
 function gameDetail(data, existing) {
   const a = loadAuthors().find(x => String(x.id) === String(data.author));
@@ -72,6 +76,7 @@ function gameDetail(data, existing) {
     ageRating_zh: data.ageRating_zh, ageRating_en: data.ageRating_en,
     version: data.version || (existing && existing.version) || 'v1.0.0',
     author: String(data.author), url: data.url,
+    cover: data.cover || (existing && existing.cover) || '',
     banner: data.banner || '', screenshots: data.screenshots || [],
     videos: data.videos || [], description_zh: data.description_zh || '',
     description_en: data.description_en || '', updateLog_zh: data.updateLog_zh || [],
@@ -103,7 +108,7 @@ export function genUpdateGame(data) {
   const arr = readJson(p);
   const idx = arr.findIndex(g => g.id === data.id);
   if (idx < 0) fail('主列表无 id ' + data.id);
-  arr[idx] = gameListItem(data);
+  arr[idx] = gameListItem(data, arr[idx]);
   writeJson(p, arr);
   writeJson(dp, gameDetail(data, existing));
   return { files: [p, dp], summary: `更新游戏 id=${data.id}《${data.name_zh}》` };

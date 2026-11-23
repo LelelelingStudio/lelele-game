@@ -338,6 +338,40 @@ async function loadGames() {
     if (typeof window.renderGems === 'function') window.renderGems();
 }
 
+// ===== 游戏封面（可选字段 cover；lsfp 解不出就露 emoji，不回退旧图）=====
+// 生成"<容器>: emoji 兜底 + 可选 img"，img 加载/解码失败时 onerror 隐藏自己露出 emoji。
+function coverMediaHtml(g, cls) {
+    const icon = escapeHtml(g.icon || '🎮');
+    const cover = (typeof g.cover === 'string' && /^https?:\/\//i.test(g.cover.trim())) ? g.cover.trim() : '';
+    if (!cover) return `<span class="${cls}"><span class="cover-emoji">${icon}</span></span>`;
+    const isLsfp = /\.lsfp(?=[?#]|$)/i.test(cover);
+    // lsfp：先透明占位，交给 hydrateCovers 走适配层解码（失败隐藏 img 露 emoji）；普通图：原生 onerror
+    const attr = isLsfp
+        ? `data-cover-lsfp="${escapeHtml(cover)}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"`
+        : `src="${escapeHtml(cover)}"`;
+    return `<span class="${cls}"><span class="cover-emoji">${icon}</span><img class="cover-img" ${attr} alt="" loading="lazy" onerror="this.style.display='none'"></span>`;
+}
+// 解码所有 data-cover-lsfp 图片：成功显示，失败隐藏露 emoji（不回退 .png）
+function hydrateCovers(root) {
+    const scope = root || document;
+    const list = scope.querySelectorAll ? scope.querySelectorAll('img[data-cover-lsfp]') : [];
+    list.forEach(img => {
+        if (img.dataset.coverDone) return;
+        img.dataset.coverDone = '1';
+        const url = img.getAttribute('data-cover-lsfp');
+        if (!window.LeleleLsfp || typeof window.LeleleLsfp.resolve !== 'function') { img.style.display = 'none'; return; }
+        // resolve() 内部失败会自己回退旧图——这里不用它，直接走“仅解码”路径：解码失败即隐藏
+        window.LeleleLsfp.resolve(url).then(finalUrl => {
+            // 只有解码产物（blob:/data:）才算成功；resolve 失败会返回 http 的 .png 旧图——不采用，露 emoji
+            if (!/^(blob:|data:)/i.test(String(finalUrl || ''))) { img.style.display = 'none'; return; }
+            img.removeAttribute('data-cover-lsfp');
+            img.onload = () => { img.style.display = ''; };
+            img.onerror = () => { img.style.display = 'none'; };
+            img.src = finalUrl;
+        }).catch(() => { img.style.display = 'none'; });
+    });
+}
+
 // 横排卡片通用 HTML（继续玩/想玩/冷门宝藏/猜你喜欢共用一套视觉）
 function stripCardHtml(g, isEn, badge) {
     const name = escapeHtml(isEn ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en));
@@ -346,7 +380,7 @@ function stripCardHtml(g, isEn, badge) {
     const tagHtml = tags.map(t => `<span class="for-you-tag">${escapeHtml(t)}</span>`).join('');
     return `<a class="for-you-card" href="game.html?id=${encodeURIComponent(g.id)}">
         ${badge ? `<span class="strip-badge">${escapeHtml(badge)}</span>` : ''}
-        <span class="for-you-icon">${escapeHtml(g.icon || '🎮')}</span>
+        ${coverMediaHtml(g, 'cover-media')}
         <span class="for-you-name">${name}</span>
         <span class="for-you-author">${author}</span>
         <span class="for-you-tags">${tagHtml}</span>
@@ -358,6 +392,7 @@ function renderStrip(rowId, trackId, items, limit) {
     if (!items || !items.length) { row.hidden = true; return; }
     const isEn = document.documentElement.getAttribute('data-lang') === 'en';
     track.innerHTML = items.slice(0, limit || 8).map(g => stripCardHtml(g, isEn)).join('');
+    hydrateCovers(track);
     row.hidden = false;
 }
 window.renderForYou = function renderForYou() {
@@ -614,9 +649,11 @@ function renderGameCard(item, isEn, showAuthor) {
     card.className = 'game-card';
     card.setAttribute('tabindex', '0');
     const marked = isWatchlisted(g.id);
+    // 分类 emoji 兜底放进临时字段，供 coverMediaHtml 无封面时使用
+    const iconG = Object.assign({}, g, { icon: g.icon || fallbackIcon });
     card.innerHTML = `
         <button type="button" class="card-watch${marked ? ' marked' : ''}" data-watch-id="${escapeHtml(g.id)}" aria-label="${marked ? '移出想玩清单' : '加入想玩清单'}" title="${marked ? '移出想玩清单' : '加入想玩清单'}">${marked ? '🔖' : '📌'}</button>
-        <div class="game-icon">${escapeHtml(g.icon || fallbackIcon)}</div>
+        ${coverMediaHtml(iconG, 'game-icon game-icon-cover')}
         <div class="game-name">${finalHtmlName}</div>
         ${authorHtml}
     `;
@@ -636,6 +673,7 @@ function renderGameCard(item, isEn, showAuthor) {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showPreview(g); }
     };
     grid.appendChild(card);
+    hydrateCovers(card);
 }
 
 function renderAuthorCard(authorResult, isEn) {

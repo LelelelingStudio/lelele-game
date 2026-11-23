@@ -1,6 +1,11 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.31 —— 游戏封面：主数据/详情新增可选 cover 字段，首页游戏卡与四条横排、tag.html、
+ *   game.html 类似游戏卡片均支持封面（PNG/JPG/WEBP 直显，LSFP 解码失败露 emoji 不回退旧图）。
+ *   admin 控制台 / admin-apply.mjs / GAME_ENTRY_TEMPLATE.md 同步 cover；预缓存内 index.js/
+ *   common.css/game.html 字节已改，故升版清旧缓存。
+ *
  * ★ v1.30 (4.5.0) —— 新增本地功能（继续玩/想玩清单/手气不错/个人统计/标签专题页 tag.html）、
  *   冷门宝藏榜与作者贡献榜、SDK 扩展（submitRating/getLeaderboard/getPlayerName/isInPlatform/
  *   nextGame/shareScore/openDetail）+ play.html 分发、成绩分享页 share.html、SDK 文档 sdk-docs.html。
@@ -160,7 +165,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.30';
+const CACHE_NAME = 'lelele-pwa-v1.31';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。

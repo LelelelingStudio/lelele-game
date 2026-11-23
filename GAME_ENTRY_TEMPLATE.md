@@ -23,6 +23,7 @@
   "name_zh": "中文名",
   "name_en": "English Name",
   "icon": "🎮",
+  "cover": "",
   "category_zh": "休闲",
   "category_en": "Casual",
   "type": "external",
@@ -42,6 +43,7 @@
 | `name_zh` | ✅ | string | 中文名 |
 | `name_en` | ✅ | string | 英文名 |
 | `icon` | ✅ | string | 单个 emoji |
+| `cover` | 可选 | string | 封面图 URL（首页卡片/推荐位显示）；正方形 512×512，最大 1024×1024、≤2MB；支持 PNG/JPG/WEBP/LSFP，**推荐 LSFP**（转换器 https://lsfp.leleleling.site）。不填显示 emoji；LSFP 解码失败显示 emoji、不回退旧图。由投稿表单「游戏封面（选填）」提供 |
 | `category_zh` | ✅ | string | 见下方分类表 |
 | `category_en` | ✅ | string | 见下方分类表 |
 | `type` | ✅ | string | `external`（外网）/ `local`（本地）/ `internal`（站内）；主列表与详情一致 |
@@ -74,6 +76,7 @@
   "name_zh": "中文名",
   "name_en": "English Name",
   "icon": "🎮",
+  "cover": "",
   "category_zh": "休闲",
   "category_en": "Casual",
   "type": "external",
@@ -114,6 +117,7 @@
 | 字段 | 必填 | 类型 | 说明 |
 |---|---|---|---|
 | `version` | ✅ | string | 形如 `v1.0.0` |
+| `cover` | 可选 | string | 封面图 URL（与主列表 `cover` 保持一致）；规格见文件一，推荐 LSFP、解码失败露 emoji 不回退旧图 |
 | `banner` | 推荐 | string | 横幅：图片 URL，或视频直链；**支持 `.lsfp` 复合后缀**（旧图保留才能回退） |
 | `screenshots` | 推荐 | string[] | 截图 URL 数组，可图片可视频；**支持 `.lsfp`** |
 | `videos` | 可选 | string[] | 额外视频链接数组 |

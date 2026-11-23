@@ -349,6 +349,7 @@
       body.innerHTML =
         duo("g-name-zh","g-name-en","名称（中文）","名称（英文）","","") +
         field("g-icon","图标 Emoji",{val:"🎮",ph:"🎮"}) +
+        field("g-cover","封面图 URL（选填）",{ph:"https://…（.png/.jpg/.webp/.lsfp，推荐 512×512）",hint:"不填显示 emoji；.lsfp 解码失败显示 emoji，不回退旧图"}) +
         `<div class="field-row">
           ${select("g-cat-zh","分类", CATEGORIES.map(([z,e])=>`<option value="${escapeHtml(e)}">${escapeHtml(z+" / "+e)}</option>`).join(""),"Casual")}
           ${select("g-age-zh","适龄", AGES.map(([z,e])=>`<option value="${escapeHtml(e)}">${escapeHtml(z+" / "+e)}</option>`).join(""),"All Ages")}
@@ -479,6 +480,7 @@
       f.innerHTML =
         duo("g-name-zh","g-name-en","名称（中文）","名称（英文）",d.name_zh,d.name_en) +
         field("g-icon","图标 Emoji",{val:d.icon||"🎮"}) +
+        field("g-cover","封面图 URL（选填）",{val:d.cover||"",ph:"https://…（.png/.jpg/.webp/.lsfp）",hint:"不填显示 emoji；.lsfp 解码失败显示 emoji，不回退旧图"}) +
         `<div class="field-row">
           ${select("g-cat-zh","分类", CATEGORIES.map(([z,e])=>`<option value="${escapeHtml(e)}" ${e===catEn?"selected":""}>${escapeHtml(z+" / "+e)}</option>`).join(""),catEn)}
           ${select("g-age-zh","适龄", AGES.map(([z,e])=>`<option value="${escapeHtml(e)}" ${e===ageEn?"selected":""}>${escapeHtml(z+" / "+e)}</option>`).join(""),ageEn)}
@@ -550,6 +552,7 @@
     }
     const data = {
       name_zh:val("g-name-zh"), name_en:val("g-name-en"), icon:val("g-icon")||"🎮",
+      cover:val("g-cover")||"",
       category_zh:catZh(val("g-cat-zh")), category_en:val("g-cat-zh"),
       ageRating_zh:ageZh(val("g-age-zh")), ageRating_en:val("g-age-zh"),
       type:val("g-type"), author:String(val("g-author")), url:val("g-url"),

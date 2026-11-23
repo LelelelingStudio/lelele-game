@@ -452,6 +452,8 @@
         .similar-card { position: relative; flex: 0 0 116px; scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 18px 8px 12px; border-radius: 14px; border: 1px solid var(--card-border); background: var(--card-bg); text-decoration: none; color: var(--text-main); transition: transform .18s, box-shadow .18s; }
         .similar-card:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(79,70,229,.14); }
         .similar-icon { font-size: 1.8rem; }
+        .similar-icon.cover-media { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 2em; height: 2em; }
+        .similar-icon .cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
         .similar-name { font-size: .82rem; font-weight: 700; text-align: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .similar-badge { position: absolute; top: 5px; right: 5px; font-size: .62rem; font-weight: 700; padding: 2px 6px; border-radius: 999px; background: rgba(79,70,229,.12); color: var(--primary, #4f46e5); }
         /* 更新日志：默认折叠 */
@@ -599,6 +601,33 @@
             return String(str)
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+        // 封面（可选 cover）：lsfp 解码失败露 emoji，不回退旧图
+        function coverHtml(g) {
+            var icon = escapeHtml(g.icon || '🎮');
+            var cover = (typeof g.cover === 'string' && /^https?:\/\//i.test(g.cover.trim())) ? g.cover.trim() : '';
+            if (!cover) return '<span class="similar-icon cover-media"><span class="cover-emoji">' + icon + '</span></span>';
+            var isLsfp = /\.lsfp(?=[?#]|$)/i.test(cover);
+            var attr = isLsfp
+                ? 'data-cover-lsfp="' + escapeHtml(cover) + '" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"'
+                : 'src="' + escapeHtml(cover) + '"';
+            return '<span class="similar-icon cover-media"><span class="cover-emoji">' + icon + '</span><img class="cover-img" ' + attr + ' alt="" loading="lazy" onerror="this.style.display=\'none\'"></span>';
+        }
+        function hydrateCovers(root) {
+            var list = (root || document).querySelectorAll ? (root || document).querySelectorAll('img[data-cover-lsfp]') : [];
+            Array.prototype.forEach.call(list, function (img) {
+                if (img.dataset.coverDone) return;
+                img.dataset.coverDone = '1';
+                var url = img.getAttribute('data-cover-lsfp');
+                if (!window.LeleleLsfp || typeof window.LeleleLsfp.resolve !== 'function') { img.style.display = 'none'; return; }
+                window.LeleleLsfp.resolve(url).then(function (finalUrl) {
+                    if (!/^(blob:|data:)/i.test(String(finalUrl || ''))) { img.style.display = 'none'; return; }
+                    img.removeAttribute('data-cover-lsfp');
+                    img.onload = function () { img.style.display = ''; };
+                    img.onerror = function () { img.style.display = 'none'; };
+                    img.src = finalUrl;
+                }).catch(function () { img.style.display = 'none'; });
+            });
         }
 
         let currentGameId = null;
@@ -1298,8 +1327,9 @@
                 grid.innerHTML = scored.map(({ g, reason }) => {
                     const name = escapeHtml((isEn ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en)) || g.name || '');
                     const badge = reason && REASON[reason] ? `<span class="similar-badge">${REASON[reason][isEn ? 1 : 0]}</span>` : '';
-                    return `<a class="similar-card" href="game.html?id=${encodeURIComponent(g.id)}">${badge}<span class="similar-icon">${escapeHtml(g.icon || '🎮')}</span><span class="similar-name">${name}</span></a>`;
+                    return `<a class="similar-card" href="game.html?id=${encodeURIComponent(g.id)}">${badge}${coverHtml(g)}<span class="similar-name">${name}</span></a>`;
                 }).join('');
+                hydrateCovers(grid);
                 box.style.display = 'block';
             })();
 
