@@ -39,5 +39,7 @@
       "Casual",
       "Local"
     ]
-  }
+  },
+  "cover": "https://gamepic.surge.sh/happycornfarmer1.lsfp",
+  "coverFallback": true
 }

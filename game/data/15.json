@@ -42,5 +42,7 @@
       "Adventure",
       "Local"
     ]
-  }
+  },
+  "cover": "https://gamepic.surge.sh/starseed1.lsfp",
+  "coverFallback": true
 }

@@ -41,5 +41,7 @@
       "Local",
       "12+"
     ]
-  }
+  },
+  "cover": "https://gamepic.surge.sh/spaceshooting1.lsfp",
+  "coverFallback": true
 }

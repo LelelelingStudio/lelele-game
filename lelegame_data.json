@@ -72,7 +72,9 @@
         "Local",
         "12+"
       ]
-    }
+    },
+    "cover": "https://gamepic.surge.sh/3dshooter1.lsfp",
+    "coverFallback": true
   },
   {
     "id": 4,
@@ -95,7 +97,9 @@
         "Puzzle",
         "Local"
       ]
-    }
+    },
+    "cover": "https://gamepic.surge.sh/minesweeper1.lsfp",
+    "coverFallback": true
   },
   {
     "id": 5,
@@ -118,7 +122,9 @@
         "Casual",
         "Local"
       ]
-    }
+    },
+    "cover": "https://gamepic.surge.sh/happycornfarmer1.lsfp",
+    "coverFallback": true
   },
   {
     "id": 6,
@@ -141,7 +147,9 @@
         "Adventure",
         "Local"
       ]
-    }
+    },
+    "cover": "https://gamepic.surge.sh/leveleateateat1.lsfp",
+    "coverFallback": true
   },
   {
     "id": 7,
@@ -187,7 +195,9 @@
         "Casual",
         "Local"
       ]
-    }
+    },
+    "cover": "https://gamepic.surge.sh/clickbanana1.lsfp",
+    "coverFallback": true
   },
   {
     "id": 9,
@@ -212,7 +222,9 @@
         "Local",
         "12+"
       ]
-    }
+    },
+    "cover": "https://gamepic.surge.sh/spaceshooting1.lsfp",
+    "coverFallback": true
   },
   {
     "id": 10,
@@ -235,7 +247,9 @@
         "Adventure",
         "Local"
       ]
-    }
+    },
+    "cover": "https://gamepic.surge.sh/universalevolution1.lsfp",
+    "coverFallback": true
   },
   {
     "id": 11,
@@ -258,7 +272,9 @@
         "Casual",
         "Local"
       ]
-    }
+    },
+    "cover": "https://gamepic.surge.sh/planeteater1.lsfp",
+    "coverFallback": true
   },
   {
     "id": 12,
@@ -355,7 +371,9 @@
         "Adventure",
         "Local"
       ]
-    }
+    },
+    "cover": "https://gamepic.surge.sh/starseed1.lsfp",
+    "coverFallback": true
   },
   {
     "id": 16,
@@ -626,7 +644,9 @@
         "Internal",
         "6+"
       ]
-    }
+    },
+    "cover": "https://gamepic.surge.sh/lelelegamesmallparkour1.lsfp",
+    "coverFallback": true
   },
   {
     "id": 27,
@@ -960,7 +980,9 @@
     "ageRating_zh": "12+",
     "ageRating_en": "12+",
     "author": "1",
-    "url": "https://shooty1.surge.sh"
+    "url": "https://shooty1.surge.sh",
+    "cover": "https://gamepic.surge.sh/lelelegamechinesesaltline1.lsfp",
+    "coverFallback": true
   },
   {
     "id": 42,

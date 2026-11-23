@@ -39,5 +39,7 @@
       "Puzzle",
       "Local"
     ]
-  }
+  },
+  "cover": "https://gamepic.surge.sh/minesweeper1.lsfp",
+  "coverFallback": true
 }

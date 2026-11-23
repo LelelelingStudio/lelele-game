@@ -41,5 +41,7 @@
       "Local",
       "12+"
     ]
-  }
+  },
+  "cover": "https://gamepic.surge.sh/3dshooter1.lsfp",
+  "coverFallback": true
 }

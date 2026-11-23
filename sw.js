@@ -1,6 +1,11 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.33 —— 详情页修复与分享：① 修复「更多类似游戏」推荐区不显示（loadSimilarGames 从 onReady
+ *   的空跑 IIFE 改为 renderGamePage 就绪后调用）；② 游戏标题防挤压换行、作者栏徽章 flex-wrap；
+ *   ③ 新增统一分享弹窗（复制/X/Instagram/Facebook/邮箱/系统分享）；④ 11 款工作室游戏写入
+ *   gamepic.surge.sh 封面（lsfp→png→emoji 三级回退）。改了预缓存内 game.html 字节，故升版。
+ *
  * ★ v1.32 —— 图标位升级：id=1/2 共用 happyfarmer.lsfp 封面（coverFallback 特例允许回退 png）；
  *   lsfp-adapter.js 新增 hydrateGameCovers()，统一封面解码：成功显示、太慢(2.5s)/失败露 emoji、
  *   仅 coverFallback 接受旧图回退。三个页面封面渲染改走该入口；admin-apply 保留 coverFallback。
@@ -169,7 +174,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.32';
+const CACHE_NAME = 'lelele-pwa-v1.33';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。

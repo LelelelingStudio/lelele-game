@@ -39,5 +39,7 @@
       "Adventure",
       "Local"
     ]
-  }
+  },
+  "cover": "https://gamepic.surge.sh/universalevolution1.lsfp",
+  "coverFallback": true
 }

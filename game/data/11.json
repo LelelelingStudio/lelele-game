@@ -39,5 +39,7 @@
       "Casual",
       "Local"
     ]
-  }
+  },
+  "cover": "https://gamepic.surge.sh/planeteater1.lsfp",
+  "coverFallback": true
 }

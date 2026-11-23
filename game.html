@@ -172,13 +172,16 @@
             margin-bottom: 30px;
             flex-wrap: wrap;
         }
-        .title-group { flex: 1; min-width: 250px; }
+        .title-group { flex: 1 1 320px; min-width: 0; }
         .game-title {
             font-size: 2.2rem;
             font-weight: 800;
             color: var(--text-main);
             margin-bottom: 12px;
             line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .meta-tags { display: flex; gap: 10px; flex-wrap: wrap; }
         .tag {
@@ -205,11 +208,15 @@
         .btn-fav:hover { background: rgba(148,163,184,0.2); }
         .btn-fav.active { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
         .btn-fav.active:hover { background: #fde68a; }
+        .btn-share { background: rgba(79,70,229,.1); color: var(--primary); padding: 14px 20px; box-shadow: none; }
+        .btn-share:hover { background: rgba(79,70,229,.18); transform: translateY(-2px); }
 
         .author-bar {
-            display: flex; align-items: center; gap: 8px; font-size: 0.95rem; color: var(--text-muted);
+            display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; font-size: 0.95rem; color: var(--text-muted);
             margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--card-border);
         }
+        .author-bar .author-badges { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+        .action-buttons { flex-wrap: wrap; }
         .author-link {
             color: var(--primary); text-decoration: none; font-weight: 700;
             transition: opacity 0.2s;
@@ -219,6 +226,27 @@
         .author-follow { display: inline-flex; align-items: center; gap: 8px; margin-left: 4px; }
         .author-follow .follow-btn { font-size: 0.76rem; padding: 4px 11px; }
         .author-follow .follow-count { font-size: 0.75rem; }
+
+        /* 统一分享弹窗 */
+        .share-modal { border: none; border-radius: 18px; padding: 0; width: min(440px, 92vw); max-height: 90vh; background: var(--card-bg); color: var(--text-main); box-shadow: 0 24px 60px rgba(0,0,0,.28); }
+        .share-modal::backdrop { background: rgba(15,23,42,.55); }
+        .share-modal-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--card-border); }
+        .share-modal-head h3 { margin: 0; font-size: 1.1rem; font-weight: 800; }
+        .share-modal-close { border: none; background: transparent; font-size: 1.6rem; line-height: 1; color: var(--text-muted); cursor: pointer; padding: 0 4px; }
+        .share-modal-body { padding: 18px 22px 22px; }
+        .share-game-name { font-weight: 700; font-size: 1rem; margin-bottom: 14px; }
+        .share-link-label { display: block; font-size: .8rem; color: var(--text-muted); margin-bottom: 6px; }
+        .share-link-row { display: flex; gap: 8px; }
+        .share-link-row input { flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--card-border); border-radius: 10px; background: rgba(148,163,184,.08); color: var(--text-main); font-size: .82rem; font-family: inherit; }
+        .share-copy { padding: 10px 16px; border: none; border-radius: 10px; background: var(--primary); color: #fff; font-weight: 700; cursor: pointer; font-size: .85rem; }
+        .share-copy:hover { background: var(--primary-hover); }
+        .share-options { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 18px 0 12px; }
+        .share-opt { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 12px 4px; border-radius: 12px; border: 1px solid var(--card-border); background: var(--card-bg); color: var(--text-main); text-decoration: none; font-size: 1.2rem; cursor: pointer; transition: transform .18s, background .18s; }
+        .share-opt:hover { transform: translateY(-2px); background: rgba(79,70,229,.08); }
+        .share-opt span { font-size: .66rem; font-weight: 600; text-align: center; }
+        .share-note { font-size: .72rem; color: var(--text-muted); line-height: 1.5; margin: 0; }
+        @media (max-width: 480px) { .share-options { grid-template-columns: repeat(3, 1fr); } }
+        @media (prefers-reduced-motion: reduce) { .share-opt { transition: none; } }
 
         .section-title {
             font-size: 1.2rem; font-weight: 700; color: var(--text-main);
@@ -516,6 +544,9 @@
                     </div>
                     <div class="action-buttons">
                         <button class="btn btn-fav" id="favBtn" onclick="toggleFav()"></button>
+                        <button class="btn btn-share" id="shareBtn" onclick="openShare()" title="分享 / Share">
+                            <span class="zh-inline">🔗 分享</span><span class="en-inline">🔗 Share</span>
+                        </button>
                         <button class="btn btn-play" id="playBtn" onclick="playGame()">
                             <span class="zh-inline">🎮 开始游戏</span><span class="en-inline">🎮 Play Game</span>
                         </button>
@@ -585,6 +616,30 @@
         <video id="lightboxVideo" controls playsinline webkit-playsinline
                onclick="event.stopPropagation()" style="display:none;"></video>
     </div>
+
+    <!-- 统一分享弹窗：复制链接 / X / Instagram / Facebook / 邮箱 / 系统分享 -->
+    <dialog id="shareModal" class="share-modal" aria-label="Share game">
+        <div class="share-modal-head">
+            <h3>🔗 <span class="zh-inline">分享游戏</span><span class="en-inline">Share this game</span></h3>
+            <button type="button" class="share-modal-close" onclick="closeShare()" aria-label="Close">×</button>
+        </div>
+        <div class="share-modal-body">
+            <div class="share-game-name" id="shareGameName"></div>
+            <label class="share-link-label" for="shareLink"><span class="zh-inline">游戏链接</span><span class="en-inline">Game link</span></label>
+            <div class="share-link-row">
+                <input id="shareLink" type="text" readonly>
+                <button type="button" class="share-copy" onclick="copyShareLink()"><span class="zh-inline">复制</span><span class="en-inline">Copy</span></button>
+            </div>
+            <div class="share-options">
+                <a class="share-opt" id="shareX" href="#" target="_blank" rel="noopener noreferrer">𝕏 <span>X / Twitter</span></a>
+                <a class="share-opt" id="shareIG" href="#" target="_blank" rel="noopener noreferrer">📷 <span>Instagram</span></a>
+                <a class="share-opt" id="shareFB" href="#" target="_blank" rel="noopener noreferrer">f <span>Facebook</span></a>
+                <a class="share-opt" id="shareMail" href="#">✉️ <span class="zh-inline">邮箱</span><span class="en-inline">Email</span></a>
+                <button type="button" class="share-opt" id="shareNative" onclick="nativeShare()">📱 <span class="zh-inline">更多分享</span><span class="en-inline">More</span></button>
+            </div>
+            <p class="share-note"><span class="zh-inline">Instagram 不支持直接带链接发帖，点按后会在新标签打开，请复制链接粘贴到你的简介或 Story。</span><span class="en-inline">Instagram has no direct link-posting: it opens in a new tab — copy the link above and paste it into your bio or Story.</span></p>
+        </div>
+    </dialog>
 
     <script src="/common.js" defer></script>
     <script src="supabase-client.js" defer></script>
@@ -825,6 +880,57 @@
             window.location.href = '/play.html?id=' + encodeURIComponent(currentGameData.id) + '&lang=' + (isEn() ? 'en' : 'zh');
         };
 
+        // ===== 统一分享弹窗 =====
+        function shareContext() {
+            const g = currentGameData || {};
+            const name = isEn() ? (g.name_en || g.name_zh || '') : (g.name_zh || g.name_en || '');
+            // 分享链接指向当前游戏详情页（去掉其它 query，只留 id + lang），避免把临时参数带出去
+            const url = window.location.origin + '/game.html?id=' + encodeURIComponent(currentGameId || '') + '&lang=' + (isEn() ? 'en' : 'zh');
+            const text = (isEn() ? 'Check out this game on Lelele Game: ' : '我在了了了游发现一款游戏：') + name;
+            return { name, url, text };
+        }
+        window.openShare = function() {
+            const m = document.getElementById('shareModal');
+            if (!m) return;
+            const c = shareContext();
+            const nameEl = document.getElementById('shareGameName');
+            const linkEl = document.getElementById('shareLink');
+            if (nameEl) nameEl.textContent = c.name || (isEn() ? 'Game' : '游戏');
+            if (linkEl) linkEl.value = c.url;
+            const encUrl = encodeURIComponent(c.url), encText = encodeURIComponent(c.text);
+            const set = (id, href) => { const el = document.getElementById(id); if (el) { if (href) el.href = href; else el.removeAttribute('href'); } };
+            set('shareX', 'https://twitter.com/intent/tweet?url=' + encUrl + '&text=' + encText);
+            set('shareFB', 'https://www.facebook.com/sharer/sharer.php?u=' + encUrl);
+            set('shareMail', 'mailto:?subject=' + encodeURIComponent(c.name || (isEn() ? 'A game' : '一款游戏')) + '&body=' + encText + '%0A' + encUrl);
+            // Instagram 无直接带链接发帖能力：打开首页让用户粘贴刚复制的链接
+            set('shareIG', 'https://www.instagram.com/');
+            const native = document.getElementById('shareNative');
+            if (native) native.style.display = (navigator.share ? '' : 'none');
+            if (typeof m.showModal === 'function') m.showModal(); else m.setAttribute('open', '');
+        };
+        window.closeShare = function() {
+            const m = document.getElementById('shareModal');
+            if (!m) return;
+            if (typeof m.close === 'function') m.close(); else m.removeAttribute('open');
+        };
+        window.copyShareLink = function() {
+            const linkEl = document.getElementById('shareLink');
+            if (!linkEl) return;
+            const done = () => { if (window.toast) window.toast(isEn() ? 'Link copied' : '链接已复制'); };
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(linkEl.value).then(done).catch(() => { linkEl.select(); document.execCommand && document.execCommand('copy'); done(); });
+            } else { linkEl.select(); document.execCommand && document.execCommand('copy'); done(); }
+        };
+        window.nativeShare = function() {
+            const c = shareContext();
+            if (navigator.share) navigator.share({ title: c.name || 'Lelele Game', text: c.text, url: c.url }).catch(() => {});
+        };
+        // 点弹窗背景关闭（点内部不关）
+        document.addEventListener('DOMContentLoaded', () => {
+            const m = document.getElementById('shareModal');
+            if (m) m.addEventListener('click', (e) => { if (e.target === m) closeShare(); });
+        });
+
         // 异步查询作者信息并渲染链接
         async function updateAuthorBar(authorData) {
             const authorBar = document.getElementById('authorBar');
@@ -1039,6 +1145,8 @@
             }
 
             updateFavBtn();
+            // 详情数据已就绪，此时才算推荐（修复此前 IIFE 在 onReady 空跑的问题）
+            if (typeof loadSimilarGames === 'function') loadSimilarGames();
         }
 
 
@@ -1286,7 +1394,9 @@
 
             // 更多类似游戏：Jaccard(tags)*0.7 + 同分类*0.2 + 同作者*0.1，取前 6，0 分不展示。
             // 复用 init() 里已发出的主列表请求（gameCatalogCache），不重复 fetch。
-            (async function loadSimilarGames() {
+            // 必须等详情数据就绪后由 renderGamePage 调用（此前写成 onReady 里的 IIFE，
+            // 首帧 currentGameData 还是 null 就 return，导致推荐区永远不出现）。
+            async function loadSimilarGames() {
                 if (!currentGameData) return;
                 const box = document.getElementById('similarGames');
                 const grid = document.getElementById('similarGrid');
@@ -1321,7 +1431,7 @@
                 }).join('');
                 hydrateCovers(grid);
                 box.style.display = 'block';
-            })();
+            }
 
             window.addEventListener('langChanged', () => {
                 updateLinks();

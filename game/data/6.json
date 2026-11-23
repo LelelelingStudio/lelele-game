@@ -39,5 +39,7 @@
       "Adventure",
       "Local"
     ]
-  }
+  },
+  "cover": "https://gamepic.surge.sh/leveleateateat1.lsfp",
+  "coverFallback": true
 }

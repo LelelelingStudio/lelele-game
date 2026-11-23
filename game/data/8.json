@@ -39,5 +39,7 @@
       "Casual",
       "Local"
     ]
-  }
+  },
+  "cover": "https://gamepic.surge.sh/clickbanana1.lsfp",
+  "coverFallback": true
 }
