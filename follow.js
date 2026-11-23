@@ -177,5 +177,19 @@
         render(await getState(ctx.uuid, ctx.uid));
     }
 
-    window.FollowUI = { mount, toggle, getState, resolveUuid, getSession };
+    // 批量取所有作者的粉丝数：一次查询，前端按 author_id 聚合（follows 数据量小）。
+    // 返回 { [authorUuid]: count }，失败返回 {}（调用方优雅降级）。
+    async function getFollowerCounts() {
+        const client = sb();
+        if (!client) return {};
+        try {
+            const { data } = await client.from('follows')
+                .select('author_id').eq('is_following', true).limit(5000);
+            const out = {};
+            (data || []).forEach(r => { if (r.author_id) out[r.author_id] = (out[r.author_id] || 0) + 1; });
+            return out;
+        } catch (e) { return {}; }
+    }
+
+    window.FollowUI = { mount, toggle, getState, resolveUuid, getSession, getFollowerCounts };
 })();

@@ -34,6 +34,8 @@ STATIC_PAGES = [
     ('/login.html', '开发者登录', 'Developer sign-in', '0.3', 'monthly'),
     ('/docs.html', '站点导航', 'Site navigation', '0.7', 'monthly'),
     ('/developer_docs.html', '开发者文档', 'Developer docs', '0.7', 'monthly'),
+    ('/sdk-docs.html', '开发者 SDK 文档', 'Developer SDK docs', '0.7', 'monthly'),
+    ('/tag.html', '标签专题', 'Tag explorer', '0.6', 'weekly'),
     ('/about.html', '关于我们', 'About', '0.7', 'monthly'),
     ('/game_rules.html', '游戏守则（当前版）', 'Game Rules (current)', '0.7', 'monthly'),
     ('/game_rules4-0-0.html', '游戏守则 4.0.0 留存', 'Game Rules 4.0.0 (archive)', '0.4', 'yearly'),
@@ -54,7 +56,7 @@ STATIC_PAGES = [
 LANG_EN_PAGES = [
     '/', '/game.html', '/play.html', '/favgames.html', '/gamecheck.html',
     '/stats.html', '/author.html', '/authorlevel.html', '/apply-certification.html',
-    '/docs.html', '/developer_docs.html', '/about.html', '/game_rules.html',
+    '/docs.html', '/developer_docs.html', '/sdk-docs.html', '/tag.html', '/about.html', '/game_rules.html',
     '/user_agreement.html', '/legal_templates.html', '/generic_eula.html',
     '/generic_privacy.html', '/generic_tos.html', '/game_rules4-0-1.html',
     '/game_rules4-0-2.html', '/privacy.html', '/terms.html', '/copyright.html',

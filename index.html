@@ -113,6 +113,9 @@
                 <button class="btn-fav-list" id="openFavBtn">
                     <span class="zh-inline">⭐ 收藏</span><span class="en-inline">⭐ Favs</span>
                 </button>
+                <button class="btn-lucky" id="luckyBtn" type="button" title="手气不错 / Lucky pick">
+                    <span class="zh-inline">🎲 手气不错</span><span class="en-inline">🎲 Lucky</span>
+                </button>
                 <div class="search-wrapper">
                     <span class="search-icon">🔍</span>
                     <input type="text" id="searchInput" placeholder="搜索游戏名 / 分类 / 作者 / 拼音..." autocomplete="off" aria-label="Search games">
@@ -185,6 +188,31 @@
                 <span class="for-you-title">🎯 <span class="zh-inline">猜你喜欢</span><span class="en-inline">For You</span></span>
             </div>
             <div class="for-you-track" id="forYouTrack"></div>
+        </div>
+
+        <!-- 继续玩（最近游玩，本地记录；无数据时自动隐藏） -->
+        <div class="for-you-row home-strip" id="continueRow" hidden>
+            <div class="for-you-head">
+                <span class="for-you-title">⏯️ <span class="zh-inline">继续玩</span><span class="en-inline">Continue Playing</span></span>
+            </div>
+            <div class="for-you-track" id="continueTrack"></div>
+        </div>
+
+        <!-- 想玩清单（本地稍后玩；无数据时自动隐藏） -->
+        <div class="for-you-row home-strip" id="watchlistRow" hidden>
+            <div class="for-you-head">
+                <span class="for-you-title">🔖 <span class="zh-inline">想玩清单</span><span class="en-inline">Watchlist</span></span>
+            </div>
+            <div class="for-you-track" id="watchlistTrack"></div>
+        </div>
+
+        <!-- 冷门宝藏榜（玩得少但收藏率高，复用排行榜数据；无数据时自动隐藏） -->
+        <div class="for-you-row home-strip" id="gemsRow" hidden>
+            <div class="for-you-head">
+                <span class="for-you-title">💎 <span class="zh-inline">冷门宝藏</span><span class="en-inline">Hidden Gems</span></span>
+                <span class="for-you-sub"><span class="zh-inline">玩过的人少，但评价很高</span><span class="en-inline">Few plays, high praise</span></span>
+            </div>
+            <div class="for-you-track" id="gemsTrack"></div>
         </div>
 
         <!-- 游戏列表 -->

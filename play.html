@@ -236,12 +236,72 @@
     }).then(function (res) { if (!res.error) loadScoreboard(); })
       .catch(function () {}); // 纯荣誉榜：写入失败静默降级，不影响游戏
   }
+  // 供 SDK getLeaderboard 用：返回该游戏 Top10 [{name, score}] 的 Promise
+  function fetchTopScores() {
+    var sb = scoreClient();
+    if (!sb || !gameId) return Promise.resolve([]);
+    return sb.from(SB_TABLE).select('player_name,score')
+      .eq('game_id', String(gameId)).order('score', { ascending: false }).limit(10)
+      .then(function (res) { return res.error ? [] : (res.data || []).map(function (r) { return { name: String(r.player_name || '?'), score: Number(r.score || 0) }; }); })
+      .catch(function () { return []; });
+  }
+  // 评分上报（analytics 自定义事件，荣誉展示、不防作弊）：edgemetry 可用即上报
+  function trackRating(rating) {
+    try {
+      if (typeof window.edgemetry === 'function') window.edgemetry('star-' + rating + '-game-' + gameId);
+      else if (window.umami && typeof window.umami.track === 'function') window.umami.track('star-' + rating + '-game-' + gameId);
+    } catch (e) {}
+  }
+  // 轻量相似度（Jaccard tags + 同分类 + 同作者），从主目录里挑一款；category 可限定分类
+  var _catalogCache = null;
+  function pickSimilar(category) {
+    var list = _catalogCache || [];
+    if (!list.length || !game) return null;
+    var myTags = {};
+    [].concat((game.tags && game.tags.zh) || [], (game.tags && game.tags.en) || []).forEach(function (t) { myTags[t] = 1; });
+    var best = null, bestScore = -1;
+    list.forEach(function (g) {
+      if (String(g.id) === String(gameId)) return;
+      if (category && (g.category_zh !== category && g.category_en !== category)) return;
+      var gt = [].concat((g.tags && g.tags.zh) || [], (g.tags && g.tags.en) || []);
+      var inter = 0; gt.forEach(function (t) { if (myTags[t]) inter++; });
+      var union = Object.keys(myTags).length + gt.length - inter || 1;
+      var score = (inter / union) * 0.7
+        + ((g.category_zh && g.category_zh === game.category_zh) ? 0.2 : 0)
+        + ((g.author != null && String(g.author) === String(game.author)) ? 0.1 : 0);
+      if (score > bestScore) { bestScore = score; best = g; }
+    });
+    return best;
+  }
+  function replySDK(req, data) {
+    if (!inIframe()) return;
+    try { window.parent.postMessage({ type: 'lelele:sdk:res', id: req.id, data: data }, '*'); } catch (e) {}
+  }
+  function inIframe() { try { return window.self !== window.top; } catch (e) { return true; } }
 
   // ===== 收藏（play.html 零依赖，内联读写 + 埋点，与 common.js 同口径）=====
   var FAV_KEY = 'lelele_favs', ROUNDS_KEY = 'em:fav-rounds:v1';
+  var RECENT_KEY = 'lelele_recent', PLAYED_KEY = 'lelele_played';
   function getFavs() { try { var v = JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
   function saveFavs(a) { try { localStorage.setItem(FAV_KEY, JSON.stringify(a)); } catch (e) {} }
   function utcDay() { return new Date().toISOString().slice(0, 10); }
+  // 记录最近游玩（新→旧去重，最多 60）与游玩次数（{dates:[YYYY-MM-DD]} 用于本周统计）
+  function recordPlay(id) {
+    if (!id) return;
+    try {
+      var recent = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+      if (!Array.isArray(recent)) recent = [];
+      recent = [String(id)].concat(recent.filter(function (x) { return String(x) !== String(id); })).slice(0, 60);
+      localStorage.setItem(RECENT_KEY, JSON.stringify(recent));
+      var played = JSON.parse(localStorage.getItem(PLAYED_KEY) || '{}');
+      if (!played || typeof played !== 'object' || Array.isArray(played)) played = {};
+      played.dates = Array.isArray(played.dates) ? played.dates : [];
+      played.dates.push(utcDay());
+      if (played.dates.length > 400) played.dates = played.dates.slice(-400);
+      played[String(id)] = (Number(played[String(id)]) || 0) + 1;
+      localStorage.setItem(PLAYED_KEY, JSON.stringify(played));
+    } catch (e) {}
+  }
   function trackFav(id, action) {
     try {
       var st = JSON.parse(localStorage.getItem(ROUNDS_KEY) || '{}');
@@ -335,10 +395,12 @@
     if (!gameId) { showMsg(isEn() ? 'Missing ?id= parameter.' : '缺少 ?id= 参数。'); return; }
     fetchJSON('/lelegame_data.json?t=' + Date.now())
       .then(function (list) {
-        game = list.find(function (g) { return String(g.id) === String(gameId); });
+        _catalogCache = Array.isArray(list) ? list : [];
+        game = _catalogCache.find(function (g) { return String(g.id) === String(gameId); });
         if (!game) throw new Error('Game id ' + gameId + ' not found');
         if (!game.url) throw new Error('No playable URL');
         targetUrl = game.url;
+        recordPlay(gameId); // 本地记录最近游玩 + 游玩次数
         $('urlBar').textContent = targetUrl;
         $('extLink').href = targetUrl;
         try { sameOrigin = new URL(targetUrl, window.location.href).origin === window.location.origin; }
@@ -519,13 +581,54 @@
     var d = e.data;
     if (!d || typeof d !== 'object') return;
     if (d.type === 'lelele:langRequest') { applyLang(d.lang === 'en' ? 'en' : 'zh'); return; }
+    // 其余消息只认来自本页游戏 iframe 的，防外部页面伪造
+    var f = $('gameFrame');
+    if (!f || !f.contentWindow || e.source !== f.contentWindow) return;
     if (d.type === 'lelele:score') {
-      // 只认来自本页游戏 iframe 的消息，防外部页面伪造（纯荣誉榜不做更严格校验）
-      var f = $('gameFrame');
-      if (!f || !f.contentWindow || e.source !== f.contentWindow) return;
       var score = Number(d.score);
       if (!isFinite(score) || score < 0) return;
       submitScoreToServer(score, d.playerName || getPlayerName());
+      return;
+    }
+    if (d.type === 'lelele:rating') {
+      var rating = Number(d.rating);
+      if (!isFinite(rating) || rating < 0.5 || rating > 5) return;
+      trackRating(rating);
+      return;
+    }
+    if (d.type === 'lelele:sdk:req') {
+      var action = String(d.action || '');
+      if (action === 'leaderboard') {
+        fetchTopScores().then(function (rows) { replySDK(d, { rows: rows }); });
+      } else if (action === 'playerName') {
+        replySDK(d, { name: getPlayerName() });
+      } else if (action === 'shareInfo') {
+        replySDK(d, {
+          id: String(gameId || ''),
+          name: getPlayerName(),
+          gameName: game ? (isEn() ? (game.name_en || game.name_zh) : (game.name_zh || game.name_en)) : '',
+          origin: window.location.origin
+        });
+      } else if (action === 'nextGame') {
+        var next = pickSimilar(d.category || null);
+        replySDK(d, { ok: !!next });
+        if (next) window.location.href = 'game.html?id=' + encodeURIComponent(next.id) + (isEn() ? '&lang=en' : '');
+      } else if (action === 'opendetail') {
+        replySDK(d, { ok: true });
+        if (gameId) window.location.href = 'game.html?id=' + encodeURIComponent(gameId) + (isEn() ? '&lang=en' : '');
+      } else {
+        replySDK(d, null);
+      }
+      return;
+    }
+    if (d.type === 'lelele:nextgame') {
+      var ng = pickSimilar(d.category || null);
+      if (ng) window.location.href = 'game.html?id=' + encodeURIComponent(ng.id) + (isEn() ? '&lang=en' : '');
+      return;
+    }
+    if (d.type === 'lelele:opendetail') {
+      if (gameId) window.location.href = 'game.html?id=' + encodeURIComponent(gameId) + (isEn() ? '&lang=en' : '');
+      return;
     }
   });
 

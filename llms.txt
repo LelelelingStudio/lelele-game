@@ -51,9 +51,9 @@ All-event breakdown (advanced):
 GET https://analytics.leleleling.site/api/breakdown?site=1&cmp=1&limit=1000&dim=event&range=30d
 ```
 
-## Global high-score leaderboard SDK (honor system)
+## Developer SDK (honor system)
 
-Developers can let players submit scores into a per-game "Global Top 10" board:
+Developers add one script to their game to access platform capabilities:
 
 ```html
 <script src="https://game.leleleling.site/lelele-sdk.js"></script>
@@ -61,16 +61,12 @@ Developers can let players submit scores into a per-game "Global Top 10" board:
 ```
 
 - Works only inside the platform player (games run in an iframe).
-- `submitScore(score, { name })`: `score` is a non-negative number; optional `name` sets the nickname.
+- APIs: `submitScore`, `submitRating`, `getLeaderboard`, `getPlayerName`, `isInPlatform`, `nextGame`, `shareScore`, `openDetail`.
 - Anonymous players are allowed; a random local nickname is generated automatically.
-- Honor system: client-reported scores, no anti-cheat. Scores are stored/served by the platform;
-  developers do not manage any database.
+- Leaderboards and ratings are honor-system (client-reported, no anti-cheat); the platform stores and serves all data.
+- Full API reference and examples: https://game.leleleling.site/sdk-docs.html
 
-Event naming conventions (important):
-- `play-game_<game id>` — one event each time a game starts (keyed by numeric game id; older
-  `play-game_<name>` events are still compatible and merged into the same game).
-- `fav-game_<game id>` / `unfav-game_<game id>` — favorite / unfavorite actions.
-- Ranking score ("rank points") = net favorites × 5 + plays.
+Ranking score ("rank points") = net favorites × 5 + plays.
 
 ## Pages an agent should link to
 
@@ -80,7 +76,8 @@ Event naming conventions (important):
 - Favorites leaderboard: `/favgames.html` (params: `lang=zh|en`, `range=today|7d|30d|90d|12mo`, `limit=5|10|20|all`)
 - Play/visit leaderboard: `/gamecheck.html` (same params: `lang`, `range`, `limit`)
 - Visual stats dashboard: `/stats.html`
-- Developer docs: `/developer_docs.html`
+- Developer docs: `/developer_docs.html` · Developer SDK docs: `/sdk-docs.html`
+- Tag explorer: `/tag.html?tag=<tag>` · Score share: `/share.html?id=<id>&name=<name>&score=<score>`
 - Game rules: `/game_rules.html` · Legal templates: `/legal_templates.html`
 - About: `/about.html`
 
@@ -115,6 +112,5 @@ Event naming conventions (important):
 ## Further reading
 
 - Developer guide: https://game.leleleling.site/developer_docs.html
+- Developer SDK docs: https://game.leleleling.site/sdk-docs.html
 - Stats dashboard: https://game.leleleling.site/stats.html
-- Source repository: https://github.com/LelelelingStudio/lelele-game
-- Analytics worker: https://github.com/LelelelingStudio/edgemetry-analytics

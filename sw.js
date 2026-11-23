@@ -1,6 +1,12 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.30 (4.5.0) —— 新增本地功能（继续玩/想玩清单/手气不错/个人统计/标签专题页 tag.html）、
+ *   冷门宝藏榜与作者贡献榜、SDK 扩展（submitRating/getLeaderboard/getPlayerName/isInPlatform/
+ *   nextGame/shareScore/openDetail）+ play.html 分发、成绩分享页 share.html、SDK 文档 sdk-docs.html。
+ *   文档脱敏（README/llms/developer_docs）、LICENSE 删除、内部手册移出仓库。
+ *   三张新页加入预缓存；因上一批推荐系统改动了预缓存内文件字节却未升版本，本次一并升级清旧缓存。
+ *
  * ★ v1.29 (爱种地农民 v1.0.10) —— id=1 游戏链接迁至 https://happyfarmer.game.leleleling.site；
  *   三类协议改为中英双语直链 {zh,en}（doc=1 用户协议 / doc=2 隐私 / doc=3 条款），
  *   game.html 与 play.html 的 safeLegalUrl() 支持 {zh,en} 对象按当前语言取值；详情加
@@ -154,7 +160,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.29';
+const CACHE_NAME = 'lelele-pwa-v1.30';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。
@@ -177,6 +183,9 @@ const ASSETS_TO_CACHE = [
     '/stats.html',
     '/favgames.html',
     '/sitemap.html',
+    '/tag.html',
+    '/share.html',
+    '/sdk-docs.html',
     '/game_rules4-0-0.html',
     '/game_rules4-0-1.html',
     '/game_rules4-0-2.html',

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开发者 SDK 文档 · LeleleSDK Docs · 了了了游</title>
+    <meta name="description" content="了了了游开发者 SDK：一行脚本接入排行榜、评分、成绩分享与游戏跳转。Lelele Game developer SDK docs.">
+    <script>
+        (function () {
+            try {
+                var p = new URLSearchParams(window.location.search), u = p.get('lang'), s = localStorage.getItem('lelele_lang'), lang;
+                if (u === 'en' || u === 'zh') lang = u;
+                else if (s === 'en' || s === 'zh') lang = s;
+                else { var n = (navigator.language || '').toLowerCase(); lang = n.indexOf('zh') === 0 ? 'zh' : (n.indexOf('en') === 0 ? 'en' : 'zh'); }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <script src="/boot.js"></script>
+    <link rel="stylesheet" href="/common.css">
+    <style>
+        .doc-wrap { max-width: 900px; margin: 0 auto; padding: 32px 20px 80px; color: var(--text-main); }
+        .doc-back { display:inline-flex; align-items:center; gap:6px; color:var(--text-muted); text-decoration:none; font-weight:600; font-size:.9rem; margin-bottom:22px; }
+        .doc-back:hover { color:var(--primary); }
+        .doc-hero { border-radius:24px; padding:32px 30px; margin-bottom:28px; background:linear-gradient(135deg, rgba(79,70,229,.12), rgba(16,185,129,.07)); border:1px solid var(--card-border); }
+        .doc-hero h1 { font-size:2rem; font-weight:800; margin:0 0 10px; letter-spacing:-.02em; }
+        .doc-hero p { font-size:1rem; color:var(--text-muted); margin:0; line-height:1.65; }
+        .doc-badge { display:inline-block; font-size:.75rem; font-weight:700; padding:4px 12px; border-radius:999px; background:var(--primary); color:#fff; margin-bottom:14px; }
+        .doc-nav { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 30px; }
+        .doc-nav a { font-size:.82rem; font-weight:600; padding:7px 13px; border-radius:10px; background:var(--card-bg); border:1px solid var(--card-border); color:var(--text-muted); text-decoration:none; }
+        .doc-nav a:hover { color:var(--primary); border-color:var(--primary); }
+        .doc-section { margin:0 0 34px; }
+        .doc-section h2 { font-size:1.35rem; font-weight:800; margin:0 0 14px; padding-bottom:10px; border-bottom:2px solid var(--card-border); }
+        .doc-section h3 { font-size:1.05rem; font-weight:800; margin:22px 0 8px; color:var(--primary); }
+        .doc-section p, .doc-section li { font-size:.95rem; line-height:1.75; color:var(--text-main); }
+        .doc-section ul { padding-left:22px; }
+        .code { position:relative; background:#0f172a; color:#e2e8f0; border-radius:14px; padding:18px 20px; margin:12px 0 18px; overflow-x:auto; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.86rem; line-height:1.6; }
+        .code::before { content:'```'; position:absolute; top:6px; right:12px; color:#475569; font-size:.7rem; }
+        .api-card { border-radius:16px; padding:18px 20px; margin:0 0 16px; background:var(--card-bg); border:1px solid var(--card-border); }
+        .api-sig { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.95rem; font-weight:700; color:var(--primary); margin:0 0 8px; word-break:break-all; }
+        .api-ret { display:inline-block; font-size:.72rem; font-weight:700; padding:2px 9px; border-radius:999px; background:rgba(16,185,129,.12); color:#059669; margin-left:8px; }
+        .api-desc { font-size:.92rem; line-height:1.7; color:var(--text-main); margin:0 0 8px; }
+        .api-params { font-size:.84rem; color:var(--text-muted); margin:0; }
+        .doc-note { border-left:4px solid var(--primary); background:rgba(79,70,229,.06); border-radius:0 12px 12px 0; padding:12px 16px; margin:16px 0; font-size:.88rem; line-height:1.7; }
+        details.faq { border:1px solid var(--card-border); border-radius:12px; padding:12px 16px; margin:0 0 10px; background:var(--card-bg); }
+        details.faq summary { cursor:pointer; font-weight:700; font-size:.95rem; }
+        details.faq p { margin:10px 0 0; font-size:.9rem; color:var(--text-muted); line-height:1.7; }
+        @media (max-width:600px) { .doc-hero h1 { font-size:1.6rem; } }
+    </style>
+</head>
+<body>
+    <div class="doc-wrap">
+        <a class="doc-back" href="/developer_docs.html">← <span class="zh-inline">返回开发者中心</span><span class="en-inline">Back to Developer Docs</span></a>
+
+        <div class="doc-hero">
+            <span class="doc-badge">v1.1</span>
+            <h1><span class="zh-inline">开发者 SDK</span><span class="en-inline">Developer SDK</span></h1>
+            <p><span class="zh-inline">引入一个脚本，调用几个函数，你的游戏即可接入平台排行榜、评分、成绩分享与游戏跳转。无需后端、无需密钥。</span><span class="en-inline">Add one script, call a few functions, and your game gains leaderboards, ratings, score sharing and game navigation. No backend, no API key.</span></p>
+        </div>
+
+        <nav class="doc-nav">
+            <a href="#quick"><span class="zh-inline">快速开始</span><span class="en-inline">Quick start</span></a>
+            <a href="#api"><span class="zh-inline">API 参考</span><span class="en-inline">API reference</span></a>
+            <a href="#runtime"><span class="zh-inline">运行环境</span><span class="en-inline">Runtime</span></a>
+            <a href="#faq"><span class="zh-inline">常见问题</span><span class="en-inline">FAQ</span></a>
+        </nav>
+
+        <section class="doc-section" id="quick">
+            <h2>🚀 <span class="zh-inline">快速开始</span><span class="en-inline">Quick start</span></h2>
+            <p><span class="zh-inline">在你的游戏页面里加入下面这一行，就可以调用全部能力：</span><span class="en-inline">Add this one line to your game page to use all capabilities:</span></p>
+            <div class="code">&lt;script src="https://game.leleleling.site/lelele-sdk.js"&gt;&lt;/script&gt;</div>
+            <p><span class="zh-inline">结算时上报分数：</span><span class="en-inline">Report a score when a round ends:</span></p>
+            <div class="code">window.LeleleSDK.submitScore(1234, { name: '小明' });</div>
+        </section>
+
+        <section class="doc-section" id="api">
+            <h2>📚 <span class="zh-inline">API 参考</span><span class="en-inline">API reference</span></h2>
+
+            <div class="api-card">
+                <div class="api-sig">submitScore(score, options?) <span class="api-ret">boolean</span></div>
+                <p class="api-desc"><span class="zh-inline">上报分数到本游戏的全服榜。可选昵称，未填写时平台自动生成。</span><span class="en-inline">Submit a score to this game's global leaderboard. Nickname is optional; one is generated if omitted.</span></p>
+                <p class="api-params"><span class="zh-inline">参数</span><span class="en-inline">Params</span>: <code>score</code> <span class="zh-inline">非负数字</span><span class="en-inline">non-negative number</span>; <code>options.name</code> <span class="zh-inline">可选昵称</span><span class="en-inline">optional nickname</span></p>
+            </div>
+
+            <div class="api-card">
+                <div class="api-sig">submitRating(rating) <span class="api-ret">boolean</span></div>
+                <p class="api-desc"><span class="zh-inline">上报玩家对游戏的评分，范围为 0.5 到 5。</span><span class="en-inline">Submit a player rating for the game, from 0.5 to 5.</span></p>
+                <p class="api-params"><span class="zh-inline">参数</span><span class="en-inline">Params</span>: <code>rating</code> 0.5–5</p>
+            </div>
+
+            <div class="api-card">
+                <div class="api-sig">getLeaderboard() <span class="api-ret">Promise&lt;Array&gt;</span></div>
+                <p class="api-desc"><span class="zh-inline">读取本游戏全服榜前十，返回 <code>[{ name, score }]</code>。可用于在你的游戏里自绘榜单。</span><span class="en-inline">Read this game's global top 10 as <code>[{ name, score }]</code>, so you can draw your own leaderboard.</span></p>
+                <div class="code">LeleleSDK.getLeaderboard().then(rows =&gt; {<br>&nbsp;&nbsp;rows.forEach((r, i) =&gt; console.log(i + 1, r.name, r.score));<br>});</div>
+            </div>
+
+            <div class="api-card">
+                <div class="api-sig">getPlayerName() <span class="api-ret">Promise&lt;string|null&gt;</span></div>
+                <p class="api-desc"><span class="zh-inline">获取当前玩家昵称，可用于游戏内问候语。未取得时返回 <code>null</code>。</span><span class="en-inline">Get the current player's nickname for in-game greeting. Returns <code>null</code> if unavailable.</span></p>
+            </div>
+
+            <div class="api-card">
+                <div class="api-sig">isInPlatform() <span class="api-ret">boolean</span></div>
+                <p class="api-desc"><span class="zh-inline">判断游戏是否正在平台播放器内运行。可用它让同一份游戏代码在平台内外表现不同。</span><span class="en-inline">Check whether the game is running inside the platform player, so one codebase can behave differently inside and outside.</span></p>
+            </div>
+
+            <div class="api-card">
+                <div class="api-sig">nextGame(options?) <span class="api-ret">boolean</span></div>
+                <p class="api-desc"><span class="zh-inline">玩完一局后调用，带玩家去玩一款相似游戏。可传 <code>category</code> 限定分类。</span><span class="en-inline">Call after a round ends to take the player to a similar game. Pass <code>category</code> to limit the genre.</span></p>
+                <div class="code">LeleleSDK.nextGame();<br>LeleleSDK.nextGame({ category: '射击' });</div>
+            </div>
+
+            <div class="api-card">
+                <div class="api-sig">shareScore(score, text?) <span class="api-ret">Promise&lt;string|null&gt;</span></div>
+                <p class="api-desc"><span class="zh-inline">生成一条平台格式的成绩分享链接，可直接复制或发给好友。可选自定义文案。无上下文时返回 <code>null</code>。</span><span class="en-inline">Generate a platform-formatted score share link to copy or send to friends. Optional custom text. Returns <code>null</code> without context.</span></p>
+                <div class="code">LeleleSDK.shareScore(1234).then(url =&gt; {<br>&nbsp;&nbsp;if (url) console.log('分享链接:', url);<br>});</div>
+            </div>
+
+            <div class="api-card">
+                <div class="api-sig">openDetail() <span class="api-ret">boolean</span></div>
+                <p class="api-desc"><span class="zh-inline">从游戏内打开本游戏的详情页，查看简介与更新日志。</span><span class="en-inline">Open this game's detail page from inside the game for its description and update log.</span></p>
+            </div>
+        </section>
+
+        <section class="doc-section" id="runtime">
+            <h2>▶️ <span class="zh-inline">运行环境</span><span class="en-inline">Runtime</span></h2>
+            <div class="doc-note">
+                <span class="zh-inline">SDK 仅在平台播放器内打开你的游戏时生效；单独打开你的游戏页调用任何函数都不会报错，但不会上报或跳转。依赖上下文的函数返回 <code>Promise</code>，取不到时解析为 <code>null</code> 或空数组。</span>
+                <span class="en-inline">The SDK only takes effect when your game runs inside the platform player. Calling any function on a standalone game page is safe and silent. Context-dependent functions return a <code>Promise</code> that resolves to <code>null</code> or an empty array when unavailable.</span>
+            </div>
+            <ul>
+                <li><span class="zh-inline">排行榜与评分为荣誉展示，客户端上报，不防作弊。</span><span class="en-inline">Leaderboards and ratings are honor-system, client-reported, not anti-cheat.</span></li>
+                <li><span class="zh-inline">未登录玩家也可参与，昵称由平台自动生成。</span><span class="en-inline">Anonymous players can participate; a nickname is generated automatically.</span></li>
+                <li><span class="zh-inline">成绩与评分由平台负责存储和展示，你无需管理任何数据。</span><span class="en-inline">The platform stores and displays scores and ratings; you manage no data.</span></li>
+            </ul>
+        </section>
+
+        <section class="doc-section" id="faq">
+            <h2>❓ <span class="zh-inline">常见问题</span><span class="en-inline">FAQ</span></h2>
+            <details class="faq"><summary><span class="zh-inline">需要后端或 API 密钥吗？</span><span class="en-inline">Do I need a backend or API key?</span></summary><p><span class="zh-inline">不需要。引入脚本后直接调用函数即可。</span><span class="en-inline">No. Just add the script and call the functions.</span></p></details>
+            <details class="faq"><summary><span class="zh-inline">玩家昵称从哪来？</span><span class="en-inline">Where does the player nickname come from?</span></summary><p><span class="zh-inline">登录玩家使用其显示名；未登录时平台生成一个本地随机昵称。</span><span class="en-inline">Signed-in players use their display name; others get a local random nickname.</span></p></details>
+            <details class="faq"><summary><span class="zh-inline">成绩提交后还能修改吗？</span><span class="en-inline">Can a submitted score be changed?</span></summary><p><span class="zh-inline">提交后不可由开发者修改。如需更正，请让玩家重新提交。</span><span class="en-inline">Developers cannot edit a submitted score. Ask the player to resubmit instead.</span></p></details>
+            <details class="faq"><summary><span class="zh-inline">榜单是实时的吗？</span><span class="en-inline">Is the leaderboard live?</span></summary><p><span class="zh-inline">是的，提交成绩后刷新榜单即可看到更新。</span><span class="en-inline">Yes. Refresh the leaderboard after a score is submitted to see updates.</span></p></details>
+        </section>
+    </div>
+</body>
+</html>

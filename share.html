@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成绩分享 · Score Share · 了了了游</title>
+    <meta name="robots" content="noindex,nofollow">
+    <script>
+        (function () {
+            try {
+                var p = new URLSearchParams(window.location.search), u = p.get('lang'), s = localStorage.getItem('lelele_lang'), lang;
+                if (u === 'en' || u === 'zh') lang = u;
+                else if (s === 'en' || s === 'zh') lang = s;
+                else { var n = (navigator.language || '').toLowerCase(); lang = n.indexOf('zh') === 0 ? 'zh' : (n.indexOf('en') === 0 ? 'en' : 'zh'); }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <script src="/boot.js"></script>
+    <link rel="stylesheet" href="/common.css">
+    <style>
+        .share-wrap { max-width: 640px; margin: 0 auto; padding: 30px 18px 70px; }
+        .share-back { display:inline-flex; align-items:center; gap:6px; color:var(--text-muted); text-decoration:none; font-weight:600; font-size:.9rem; margin-bottom:20px; padding:6px 10px; border-radius:10px; }
+        .share-back:hover { background:var(--card-bg); color:var(--text-main); }
+        .share-card { position:relative; overflow:hidden; border-radius:26px; padding:36px 28px 30px; text-align:center; background:linear-gradient(150deg, rgba(79,70,229,.14), rgba(236,72,153,.08) 55%, rgba(16,185,129,.08)); border:1px solid var(--card-border); box-shadow:0 20px 50px rgba(79,70,229,.12); }
+        .share-card::before { content:''; position:absolute; width:260px; height:260px; left:-100px; top:-140px; border-radius:50%; background:radial-gradient(circle, rgba(79,70,229,.2), transparent 70%); pointer-events:none; }
+        .share-brand { font-size:.78rem; font-weight:800; letter-spacing:.08em; color:var(--primary); text-transform:uppercase; margin-bottom:18px; }
+        .share-icon { font-size:3.4rem; line-height:1; margin-bottom:12px; }
+        .share-game { font-size:1.05rem; font-weight:700; color:var(--text-muted); margin:0 0 4px; }
+        .share-you { font-size:.9rem; color:var(--text-muted); margin:0 0 18px; }
+        .share-player { font-size:1.15rem; font-weight:800; color:var(--text-main); margin:0 0 6px; word-break:break-word; }
+        .share-score-label { font-size:.8rem; color:var(--text-muted); }
+        .share-score { font-size:3.2rem; font-weight:800; line-height:1.1; margin:6px 0 4px; background:linear-gradient(135deg,#4f46e5,#0071e3); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:-.02em; }
+        .share-text { font-size:.95rem; font-weight:600; color:var(--text-main); margin:14px 0 0; }
+        .share-copy { display:inline-flex; align-items:center; gap:7px; margin-top:20px; padding:10px 18px; border-radius:12px; border:1px solid var(--card-border); background:var(--card-bg); color:var(--text-main); font-weight:700; font-size:.85rem; cursor:pointer; transition:transform .18s, box-shadow .18s; }
+        .share-copy:hover { transform:translateY(-2px); box-shadow:0 8px 18px rgba(79,70,229,.12); }
+        .share-play { display:flex; align-items:center; justify-content:center; gap:8px; margin:22px 0 0; padding:14px 22px; border-radius:14px; background:linear-gradient(135deg,#4f46e5,#0071e3); color:#fff; text-decoration:none; font-weight:800; font-size:1rem; box-shadow:0 10px 24px rgba(79,70,229,.28); transition:transform .18s, box-shadow .18s; }
+        .share-play:hover { transform:translateY(-2px); box-shadow:0 14px 30px rgba(79,70,229,.36); }
+        .board { margin-top:30px; padding:20px 22px; border-radius:18px; background:var(--card-bg); border:1px solid var(--card-border); }
+        .board-title { font-weight:800; font-size:1rem; color:var(--text-main); margin-bottom:14px; }
+        .board-row { display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid var(--card-border); font-size:.88rem; }
+        .board-row:last-child { border-bottom:none; }
+        .board-rank { font-weight:800; min-width:26px; color:var(--text-muted); }
+        .board-name { flex:1; color:var(--text-main); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .board-score { font-weight:700; color:var(--primary); }
+        .board-empty { color:var(--text-muted); font-size:.85rem; text-align:center; padding:12px; }
+        .share-invalid { text-align:center; padding:70px 20px; color:var(--text-muted); }
+        .share-invalid-icon { font-size:3.2rem; margin-bottom:16px; }
+        .share-invalid h1 { color:var(--text-main); font-size:1.3rem; margin:0 0 8px; }
+        .share-invalid p { font-size:.9rem; margin:0 0 24px; }
+        .btn-home { display:inline-flex; align-items:center; gap:8px; padding:12px 24px; border-radius:12px; background:var(--primary); color:#fff; text-decoration:none; font-weight:700; }
+        @media (max-width:480px) { .share-score { font-size:2.6rem; } .share-card { padding:30px 18px 26px; } }
+        @media (prefers-reduced-motion: reduce) { .share-copy, .share-play, .share-back { transition:none; } }
+    </style>
+</head>
+<body>
+    <div class="share-wrap">
+        <a class="share-back" href="/index.html">← <span class="zh-inline">返回首页</span><span class="en-inline">Back home</span></a>
+        <div id="shareValid" hidden>
+            <div class="share-card">
+                <div class="share-brand">Lelele Game · 了了了游</div>
+                <div class="share-icon" id="shareIcon">🎮</div>
+                <div class="share-game" id="shareGame"></div>
+                <div class="share-player" id="sharePlayer"></div>
+                <div class="share-score-label"><span class="zh-inline">本局得分</span><span class="en-inline">Score</span></div>
+                <div class="share-score" id="shareScore"></div>
+                <p class="share-text" id="shareText"></p>
+                <button type="button" class="share-copy" id="copyBtn">📋 <span class="zh-inline">复制成绩文案</span><span class="en-inline">Copy result text</span></button>
+            </div>
+            <a class="share-play" id="playBtn" href="#">🎮 <span class="zh-inline">前往该游戏试玩</span><span class="en-inline">Play this game</span></a>
+            <div class="board">
+                <div class="board-title">🏆 <span class="zh-inline">该游戏全服榜</span><span class="en-inline">Global Top 10</span></div>
+                <div id="boardList"></div>
+            </div>
+        </div>
+        <div class="share-invalid" id="shareInvalid" hidden>
+            <div class="share-invalid-icon">🔗</div>
+            <h1><span class="zh-inline">这个分享链接不完整</span><span class="en-inline">Incomplete share link</span></h1>
+            <p><span class="zh-inline">缺少游戏或成绩信息，无法展示。请向分享者索取完整链接。</span><span class="en-inline">Game or score info is missing. Please ask for the full link.</span></p>
+            <a class="btn-home" href="/index.html">🏠 <span class="zh-inline">返回首页</span><span class="en-inline">Back home</span></a>
+        </div>
+    </div>
+    <script>
+    (function () {
+        'use strict';
+        function isEn() { return document.documentElement.getAttribute('data-lang') === 'en'; }
+        var p = new URLSearchParams(window.location.search);
+        var id = (p.get('id') || '').trim();
+        var name = (p.get('name') || '').trim().slice(0, 24);
+        var scoreRaw = (p.get('score') || '').trim();
+        var gameName = (p.get('game') || '').trim().slice(0, 60);
+        var textParam = (p.get('text') || '').trim().slice(0, 80);
+        var score = Number(scoreRaw);
+        var valid = id && name && /^\d+$/.test(id) && isFinite(score) && score >= 0;
+        var validBox = document.getElementById('shareValid'), invalidBox = document.getElementById('shareInvalid');
+        if (!valid) { invalidBox.hidden = false; return; }
+        validBox.hidden = false;
+
+        var catalog = [];
+        var game = null;
+        // 全部用 textContent 写入用户传入内容，杜绝 XSS
+        function setText(elId, v) { var el = document.getElementById(elId); if (el) el.textContent = v; }
+        setText('sharePlayer', name);
+        setText('shareScore', Math.floor(score).toLocaleString());
+        setText('shareGame', gameName || (isEn() ? 'A game on Lelele Game' : '了了了游的一款游戏'));
+        setText('shareText', textParam || (isEn()
+            ? 'I scored ' + Math.floor(score).toLocaleString() + ' in ' + (gameName || 'this game') + '! Can you beat me?'
+            : '我在《' + (gameName || '这款游戏') + '》拿了 ' + Math.floor(score).toLocaleString() + ' 分，来挑战我！'));
+
+        var playBtn = document.getElementById('playBtn');
+        playBtn.href = 'game.html?id=' + encodeURIComponent(id);
+
+        document.getElementById('copyBtn').addEventListener('click', function () {
+            var txt = document.getElementById('shareText').textContent + '\n' + window.location.href;
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt);
+                else { var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); }
+                var b = document.getElementById('copyBtn');
+                b.textContent = isEn() ? '✓ Copied' : '✓ 已复制';
+                setTimeout(function () { b.innerHTML = '📋 <span class="zh-inline">复制成绩文案</span><span class="en-inline">Copy result text</span>'; }, 1800);
+            } catch (e) {}
+        });
+
+        // 拉主目录补齐游戏图标/名称，再拉该游戏 Top10（Supabase 只读，失败优雅降级）
+        fetch('/lelegame_data.json', { cache: 'no-store' })
+            .then(function (r) { return r.ok ? r.json() : []; })
+            .then(function (list) {
+                catalog = Array.isArray(list) ? list : [];
+                game = catalog.find(function (g) { return String(g.id) === String(id); });
+                if (game) {
+                    setText('shareIcon', game.icon || '🎮');
+                    if (!gameName) setText('shareGame', isEn() ? (game.name_en || game.name_zh) : (game.name_zh || game.name_en));
+                }
+            })
+            .catch(function () {});
+
+        function loadBoard() {
+            var box = document.getElementById('boardList');
+            if (!window.supabaseClient) { box.innerHTML = '<div class="board-empty">' + (isEn() ? 'Leaderboard unavailable' : '榜单暂不可用') + '</div>'; return; }
+            window.supabaseClient.from('game_scores').select('player_name,score')
+                .eq('game_id', String(id)).order('score', { ascending: false }).limit(10)
+                .then(function (res) {
+                    box.innerHTML = '';
+                    if (res.error || !res.data || !res.data.length) { box.innerHTML = '<div class="board-empty">' + (isEn() ? 'No scores yet' : '还没有成绩') + '</div>'; return; }
+                    res.data.forEach(function (r, i) {
+                        var medal = ['🥇','🥈','🥉'][i] || (i + 1);
+                        var row = document.createElement('div'); row.className = 'board-row';
+                        var rk = document.createElement('span'); rk.className = 'board-rank'; rk.textContent = medal;
+                        var nm = document.createElement('span'); nm.className = 'board-name'; nm.textContent = String(r.player_name || '?');
+                        var sc = document.createElement('span'); sc.className = 'board-score'; sc.textContent = Number(r.score || 0).toLocaleString();
+                        row.appendChild(rk); row.appendChild(nm); row.appendChild(sc); box.appendChild(row);
+                    });
+                })
+                .catch(function () { box.innerHTML = '<div class="board-empty">' + (isEn() ? 'Leaderboard unavailable' : '榜单暂不可用') + '</div>'; });
+        }
+        // supabase-client.js 由 boot.js 之后加载，等它就绪
+        (function waitSb(n) {
+            if (window.supabaseClient || n > 40) { loadBoard(); return; }
+            setTimeout(function () { waitSb(n + 1); }, 100);
+        })(0);
+    })();
+    </script>
+    <!-- 分享页需要 Supabase 只读高分榜 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/supabase-client.js"></script>
+</body>
+</html>

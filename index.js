@@ -25,6 +25,23 @@ function saveFavorites(favs) {
     try { localStorage.setItem('lelele_favs', JSON.stringify(favs)); } catch (e) {}
 }
 
+// ===== 本地功能：最近游玩 / 想玩清单 / 游玩记录（纯前端，不入库）=====
+function _readIds(key) {
+    try { const v = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(v) ? v.map(String) : []; } catch (e) { return []; }
+}
+function _writeIds(key, ids) {
+    try { localStorage.setItem(key, JSON.stringify(ids.slice(0, 60))); } catch (e) {}
+}
+function getRecentPlays() { return _readIds('lelele_recent'); }
+function getWatchlist() { return _readIds('lelele_watchlist'); }
+function isWatchlisted(id) { return getWatchlist().includes(String(id)); }
+function toggleWatchlist(id) {
+    const idStr = String(id), cur = getWatchlist();
+    const next = cur.includes(idStr) ? cur.filter(x => x !== idStr) : [idStr].concat(cur);
+    _writeIds('lelele_watchlist', next);
+    return next.includes(idStr);
+}
+
 window.openModal = function(modalId) {
     const el = document.getElementById(modalId);
     if (el) el.classList.add('active');
@@ -215,18 +232,24 @@ function orderByWeight(games, authors) {
     }).sort((a, b) => b.key - a.key).map(x => x.g);
 }
 
-// 猜你喜欢：读 localStorage 收藏，累加 tags/category 偏好，给未收藏游戏打分取前 8
+// 猜你喜欢：读 localStorage 收藏 + 想玩清单，累加 tags/category 偏好，给未收藏游戏打分取前 8
 function computeForYou(list, limit) {
     const favs = getFavorites().map(String);
     const favSet = new Set(favs);
+    const excluded = new Set(favs.concat(getWatchlist())); // 已收藏或已想玩的不出现在推荐里
     const pref = new Map();
     const bump = k => { if (k) pref.set(k, (pref.get(k) || 0) + 1); };
+    const signal = getFavorites().concat(getWatchlist()); // 收藏权重更高：收藏算 2 次，想玩算 1 次
+    const favWeighted = favs.concat(favs);
     (list || []).forEach(g => {
-        if (!favSet.has(String(g.id))) return;
-        bump(g.category_zh); bump(g.category_en);
-        [].concat((g.tags && g.tags.zh) || [], (g.tags && g.tags.en) || []).forEach(bump);
+        if (!signal.includes(String(g.id))) return;
+        const times = favWeighted.includes(String(g.id)) ? 2 : 1;
+        for (let i = 0; i < times; i++) {
+            bump(g.category_zh); bump(g.category_en);
+            [].concat((g.tags && g.tags.zh) || [], (g.tags && g.tags.en) || []).forEach(bump);
+        }
     });
-    const scored = (list || []).filter(g => !favSet.has(String(g.id))).map(g => {
+    const scored = (list || []).filter(g => !excluded.has(String(g.id))).map(g => {
         let s = 0;
         if (pref.get(g.category_zh)) s += pref.get(g.category_zh);
         if (pref.get(g.category_en)) s += pref.get(g.category_en);
@@ -306,38 +329,86 @@ async function loadGames() {
     renderGames();
     // 猜你喜欢：基于本地收藏（冷启动用排行榜 TOP8），不阻塞
     renderForYou();
+    // 本地横排：继续玩 / 想玩清单
+    renderContinue();
+    renderWatchlist();
     // 本周更新轮播异步加载（不阻塞游戏列表）
     loadWeeklyCarousel().catch(() => {});
+    // 冷门宝藏榜：复用排行榜 IIFE 已缓存的 analytics 数据，无新请求
+    if (typeof window.renderGems === 'function') window.renderGems();
 }
 
-window.renderForYou = function renderForYou() {
-    const row = document.getElementById('forYouRow');
-    const track = document.getElementById('forYouTrack');
+// 横排卡片通用 HTML（继续玩/想玩/冷门宝藏/猜你喜欢共用一套视觉）
+function stripCardHtml(g, isEn, badge) {
+    const name = escapeHtml(isEn ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en));
+    const author = escapeHtml(g.author || '');
+    const tags = (g.tags && Array.isArray(g.tags[isEn ? 'en' : 'zh']) ? g.tags[isEn ? 'en' : 'zh'] : []).slice(0, 2);
+    const tagHtml = tags.map(t => `<span class="for-you-tag">${escapeHtml(t)}</span>`).join('');
+    return `<a class="for-you-card" href="game.html?id=${encodeURIComponent(g.id)}">
+        ${badge ? `<span class="strip-badge">${escapeHtml(badge)}</span>` : ''}
+        <span class="for-you-icon">${escapeHtml(g.icon || '🎮')}</span>
+        <span class="for-you-name">${name}</span>
+        <span class="for-you-author">${author}</span>
+        <span class="for-you-tags">${tagHtml}</span>
+    </a>`;
+}
+function renderStrip(rowId, trackId, items, limit) {
+    const row = document.getElementById(rowId), track = document.getElementById(trackId);
     if (!row || !track) return;
+    if (!items || !items.length) { row.hidden = true; return; }
+    const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+    track.innerHTML = items.slice(0, limit || 8).map(g => stripCardHtml(g, isEn)).join('');
+    row.hidden = false;
+}
+window.renderForYou = function renderForYou() {
     const list = rankedGames.length ? rankedGames : gameData;
-    if (!list.length) { row.hidden = true; return; }
+    if (!list.length) { const r = document.getElementById('forYouRow'); if (r) r.hidden = true; return; }
     let items = computeForYou(list, 8);
-    // 冷启动（无收藏）：用排行榜 TOP8 兜底，无额外请求
+    // 冷启动（无收藏无想玩）：用排行榜 TOP8 兜底，无额外请求
     if (!items.length && Array.isArray(window.__leleleTopIds) && window.__leleleTopIds.length) {
         const byId = new Map(list.map(g => [String(g.id), g]));
         items = window.__leleleTopIds.map(id => byId.get(String(id))).filter(Boolean).slice(0, 8);
     }
-    if (!items.length) { row.hidden = true; return; }
-    row.hidden = false;
+    renderStrip('forYouRow', 'forYouTrack', items, 8);
+};
+// 继续玩：按最近游玩顺序（新→旧）从主列表取回游戏对象
+window.renderContinue = function renderContinue() {
+    const recent = getRecentPlays();
+    if (!recent.length) { const r = document.getElementById('continueRow'); if (r) r.hidden = true; return; }
+    const byId = new Map(gameData.map(g => [String(g.id), g]));
+    const items = recent.map(id => byId.get(String(id))).filter(Boolean);
+    renderStrip('continueRow', 'continueTrack', items, 12);
+};
+// 想玩清单：按写入顺序从主列表取回游戏对象
+window.renderWatchlist = function renderWatchlist() {
+    const watch = getWatchlist();
+    if (!watch.length) { const r = document.getElementById('watchlistRow'); if (r) r.hidden = true; return; }
+    const byId = new Map(gameData.map(g => [String(g.id), g]));
+    const items = watch.map(id => byId.get(String(id))).filter(Boolean);
+    renderStrip('watchlistRow', 'watchlistTrack', items, 12);
+};
+
+// 冷门宝藏榜：玩得少但收藏率高（可调阈值）。mapped 来自排行榜已缓存的 analytics 结果，零新增请求。
+const GEMS_CONFIG = { minPlay: 2, maxPlay: 40, minFav: 2, minRatio: 0.25, limit: 6 };
+window.renderGems = function renderGems(mapped) {
+    const row = document.getElementById('gemsRow'), track = document.getElementById('gemsTrack');
+    if (!row || !track) return;
+    const data = Array.isArray(mapped) ? mapped : (window.__leleleRankMapped || []);
+    const byId = new Map(gameData.map(g => [String(g.id), g]));
+    const cfg = GEMS_CONFIG;
+    const gems = data.map(m => {
+        const g = byId.get(String(m.id));
+        const play = Number(m.play) || 0, fav = Number(m.fav) || 0;
+        const ratio = play > 0 ? fav / play : 0;
+        return { g, play, fav, ratio };
+    }).filter(x => x.g && x.play >= cfg.minPlay && x.play <= cfg.maxPlay && x.fav >= cfg.minFav && x.ratio >= cfg.minRatio)
+      .sort((a, b) => b.ratio - a.ratio || b.fav - a.fav)
+      .slice(0, cfg.limit);
+    if (!gems.length) { row.hidden = true; return; }
     const isEn = document.documentElement.getAttribute('data-lang') === 'en';
-    track.innerHTML = items.map(g => {
-        const name = escapeHtml(isEn ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en));
-        const author = escapeHtml(g.author || '');
-        const tags = (g.tags && Array.isArray(g.tags[isEn ? 'en' : 'zh']) ? g.tags[isEn ? 'en' : 'zh'] : []).slice(0, 2);
-        const tagHtml = tags.map(t => `<span class="for-you-tag">${escapeHtml(t)}</span>`).join('');
-        return `<a class="for-you-card" href="game.html?id=${encodeURIComponent(g.id)}">
-            <span class="for-you-icon">${escapeHtml(g.icon || '🎮')}</span>
-            <span class="for-you-name">${name}</span>
-            <span class="for-you-author">${author}</span>
-            <span class="for-you-tags">${tagHtml}</span>
-        </a>`;
-    }).join('');
-}
+    track.innerHTML = gems.map(x => stripCardHtml(x.g, isEn, isEn ? (Math.round(x.ratio * 100) + '% liked') : (Math.round(x.ratio * 100) + '% 收藏'))).join('');
+    row.hidden = false;
+};
 
 function renderCategories() {
     const isEn = document.documentElement.getAttribute('data-lang') === 'en';
@@ -542,11 +613,24 @@ function renderGameCard(item, isEn, showAuthor) {
     const card = document.createElement('div');
     card.className = 'game-card';
     card.setAttribute('tabindex', '0');
+    const marked = isWatchlisted(g.id);
     card.innerHTML = `
+        <button type="button" class="card-watch${marked ? ' marked' : ''}" data-watch-id="${escapeHtml(g.id)}" aria-label="${marked ? '移出想玩清单' : '加入想玩清单'}" title="${marked ? '移出想玩清单' : '加入想玩清单'}">${marked ? '🔖' : '📌'}</button>
         <div class="game-icon">${escapeHtml(g.icon || fallbackIcon)}</div>
         <div class="game-name">${finalHtmlName}</div>
         ${authorHtml}
     `;
+    const watchBtn = card.querySelector('.card-watch');
+    watchBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const now = toggleWatchlist(g.id);
+        watchBtn.classList.toggle('marked', now);
+        watchBtn.textContent = now ? '🔖' : '📌';
+        if (window.toast) window.toast(now ? '已加入想玩清单' : '已移出想玩清单');
+        // 同步想玩横排与猜你喜欢（想玩偏好会影响推荐）
+        if (typeof window.renderWatchlist === 'function') window.renderWatchlist();
+        if (typeof window.renderForYou === 'function') window.renderForYou();
+    });
     card.onclick = () => showPreview(g);
     card.onkeydown = (e) => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showPreview(g); }
@@ -1104,9 +1188,12 @@ window.addEventListener("message", function(event) {
             _rankMapped = mapped;
             // 推荐系统：把总榜前 3 的游戏 id 暴露给加权排序（复用同一份数据，不新增请求）
             window.__leleleTopIds = mapped.slice().sort((a, b) => b.count - a.count).slice(0, 3).map(x => String(x.id)).filter(Boolean);
+            // 冷门宝藏榜：复用同一份 analytics 映射结果，不新增请求
+            window.__leleleRankMapped = mapped;
             renderTop3(mapped);
             // 排行榜数据到位后刷新猜你喜欢的冷启动兜底（若首屏时还没算出）
             if (typeof window.renderForYou === 'function') window.renderForYou();
+            if (typeof window.renderGems === 'function') window.renderGems(mapped);
             renderActiveRankModal();
         } catch (e) {
             console.warn('rank fetch failed', e);
@@ -1154,6 +1241,30 @@ leleleOnReady( () => {
             if (!pool.length) { if (window.toast) window.toast('该范围内暂无游戏'); return; }
             const item = pool[Math.floor(Math.random() * pool.length)];
             const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+            window.location.href = 'game.html?id=' + encodeURIComponent(item.id) + (isEn ? '&lang=en' : '');
+        });
+    }
+
+    // 手气不错：从当前筛选/搜索结果里随机跳一款（跟随玩家眼前的范围）
+    const luckyBtn = document.getElementById('luckyBtn');
+    if (luckyBtn) {
+        luckyBtn.addEventListener('click', () => {
+            const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+            const base = (rankedGames.length ? rankedGames : gameData);
+            let pool = base;
+            if (searchKeyword.trim()) {
+                pool = window.leleleSearch(searchKeyword, base, isEn, searchScope);
+            } else {
+                pool = base.filter(g => {
+                    const cat = isEn ? g.category_en : g.category_zh;
+                    const gTags = (g.tags && Array.isArray(g.tags[isEn ? 'en' : 'zh'])) ? g.tags[isEn ? 'en' : 'zh'] : [];
+                    return (currentType === 'all' || g.type === currentType)
+                        && (currentCategory === 'all' || cat === currentCategory)
+                        && (!selectedTags.length || selectedTags.every(t => gTags.includes(t)));
+                });
+            }
+            if (!pool || !pool.length) { if (window.toast) window.toast(isEn ? 'No games in this filter' : '该范围内暂无游戏'); return; }
+            const item = pool[Math.floor(Math.random() * pool.length)];
             window.location.href = 'game.html?id=' + encodeURIComponent(item.id) + (isEn ? '&lang=en' : '');
         });
     }

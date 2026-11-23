@@ -1,5 +1,11 @@
 [
   {
+    "version": "4.5.0",
+    "date": "2026-11-23",
+    "content_zh": "中版本 4.5.0：一批发现与回访功能上线——首页新增「继续玩」「想玩清单」「冷门宝藏榜」和「手气不错」随机按钮，猜你喜欢纳入想玩偏好；标签专题页可按标签聚合游戏；个人中心显示本地游玩统计（仅本机、不上传）。作者页新增「作者贡献榜」。分享成绩：游戏内可生成带昵称和分数的专属链接，打开即可看到成绩卡与该游戏全服榜并直接试玩。开发者 SDK 全面升级：新增评分、读取该游戏排行榜、玩家昵称、平台判断、相似游戏跳转、成绩分享和打开详情等能力，完整文档见 sdk-docs.html。",
+    "content_en": "Minor version 4.5.0: a wave of discovery and return features - the homepage gains Continue Playing, a Watchlist, Hidden Gems and a Lucky Pick button, with For You now learning from your watchlist; a Tag Explorer aggregates games by tag; your profile shows local play stats (on-device only, never uploaded). Author pages gain a Top Contributors board. Score sharing: generate a personal link with your nickname and score that opens a result card, the game's global board and a play button. The developer SDK is expanded with ratings, per-game leaderboard reads, player nickname, platform check, similar-game jumps, score sharing and detail navigation - full docs at sdk-docs.html."
+  },
+  {
     "version": "4.4.1",
     "date": "2026-11-19",
     "content_zh": "小版本 4.4.1：新增 8 款本站游戏——2048、Astray（迷宫冒险）、纸片我的世界（Paper Minecraft）、笨拙小鸟（Clumsy Bird）、新冠跑酷（Corona Runner）、六边形消除（Hextris）、小恐龙跑酷（T-Rex Runner）、搭塔游戏（Tower Game）。这些是收录的社区开源作品，作者为原作者（非本站作者、无作者主页），游戏本体已放到本站，打开即玩。",

@@ -1,5 +1,14 @@
 [
   {
+    "id": "20261123-site-450-discovery-sdk",
+    "title_zh": "🎯 站点 4.5.0：猜你喜欢、想玩清单、成绩分享来了！",
+    "title_en": "🎯 Site 4.5.0: For You, Watchlist & Score Sharing Are Here!",
+    "content_zh": "这次更新让找游戏和回访更顺手：\n\n🎯 首页「猜你喜欢」会参考你的收藏和想玩清单\n⏯️ 「继续玩」接着上次的进度\n🔖 游戏卡上的书签可加入「想玩清单」\n💎 「冷门宝藏榜」发现玩过的人少但评价高的好游戏\n🎲 「手气不错」在你当前的筛选范围里随机挑一款\n🏷️ 标签专题页按标签聚合游戏\n📊 个人中心显示你的本地游玩统计（只在本机，不上传）\n🏆 作者页新增「作者贡献榜」\n🔗 游戏内可生成带昵称和分数的成绩分享链接\n\n开发者注意：SDK 已升级，新增评分、排行榜读取、相似游戏跳转、成绩分享等能力，文档见 sdk-docs.html。",
+    "content_en": "This update makes finding and returning to games easier:\n\n🎯 For You learns from your favorites and watchlist\n⏯️ Continue Playing picks up where you left off\n🔖 Bookmark games to your Watchlist\n💎 Hidden Gems surfaces well-loved games with few plays\n🎲 Lucky Pick randomly chooses within your current filter\n🏷️ Tag Explorer groups games by tag\n📊 Profile shows local play stats (on-device only, never uploaded)\n🏆 Author pages gain a Top Contributors board\n🔗 Generate shareable result links with your nickname and score\n\nDevelopers: the SDK is upgraded with ratings, leaderboard reads, similar-game jumps and score sharing. See sdk-docs.html.",
+    "publishDate": "2026-11-23",
+    "expireDate": "2026-12-23"
+  },
+  {
     "id": "20261119-site-441-new-games",
     "title_zh": "🎮 8 款新游戏上线了了游！",
     "title_en": "🎮 8 New Games Added to lelele Game!",

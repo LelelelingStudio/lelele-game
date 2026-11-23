@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>标签专题 · Tag Explorer · 了了了游</title>
+    <meta name="description" content="按标签探索了了了游的游戏。Explore games by tag on Lelele Game.">
+    <script>
+        (function () {
+            try {
+                var p = new URLSearchParams(window.location.search);
+                var u = p.get('lang'), s = localStorage.getItem('lelele_lang'), lang;
+                if (u === 'en' || u === 'zh') lang = u;
+                else if (s === 'en' || s === 'zh') lang = s;
+                else {
+                    var n = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    lang = n.indexOf('zh') === 0 ? 'zh' : (n.indexOf('en') === 0 ? 'en' : 'zh');
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <script src="/boot.js"></script>
+    <link rel="stylesheet" href="/common.css">
+    <style>
+        .tag-wrap { max-width: 1080px; margin: 0 auto; padding: 28px 18px 60px; }
+        .tag-back { display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted); text-decoration: none; font-size: .9rem; font-weight: 600; margin-bottom: 18px; padding: 6px 10px; border-radius: 10px; transition: background .18s, color .18s; }
+        .tag-back:hover { background: var(--card-bg); color: var(--text-main); }
+        .tag-hero { position: relative; overflow: hidden; border-radius: 24px; padding: 34px 30px; margin-bottom: 26px; background: linear-gradient(135deg, rgba(79,70,229,.12), rgba(16,185,129,.08)); border: 1px solid var(--card-border); }
+        .tag-hero::after { content: ''; position: absolute; width: 220px; height: 220px; right: -70px; top: -90px; border-radius: 50%; background: radial-gradient(circle, rgba(79,70,229,.18), transparent 70%); pointer-events: none; }
+        .tag-emoji { font-size: 2.6rem; line-height: 1; margin-bottom: 10px; }
+        .tag-title { font-size: 1.9rem; font-weight: 800; color: var(--text-main); margin: 0 0 6px; letter-spacing: -.02em; }
+        .tag-desc { font-size: .92rem; color: var(--text-muted); margin: 0; }
+        .tag-count { display: inline-block; margin-top: 14px; font-size: .8rem; font-weight: 700; color: var(--primary); background: rgba(79,70,229,.1); padding: 5px 12px; border-radius: 999px; }
+        .tag-section-title { font-size: 1.05rem; font-weight: 800; color: var(--text-main); margin: 30px 0 16px; display: flex; align-items: center; gap: 8px; }
+        .tag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 14px; }
+        .tag-game { position: relative; display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 20px 10px 16px; border-radius: 18px; border: 1px solid var(--card-border); background: var(--card-bg); text-decoration: none; color: var(--text-main); transition: transform .18s, box-shadow .18s, border-color .18s; }
+        .tag-game:hover, .tag-game:focus-visible { transform: translateY(-4px); box-shadow: 0 12px 26px rgba(79,70,229,.14); border-color: var(--primary); outline: none; }
+        .tag-game-icon { font-size: 2.1rem; }
+        .tag-game-name { font-size: .88rem; font-weight: 700; text-align: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .tag-game-cat { font-size: .7rem; color: var(--text-muted); }
+        .tag-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .tag-empty-icon { font-size: 3rem; margin-bottom: 14px; }
+        .tag-empty h2 { color: var(--text-main); font-size: 1.2rem; margin: 0 0 8px; }
+        .tag-empty p { font-size: .9rem; margin: 0 0 22px; }
+        .tag-home-btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; border-radius: 12px; background: var(--primary); color: #fff; text-decoration: none; font-weight: 700; font-size: .9rem; box-shadow: 0 6px 16px rgba(79,70,229,.25); transition: transform .18s, box-shadow .18s; }
+        .tag-home-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(79,70,229,.32); }
+        .tag-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+        .tag-chip-link { font-size: .78rem; padding: 6px 13px; border-radius: 999px; border: 1px solid var(--card-border); background: var(--card-bg); color: var(--text-muted); text-decoration: none; font-weight: 600; transition: color .18s, border-color .18s; }
+        .tag-chip-link:hover { color: var(--primary); border-color: var(--primary); }
+        @media (max-width: 640px) { .tag-hero { padding: 26px 20px; } .tag-title { font-size: 1.5rem; } .tag-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; } }
+        @media (prefers-reduced-motion: reduce) { .tag-game, .tag-home-btn, .tag-back { transition: none; } }
+    </style>
+</head>
+<body>
+    <div class="tag-wrap">
+        <a class="tag-back" href="/index.html">← <span class="zh-inline">返回游戏库</span><span class="en-inline">Back to games</span></a>
+
+        <div id="tagHero" class="tag-hero" hidden>
+            <div class="tag-emoji" id="tagEmoji">🏷️</div>
+            <h1 class="tag-title" id="tagTitle"></h1>
+            <p class="tag-desc" id="tagDesc"></p>
+            <span class="tag-count" id="tagCount"></span>
+        </div>
+
+        <div id="tagContent"></div>
+
+        <div id="tagEmpty" class="tag-empty" hidden>
+            <div class="tag-empty-icon">🔍</div>
+            <h2><span class="zh-inline">这里还没有游戏</span><span class="en-inline">No games here yet</span></h2>
+            <p><span class="zh-inline">这个标签暂时没有收录游戏，换个标签试试？</span><span class="en-inline">No games under this tag yet. Try another one?</span></p>
+            <div class="tag-chips" id="tagSuggest"></div>
+            <a class="tag-home-btn" href="/index.html">🏠 <span class="zh-inline">返回首页</span><span class="en-inline">Back home</span></a>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        'use strict';
+        function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+        function isEn() { return document.documentElement.getAttribute('data-lang') === 'en'; }
+        function t(zh, en) { return isEn() ? en : zh; }
+        var params = new URLSearchParams(window.location.search);
+        var tag = (params.get('tag') || '').trim().slice(0, 40);
+        var hero = document.getElementById('tagHero');
+        var content = document.getElementById('tagContent');
+        var empty = document.getElementById('tagEmpty');
+
+        function showEmpty(suggest) {
+            hero.hidden = true; content.innerHTML = '';
+            var box = document.getElementById('tagSuggest');
+            if (box && suggest && suggest.length) {
+                box.innerHTML = suggest.slice(0, 10).map(function (x) {
+                    var v = isEn() ? (x.en || x.zh) : (x.zh || x.en);
+                    return '<a class="tag-chip-link" href="tag.html?tag=' + encodeURIComponent(x.zh) + '">' + esc(v) + '</a>';
+                }).join('');
+            }
+            empty.hidden = false;
+        }
+
+        if (!tag) { showEmpty([]); return; }
+
+        fetch('/lelegame_data.json', { cache: 'no-store' })
+            .then(function (r) { return r.ok ? r.json() : []; })
+            .then(function (list) {
+                list = Array.isArray(list) ? list : [];
+                // 匹配中英文标签
+                var matched = list.filter(function (g) {
+                    var zh = (g.tags && Array.isArray(g.tags.zh)) ? g.tags.zh : [];
+                    var en = (g.tags && Array.isArray(g.tags.en)) ? g.tags.en : [];
+                    return zh.indexOf(tag) >= 0 || en.indexOf(tag) >= 0
+                        || (g.category_zh === tag) || (g.category_en === tag);
+                });
+                if (!matched.length) {
+                    var all = {};
+                    list.forEach(function (g) {
+                        [].concat((g.tags && g.tags.zh) || [], (g.tags && g.tags.en) || []).forEach(function (x) { if (!all[x]) all[x] = { zh: x, en: x }; });
+                    });
+                    showEmpty(Object.keys(all).map(function (k) { return all[k]; }));
+                    return;
+                }
+                document.getElementById('tagEmoji').textContent = guessEmoji(tag);
+                document.getElementById('tagTitle').textContent = tag;
+                document.getElementById('tagDesc').textContent = t('专注于「' + tag + '」标签的全部游戏，挑一款开始玩吧。', 'All games tagged "' + tag + '". Pick one and play.');
+                document.getElementById('tagCount').textContent = t(matched.length + ' 款游戏', matched.length + ' games');
+                hero.hidden = false; empty.hidden = true;
+                var catLabel = function (g) { return esc(isEn() ? (g.category_en || '') : (g.category_zh || '')); };
+                content.innerHTML = '<div class="tag-section-title">🎮 ' + t('该标签下的游戏', 'Games in this tag') + '</div>' +
+                    '<div class="tag-grid">' + matched.map(function (g) {
+                        var name = esc(isEn() ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en));
+                        var href = 'game.html?id=' + encodeURIComponent(g.id) + (isEn() ? '&lang=en' : '');
+                        return '<a class="tag-game" href="' + href + '"><span class="tag-game-icon">' + esc(g.icon || '🎮') + '</span><span class="tag-game-name">' + name + '</span><span class="tag-game-cat">' + catLabel(g) + '</span></a>';
+                    }).join('') + '</div>';
+            })
+            .catch(function () { showEmpty([]); });
+
+        function guessEmoji(s) {
+            var m = { '射击':'🔫','Shooter':'🔫','益智':'🧩','Puzzle':'🧩','冒险':'🗺️','Adventure':'🗺️','动作':'⚔️','Action':'⚔️','休闲':'🎯','Casual':'🎯','模拟经营':'🏗️','Simulation':'🏗️' };
+            return m[s] || '🏷️';
+        }
+    })();
+    </script>
+</body>
+</html>

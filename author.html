@@ -224,6 +224,17 @@
             .author-name { font-size: 1.8rem; }
             .games-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 16px; }
         }
+        /* 作者贡献榜 */
+        .contrib-wrap { margin: 0 0 26px; padding: 18px 20px; border-radius: 18px; background: linear-gradient(135deg, rgba(79,70,229,.07), rgba(16,185,129,.05)); border: 1px solid rgba(79,70,229,.14); }
+        .contrib-title { font-weight: 800; font-size: 1.02rem; color: var(--text-main); margin-bottom: 14px; }
+        .contrib-list { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+        .contrib-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--card-bg); border: 1px solid var(--card-border); text-decoration: none; color: var(--text-main); transition: transform .18s, box-shadow .18s; }
+        .contrib-row:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(79,70,229,.12); }
+        .contrib-rank { font-weight: 800; font-size: .85rem; min-width: 34px; }
+        .contrib-name { font-weight: 700; font-size: .86rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .contrib-metrics { font-size: .74rem; color: var(--text-muted); white-space: nowrap; }
+        @media (max-width: 600px) { .contrib-list { grid-template-columns: 1fr; } }
+        @media (prefers-reduced-motion: reduce) { .contrib-row { transition: none; } }
     </style>
 </head>
 <body>
@@ -272,6 +283,12 @@
                     <span class="zh-inline">🏅 申请官方认证</span><span class="en-inline">🏅 Apply for Certification</span>
                 </a>
             </div>
+        </div>
+
+        <!-- 作者贡献榜（作品数 + 粉丝数 + 游玩热度，数据来自主目录/关注表/排行榜；无数据自动隐藏） -->
+        <div class="contrib-wrap" id="contribWrap" style="display:none;">
+            <div class="contrib-title">🏆 <span class="zh-inline">作者贡献榜</span><span class="en-inline">Top Contributors</span></div>
+            <div class="contrib-list" id="contribList"></div>
         </div>
 
         <!-- 游戏作品区 -->
@@ -633,7 +650,47 @@
             if (followBox && typeof window.FollowUI === 'object' && currentAuthorData && currentAuthorData.id != null) {
                 window.FollowUI.mount(followBox, currentAuthorData.id);
             }
+            renderContribBoard();
         }
+
+        // 作者贡献榜：作品数（主目录聚合）+ 粉丝数（follows 表）+ 游玩热度（analytics，若有）。
+        // 只在作者信息位置展示，数据缺失时优雅降级（作品数始终可算，粉丝数为 0 也能显示）。
+        let _contribCache = null;
+        async function renderContribBoard() {
+            const wrap = document.getElementById('contribWrap'), list = document.getElementById('contribList');
+            if (!wrap || !list) return;
+            try {
+                if (!_contribCache) {
+                    const [authors, games, followers] = await Promise.all([
+                        typeof window.fetchAuthors === 'function' ? window.fetchAuthors().catch(() => []) : Promise.resolve([]),
+                        fetch('lelegame_data.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []),
+                        (window.FollowUI && typeof window.FollowUI.getFollowerCounts === 'function')
+                            ? window.FollowUI.getFollowerCounts().catch(() => ({})) : Promise.resolve({})
+                    ]);
+                    const works = {};
+                    (Array.isArray(games) ? games : []).forEach(g => {
+                        const aid = String(g.author);
+                        if (/^\d+$/.test(aid)) works[aid] = (works[aid] || 0) + 1;
+                    });
+                    _contribCache = (Array.isArray(authors) ? authors : []).map(a => ({
+                        id: a.id,
+                        name: (document.documentElement.getAttribute('data-lang') === 'en' ? (a.name_en || a.name_zh) : (a.name_zh || a.name_en)) || '—',
+                        works: works[String(a.id)] || 0,
+                        followers: followers[a.uuid] || 0
+                    })).filter(x => x.works > 0).sort((x, y) => (y.works + y.followers) - (x.works + x.followers));
+                }
+                const board = _contribCache;
+                if (!board.length) { wrap.style.display = 'none'; return; }
+                const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+                list.innerHTML = board.slice(0, 8).map((x, i) => {
+                    const medal = ['🥇','🥈','🥉'][i] || ('No.' + (i + 1));
+                    const link = 'author.html?id=' + encodeURIComponent(x.id) + (isEn ? '&lang=en' : '');
+                    return '<a class="contrib-row" href="' + link + '"><span class="contrib-rank">' + medal + '</span><span class="contrib-name">' + esc(x.name) + '</span><span class="contrib-metrics">🎮 ' + x.works + ' · 👥 ' + x.followers + '</span></a>';
+                }).join('');
+                wrap.style.display = 'block';
+            } catch (e) { wrap.style.display = 'none'; }
+        }
+        function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
         function showEmpty() {
             if (window.LelelePager) window.LelelePager.unmount();

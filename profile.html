@@ -171,6 +171,20 @@
                 </div>
             </div>
 
+            <!-- 本地游玩统计（纯浏览器本地，不入库） -->
+            <div class="card">
+                <div class="section-title">
+                    <span class="zh-inline">📊 我的游玩数据</span><span class="en-inline">📊 My Play Stats</span>
+                </div>
+                <div class="local-stats" id="localStats">
+                    <div class="stat-cell"><span class="stat-num" id="statPlayed">0</span><span class="stat-label"><span class="zh-inline">玩过款数</span><span class="en-inline">Games played</span></span></div>
+                    <div class="stat-cell"><span class="stat-num" id="statFavs">0</span><span class="stat-label"><span class="zh-inline">收藏</span><span class="en-inline">Favorites</span></span></div>
+                    <div class="stat-cell"><span class="stat-num" id="statWatch">0</span><span class="stat-label"><span class="zh-inline">想玩</span><span class="en-inline">Watchlist</span></span></div>
+                    <div class="stat-cell"><span class="stat-num" id="statWeek">0</span><span class="stat-label"><span class="zh-inline">本周游玩</span><span class="en-inline">Plays this week</span></span></div>
+                </div>
+                <div class="stat-note"><span class="zh-inline">仅统计此浏览器本地记录，不上传服务器</span><span class="en-inline">Counted locally in this browser only, never uploaded</span></div>
+            </div>
+
             <!-- 操作 -->
             <div class="card">
                 <div class="btn-row">
@@ -286,6 +300,26 @@
             });
         }
 
+        function renderLocalStats() {
+            try {
+                const played = JSON.parse(localStorage.getItem('lelele_played') || '{}');
+                const favs = JSON.parse(localStorage.getItem('lelele_favs') || '[]');
+                const watch = JSON.parse(localStorage.getItem('lelele_watchlist') || '[]');
+                const gamesPlayed = played && typeof played === 'object' && !Array.isArray(played)
+                    ? Object.keys(played).filter(k => k !== 'dates' && (Number(played[k]) || 0) > 0).length : 0;
+                // 本周（近 7 天）游玩次数：从 dates 里数落在最近 7 个 UTC 日期内的
+                const dates = (played && Array.isArray(played.dates)) ? played.dates : [];
+                const today = Date.now();
+                const weekAgo = today - 6 * 86400000;
+                const weekCount = dates.filter(d => { const t = new Date(d + 'T00:00:00').getTime(); return isFinite(t) && t >= weekAgo && t <= today; }).length;
+                const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = String(v); };
+                set('statPlayed', gamesPlayed);
+                set('statFavs', Array.isArray(favs) ? favs.length : 0);
+                set('statWatch', Array.isArray(watch) ? watch.length : 0);
+                set('statWeek', weekCount);
+            } catch (e) {}
+        }
+
         async function init() {
             updateLangBtn();
             window.addEventListener('langChanged', updateLangBtn);
@@ -338,6 +372,7 @@
             document.getElementById('profileRoot').hidden = false;
 
             await renderFavorites();
+            renderLocalStats();
         }
 
         async function onLogout() {

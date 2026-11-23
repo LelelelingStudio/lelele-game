@@ -1,6 +1,6 @@
 {
-  "version": 14,
-  "updatedAt": "2026-11-19T03:42:29.248Z",
+  "version": 15,
+  "updatedAt": "2026-11-23T03:19:22.014858Z",
   "_readme": {
     "说明": "本文件是「开发者定向告示」数据源，由 notice.js 读取。JSON 标准不支持 // 注释，所以字段说明都写在 _readme 里，程序会忽略它。",
     "文件结构": "{ version, updatedAt, _readme, notices: [告示对象, ...] }。真正生效的只有 notices 数组。",
@@ -31,6 +31,28 @@
     "新增告示": "在 notices 数组末尾追加对象，复制现有示例改字段即可，注意 id 不要重复。"
   },
   "notices": [
+    {
+      "id": "notice-2026-11-23-v450-sdk",
+      "enabled": true,
+      "author": "all",
+      "priority": 430,
+      "startAt": "2026-11-23T00:00:00+08:00",
+      "endAt": "2026-12-23T23:59:59+08:00",
+      "title_zh": "🚀 站点 4.5.0：开发者 SDK 全面升级",
+      "title_en": "🚀 Site 4.5.0: Developer SDK Upgraded",
+      "body_zh": "SDK 现在不止能上报分数：\n\n① 评分：window.LeleleSDK.submitRating(4.5)\n② 读取该游戏全服榜：getLeaderboard()\n③ 玩家昵称：getPlayerName()\n④ 平台判断：isInPlatform()\n⑤ 相似游戏跳转：nextGame()（可传 { category }）\n⑥ 成绩分享链接：shareScore(score)\n⑦ 打开本游戏详情：openDetail()\n\n全部仍是一个脚本、零后端、零密钥，仅在平台播放器内生效。完整 API、参数与示例见开发者 SDK 文档 sdk-docs.html；developer_docs.html 也已加入口。榜单与评分为荣誉展示（客户端上报、不防作弊）。",
+      "body_en": "The SDK now does more than score reporting:\n\n(1) Rating: window.LeleleSDK.submitRating(4.5)\n(2) Per-game leaderboard: getLeaderboard()\n(3) Player nickname: getPlayerName()\n(4) Platform check: isInPlatform()\n(5) Similar-game jump: nextGame() (optional { category })\n(6) Score share link: shareScore(score)\n(7) Open this game's detail: openDetail()\n\nStill one script, no backend, no API key, active only inside the platform player. Full API, params and examples at sdk-docs.html; developer_docs.html now links there too. Leaderboards and ratings are honor-system (client-reported, no anti-cheat).",
+      "media": [],
+      "buttons": [
+        {
+          "text_zh": "查看 SDK 文档",
+          "text_en": "Read SDK Docs",
+          "url": "https://game.leleleling.site/sdk-docs.html",
+          "style": "primary",
+          "target": "_self"
+        }
+      ]
+    },
     {
       "id": "notice-2026-11-19-v440-scoreboard-sdk",
       "enabled": true,
