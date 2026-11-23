@@ -1173,8 +1173,8 @@ html.dark-mode .lelele-settings-card { background: rgba(30,41,59,0.92); }
         .game-card:hover .game-icon { transform: scale(1.15); }
         /* 游戏封面：img 覆盖 emoji，解码/加载失败隐藏 img 露出 emoji（不回退旧图） */
         .cover-media, .game-icon-cover, .cover-media.for-you-icon { position: relative; display: inline-flex; align-items: center; justify-content: center; }
-        .game-icon-cover { width: 88px; height: 88px; font-size: 64px; margin-bottom: 16px; }
-        .cover-media .cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 16px; display: block; }
+        .game-icon-cover { width: 88px; aspect-ratio: 1; font-size: 64px; margin-bottom: 16px; }
+        .cover-media .cover-img, .game-icon-cover .cover-img { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 16px; display: block; }
         .game-icon-cover .cover-img { border-radius: 18px; }
         .cover-emoji { line-height: 1; }
         .for-you-card .cover-media { font-size: 2rem; width: 2.4em; height: 2.4em; }
