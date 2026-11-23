@@ -1420,6 +1420,20 @@ html.dark-mode .lelele-settings-card { background: rgba(30,41,59,0.92); }
 .tag-chip:hover { background: rgba(79,70,229,.14); }
 .tag-chip.active { background: #4f46e5; color: #fff; border-color: #4f46e5; }
 .tag-chip.clear { background: rgba(225,29,72,.08); color: #e11d48; border-color: rgba(225,29,72,.25); }
+/* 猜你喜欢（首页推荐位，横向滑动大卡片） */
+.for-you-row { margin: 0 0 22px; padding: 16px; border-radius: 18px; background: linear-gradient(135deg, rgba(79,70,229,.07), rgba(16,185,129,.06)); border: 1px solid rgba(79,70,229,.14); }
+.for-you-row[hidden] { display: none !important; }
+.for-you-head { margin-bottom: 12px; }
+.for-you-title { font-weight: 800; font-size: 1rem; color: var(--text-main, #1e293b); }
+.for-you-track { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 2px 12px; -webkit-overflow-scrolling: touch; }
+.for-you-card { flex: 0 0 150px; scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 16px 10px; border-radius: 14px; border: 1px solid var(--card-border, rgba(148,163,184,.2)); background: var(--card-bg, rgba(255,255,255,.9)); text-decoration: none; color: var(--text-main, #1e293b); transition: transform .18s, box-shadow .18s; }
+.for-you-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(79,70,229,.15); }
+.for-you-icon { font-size: 2rem; }
+.for-you-name { font-size: .88rem; font-weight: 800; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.for-you-author { font-size: .72rem; color: var(--text-muted, #64748b); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.for-you-tags { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+.for-you-tag { font-size: .62rem; padding: 2px 6px; border-radius: 999px; background: rgba(79,70,229,.1); color: var(--primary, #4f46e5); font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { .for-you-track { scroll-snap-type: none; } .for-you-card { transition: none; } }
 /* 本周轮播 */
 .weekly-carousel { margin: 0 0 22px; padding: 16px; border-radius: 18px; background: linear-gradient(135deg, rgba(79,70,229,.08), rgba(236,72,153,.06)); border: 1px solid rgba(79,70,229,.14); }
 .weekly-carousel[hidden] { display: none !important; }

@@ -447,12 +447,19 @@
 
 
     
-        .similar-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; }
-        .similar-card { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; border-radius: 14px; border: 1px solid var(--card-border); background: var(--card-bg); text-decoration: none; color: var(--text-main); transition: transform .18s, box-shadow .18s; }
+        /* 更多类似游戏：横向滚动紧凑卡片 */
+        .similar-grid { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 2px 12px; -webkit-overflow-scrolling: touch; }
+        .similar-card { position: relative; flex: 0 0 116px; scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 18px 8px 12px; border-radius: 14px; border: 1px solid var(--card-border); background: var(--card-bg); text-decoration: none; color: var(--text-main); transition: transform .18s, box-shadow .18s; }
         .similar-card:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(79,70,229,.14); }
         .similar-icon { font-size: 1.8rem; }
         .similar-name { font-size: .82rem; font-weight: 700; text-align: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        @media (max-width: 640px) { .similar-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+        .similar-badge { position: absolute; top: 5px; right: 5px; font-size: .62rem; font-weight: 700; padding: 2px 6px; border-radius: 999px; background: rgba(79,70,229,.12); color: var(--primary, #4f46e5); }
+        /* 更新日志：默认折叠 */
+        .update-log-summary { cursor: pointer; list-style: none; }
+        .update-log-summary::-webkit-details-marker { display: none; }
+        .update-log-summary::after { content: '▾'; margin-left: 8px; font-size: .8rem; color: var(--text-muted, #64748b); }
+        .update-log-details[open] .update-log-summary::after { content: '▴'; }
+        @media (prefers-reduced-motion: reduce) { .similar-grid { scroll-snap-type: none; } .similar-card { transition: none; } }
 </style>
 </head>
 <body>
@@ -525,19 +532,19 @@
                     <div class="screenshots-grid" id="screenshotsGrid"></div>
                 </div>
 
-                <div id="updateLogContainer" style="display:none;">
+                <div id="similarGames" class="similar-wrap" style="display:none;">
                     <div class="section-title">
-                        <span class="zh-inline">📝 更新日志</span><span class="en-inline">📝 Update Log</span>
-                    </div>
-                    <div class="timeline" id="timeline"></div>
-                </div>
-
-                <div id="similarGames" style="display:none;">
-                    <div class="section-title">
-                        <span class="zh-inline">🎯 玩过这个的人也喜欢</span><span class="en-inline">🎯 Players also like</span>
+                        <span class="zh-inline">🎯 更多类似游戏</span><span class="en-inline">🎯 More Like This</span>
                     </div>
                     <div class="similar-grid" id="similarGrid"></div>
                 </div>
+
+                <details id="updateLogContainer" class="update-log-details" style="display:none;">
+                    <summary class="section-title update-log-summary">
+                        <span class="zh-inline">📝 更新日志</span><span class="en-inline">📝 Update Log</span>
+                    </summary>
+                    <div class="timeline" id="timeline"></div>
+                </details>
             </div>
         </div>
 
@@ -1258,30 +1265,42 @@
             
             init();
 
-            // 相似推荐（#7）：按同分类 + 同标签匹配，取 4 款（排除自己）
+            // 更多类似游戏：Jaccard(tags)*0.7 + 同分类*0.2 + 同作者*0.1，取前 6，0 分不展示。
+            // 复用 init() 里已发出的主列表请求（gameCatalogCache），不重复 fetch。
             (async function loadSimilarGames() {
                 if (!currentGameData) return;
-                try {
-                    const res = await fetch('/lelegame_data.json', { cache: 'no-store' });
-                    if (!res.ok) return;
-                    const list = await res.json();
-                    const me = currentGameData;
-                    const myTags = (me.tags && me.tags.zh) || [];
-                    const scored = list.filter(g => String(g.id) !== String(me.id)).map(g => {
-                        let score = 0;
-                        if (g.category_zh === me.category_zh) score += 3;
-                        const gt = (g.tags && g.tags.zh) || [];
-                        gt.forEach(t => { if (myTags.includes(t)) score += 2; });
-                        return { g, score };
-                    }).filter(x => x.score > 0).sort((a, b) => b.score - a.score).slice(0, 4);
-                    if (!scored.length) return;
-                    const box = document.getElementById('similarGames');
-                    const grid = document.getElementById('similarGrid');
-                    if (!box || !grid) return;
-                    const isEn = document.documentElement.getAttribute('data-lang') === 'en';
-                    grid.innerHTML = scored.map(({ g }) => `<a class="similar-card" href="game.html?id=${encodeURIComponent(g.id)}"><span class="similar-icon">${g.icon || '🎮'}</span><span class="similar-name">${(isEn ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en)) || g.name}</span></a>`).join('');
-                    box.style.display = 'block';
-                } catch (e) {}
+                const box = document.getElementById('similarGames');
+                const grid = document.getElementById('similarGrid');
+                if (!box || !grid) return;
+                // 等待并行发起的主列表请求落地（最多 ~3s，避免死等）
+                for (let i = 0; i < 30 && !gameCatalogCache.length; i++) await new Promise(r => setTimeout(r, 100));
+                const list = gameCatalogCache;
+                if (!list.length) { box.style.display = 'none'; return; }
+                const me = currentGameData;
+                const myTags = new Set([].concat((me.tags && me.tags.zh) || [], (me.tags && me.tags.en) || []));
+                const scored = list.filter(g => String(g.id) !== String(me.id)).map(g => {
+                    const gt = [].concat((g.tags && g.tags.zh) || [], (g.tags && g.tags.en) || []);
+                    const inter = gt.filter(t => myTags.has(t)).length;
+                    const union = new Set([...myTags, ...gt]).size || 1;
+                    const jac = inter / union;
+                    const sameCat = (g.category_zh && g.category_zh === me.category_zh) || (g.category_en && g.category_en === me.category_en) ? 1 : 0;
+                    const sameAuthor = String(g.author || '') !== '' && String(g.author) === String(me.author) ? 1 : 0;
+                    const score = jac * 0.7 + sameCat * 0.2 + sameAuthor * 0.1;
+                    let reason = '';
+                    if (sameAuthor) reason = 'same-author';
+                    else if (sameCat) reason = 'same-category';
+                    else if (inter) reason = 'same-tag';
+                    return { g, score, reason };
+                }).filter(x => x.score > 0).sort((a, b) => b.score - a.score).slice(0, 6);
+                if (!scored.length) { box.style.display = 'none'; return; }
+                const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+                const REASON = { 'same-author': [ '同作者', 'Same author' ], 'same-category': [ '同类型', 'Same category' ], 'same-tag': [ '同标签', 'Similar tags' ] };
+                grid.innerHTML = scored.map(({ g, reason }) => {
+                    const name = escapeHtml((isEn ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en)) || g.name || '');
+                    const badge = reason && REASON[reason] ? `<span class="similar-badge">${REASON[reason][isEn ? 1 : 0]}</span>` : '';
+                    return `<a class="similar-card" href="game.html?id=${encodeURIComponent(g.id)}">${badge}<span class="similar-icon">${escapeHtml(g.icon || '🎮')}</span><span class="similar-name">${name}</span></a>`;
+                }).join('');
+                box.style.display = 'block';
             })();
 
             window.addEventListener('langChanged', () => {

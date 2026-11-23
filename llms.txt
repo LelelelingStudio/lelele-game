@@ -3,7 +3,7 @@
 > Read this file first. It explains the platform from a **game developer / integrator** point of view.
 > You do NOT need to read the repository source code to build or integrate a game here.
 > Site: https://game.leleleling.site · Analytics: https://analytics.leleleling.site
-> Version baseline: 4.4.1 · Game rules 5.0.0 · Data: 40 games / 10 authors.
+> Version baseline: 4.4.1 (SW v1.29) · Game rules 5.0.0 · Data: 42 games / 10 authors.
 
 ## What this site is
 
@@ -20,7 +20,7 @@ site (GitHub Pages) plus a Cloudflare Worker backend for analytics.
      (`generic_eula.html`, `generic_privacy.html`, `generic_tos.html`).
    - Free bilingual generator: https://game.leleleling.site/legal_templates.html
 3. Submission form: the "投稿" button on the homepage; author identity is matched by the developer
-   display name against the `author` field of the catalog.
+   display name you registered (case and space sensitive).
 4. Review takes ~7 business days; you will be notified by email.
 5. Full guide: https://game.leleleling.site/developer_docs.html
 
@@ -67,7 +67,8 @@ Developers can let players submit scores into a per-game "Global Top 10" board:
   developers do not manage any database.
 
 Event naming conventions (important):
-- `play-game_<game name>` — one event each time a game starts.
+- `play-game_<game id>` — one event each time a game starts (keyed by numeric game id; older
+  `play-game_<name>` events are still compatible and merged into the same game).
 - `fav-game_<game id>` / `unfav-game_<game id>` — favorite / unfavorite actions.
 - Ranking score ("rank points") = net favorites × 5 + plays.
 
@@ -87,9 +88,21 @@ Event naming conventions (important):
 
 - The standalone `play.html` embeds same-origin games with `?embed=1&lang=zh|en`; the game page
   detects embed mode and hides site footers, seasonal decorations and announcement popups.
-- Games that block embedding show a prominent "Open in new tab" bar; fullscreen targets the iframe
-  (with a whole-window fallback) and asks for confirmation first on external games.
+- Games that block embedding show a prominent "Open in new tab" bar; fullscreen targets the game
+  iframe itself and asks for confirmation first on external games.
 - Game saves use browser `localStorage`; the player deliberately does not sandbox the iframe.
+
+## Discovery & recommendations
+
+- The homepage game library is ordered by a weighted random ranking (author level, source type,
+  leaderboard position and a short "new game" boost), reshuffled only on page reload - filtering,
+  search and pagination keep the same order.
+- "For You" on the homepage suggests games from your local favorites (tags/category); with no
+  favorites it falls back to the leaderboard top games.
+- Game detail pages show "More Like This" (content similarity by tags/category/author) and a
+  collapsed-by-default update log.
+- Game agreements may be bilingual links (Chinese/English) supplied at submission time; the player
+  opens the one matching the current interface language, falling back to platform generic agreements.
 
 ## For AI agents
 

@@ -164,6 +164,78 @@ let searchTimer = null;
 let searchScope = 'all';
 let searchPage = 1;
 
+// ==================== 推荐系统（加权随机 + 猜你喜欢）====================
+// 每次页面加载算一次 rankedGames，之后筛选/搜索/分页都基于它，不再洗牌。
+let rankedGames = [];
+
+// 作者权重：命中即停。author 已被 loadGames 映射为名字字符串，但保留 authorId/_authorLevel。
+function _authorWeight(g, authors) {
+    if (String(g.authorId || g.author) === '1') return 5.0;
+    const lvl = g._authorLevel != null ? g._authorLevel
+        : (authors.find(a => String(a.id) === String(g.authorId || g.author)) || {}).authorlevel;
+    if (lvl === 6) return 4.0;
+    if (lvl === 5) return 3.5;
+    if (lvl === 4) return 3.0;
+    if (lvl === 3) return 2.5;
+    if (lvl === 2) return 2.0;
+    if (lvl === 1) return 1.5;
+    const aid = g.authorId || g.author;
+    if (aid != null && /^\d+$/.test(String(aid)) && authors.some(a => String(a.id) === String(aid))) return 1.2;
+    return 0.5;
+}
+
+// 来源权重
+const _TYPE_WEIGHT = { local: 1.0, internal: 0.9, external: 0.7 };
+
+// 日期字段缺失时返回 0（跳过新游加成，不报错、不阻塞）
+function _addedDaysAgo(g) {
+    const raw = g.addedAt || g.date || g.createdAt;
+    if (!raw) return null;
+    const t = new Date(raw).getTime();
+    if (!isFinite(t)) return null;
+    return Math.max(0, Math.floor((Date.now() - t) / 86400000));
+}
+
+function computeWeight(g, authors, topIds) {
+    const base = _authorWeight(g, authors) * (_TYPE_WEIGHT[g.type] || 0.7);
+    const rank = Array.isArray(topIds) ? topIds.indexOf(String(g.id)) : -1;
+    const rankMul = rank === 0 ? 1.5 : rank === 1 ? 1.3 : rank === 2 ? 1.15 : 1.0;
+    const days = _addedDaysAgo(g);
+    const fresh = days == null ? 0 : Math.max(0, 7 - days);
+    return base * rankMul + fresh;
+}
+
+// Efraimidis–Spirakis 加权随机：key = u^(1/w)，按 key 降序
+function orderByWeight(games, authors) {
+    const topIds = window.__leleleTopIds || [];
+    return games.map(g => {
+        const w = computeWeight(g, authors || [], topIds);
+        const u = Math.random() || 1e-9;
+        return { g, key: Math.pow(u, 1 / Math.max(w, 1e-6)) };
+    }).sort((a, b) => b.key - a.key).map(x => x.g);
+}
+
+// 猜你喜欢：读 localStorage 收藏，累加 tags/category 偏好，给未收藏游戏打分取前 8
+function computeForYou(list, limit) {
+    const favs = getFavorites().map(String);
+    const favSet = new Set(favs);
+    const pref = new Map();
+    const bump = k => { if (k) pref.set(k, (pref.get(k) || 0) + 1); };
+    (list || []).forEach(g => {
+        if (!favSet.has(String(g.id))) return;
+        bump(g.category_zh); bump(g.category_en);
+        [].concat((g.tags && g.tags.zh) || [], (g.tags && g.tags.en) || []).forEach(bump);
+    });
+    const scored = (list || []).filter(g => !favSet.has(String(g.id))).map(g => {
+        let s = 0;
+        if (pref.get(g.category_zh)) s += pref.get(g.category_zh);
+        if (pref.get(g.category_en)) s += pref.get(g.category_en);
+        [].concat((g.tags && g.tags.zh) || [], (g.tags && g.tags.en) || []).forEach(t => { if (pref.get(t)) s += pref.get(t); });
+        return { g, s };
+    }).filter(x => x.s > 0).sort((a, b) => b.s - a.s);
+    return scored.slice(0, limit || 8).map(x => x.g);
+}
+
 // 共享目录数据缓存：首页 loadGames 与排行榜共用同一份 lelegame_data.json，避免重复请求
 let _catalogPromise = null;
 function getCatalog() {
@@ -211,6 +283,7 @@ async function loadGames() {
                     return { 
                         ...g, 
                         authorId: g.author, 
+                        _authorLevel: authorObj.authorlevel,
                         author: authorObj.name_zh || authorObj.name_en || 'Unknown',
                         author_en: authorObj.name_en || authorObj.name_zh || 'Unknown'
                     };
@@ -218,6 +291,9 @@ async function loadGames() {
             }
             return g;
         });
+
+        // 推荐系统：加权随机排序（每次加载算一次，后续筛选/搜索/分页不重排）
+        rankedGames = orderByWeight(gameData, authorsData || []);
 
     } catch (e) {
         grid.innerHTML = '';
@@ -228,8 +304,39 @@ async function loadGames() {
     
     renderCategories();
     renderGames();
+    // 猜你喜欢：基于本地收藏（冷启动用排行榜 TOP8），不阻塞
+    renderForYou();
     // 本周更新轮播异步加载（不阻塞游戏列表）
     loadWeeklyCarousel().catch(() => {});
+}
+
+window.renderForYou = function renderForYou() {
+    const row = document.getElementById('forYouRow');
+    const track = document.getElementById('forYouTrack');
+    if (!row || !track) return;
+    const list = rankedGames.length ? rankedGames : gameData;
+    if (!list.length) { row.hidden = true; return; }
+    let items = computeForYou(list, 8);
+    // 冷启动（无收藏）：用排行榜 TOP8 兜底，无额外请求
+    if (!items.length && Array.isArray(window.__leleleTopIds) && window.__leleleTopIds.length) {
+        const byId = new Map(list.map(g => [String(g.id), g]));
+        items = window.__leleleTopIds.map(id => byId.get(String(id))).filter(Boolean).slice(0, 8);
+    }
+    if (!items.length) { row.hidden = true; return; }
+    row.hidden = false;
+    const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+    track.innerHTML = items.map(g => {
+        const name = escapeHtml(isEn ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en));
+        const author = escapeHtml(g.author || '');
+        const tags = (g.tags && Array.isArray(g.tags[isEn ? 'en' : 'zh']) ? g.tags[isEn ? 'en' : 'zh'] : []).slice(0, 2);
+        const tagHtml = tags.map(t => `<span class="for-you-tag">${escapeHtml(t)}</span>`).join('');
+        return `<a class="for-you-card" href="game.html?id=${encodeURIComponent(g.id)}">
+            <span class="for-you-icon">${escapeHtml(g.icon || '🎮')}</span>
+            <span class="for-you-name">${name}</span>
+            <span class="for-you-author">${author}</span>
+            <span class="for-you-tags">${tagHtml}</span>
+        </a>`;
+    }).join('');
 }
 
 function renderCategories() {
@@ -364,6 +471,8 @@ window.renderGames = function() {
     const isEn = document.documentElement.getAttribute('data-lang') === 'en';
     const isSearch = searchKeyword.trim() !== '';
     let filtered = [];
+    // 推荐系统：所有筛选/搜索都在已排好序的 rankedGames 上做，不再重新洗牌
+    const sourceList = (rankedGames && rankedGames.length) ? rankedGames : gameData;
 
     if (isSearch) {
         if (searchScope === 'author') {
@@ -379,7 +488,7 @@ window.renderGames = function() {
             return;
         }
 
-        filtered = window.leleleSearch(searchKeyword, gameData, isEn, searchScope);
+        filtered = window.leleleSearch(searchKeyword, sourceList, isEn, searchScope);
 
         if (filtered.length === 0) {
             status.style.display = 'block';
@@ -400,7 +509,7 @@ window.renderGames = function() {
         return;
     }
 
-    filtered = gameData.filter(g => {
+    filtered = sourceList.filter(g => {
         const matchType = (currentType === 'all') || (g.type === currentType);
         const cat = isEn ? g.category_en : g.category_zh;
         const matchCat = (currentCategory === 'all') || (cat === currentCategory);
@@ -993,7 +1102,11 @@ window.addEventListener("message", function(event) {
             }).filter(item => item.name && item.url).sort((a, b) => b.count - a.count);
 
             _rankMapped = mapped;
+            // 推荐系统：把总榜前 3 的游戏 id 暴露给加权排序（复用同一份数据，不新增请求）
+            window.__leleleTopIds = mapped.slice().sort((a, b) => b.count - a.count).slice(0, 3).map(x => String(x.id)).filter(Boolean);
             renderTop3(mapped);
+            // 排行榜数据到位后刷新猜你喜欢的冷启动兜底（若首屏时还没算出）
+            if (typeof window.renderForYou === 'function') window.renderForYou();
             renderActiveRankModal();
         } catch (e) {
             console.warn('rank fetch failed', e);
