@@ -3,7 +3,7 @@
 > Read this file first. It explains the platform from a **game developer / integrator** point of view.
 > You do NOT need to read the repository source code to build or integrate a game here.
 > Site: https://game.leleleling.site · Analytics: https://analytics.leleleling.site
-> Version baseline: 4.5.0 (SW v1.33) · Game rules 5.0.0 · Data: 42 games / 10 authors.
+> Version baseline: 4.6.0 (SW v1.34) · Game rules 5.1.0 · Data: 42 games / 10 authors.
 
 ## What this site is
 
@@ -13,7 +13,7 @@ site (GitHub Pages) plus a Cloudflare Worker backend for analytics.
 
 ## For game developers — how to submit
 
-1. Read the rules: https://game.leleleling.site/game_rules.html (v5.0.0).
+1. Read the rules: https://game.leleleling.site/game_rules.html (v5.1.0).
 2. Every game MUST provide three legal agreements: EULA, Privacy Policy, Terms of Service.
    - External/embedded games: provide your EULA / Privacy / Terms URLs in the submission form.
    - Code games: ship your own, or use the platform's generic agreements
@@ -65,6 +65,8 @@ Developers add one script to their game to access platform capabilities:
 - Anonymous players are allowed; a random local nickname is generated automatically.
 - Leaderboards and ratings are honor-system (client-reported, no anti-cheat); the platform stores and serves all data.
 - Full API reference and examples: https://game.leleleling.site/sdk-docs.html
+
+Games newly submitted from 2026-11-28 must integrate the SDK (at minimum submitScore); see the Game Rules.
 
 Ranking score ("rank points") = net favorites × 5 + plays.
 

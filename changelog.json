@@ -1,5 +1,11 @@
 [
   {
+    "version": "4.6.0",
+    "date": "2026-11-24",
+    "content_zh": "中版本 4.6.0：《游戏守则》升级至 5.1.0，明确自 2026 年 11 月 28 日起新投稿的游戏须接入了了了游开发者 SDK（至少实现 submitScore 分数上报），以便平台统一展示全服榜单、评分与成绩分享；此前已收录游戏不受此约束。开发者文档与 SDK 文档已同步。另修复详情页标题被挤压、外链游戏全屏点击无响应，并新增统一分享弹窗（复制/X/Instagram/Facebook/邮箱/系统分享）。",
+    "content_en": "Minor version 4.6.0: Game Rules upgraded to 5.1.0 - games newly submitted from November 28, 2026 must integrate the lelele Game Developer SDK (at minimum submitScore), enabling unified leaderboards, ratings and score sharing; already-indexed games are unaffected. Developer docs and SDK docs updated. Also fixes the squeezed game-detail title and unresponsive fullscreen on external games, and adds a unified share dialog (copy / X / Instagram / Facebook / email / system share)."
+  },
+  {
     "version": "4.5.0",
     "date": "2026-11-23",
     "content_zh": "中版本 4.5.0：一批发现与回访功能上线——首页新增「继续玩」「想玩清单」「冷门宝藏榜」和「手气不错」随机按钮，猜你喜欢纳入想玩偏好；标签专题页可按标签聚合游戏；个人中心显示本地游玩统计（仅本机、不上传）。作者页新增「作者贡献榜」。分享成绩：游戏内可生成带昵称和分数的专属链接，打开即可看到成绩卡与该游戏全服榜并直接试玩。开发者 SDK 全面升级：新增评分、读取该游戏排行榜、玩家昵称、平台判断、相似游戏跳转、成绩分享和打开详情等能力，完整文档见 sdk-docs.html。",

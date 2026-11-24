@@ -470,12 +470,16 @@
     var d = document;
     var inFull = d.fullscreenElement || d.webkitFullscreenElement || d.mozFullScreenElement;
     if (inFull) { exitFull(); return; }
-    // 外链游戏：先中英双语确认；确认后无论如何都进入全屏（iframe 不行就整窗兜底）
+    // requestFullscreen 必须在点击的同步手势链里调用：绝不能用 confirm/alert——
+    // 模态框会消耗 user activation，导致弹框关闭后请求被浏览器拒绝（点了没反应）。
+    // 外链改非阻塞提示（toast），不打断手势；全屏照常请求，iframe 不行就整窗兜底。
     if (!sameOrigin && targetUrl) {
-      var msg = isEn()
-        ? 'This game is hosted on another site and may not be embeddable. Fullscreen may not work well. Continue?'
-        : '该游戏来自外部站点，可能不适合嵌入。全屏后可能玩不了或体验不好，仍要全屏吗？';
-      if (!window.confirm(msg)) return;
+      // 跨域 iframe 通常无法自身全屏（受第三方框架限制）：直接整窗全屏，确保点击即生效
+      if (typeof window.toast === 'function') {
+        window.toast(isEn() ? 'External game: fullscreen may be limited' : '外部游戏：全屏效果可能受限');
+      }
+      rootFull().catch(function (e) { console.warn('[play] fullscreen failed', e); });
+      return;
     }
     iframeFull().catch(function (e) { console.warn('[play] fullscreen failed', e); });
   }

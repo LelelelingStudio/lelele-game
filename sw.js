@@ -1,6 +1,10 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.34 —— 4.6.0 / 规则 5.1.0：标题移到三按钮下方独立自适应框（≤10字单行缩放、>10字每6字换行）；
+ *   全屏去掉消耗手势的 confirm（外链直接整窗全屏）；规则升级 5.1.0（11/28 起新投稿须接入 SDK）；
+ *   changelog 4.6.0 + 玩家公告 + 开发者告示 v16。改了预缓存内 game.html/play.html/game_rules.html 字节。
+ *
  * ★ v1.33 —— 详情页修复与分享：① 修复「更多类似游戏」推荐区不显示（loadSimilarGames 从 onReady
  *   的空跑 IIFE 改为 renderGamePage 就绪后调用）；② 游戏标题防挤压换行、作者栏徽章 flex-wrap；
  *   ③ 新增统一分享弹窗（复制/X/Instagram/Facebook/邮箱/系统分享）；④ 11 款工作室游戏写入
@@ -174,7 +178,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.33';
+const CACHE_NAME = 'lelele-pwa-v1.34';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。

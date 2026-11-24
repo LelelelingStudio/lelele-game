@@ -1,5 +1,14 @@
 [
   {
+    "id": "20261124-rules-510-sdk-requirement",
+    "title_zh": "📢 游戏守则 5.1.0：11 月 28 日起新投稿须接入 SDK",
+    "title_en": "📢 Game Rules 5.1.0: SDK Required for New Submissions from Nov 28",
+    "content_zh": "《了了了游游戏守则》升级至 5.1.0，将于 2026 年 11 月 28 日正式生效。\n\n核心变化：自 11 月 28 日起新投稿的游戏，须接入了了了游开发者 SDK（至少实现 submitScore 分数上报），以便平台统一展示全服榜单、评分与成绩分享。此前 5.0.0 版要求的三项法律协议（用户协议/隐私政策/服务条款）继续有效。\n\n已收录的游戏不受新条款约束。接入方式见开发者 SDK 文档（sdk-docs.html）。",
+    "content_en": "lelele Game Rules upgraded to 5.1.0, effective November 28, 2026.\n\nKey change: games newly submitted from Nov 28 must integrate the lelele Game Developer SDK (at minimum submitScore), enabling unified leaderboards, ratings and score sharing. The 5.0.0 requirement for all three legal agreements (EULA / Privacy Policy / Terms of Service) remains in effect.\n\nAlready-indexed games are unaffected. See the Developer SDK docs (sdk-docs.html) for integration.",
+    "publishDate": "2026-11-24",
+    "expireDate": "2026-12-24"
+  },
+  {
     "id": "20261123-site-450-discovery-sdk",
     "title_zh": "🎯 站点 4.5.0：猜你喜欢、想玩清单、成绩分享来了！",
     "title_en": "🎯 Site 4.5.0: For You, Watchlist & Score Sharing Are Here!",

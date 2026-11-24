@@ -173,15 +173,19 @@
             flex-wrap: wrap;
         }
         .title-group { flex: 1 1 320px; min-width: 0; }
+        /* 标题独立框：整行、自适应字号、长标题按 6 字换行，绝不挤压截断 */
+        .title-frame {
+            margin: -6px 0 26px; padding: 16px 20px; border-radius: 16px;
+            background: linear-gradient(135deg, rgba(79,70,229,.06), rgba(16,185,129,.05));
+            border: 1px solid rgba(79,70,229,.12);
+        }
         .game-title {
-            font-size: 2.2rem;
             font-weight: 800;
             color: var(--text-main);
-            margin-bottom: 12px;
-            line-height: 1.2;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            line-height: 1.35;
+            margin: 0;
+            word-break: break-word;
+            overflow-wrap: anywhere;
         }
         .meta-tags { display: flex; gap: 10px; flex-wrap: wrap; }
         .tag {
@@ -538,7 +542,6 @@
             <div class="content-area">
                 <div class="header-info">
                     <div class="title-group">
-                        <h1 class="game-title" id="gameTitle"></h1>
                         <div class="meta-tags" id="metaTags"></div>
                         <div class="author-bar" id="authorBar"></div>
                     </div>
@@ -551,6 +554,11 @@
                             <span class="zh-inline">🎮 开始游戏</span><span class="en-inline">🎮 Play Game</span>
                         </button>
                     </div>
+                </div>
+
+                <!-- 标题独立框：位于按钮下方，整行宽度，字号随字数自适应，超 10 字每行 6 字换行 -->
+                <div class="title-frame" id="titleFrame">
+                    <h1 class="game-title" id="gameTitle"></h1>
                 </div>
 
                 <div class="section-title">
@@ -656,6 +664,27 @@
             return String(str)
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+        // 标题自适应：≤10 字单行（字多缩小字号）；>10 字每 6 字一行。用 DOM 节点写入，杜绝注入。
+        function renderAdaptiveTitle(el, name) {
+            if (!el) return;
+            const text = String(name || '');
+            const chars = Array.from(text); // 兼容 emoji/代理对
+            const n = chars.length;
+            el.textContent = '';
+            if (n <= 10) {
+                // 单行：字号随字数从 2.2rem 线性缩到 1.35rem，保证不溢出框
+                const size = n <= 6 ? 2.2 : Math.max(1.35, 2.2 - (n - 6) * 0.17);
+                el.style.fontSize = size.toFixed(2) + 'rem';
+                el.appendChild(document.createTextNode(text));
+                return;
+            }
+            // 多行：每 6 字一行，字号固定适中
+            el.style.fontSize = '1.5rem';
+            for (let i = 0; i < n; i += 6) {
+                if (i) el.appendChild(document.createElement('br'));
+                el.appendChild(document.createTextNode(chars.slice(i, i + 6).join('')));
+            }
         }
         // 封面（可选 cover）：lsfp 解码失败露 emoji，不回退旧图
         function coverHtml(g) {
@@ -1051,7 +1080,8 @@
                 bannerIcon.textContent = game.icon || '🎮';
             }
 
-            document.getElementById('gameTitle').textContent = gameName;
+            // 标题自适应：≤10 字单行（字多缩小），>10 字每 6 字一行；均不超出标题框
+            renderAdaptiveTitle(document.getElementById('gameTitle'), gameName);
             
             const gameCat = en ? (game.category_en || game.category_zh || game.category) : (game.category_zh || game.category_en || game.category);
             const gameAge = en ? (game.ageRating_en || game.ageRating_zh || game.ageRating) : (game.ageRating_zh || game.ageRating_en || game.ageRating);

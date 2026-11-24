@@ -1,6 +1,6 @@
 {
-  "version": 15,
-  "updatedAt": "2026-11-23T03:19:22.014858Z",
+  "version": 16,
+  "updatedAt": "2026-11-24T01:54:40.879935Z",
   "_readme": {
     "说明": "本文件是「开发者定向告示」数据源，由 notice.js 读取。JSON 标准不支持 // 注释，所以字段说明都写在 _readme 里，程序会忽略它。",
     "文件结构": "{ version, updatedAt, _readme, notices: [告示对象, ...] }。真正生效的只有 notices 数组。",
@@ -31,6 +31,28 @@
     "新增告示": "在 notices 数组末尾追加对象，复制现有示例改字段即可，注意 id 不要重复。"
   },
   "notices": [
+    {
+      "id": "notice-2026-11-24-rules-510-sdk",
+      "enabled": true,
+      "author": "all",
+      "priority": 431,
+      "startAt": "2026-11-24T00:00:00+08:00",
+      "endAt": "2026-12-24T23:59:59+08:00",
+      "title_zh": "📋 规则 5.1.0：11 月 28 日起新投稿须接入 SDK",
+      "title_en": "📋 Rules 5.1.0: SDK Required for New Submissions from Nov 28",
+      "body_zh": "《游戏守则》已升级至 5.1.0，2026 年 11 月 28 日生效：\n\n① 自 11 月 28 日起新投稿的游戏须接入开发者 SDK（至少 submitScore 分数上报）\n② 已收录游戏不受此约束\n③ 5.0.0 的三项法律协议要求继续有效\n\n接入只需一个脚本、零后端、零密钥：\n引入 https://game.leleleling.site/lelele-sdk.js\nwindow.LeleleSDK.submitScore(1234);\n\n完整 API 见 SDK 文档 sdk-docs.html。",
+      "body_en": "Game Rules upgraded to 5.1.0, effective November 28, 2026:\n\n(1) Games newly submitted from Nov 28 must integrate the Developer SDK (at minimum submitScore)\n(2) Already-indexed games are unaffected\n(3) The 5.0.0 requirement for three legal agreements remains in effect\n\nIntegration takes one script, no backend, no API key:\n引入 https://game.leleleling.site/lelele-sdk.js\nwindow.LeleleSDK.submitScore(1234);\n\nFull API at sdk-docs.html.",
+      "media": [],
+      "buttons": [
+        {
+          "text_zh": "查看 SDK 文档",
+          "text_en": "Read SDK Docs",
+          "url": "https://game.leleleling.site/sdk-docs.html",
+          "style": "primary",
+          "target": "_self"
+        }
+      ]
+    },
     {
       "id": "notice-2026-11-23-v450-sdk",
       "enabled": true,
