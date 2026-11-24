@@ -1,5 +1,11 @@
 [
   {
+    "version": "4.6.2",
+    "date": "2026-11-24",
+    "content_zh": "修复外链游戏全屏时播放器工具栏仍然显示的问题。浏览器回退为播放器根节点全屏时，会隐藏外壳并让游戏画面铺满屏幕。",
+    "content_en": "Fixed external games leaving the player toolbar visible in fullscreen. When fullscreen falls back to the player root, the shell is hidden and the game fills the screen."
+  },
+  {
     "version": "4.6.1",
     "date": "2026-11-24",
     "content_zh": "新增了了了岭工作室开发的数独与国际象棋，分别支持数独每日挑战/变体玩法，以及国际象棋本地、人机和在线对弈。两款游戏均使用了了了游官方通用协议。",

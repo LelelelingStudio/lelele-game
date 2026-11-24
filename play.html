@@ -85,6 +85,15 @@
   #gameFrame { width:100%; height:100%; border:0; display:block; background:#fff; }
   /* 沉浸全屏：iframe 自己全屏，外壳（顶栏/底栏/地址栏）完全消失，只留游戏画面 */
   #gameFrame:fullscreen, #gameFrame:-webkit-full-screen { width:100vw; height:100vh; }
+  /* 外链 iframe 无法自行全屏时改为根节点全屏，同时隐藏播放器外壳。 */
+  #playRoot:fullscreen, #playRoot:-webkit-full-screen { background:#000; }
+  #playRoot:fullscreen .pbar, #playRoot:fullscreen .extbar, #playRoot:fullscreen .gameinfo,
+  #playRoot:fullscreen .pfoot, #playRoot:fullscreen .sitefoot,
+  #playRoot:-webkit-full-screen .pbar, #playRoot:-webkit-full-screen .extbar,
+  #playRoot:-webkit-full-screen .gameinfo, #playRoot:-webkit-full-screen .pfoot,
+  #playRoot:-webkit-full-screen .sitefoot { display:none !important; }
+  #playRoot:fullscreen .stage, #playRoot:-webkit-full-screen .stage { flex:1; min-height:0; }
+  #playRoot:fullscreen #gameFrame, #playRoot:-webkit-full-screen #gameFrame { width:100vw; height:100vh; }
   .pfoot { display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; flex-shrink:0; padding:8px 10px; background:var(--bar); }
   button.filebtn { background:#0f766e; font-size:11px; padding:7px 10px; }
   button.filebtn:hover { background:#115e59; }
