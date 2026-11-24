@@ -996,5 +996,39 @@
     "ageRating_en": "12+",
     "author": "1",
     "url": "https://claude.ai/artifact/BGY1SztrAYcJQHSsnHHGmp"
+  },
+  {
+    "id": 43,
+    "name_zh": "数独",
+    "name_en": "Sudoku",
+    "icon": "🔢",
+    "category_zh": "益智",
+    "category_en": "Puzzle",
+    "type": "local",
+    "ageRating_zh": "全年龄",
+    "ageRating_en": "All Ages",
+    "author": "1",
+    "url": "https://sudoku.leleleling.site/",
+    "tags": {
+      "zh": ["益智", "数独", "本站游戏"],
+      "en": ["Puzzle", "Sudoku", "Local"]
+    }
+  },
+  {
+    "id": 44,
+    "name_zh": "国际象棋",
+    "name_en": "Chess",
+    "icon": "♟️",
+    "category_zh": "益智",
+    "category_en": "Puzzle",
+    "type": "local",
+    "ageRating_zh": "全年龄",
+    "ageRating_en": "All Ages",
+    "author": "1",
+    "url": "https://chess.leleleling.site/",
+    "tags": {
+      "zh": ["益智", "棋类", "本站游戏"],
+      "en": ["Puzzle", "Chess", "Local"]
+    }
   }
 ]

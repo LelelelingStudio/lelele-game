@@ -1,5 +1,11 @@
 [
   {
+    "version": "4.6.1",
+    "date": "2026-11-24",
+    "content_zh": "新增了了了岭工作室开发的数独与国际象棋，分别支持数独每日挑战/变体玩法，以及国际象棋本地、人机和在线对弈。两款游戏均使用了了了游官方通用协议。",
+    "content_en": "Added Sudoku and Chess by Leleleling Studio, featuring daily and variant Sudoku puzzles and local, computer and online chess. Both games use lelele Game's official generic agreements."
+  },
+  {
     "version": "4.6.0",
     "date": "2026-11-24",
     "content_zh": "中版本 4.6.0：《游戏守则》升级至 5.1.0，明确自 2026 年 11 月 28 日起新投稿的游戏须接入了了了游开发者 SDK（至少实现 submitScore 分数上报），以便平台统一展示全服榜单、评分与成绩分享；此前已收录游戏不受此约束。开发者文档与 SDK 文档已同步。另修复详情页标题被挤压、外链游戏全屏点击无响应，并新增统一分享弹窗（复制/X/Instagram/Facebook/邮箱/系统分享）。",

@@ -1,0 +1,45 @@
+{
+  "id": 43,
+  "name_zh": "数独",
+  "name_en": "Sudoku",
+  "icon": "🔢",
+  "category_zh": "益智",
+  "category_en": "Puzzle",
+  "type": "local",
+  "ageRating_zh": "全年龄",
+  "ageRating_en": "All Ages",
+  "version": "v1.0.0",
+  "author": "1",
+  "url": "https://sudoku.leleleling.site/",
+  "banner": "",
+  "screenshots": [],
+  "videos": [],
+  "description_zh": "了了了岭工作室制作的数独游戏，提供经典数独、迷你与大型棋盘及多种变体。可挑战每日谜题、限时模式，也可查看游戏统计。",
+  "description_en": "A Sudoku game by Leleleling Studio featuring classic, mini and mega boards, plus puzzle variants. Play daily challenges or time attack and review your statistics.",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-24",
+      "content": "数独游戏上线。"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-24",
+      "content": "Sudoku released."
+    }
+  ],
+  "summary": "包含经典、迷你、大型棋盘和多种变体的数独游戏",
+  "summary_en": "Sudoku with classic, mini, mega and variant puzzles",
+  "tags": {
+    "zh": ["益智", "数独", "本站游戏"],
+    "en": ["Puzzle", "Sudoku", "Local"]
+  },
+  "authorName": "了了了岭工作室",
+  "legal_urls": {
+    "eula": "",
+    "privacy": "",
+    "terms": ""
+  }
+}

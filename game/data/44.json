@@ -1,0 +1,45 @@
+{
+  "id": 44,
+  "name_zh": "国际象棋",
+  "name_en": "Chess",
+  "icon": "♟️",
+  "category_zh": "益智",
+  "category_en": "Puzzle",
+  "type": "local",
+  "ageRating_zh": "全年龄",
+  "ageRating_en": "All Ages",
+  "version": "v1.0.0",
+  "author": "1",
+  "url": "https://chess.leleleling.site/",
+  "banner": "",
+  "screenshots": [],
+  "videos": [],
+  "description_zh": "了了了岭工作室制作的国际象棋游戏，支持本地双人对弈、人机对弈和在线对弈。在线模式通过双方交换连接信令建立连接。",
+  "description_en": "A chess game by Leleleling Studio with local two-player, computer and online modes. Online play connects opponents by exchanging signaling messages.",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-24",
+      "content": "国际象棋游戏上线。"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-24",
+      "content": "Chess released."
+    }
+  ],
+  "summary": "支持本地双人、人机和在线对弈的国际象棋",
+  "summary_en": "Chess with local, computer and online play",
+  "tags": {
+    "zh": ["益智", "棋类", "本站游戏"],
+    "en": ["Puzzle", "Chess", "Local"]
+  },
+  "authorName": "了了了岭工作室",
+  "legal_urls": {
+    "eula": "",
+    "privacy": "",
+    "terms": ""
+  }
+}
