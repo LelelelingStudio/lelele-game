@@ -73,6 +73,7 @@
             <span class="en-inline">⭐ Favorites Leaderboard</span>
         </h1>
         <div class="controls">
+            <label for="timeRange"><span class="zh-inline">时间范围</span><span class="en-inline">Time period</span></label>
             <select id="timeRange" onchange="syncParamsAndFetch()">
                 <option value="today">今天 / Today</option>
                 <option value="7d">近 7 天 / 7d</option>
@@ -80,6 +81,7 @@
                 <option value="90d">近 90 天 / 90d</option>
                 <option value="12mo">近 12 个月 / 12mo</option>
             </select>
+            <label for="topLimit"><span class="zh-inline">显示数量</span><span class="en-inline">Results</span></label>
             <select id="topLimit" onchange="syncParamsAndFetch()">
                 <option value="5">Top 5</option>
                 <option value="10" selected>Top 10</option>

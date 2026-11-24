@@ -175,45 +175,46 @@
             display: flex; align-items: center; gap: 10px;
             padding-left: 12px; border-left: 5px solid var(--primary);
         }
-        .section-title:first-of-type { margin-top: 0; }
+        .page-header + .section-title { margin-top: 0; }
+        .directory-status { color: var(--text-muted); margin: 0 0 16px; }
 
         @media (max-width: 600px) {
             .docs-grid { grid-template-columns: 1fr; }
             .page-header h1 { font-size: 2rem; }
-            .top-bar { padding: 12px 16px; }
+            .top-bar { padding: 12px 16px; flex-wrap: wrap; gap: 12px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="top-bar">
+    <header class="top-bar">
         <a href="/index.html" class="site-title">
             <img src="lelelegame.svg" alt="Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
             <span class="logo-fallback" style="display:none;">🎮</span>
             <span class="zh-inline">了了了游</span><span class="en-inline">lelele Game</span>
         </a>
         
-        <div class="right-actions">
-            <div class="lang-switch">
-                <button class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
-                <button class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
+        <nav class="right-actions" aria-label="页面导航 / Page navigation">
+            <div class="lang-switch" role="group" aria-label="语言 / Language">
+                <button type="button" class="lang-btn active" data-lang-btn="zh" onclick="setLang('zh')">中文</button>
+                <button type="button" class="lang-btn" data-lang-btn="en" onclick="setLang('en')">English</button>
             </div>
             <a href="/index.html" class="btn-back">
                 ← <span class="zh-inline">返回主页</span><span class="en-inline">Back to Home</span>
             </a>
-        </div>
-    </div>
+        </nav>
+    </header>
 
-    <div class="main-container">
+    <main class="main-container">
         <div class="page-header">
             <h1><span class="zh-inline">全站导航地图</span><span class="en-inline">Site Map & Directory</span></h1>
             <p><span class="zh-inline">这是一个收录了了了游所有的核心页面与功能入口</span><span class="en-inline">All core pages and entrances of lelele Game</span></p>
         </div>
 
         <!-- 核心页面 -->
-        <div class="section-title">
+        <h2 class="section-title">
             <span class="zh-inline">🌟核心页面</span><span class="en-inline">🌟 Core Pages</span>
-        </div>
+        </h2>
         <div class="docs-grid">
             <a href="/index.html" target="_blank" rel="noopener noreferrer" class="docs-card">
                 <div class="card-icon">🏠</div>
@@ -242,9 +243,9 @@
         </div>
 
         <!-- 开发者系统 -->
-        <div class="section-title">
+        <h2 class="section-title">
             <span class="zh-inline">🧑‍💻 开发者系统</span><span class="en-inline">🧑‍💻 Developer System</span>
-        </div>
+        </h2>
         <div class="docs-grid">
             <a href="login.html" target="_blank" rel="noopener noreferrer" class="docs-card">
                 <div class="card-icon">🔐</div>
@@ -289,9 +290,9 @@
         </div>
 
         <!-- 游戏与详情 -->
-        <div class="section-title">
+        <h2 class="section-title">
             <span class="zh-inline">🎮 游戏与详情</span><span class="en-inline">🎮 Games & Details</span>
-        </div>
+        </h2>
         <div class="docs-grid">
             <a href="game.html?id=1" target="_blank" rel="noopener noreferrer" class="docs-card">
                 <div class="card-icon">🕹️</div>
@@ -312,15 +313,15 @@
         </div>
 
         <!-- 条款与协议 -->
-        <div class="section-title">
+        <h2 class="section-title">
             <span class="zh-inline">📜 条款与协议</span><span class="en-inline">📜 Terms & Policies</span>
-        </div>
+        </h2>
         <div class="docs-grid">
             <a href="https://game.leleleling.site/user_agreement.html" target="_blank" rel="noopener noreferrer" class="docs-card">
                 <div class="card-icon">📋</div>
                 <div class="card-info">
                     <div class="card-name"><span class="zh-inline">用户协议</span><span class="en-inline">User Agreement</span></div>
-                    <div class="card-desc">user_agreement.html · 平台与用户</div>
+                    <div class="card-desc"><span class="zh-inline">user_agreement.html · 平台与用户</span><span class="en-inline">user_agreement.html · Platform and users</span></div>
                 </div>
                 <div class="link-icon">↗</div>
             </a>
@@ -328,7 +329,7 @@
                 <div class="card-icon">📄</div>
                 <div class="card-info">
                     <div class="card-name"><span class="zh-inline">协议模板中心</span><span class="en-inline">Legal Template Center</span></div>
-                    <div class="card-desc">legal_templates.html · 中英模板 · 支持五种导出</div>
+                    <div class="card-desc"><span class="zh-inline">legal_templates.html · 中英模板 · 支持五种导出</span><span class="en-inline">legal_templates.html · Bilingual templates · Five export formats</span></div>
                 </div>
                 <div class="link-icon">↗</div>
             </a>
@@ -336,7 +337,7 @@
                 <div class="card-icon">🛟</div>
                 <div class="card-info">
                     <div class="card-name"><span class="zh-inline">平台万能协议</span><span class="en-inline">Generic Agreements</span></div>
-                    <div class="card-desc">generic_eula.html · 存量游戏兜底</div>
+                    <div class="card-desc"><span class="zh-inline">generic_eula.html · 存量游戏兜底</span><span class="en-inline">generic_eula.html · Fallback for listed games</span></div>
                 </div>
                 <div class="link-icon">↗</div>
             </a>
@@ -374,24 +375,278 @@
             </a>
         </div>
 
-    </div>
+        <h2 class="section-title">
+            <span class="zh-inline">🧭 玩家与账号</span><span class="en-inline">🧭 Players & Accounts</span>
+        </h2>
+        <div class="docs-grid">
+            <a href="favgames.html" target="_blank" rel="noopener noreferrer" class="docs-card">
+                <div class="card-icon">⭐</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">收藏排行榜</span><span class="en-inline">Favorites Leaderboard</span></div><div class="card-desc">favgames.html</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="gamecheck.html" target="_blank" rel="noopener noreferrer" class="docs-card">
+                <div class="card-icon">📈</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">游玩排行榜</span><span class="en-inline">Plays Leaderboard</span></div><div class="card-desc">gamecheck.html</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="play.html" target="_blank" rel="noopener noreferrer" class="docs-card">
+                <div class="card-icon">▶️</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">独立游戏播放器</span><span class="en-inline">Standalone Player</span></div><div class="card-desc">play.html?id=游戏 ID</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="share.html" target="_blank" rel="noopener noreferrer" class="docs-card">
+                <div class="card-icon">🔗</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">成绩分享页</span><span class="en-inline">Score Share Page</span></div><div class="card-desc">share.html</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="tag.html" target="_blank" rel="noopener noreferrer" class="docs-card">
+                <div class="card-icon">🏷️</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">标签专题</span><span class="en-inline">Tag Explorer</span></div><div class="card-desc">tag.html</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="profile.html" target="_blank" rel="noopener noreferrer" class="docs-card">
+                <div class="card-icon">👤</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">玩家个人中心</span><span class="en-inline">Player Profile</span></div><div class="card-desc">profile.html</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="user-login.html" target="_blank" rel="noopener noreferrer" class="docs-card">
+                <div class="card-icon">🔑</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">玩家登录与注册</span><span class="en-inline">Player Sign In & Sign Up</span></div><div class="card-desc">user-login.html</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+        </div>
+
+        <h2 class="section-title">
+            <span class="zh-inline">🗂️ 全站页面</span><span class="en-inline">🗂️ Site Pages</span>
+        </h2>
+        <div class="docs-grid">
+            <a href="docs.html" class="docs-card">
+                <div class="card-icon">🗺️</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">站点导航</span><span class="en-inline">Site Directory</span></div><div class="card-desc">docs.html</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="sitemap.html" target="_blank" rel="noopener noreferrer" class="docs-card">
+                <div class="card-icon">🗺️</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">完整站点地图</span><span class="en-inline">Full Sitemap</span></div><div class="card-desc">sitemap.html</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="sdk-docs.html" target="_blank" rel="noopener noreferrer" class="docs-card">
+                <div class="card-icon">🧩</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">开发者 SDK 文档</span><span class="en-inline">Developer SDK Docs</span></div><div class="card-desc">sdk-docs.html</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="apply-certification.html" target="_blank" rel="noopener noreferrer" class="docs-card">
+                <div class="card-icon">🏅</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">官方认证申请</span><span class="en-inline">Certification Application</span></div><div class="card-desc">apply-certification.html</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="authorlevel.html" target="_blank" rel="noopener noreferrer" class="docs-card">
+                <div class="card-icon">🎖️</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">作者认证等级</span><span class="en-inline">Creator Levels</span></div><div class="card-desc">authorlevel.html</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="404.html" target="_blank" rel="noopener noreferrer" class="docs-card">
+                <div class="card-icon">🔎</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">未找到页面</span><span class="en-inline">Page Not Found</span></div><div class="card-desc">404.html</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+        </div>
+
+        <h2 class="section-title">
+            <span class="zh-inline">📚 历史规则版本</span><span class="en-inline">📚 Archived Rules</span>
+        </h2>
+        <div class="docs-grid">
+            <a href="game_rules4-0-0.html" target="_blank" rel="noopener noreferrer" class="docs-card">
+                <div class="card-icon">📜</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">游戏守则 4.0.0</span><span class="en-inline">Game Rules 4.0.0</span></div><div class="card-desc">game_rules4-0-0.html</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="game_rules4-0-1.html" target="_blank" rel="noopener noreferrer" class="docs-card">
+                <div class="card-icon">📜</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">游戏守则 4.0.1</span><span class="en-inline">Game Rules 4.0.1</span></div><div class="card-desc">game_rules4-0-1.html</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="game_rules4-0-2.html" target="_blank" rel="noopener noreferrer" class="docs-card">
+                <div class="card-icon">📜</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">游戏守则 4.0.2</span><span class="en-inline">Game Rules 4.0.2</span></div><div class="card-desc">game_rules4-0-2.html</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+        </div>
+
+        <h2 class="section-title">
+            <span class="zh-inline">🛡️ 通用协议</span><span class="en-inline">🛡️ Generic Agreements</span>
+        </h2>
+        <div class="docs-grid">
+            <a href="generic_privacy.html" target="_blank" rel="noopener noreferrer" class="docs-card">
+                <div class="card-icon">🔒</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">通用隐私政策</span><span class="en-inline">Generic Privacy Policy</span></div><div class="card-desc">generic_privacy.html</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+            <a href="generic_tos.html" target="_blank" rel="noopener noreferrer" class="docs-card">
+                <div class="card-icon">⚖️</div>
+                <div class="card-info"><div class="card-name"><span class="zh-inline">通用服务条款</span><span class="en-inline">Generic Terms of Service</span></div><div class="card-desc">generic_tos.html</div></div>
+                <div class="link-icon">↗</div>
+            </a>
+        </div>
+
+        <h2 class="section-title" id="gameDirectoryTitle">
+            <span class="zh-inline">🎮 全部游戏详情页</span><span class="en-inline">🎮 All Game Detail Pages</span>
+        </h2>
+        <p class="directory-status" id="gameDirectoryStatus"></p>
+        <div class="docs-grid" id="gameDirectory"></div>
+        <div id="localGameSection" hidden>
+            <h2 class="section-title">
+                <span class="zh-inline">💾 站内游戏本体</span><span class="en-inline">💾 In-Site Game Builds</span>
+            </h2>
+            <div class="docs-grid" id="localGameDirectory"></div>
+        </div>
+    </main>
 
     <script src="/common.js" defer></script>
     <script>
         // 接管全局语言切换，更新页面状态
         function setLang(lang) {
+            if (lang !== 'zh' && lang !== 'en') return;
             document.documentElement.setAttribute('data-lang', lang);
             document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
             document.querySelectorAll('.lang-btn').forEach(function (btn) {
                 btn.classList.toggle('active', btn.dataset.langBtn === lang);
             });
             try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
+            updateDirectoryStatus();
         }
         
         window.onReady( () => {
             const currentLang = document.documentElement.getAttribute('data-lang') || 'zh';
             setLang(currentLang);
         });
+
+        function createLocalizedText(chinese, english) {
+            const fragment = document.createDocumentFragment();
+            const zh = document.createElement('span');
+            zh.className = 'zh-inline';
+            zh.textContent = chinese;
+            const en = document.createElement('span');
+            en.className = 'en-inline';
+            en.textContent = english;
+            fragment.append(zh, en);
+            return fragment;
+        }
+
+        function createDirectoryCard(nameZh, nameEn, href, icon, descriptionZh, descriptionEn) {
+            const link = document.createElement('a');
+            link.className = 'docs-card';
+            link.href = href;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+
+            const iconNode = document.createElement('div');
+            iconNode.className = 'card-icon';
+            iconNode.textContent = icon;
+
+            const info = document.createElement('div');
+            info.className = 'card-info';
+            const title = document.createElement('div');
+            title.className = 'card-name';
+            title.appendChild(createLocalizedText(nameZh, nameEn));
+            const detail = document.createElement('div');
+            detail.className = 'card-desc';
+            detail.appendChild(createLocalizedText(descriptionZh, descriptionEn));
+            info.append(title, detail);
+
+            const arrow = document.createElement('div');
+            arrow.className = 'link-icon';
+            arrow.textContent = '↗';
+            link.append(iconNode, info, arrow);
+            return link;
+        }
+
+        let directoryStatus = null;
+        function updateDirectoryStatus() {
+            if (!directoryStatus) return;
+            const status = document.getElementById('gameDirectoryStatus');
+            if (!status) return;
+            const isEn = document.documentElement.getAttribute('data-lang') === 'en';
+            status.textContent = isEn
+                ? directoryStatus.en
+                : directoryStatus.zh;
+        }
+        window.addEventListener('langChanged', updateDirectoryStatus);
+
+        async function renderGameDirectory() {
+            const status = document.getElementById('gameDirectoryStatus');
+            const directory = document.getElementById('gameDirectory');
+            const localSection = document.getElementById('localGameSection');
+            const localDirectory = document.getElementById('localGameDirectory');
+
+            directoryStatus = { zh: '正在加载游戏目录…', en: 'Loading games…' };
+            updateDirectoryStatus();
+            try {
+                const response = await fetch('/lelegame_data.json', { cache: 'no-store' });
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const games = await response.json();
+                if (!Array.isArray(games)) throw new Error('Invalid game catalog');
+
+                const fragment = document.createDocumentFragment();
+                const localFragment = document.createDocumentFragment();
+                let localCount = 0;
+                games.forEach(function (game) {
+                    if (!game || game.id == null) return;
+                    const fallbackName = String(game.id);
+                    const nameZh = game.name_zh || game.name_en || fallbackName;
+                    const nameEn = game.name_en || game.name_zh || fallbackName;
+                    fragment.appendChild(createDirectoryCard(
+                        nameZh,
+                        nameEn,
+                        'game.html?id=' + encodeURIComponent(game.id),
+                        game.icon || '🎮',
+                        'ID ' + game.id + ' · 游戏详情',
+                        'ID ' + game.id + ' · Game details'
+                    ));
+
+                    if (typeof game.url !== 'string' || !game.url.trim()) return;
+                    let gameUrl;
+                    try { gameUrl = new URL(game.url, window.location.href); }
+                    catch (error) {
+                        console.warn('[docs] skipping invalid game URL for game', game.id, error);
+                        return;
+                    }
+                    if (gameUrl.origin !== window.location.origin) return;
+                    localFragment.appendChild(createDirectoryCard(
+                        nameZh,
+                        nameEn,
+                        gameUrl.href,
+                        game.icon || '🎮',
+                        'ID ' + game.id + ' · 站内游戏',
+                        'ID ' + game.id + ' · In-site game'
+                    ));
+                    localCount += 1;
+                });
+                directory.replaceChildren(fragment);
+                if (localCount) {
+                    localDirectory.replaceChildren(localFragment);
+                    localSection.hidden = false;
+                }
+                directoryStatus = {
+                    zh: '共 ' + games.length + ' 款游戏 · ' + localCount + ' 款站内游戏',
+                    en: games.length + ' games · ' + localCount + ' in-site builds'
+                };
+                status.setAttribute('role', 'status');
+                status.setAttribute('aria-live', 'polite');
+                updateDirectoryStatus();
+            } catch (error) {
+                console.error('[docs] failed to load game directory', error);
+                directoryStatus = {
+                    zh: '游戏目录加载失败，请刷新页面重试。',
+                    en: 'Could not load the game directory. Please refresh and try again.'
+                };
+                status.setAttribute('role', 'status');
+                status.setAttribute('aria-live', 'polite');
+                updateDirectoryStatus();
+            }
+        }
+
+        renderGameDirectory();
     </script>
 </body>
 </html>

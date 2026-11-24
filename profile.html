@@ -140,6 +140,7 @@
         .modal-overlay[hidden] { display: none; }
         .reset-card { width: 100%; max-width: 420px; }
         .reset-card input { width: 100%; box-sizing: border-box; margin-bottom: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--card-bg); color: var(--text-main); font-family: inherit; }
+        .reset-field-label { display: block; margin-bottom: 4px; font-size: 0.9rem; font-weight: 600; }
         .reset-hint { font-size: 0.9rem; color: var(--text-muted); margin: 0 0 12px; }
         .reset-msg { margin-top: 10px; font-size: 0.88rem; min-height: 18px; }
     </style>
@@ -215,7 +216,9 @@
         <div class="card reset-card">
             <div class="section-title">🔑 <span class="zh-inline">重置密码</span><span class="en-inline">Reset password</span></div>
             <p class="reset-hint"><span class="zh-inline">请输入新密码（至少 6 位）。</span><span class="en-inline">Enter a new password (at least 6 characters).</span></p>
+            <label class="reset-field-label" for="resetPwd"><span class="zh-inline">新密码</span><span class="en-inline">New password</span></label>
             <input type="password" id="resetPwd" autocomplete="new-password" placeholder="新密码 / New password">
+            <label class="reset-field-label" for="resetPwd2"><span class="zh-inline">确认新密码</span><span class="en-inline">Confirm new password</span></label>
             <input type="password" id="resetPwd2" autocomplete="new-password" placeholder="确认新密码 / Confirm">
             <div class="btn-row">
                 <button class="btn-main" id="resetSubmit" type="button"><span class="zh-inline">确认修改</span><span class="en-inline">Save</span></button>
