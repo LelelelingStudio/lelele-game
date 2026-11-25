@@ -1,6 +1,9 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.36 —— 新增 id=45《方格生存》（本地单文件 WebGL 游戏 + banner）+ 作者3计数；
+ *   play.html iframe allow 加 pointer-lock（第一人称游戏需指针锁定）。预缓存内 play.html 字节变化，升版。
+ *
  * ★ v1.35 —— play.html 外链游戏回退到播放器根节点全屏时隐藏工具栏与页脚，让游戏画面铺满屏幕。
  *   预缓存内 play.html 字节变化，升版本清除旧缓存。
  *
@@ -181,7 +184,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.35';
+const CACHE_NAME = 'lelele-pwa-v1.36';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。

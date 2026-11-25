@@ -1,0 +1,55 @@
+{
+  "id": 45,
+  "name_zh": "方格生存",
+  "name_en": "Square Survival",
+  "icon": "■",
+  "category_zh": "休闲",
+  "category_en": "Casual",
+  "type": "local",
+  "ageRating_zh": "6+",
+  "ageRating_en": "6+",
+  "version": "v1.0.0",
+  "author": "3",
+  "url": "/game/square_survival/index.html",
+  "banner": "/game/square_survival/banner.png",
+  "screenshots": [
+    "/game/square_survival/banner.png"
+  ],
+  "videos": [],
+  "description_zh": "活着！！！\n\n在方格世界里生存下来，并不断升级自己的装备。",
+  "description_en": "Survive!\n\nStay alive in a voxel world and keep upgrading your gear.",
+  "updateLog_zh": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-25",
+      "content": "游戏首发上线！"
+    }
+  ],
+  "updateLog_en": [
+    {
+      "version": "v1.0.0",
+      "date": "2026-11-25",
+      "content": "Initial release!"
+    }
+  ],
+  "summary": "活着！！！",
+  "summary_en": "Survive!",
+  "authorName": "Kevin Liao",
+  "legal_urls": {
+    "eula": "",
+    "privacy": "",
+    "terms": ""
+  },
+  "tags": {
+    "zh": [
+      "休闲",
+      "生存",
+      "本站游戏"
+    ],
+    "en": [
+      "Casual",
+      "Survival",
+      "Local"
+    ]
+  }
+}

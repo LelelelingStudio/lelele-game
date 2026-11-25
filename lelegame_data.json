@@ -1010,8 +1010,16 @@
     "author": "1",
     "url": "https://sudoku.leleleling.site/",
     "tags": {
-      "zh": ["益智", "数独", "本站游戏"],
-      "en": ["Puzzle", "Sudoku", "Local"]
+      "zh": [
+        "益智",
+        "数独",
+        "本站游戏"
+      ],
+      "en": [
+        "Puzzle",
+        "Sudoku",
+        "Local"
+      ]
     }
   },
   {
@@ -1027,8 +1035,41 @@
     "author": "1",
     "url": "https://chess.leleleling.site/",
     "tags": {
-      "zh": ["益智", "棋类", "本站游戏"],
-      "en": ["Puzzle", "Chess", "Local"]
+      "zh": [
+        "益智",
+        "棋类",
+        "本站游戏"
+      ],
+      "en": [
+        "Puzzle",
+        "Chess",
+        "Local"
+      ]
+    }
+  },
+  {
+    "id": 45,
+    "name_zh": "方格生存",
+    "name_en": "Square Survival",
+    "icon": "■",
+    "category_zh": "休闲",
+    "category_en": "Casual",
+    "type": "local",
+    "ageRating_zh": "6+",
+    "ageRating_en": "6+",
+    "author": "3",
+    "url": "/game/square_survival/index.html",
+    "tags": {
+      "zh": [
+        "休闲",
+        "生存",
+        "本站游戏"
+      ],
+      "en": [
+        "Casual",
+        "Survival",
+        "Local"
+      ]
     }
   }
 ]
