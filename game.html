@@ -29,6 +29,7 @@
     <meta name="description" content="在了了了游在线游玩免费小游戏，无需下载。Play free browser games instantly on Lelele Game.">
 
     <link rel="stylesheet" href="/common.css">
+    <link rel="stylesheet" href="/forum.css">
     <script src="/boot.js"></script>
     <script defer src="/vendor/supabase-js.js"></script>
 
@@ -592,6 +593,31 @@
     </div>
 
 
+        <!-- ===== 游戏讨论区：滑到页面最底才出现，每款游戏一个独立话题（滚到这里才加载） ===== -->
+        <section class="forum-section" data-forum-type="game" aria-labelledby="gameForumTitle">
+            <div class="forum-card">
+                <div class="forum-head">
+                    <div class="forum-icon" aria-hidden="true">💬</div>
+                    <div class="forum-head-text">
+                        <h2 class="forum-title" id="gameForumTitle">
+                            <span class="zh-inline">游戏讨论区</span><span class="en-inline">Game Discussion</span>
+                        </h2>
+                        <p class="forum-sub" data-forum-subject>
+                            <span class="zh-inline" data-forum-subject-zh>玩过的人都在这里聊——攻略、吐槽、找同好。</span>
+                            <span class="en-inline" data-forum-subject-en>Talk with other players — tips, thoughts, and finding people to play with.</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="forum-body forum-body--game" data-forum-frame>
+                    <div class="forum-loading" data-forum-loading>
+                        <span class="forum-spinner" aria-hidden="true"></span>
+                        <span class="zh-inline">讨论区加载中…</span><span class="en-inline">Loading the discussion…</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
         <!-- 4.1.0：法律协议入口（放在 .main-container 之外，卡片 overflow:hidden 不会裁切气泡） -->
         <div class="legal-rail" id="legalRail" role="group" aria-label="Legal agreements">
             <button class="legal-rail-btn" type="button" data-legal="eula" aria-label="用户协议 / EULA">
@@ -650,6 +676,7 @@
     </dialog>
 
     <script src="/common.js" defer></script>
+    <script src="/forum.js" defer></script>
     <script src="supabase-client.js" defer></script>
     <script src="/follow.js" defer></script>
     <script src="/lsfp-adapter.js" defer></script>

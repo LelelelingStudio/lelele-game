@@ -33,6 +33,7 @@
 
     <!-- 引入全局样式 -->
     <link rel="stylesheet" href="/common.css">
+    <link rel="stylesheet" href="/forum.css">
 
     <script src="/boot.js"></script>
     <!-- 引入拼音库（pinyin-pro，提供 window.pinyinPro；defer 不阻塞首屏；search.js 已容错降级） -->
@@ -233,6 +234,30 @@
             <div class="status-message" id="statusMessage" style="display:none;"></div>
             <div class="search-pagination" id="searchPagination" style="display:none;"></div>
         </div>
+
+        <!-- ===== 全站论坛：页面最底的公共讨论区（滚到这里才开始加载） ===== -->
+        <section class="forum-section" data-forum-type="site" aria-labelledby="siteForumTitle">
+            <div class="forum-card">
+                <div class="forum-head">
+                    <div class="forum-icon" aria-hidden="true">💬</div>
+                    <div class="forum-head-text">
+                        <h2 class="forum-title" id="siteForumTitle">
+                            <span class="zh-inline">全站论坛</span><span class="en-inline">Site Forum</span>
+                        </h2>
+                        <p class="forum-sub">
+                            <span class="zh-inline">聊聊游戏、说说建议、约人一起玩——这里不分区，想到什么说什么。</span>
+                            <span class="en-inline">Talk games, share ideas, find people to play with — one board for everything.</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="forum-body" data-forum-frame>
+                    <div class="forum-loading" data-forum-loading>
+                        <span class="forum-spinner" aria-hidden="true"></span>
+                        <span class="zh-inline">论坛加载中…</span><span class="en-inline">Loading the forum…</span>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- 小徽章（放在 footer 之前，避免被 common.js 覆盖） -->
         <div class="site-badge">
@@ -606,6 +631,7 @@
     <script src="/common.js" defer></script>
     <script src="/search.js" defer></script>
     <script src="/index.js" defer></script>
+    <script src="/forum.js" defer></script>
     <button type="button" id="backToTop" class="back-to-top" aria-label="Back to top / 返回顶部" title="返回顶部">↑</button>
     <style>
         .back-to-top { position: fixed; right: 22px; bottom: 24px; z-index: 90; width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(79,70,229,.35); background: #4f46e5; color: #fff; font-size: 1.3rem; font-weight: 800; cursor: pointer; box-shadow: 0 8px 24px rgba(79,70,229,.28); opacity: 0; visibility: hidden; transition: opacity .2s, transform .2s; transform: translateY(8px); }

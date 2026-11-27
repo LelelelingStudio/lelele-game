@@ -1,0 +1,153 @@
+/* ==========================================================================
+ * lelele-game · 社区讨论区样式
+ *
+ * 两处使用：index.html 全站论坛（cbox 聊天框）、game.html 每款游戏独立讨论区
+ * （Remarkbox）。板式、配色、深色模式均沿用站点既有 CSS 变量。
+ * ========================================================================== */
+
+.forum-section {
+    width: 100%;
+    max-width: 1100px;
+    margin: 44px auto 30px;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.forum-card {
+    background: var(--card-bg, rgba(255, 255, 255, .85));
+    border: 1px solid var(--card-border, rgba(148, 163, 184, .15));
+    border-radius: 20px;
+    padding: 18px 18px 14px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, .07);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+.forum-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 2px 4px 14px;
+}
+
+.forum-icon {
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    line-height: 1;
+    background: linear-gradient(135deg, rgba(79, 70, 229, .16), rgba(79, 70, 229, .05));
+    border: 1px solid rgba(79, 70, 229, .18);
+}
+
+.forum-head-text {
+    min-width: 0;
+}
+
+.forum-title {
+    margin: 0;
+    font-size: 1.02rem;
+    font-weight: 800;
+    letter-spacing: .01em;
+    color: var(--text-main, #1e293b);
+    line-height: 1.45;
+}
+
+.forum-sub {
+    margin: 4px 0 0;
+    font-size: .84rem;
+    line-height: 1.6;
+    color: var(--text-muted, #64748b);
+    word-break: break-word;
+}
+
+.forum-body {
+    position: relative;
+    min-height: 460px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid rgba(148, 163, 184, .18);
+}
+
+.forum-body--game {
+    min-height: 420px;
+}
+
+.forum-body iframe {
+    display: block;
+    width: 100%;
+    border: 0 !important;
+    background: #fff;
+}
+
+/* 加载占位：只在 iframe 就绪前显示 */
+.forum-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 24px;
+    text-align: center;
+    font-size: .88rem;
+    color: #64748b;
+    background: #fff;
+    z-index: 1;
+}
+
+.forum-loading.forum-hidden {
+    display: none;
+}
+
+.forum-spinner {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2.5px solid #e5e7eb;
+    border-top-color: #4f46e5;
+    animation: forumSpin .85s linear infinite;
+}
+
+@keyframes forumSpin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .forum-spinner { animation: none; }
+}
+
+/* 加载失败：给普通人读的一句话，不带任何技术信息 */
+.forum-note {
+    margin: 12px 4px 0;
+    font-size: .8rem;
+    line-height: 1.7;
+    color: var(--text-muted, #64748b);
+    text-align: center;
+}
+
+@media (max-width: 640px) {
+    .forum-section {
+        margin: 30px auto 22px;
+        padding: 0 12px;
+    }
+
+    .forum-card {
+        padding: 14px 12px 10px;
+        border-radius: 16px;
+    }
+
+    .forum-body {
+        min-height: 380px;
+    }
+
+    .forum-body--game {
+        min-height: 360px;
+    }
+}

@@ -1,6 +1,11 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.37 (社区讨论区) —— 新增 forum.js / forum.css：首页底部「全站论坛」，
+ *   game.html 底部「游戏讨论区」（按游戏 id 划分独立话题）。两处都由 IntersectionObserver
+ *   在滚动到附近时才挂 iframe，不拖慢首屏；提示全部改为面向普通玩家。
+ *   index.html / game.html 字节变故升版本清旧缓存。
+ *
  * ★ v1.36 —— 新增 id=45《方格生存》（本地单文件 WebGL 游戏 + banner）+ 作者3计数；
  *   play.html iframe allow 加 pointer-lock（第一人称游戏需指针锁定）。预缓存内 play.html 字节变化，升版。
  *
@@ -184,7 +189,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.36';
+const CACHE_NAME = 'lelele-pwa-v1.37';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。
@@ -225,6 +230,8 @@ const ASSETS_TO_CACHE = [
     '/game_rules.html',
     '/developer_docs.html',
     '/common.css',
+    '/forum.css',
+    '/forum.js',
     '/effects.css',
     '/common.js',
     '/index.js',
