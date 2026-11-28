@@ -1,5 +1,11 @@
 [
   {
+    "version": "4.7.5",
+    "date": "2026-11-28",
+    "content_zh": "4.7.5：分享图升级。① 作者位置不再印数字 id（以前会显示成「作者 1」），改成自动查作者昵称（那一批显示「作者 了了了岭工作室」），查不到就不写作者、不印数字；② 下载前弹一个小面板，可以先挑配色——紫夜 / 深海 / 青玉 / 森野 / 落日 / 纸白 六套，选中即时预览，右下角固定带「了了了游」印章水印和域名，下载文件名带配色名（如「爱种地的农民-分享图-sunset.jpg」）；③ 选的配色会记住，下次打开还是上次那套。",
+    "content_en": "4.7.5: Share cards levelled up. The author line no longer prints a numeric id (it used to read “by 1”); the card now looks up the author's nickname automatically (so it shows “by 了了了岭工作室”) and drops the line entirely if none is found. Before downloading, a small panel lets you pick one of six palettes — Midnight, Ocean, Jade, Forest, Sunset, Paper — with a live preview; the “了了了游” seal watermark and the site URL are always on the card, and the file name carries the palette (e.g. “爱种地的农民-分享图-sunset.jpg”). Your palette choice is remembered for next time."
+  },
+  {
     "version": "4.7.4",
     "date": "2026-11-28",
     "content_zh": "4.7.4：给站点减重和加分享。四张冬天大图换成 WebP，从 5MB 降到 126KB（首页加载明显快一截）；游戏详情页多了「🖼️ 分享图」，点一下生成一张 1200×630 的卡图存到本地，可以直接发群里；各页面补了 og:title / og:image 等分享预览信息，链接贴到微信、Discord 会显示标题和配图；仓库里 13MB 的无关大文件（PDF、截图、PSD、Papermc 工程文件）不再纳入版本管理，本地文件都还在。另外把全站成对的中英文案抽成了 lang.json（344 条），之后逐个页面迁到 data-i18n。另外论坛两处加了小提示：全站论坛发言要先填昵称（不填发不出去，昵称框灰着就刷新页面）；游戏讨论区留言发不出去时先刷新一下再试。",
