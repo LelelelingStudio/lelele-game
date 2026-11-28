@@ -9,11 +9,11 @@
     "end": "01-31"
   },
   "assets": {
-    "background": "https://game.leleleling.site/background-winter.png",
+    "background": "https://game.leleleling.site/background-winter.webp",
     "favicon": "https://game.leleleling.site/favicon-winter.ico",
-    "logo": "https://game.leleleling.site/lelelegame-winter.png",
-    "banner": "https://game.leleleling.site/winter-banner.png",
-    "snowman": "https://game.leleleling.site/winter-snowman.png",
+    "logo": "https://game.leleleling.site/lelelegame-winter.webp",
+    "banner": "https://game.leleleling.site/winter-banner.webp",
+    "snowman": "https://game.leleleling.site/winter-snowman.webp",
     "tree": "https://game.leleleling.site/winter-tree.png"
   },
   "enableSnowfall": true

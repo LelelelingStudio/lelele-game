@@ -204,7 +204,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.42';
+const CACHE_NAME = 'lelele-pwa-v1.43';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。
@@ -250,6 +250,7 @@ const ASSETS_TO_CACHE = [
     '/forum.css',
     '/forum.js',
     '/lgstore.js',
+    '/sharecard.js',
     '/lgstore.html',
     '/mycollection.html',
     '/effects.css',

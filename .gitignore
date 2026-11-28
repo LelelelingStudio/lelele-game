@@ -16,3 +16,15 @@ new.md
 foraisthings.md
 thoughts.md
 plan.md
+
+# 设计与存档类大文件：本地留着，不进仓库（2026-11-28）
+*.pdf
+*.psd
+*.ai
+截屏*.png
+game/papermc/assets/project.json
+# 已被 .webp 版本替代的冬季素材（文件仍在本地磁盘）
+/winter-banner.png
+/lelelegame-winter.png
+/background-winter.png
+/winter-snowman.png

@@ -1,5 +1,11 @@
 [
   {
+    "version": "4.7.4",
+    "date": "2026-11-28",
+    "content_zh": "4.7.4：给站点减重和加分享。四张冬天大图换成 WebP，从 5MB 降到 126KB（首页加载明显快一截）；游戏详情页多了「🖼️ 分享图」，点一下生成一张 1200×630 的卡图存到本地，可以直接发群里；各页面补了 og:title / og:image 等分享预览信息，链接贴到微信、Discord 会显示标题和配图；仓库里 13MB 的无关大文件（PDF、截图、PSD、Papermc 工程文件）不再纳入版本管理，本地文件都还在。另外把全站成对的中英文案抽成了 lang.json（344 条），之后逐个页面迁到 data-i18n。",
+    "content_en": "4.7.4: Lighter site and share cards. The four winter images are now WebP — 5MB down to 126KB, so the homepage loads much faster. Game pages gained a “Share card” button that renders a 1200×630 image locally, ready to post in a chat. Pages now carry og:title / og:image so links preview properly in WeChat or Discord. About 13MB of unrelated files (PDF, screenshots, PSD, a Papermc project file) are no longer tracked by git — the local copies are untouched. All inline zh/en pairs were also extracted into lang.json (344 entries) as step one of the i18n refactor."
+  },
+  {
     "version": "4.7.3",
     "date": "2026-11-28",
     "content_zh": "4.7.3：新增「我的收藏」页（mycollection.html）。收藏的游戏可以自己分组（默认想玩 / 已通关，可再新建「想通关的」「给弟弟的」这类），改完分组立刻生效，首页想玩清单右侧有「管理分组」入口。同时开始统计游玩时长：只在页面真的在前台时计时，切后台或关页面就停，存本机。页面上还有累计时长、开玩次数、收藏数量四项统计，以及 8 个成就徽章（收藏 / 玩过 / 时长 / 开玩次数四类）。全部纯本地，不同步不上传。",

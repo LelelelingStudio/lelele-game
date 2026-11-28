@@ -1,0 +1,2504 @@
+{
+  "k8befab0d": {
+    "zh": "返回首页",
+    "en": "Back home",
+    "pages": [
+      "about.html",
+      "apply-certification.html",
+      "author.html",
+      "authorlevel.html",
+      "favgames.html",
+      "game.html",
+      "gamecheck.html",
+      "play.html",
+      "profile.html",
+      "share.html",
+      "tag.html"
+    ]
+  },
+  "k16242232": {
+    "zh": "发现独立游戏的魅力",
+    "en": "Discover the charm of indie games",
+    "pages": [
+      "about.html"
+    ]
+  },
+  "kc3c56dfe": {
+    "zh": "一个由热爱驱动的游戏聚合导航站。我们致力于为玩家寻找好玩的游戏，也为独立创作者提供一个被看见的舞台。",
+    "en": "A passion-driven game aggregation and navigation site. We are dedicated to finding fun games for players and providing a stage to be seen for independent creators.",
+    "pages": [
+      "about.html"
+    ]
+  },
+  "k4c0ff751": {
+    "zh": "🌟 关于「了了了游」",
+    "en": "🌟 About lelele Game",
+    "pages": [
+      "about.html"
+    ]
+  },
+  "k07017257": {
+    "zh": "🎬 宣传视频",
+    "en": "🎬 Promo Video",
+    "pages": [
+      "about.html"
+    ]
+  },
+  "kf609791d": {
+    "zh": "若 YouTube 8 秒内无响应，将自动切换备用视频（国内可直连）；也可随时手动切换：",
+    "en": "If YouTube does not respond within 8 seconds, a backup video loads automatically. You can also switch manually:",
+    "pages": [
+      "about.html"
+    ]
+  },
+  "k9b0650c4": {
+    "zh": "切换备用视频",
+    "en": "Use backup video",
+    "pages": [
+      "about.html"
+    ]
+  },
+  "k26dddbdb": {
+    "zh": "🤝 致独立开发者",
+    "en": "🤝 To Indie Developers",
+    "pages": [
+      "about.html"
+    ]
+  },
+  "kf71b02cc": {
+    "zh": "🏅 申请官方认证",
+    "en": "🏅 Apply for Certification",
+    "pages": [
+      "about.html",
+      "author.html",
+      "dashboard.html"
+    ]
+  },
+  "k05587255": {
+    "zh": "🏢 关于「了了了岭工作室」",
+    "en": "🏢 About leleleling Studio",
+    "pages": [
+      "about.html"
+    ]
+  },
+  "kecc55618": {
+    "zh": "📝 更新日志",
+    "en": "📝 Update Log",
+    "pages": [
+      "about.html",
+      "game.html"
+    ]
+  },
+  "kd5518bde": {
+    "zh": "了了了游 · 开发者官方认证申请",
+    "en": "Lelelegame · Official Developer Certification Application",
+    "pages": [
+      "apply-certification.html"
+    ]
+  },
+  "k64eda7e5": {
+    "zh": "认证规则",
+    "en": "Certification Rules",
+    "pages": [
+      "apply-certification.html",
+      "authorlevel.html"
+    ]
+  },
+  "k12b5ccd5": {
+    "zh": "了了了游游戏守则",
+    "en": "Game Rules",
+    "pages": [
+      "apply-certification.html",
+      "docs.html"
+    ]
+  },
+  "k2abe302b": {
+    "zh": "服务条款",
+    "en": "Terms",
+    "pages": [
+      "apply-certification.html",
+      "authorlevel.html",
+      "docs.html",
+      "game.html",
+      "play.html"
+    ]
+  },
+  "k0399ad71": {
+    "zh": "用户协议",
+    "en": "User Agreement",
+    "pages": [
+      "apply-certification.html",
+      "authorlevel.html",
+      "docs.html",
+      "game.html",
+      "gamecheck.html",
+      "legal_templates.html",
+      "play.html"
+    ]
+  },
+  "k8c276c1f": {
+    "zh": "隐私政策",
+    "en": "Privacy",
+    "pages": [
+      "apply-certification.html",
+      "authorlevel.html",
+      "docs.html",
+      "game.html",
+      "play.html"
+    ]
+  },
+  "k74282796": {
+    "zh": "版权说明",
+    "en": "Copyright",
+    "pages": [
+      "apply-certification.html"
+    ]
+  },
+  "ke677afdc": {
+    "zh": "所有页面文档",
+    "en": "All Documentation",
+    "pages": [
+      "apply-certification.html"
+    ]
+  },
+  "k5e0e6d23": {
+    "zh": "了了了游",
+    "en": "lelele Game",
+    "pages": [
+      "author.html",
+      "dashboard.html",
+      "docs.html",
+      "game.html",
+      "index.html"
+    ]
+  },
+  "kdaad9df7": {
+    "zh": "头像加载失败",
+    "en": "Avatar failed to load",
+    "pages": [
+      "author.html"
+    ]
+  },
+  "kd02e45e5": {
+    "zh": "该作者还未在这里填写自己的资料。",
+    "en": "This author hasn't set up their profile yet.",
+    "pages": [
+      "author.html"
+    ]
+  },
+  "k79cc2889": {
+    "zh": "作者贡献榜",
+    "en": "Top Contributors",
+    "pages": [
+      "author.html"
+    ]
+  },
+  "kead088ea": {
+    "zh": "🎮 TA 的游戏",
+    "en": "🎮 Games by this Author",
+    "pages": [
+      "author.html"
+    ]
+  },
+  "kb411bd18": {
+    "zh": "找不到该作者的信息或作品。",
+    "en": "Author or games not found.",
+    "pages": [
+      "author.html"
+    ]
+  },
+  "kbb546a32": {
+    "zh": "已发布 ${n} 款游戏",
+    "en": "${n} game${n === 1 ? '' : 's'} published",
+    "pages": [
+      "author.html"
+    ]
+  },
+  "kef3302b4": {
+    "zh": "TA 还没有发布任何游戏。",
+    "en": "No games published yet.",
+    "pages": [
+      "author.html"
+    ]
+  },
+  "ka7e9a78d": {
+    "zh": "⭐ 收藏 —",
+    "en": "⭐ Favorites —",
+    "pages": [
+      "author.html"
+    ]
+  },
+  "kb574ea2c": {
+    "zh": "⭐ 收藏 ' + n + '",
+    "en": "⭐ Favorites ' + n + '",
+    "pages": [
+      "author.html"
+    ]
+  },
+  "k4a33c149": {
+    "zh": "晋升要求",
+    "en": "Requirements",
+    "pages": [
+      "authorlevel.html"
+    ]
+  },
+  "k69d49acd": {
+    "zh": "你将获得",
+    "en": "What you get",
+    "pages": [
+      "authorlevel.html"
+    ]
+  },
+  "k38f1c9f0": {
+    "zh": "🏅 申请此等级认证",
+    "en": "🏅 Apply for this level",
+    "pages": [
+      "authorlevel.html"
+    ]
+  },
+  "kd66c8fc2": {
+    "zh": "查看全部等级：",
+    "en": "See all levels:",
+    "pages": [
+      "authorlevel.html"
+    ]
+  },
+  "ka0aa3ba9": {
+    "zh": "申请认证",
+    "en": "Apply",
+    "pages": [
+      "authorlevel.html"
+    ]
+  },
+  "ka59b4449": {
+    "zh": "游戏守则",
+    "en": "Game Rules",
+    "pages": [
+      "authorlevel.html",
+      "play.html"
+    ]
+  },
+  "k862c3461": {
+    "zh": "← 返回首页",
+    "en": "← Back to Home",
+    "pages": [
+      "copyright.html",
+      "generic_eula.html",
+      "generic_privacy.html",
+      "generic_tos.html",
+      "legal_templates.html",
+      "privacy.html",
+      "terms.html",
+      "user_agreement.html"
+    ]
+  },
+  "k589fc0ea": {
+    "zh": "我的游戏数据",
+    "en": "Game Analytics",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k470659b9": {
+    "zh": "个人资料设置",
+    "en": "Profile Settings",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k0ae20ac3": {
+    "zh": "修改密码",
+    "en": "Change Password",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k8661bff0": {
+    "zh": "投稿新游戏",
+    "en": "Submit a Game",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "ka64beb77": {
+    "zh": "更新游戏",
+    "en": "Update a Game",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k809e5f96": {
+    "zh": "推荐游戏",
+    "en": "Recommend a Game",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k73ff0453": {
+    "zh": "关于本站",
+    "en": "About",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k9cf54146": {
+    "zh": "认证文档",
+    "en": "Docs",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k9081c95c": {
+    "zh": "创作者认证",
+    "en": "Creator Certification",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k094774b4": {
+    "zh": "退出登录",
+    "en": "Sign out",
+    "pages": [
+      "dashboard.html",
+      "profile.html"
+    ]
+  },
+  "k3724531c": {
+    "zh": "数据看板",
+    "en": "Analytics Overview",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k386ddb51": {
+    "zh": "⭐ 我的游戏收藏数（近 30 天）",
+    "en": "⭐ Favorites on my games (last 30 days)",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "kcb4a756a": {
+    "zh": "返回游戏列表",
+    "en": "Back to Game List",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k6e5b1251": {
+    "zh": "总游玩次数",
+    "en": "Total Plays",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "ka56ba998": {
+    "zh": "全站排名",
+    "en": "Site Rank",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k62e729b2": {
+    "zh": "全站 0 款游戏",
+    "en": "of 0 games",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "kcf407582": {
+    "zh": "日均游玩",
+    "en": "Daily Average",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k2e5c05fd": {
+    "zh": "最高单日 —",
+    "en": "Peak —",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "kd562e344": {
+    "zh": "个人资料",
+    "en": "Profile Settings",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k41943e36": {
+    "zh": "头像 (小于 50KB)",
+    "en": "Avatar (Max 50KB)",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k75ae6a8a": {
+    "zh": "显示名称",
+    "en": "Display Name",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k43255c4b": {
+    "zh": "个人简介",
+    "en": "Bio",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "kcd5cd93c": {
+    "zh": "保存更改",
+    "en": "Save Changes",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k49132239": {
+    "zh": "🔗 账号绑定",
+    "en": "🔗 Linked Accounts",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k9208bc28": {
+    "zh": "绑定多个第三方账号后，任一方式登录的都是同一个账号，数据不会丢失。至少保留一种登录方式。",
+    "en": "Link multiple providers — any of them signs into the same account. Keep at least one sign-in method.",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k33abf70f": {
+    "zh": "当前密码",
+    "en": "Current Password",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k2f09b2b8": {
+    "zh": "为保护账号安全，修改前需先验证当前密码。",
+    "en": "For account security, please verify your current password first.",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "kd22c9c00": {
+    "zh": "新密码",
+    "en": "New password",
+    "pages": [
+      "dashboard.html",
+      "profile.html"
+    ]
+  },
+  "kd4477adb": {
+    "zh": "确认新密码",
+    "en": "Confirm new password",
+    "pages": [
+      "dashboard.html",
+      "profile.html"
+    ]
+  },
+  "ke17cb4ec": {
+    "zh": "确认修改",
+    "en": "Save",
+    "pages": [
+      "dashboard.html",
+      "profile.html"
+    ]
+  },
+  "kaeab4da9": {
+    "zh": "🔄 更新游戏信息",
+    "en": "🔄 Update Your Game",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k13024a36": {
+    "zh": "提交后由管理员核对并同步到游戏详情页，通常 1–2 个工作日内生效。",
+    "en": "Submissions are reviewed and synced to your game page, usually within 1–2 business days.",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "kf698120e": {
+    "zh": "确认注销？",
+    "en": "Confirm Deletion?",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k5ee9ff55": {
+    "zh": "此操作将永久删除您的账号和所有资料，无法撤销。",
+    "en": "This will permanently delete your account and all data. It cannot be undone.",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "ka4ff4ec7": {
+    "zh": "继续注销",
+    "en": "Continue",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k4d0b4688": {
+    "zh": "取消",
+    "en": "Cancel",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k06a5845f": {
+    "zh": "二次确认",
+    "en": "Double Confirm",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k6d29d069": {
+    "zh": "永久注销",
+    "en": "Delete Permanently",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "kb1fc6613": {
+    "zh": "注销账号",
+    "en": "Delete Account",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k5cebe255": {
+    "zh": "重置您的密码",
+    "en": "Reset Your Password",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k46ea3c11": {
+    "zh": "请为您的账号设置一个新密码。",
+    "en": "Please set a new password for your account.",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k162288b7": {
+    "zh": "保存新密码",
+    "en": "Save New Password",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "kccb83235": {
+    "zh": "开发者 ID：' + devId + '",
+    "en": "Dev ID: ' + devId + '",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "kde77ba90": {
+    "zh": "档案读取失败，请刷新",
+    "en": "Profile unavailable, refresh",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k0a42f5be": {
+    "zh": "未关联档案",
+    "en": "Not linked",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "kce9beb3e": {
+    "zh": "开发者 ID",
+    "en": "Dev ID",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "kf3e4b2d3": {
+    "zh": "查看等级说明 →",
+    "en": "View level →",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "kf875e4e4": {
+    "zh": "创作者档案暂时读取失败，请刷新页面重试。",
+    "en": "Could not load your creator profile. Please refresh and try again.",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "kbf728f2e": {
+    "zh": "当前账号尚未关联创作者档案。提交申请后，这里会展示你的创作者信息与徽标。",
+    "en": "This account is not linked to a creator profile yet. After applying, your info and badges will appear here.",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k0c09ecb3": {
+    "zh": "' + escHtml(nameZh) + '",
+    "en": "' + escHtml(nameEn) + '",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k3cbbb4e2": {
+    "zh": "等级 ' + lvl + ' · ' + def.zh + '",
+    "en": "Level ' + lvl + ' · ' + def.en + '",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "keb326904": {
+    "zh": "官方认证",
+    "en": "Official",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k010c673d": {
+    "zh": "本站原创",
+    "en": "Studio",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k3a63d3b6": {
+    "zh": "已发布游戏",
+    "en": "Published",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "k9f39c63f": {
+    "zh": "${zh}",
+    "en": "${en}",
+    "pages": [
+      "dashboard.html",
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "k75af6e86": {
+    "zh": "排行暂不可用",
+    "en": "Rank unavailable",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "kd7505a1b": {
+    "zh": "${avgZh}",
+    "en": "${avgEn}",
+    "pages": [
+      "dashboard.html"
+    ]
+  },
+  "kc41684a0": {
+    "zh": "← 返回了了了游首页",
+    "en": "← Back to lelele Home",
+    "pages": [
+      "developer_docs.html",
+      "game_rules.html",
+      "game_rules4-0-0.html",
+      "game_rules4-0-1.html",
+      "game_rules4-0-2.html"
+    ]
+  },
+  "kec7498a1": {
+    "zh": "Developer Guide · 开发者文档",
+    "en": "Developer Guide · 开发者文档",
+    "pages": [
+      "developer_docs.html"
+    ]
+  },
+  "k20b6e2fc": {
+    "zh": "返回主页",
+    "en": "Back to Home",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "kb9a232e8": {
+    "zh": "全站导航地图",
+    "en": "Site Map & Directory",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k9fbea0c0": {
+    "zh": "这是一个收录了了了游所有的核心页面与功能入口",
+    "en": "All core pages and entrances of lelele Game",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k907d8575": {
+    "zh": "🌟核心页面",
+    "en": "🌟 Core Pages",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "kff93ad0e": {
+    "zh": "首页",
+    "en": "Homepage",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k0cc510e6": {
+    "zh": "关于我们",
+    "en": "About Us",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "kec10c2a4": {
+    "zh": "支持我们",
+    "en": "Support Us",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k7c4300a1": {
+    "zh": "🧑‍💻 开发者系统",
+    "en": "🧑‍💻 Developer System",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k46352030": {
+    "zh": "开发者登录/注册",
+    "en": "Developer Login",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k5a23b286": {
+    "zh": "开发者面板",
+    "en": "Dashboard",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "kd3a04ad8": {
+    "zh": "开发者文档",
+    "en": "Developer docs",
+    "pages": [
+      "docs.html",
+      "stats.html"
+    ]
+  },
+  "kac39a43c": {
+    "zh": "数据大屏",
+    "en": "Stats Dashboard",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k359c9b12": {
+    "zh": "开发者 SDK 文档",
+    "en": "Developer SDK Docs",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k76c8183f": {
+    "zh": "AI Agent 接入说明",
+    "en": "AI Agent Guide",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k94743f0a": {
+    "zh": "🎮 游戏与详情",
+    "en": "🎮 Games & Details",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k9c34634a": {
+    "zh": "游戏详情页 (示例)",
+    "en": "Game Detail (Example)",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k78ee64ab": {
+    "zh": "作者主页 (示例)",
+    "en": "Author Page (Example)",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k774b7925": {
+    "zh": "📜 条款与协议",
+    "en": "📜 Terms & Policies",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k3a4d6a62": {
+    "zh": "user_agreement.html · 平台与用户",
+    "en": "user_agreement.html · Platform and users",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "ke83fb4a7": {
+    "zh": "协议模板中心",
+    "en": "Legal Templates",
+    "pages": [
+      "docs.html",
+      "gamecheck.html"
+    ]
+  },
+  "ke609c5c5": {
+    "zh": "legal_templates.html · 中英模板 · 支持五种导出",
+    "en": "legal_templates.html · Bilingual templates · Five export formats",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k7d8bc9cc": {
+    "zh": "平台万能协议",
+    "en": "Generic Agreements",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k7b76c1a3": {
+    "zh": "generic_eula.html · 存量游戏兜底",
+    "en": "generic_eula.html · Fallback for listed games",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "ke62a5f6f": {
+    "zh": "版权投诉",
+    "en": "Copyright",
+    "pages": [
+      "docs.html",
+      "play.html"
+    ]
+  },
+  "k9b010884": {
+    "zh": "🧭 玩家与账号",
+    "en": "🧭 Players & Accounts",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "kf65b8733": {
+    "zh": "收藏排行榜",
+    "en": "Favorites Leaderboard",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k7ed49577": {
+    "zh": "游玩排行榜",
+    "en": "Plays Leaderboard",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k1ed263c4": {
+    "zh": "独立游戏播放器（示例）",
+    "en": "Standalone Player (Example)",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k08f79282": {
+    "zh": "成绩分享页",
+    "en": "Score Share Page",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k8c27b1a6": {
+    "zh": "标签专题",
+    "en": "Tag Explorer",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k847141f0": {
+    "zh": "玩家个人中心",
+    "en": "Player Profile",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "kc27d8bbf": {
+    "zh": "玩家登录与注册",
+    "en": "Player Sign In & Sign Up",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "ka15fa494": {
+    "zh": "🗂️ 全站页面",
+    "en": "🗂️ Site Pages",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k5837ada9": {
+    "zh": "站点导航",
+    "en": "Site Directory",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k07099c9b": {
+    "zh": "完整站点地图",
+    "en": "Full Sitemap",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k34b36e4a": {
+    "zh": "官方认证申请",
+    "en": "Certification Application",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k8cec72dc": {
+    "zh": "作者认证等级",
+    "en": "Creator Levels",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k68f0d94a": {
+    "zh": "未找到页面",
+    "en": "Page Not Found",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k1cf4556c": {
+    "zh": "📚 历史规则版本",
+    "en": "📚 Archived Rules",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k2f3a06cc": {
+    "zh": "游戏守则 4.0.0",
+    "en": "Game Rules 4.0.0",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k9ca3c463": {
+    "zh": "游戏守则 4.0.1",
+    "en": "Game Rules 4.0.1",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k42a85858": {
+    "zh": "游戏守则 4.0.2",
+    "en": "Game Rules 4.0.2",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k54ec59d4": {
+    "zh": "🛡️ 通用协议",
+    "en": "🛡️ Generic Agreements",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k23087e57": {
+    "zh": "通用隐私政策",
+    "en": "Generic Privacy Policy",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k4c0974ae": {
+    "zh": "通用服务条款",
+    "en": "Generic Terms of Service",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k236abac7": {
+    "zh": "🎮 全部游戏详情页",
+    "en": "🎮 All Game Detail Pages",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "kd0521a84": {
+    "zh": "💾 站内游戏本体",
+    "en": "💾 In-Site Game Builds",
+    "pages": [
+      "docs.html"
+    ]
+  },
+  "k576cb16c": {
+    "zh": "⭐ 游戏收藏榜",
+    "en": "⭐ Favorites Leaderboard",
+    "pages": [
+      "favgames.html"
+    ]
+  },
+  "k2be90408": {
+    "zh": "时间范围",
+    "en": "Time period",
+    "pages": [
+      "favgames.html",
+      "gamecheck.html"
+    ]
+  },
+  "k9564e43a": {
+    "zh": "显示数量",
+    "en": "Results",
+    "pages": [
+      "favgames.html",
+      "gamecheck.html"
+    ]
+  },
+  "kde357ce6": {
+    "zh": "数据加载中...",
+    "en": "Loading...",
+    "pages": [
+      "favgames.html",
+      "gamecheck.html"
+    ]
+  },
+  "kcefdd82a": {
+    "zh": "加载失败，请确保后端接口已部署并允许跨域",
+    "en": "Load failed. Please check the analytics backend and CORS.",
+    "pages": [
+      "favgames.html",
+      "gamecheck.html"
+    ]
+  },
+  "k8a318dd4": {
+    "zh": "🔥 最受欢迎",
+    "en": "🔥 Most Favorited",
+    "pages": [
+      "favgames.html"
+    ]
+  },
+  "k6ffe1e83": {
+    "zh": "🧊 冷门收藏",
+    "en": "🧊 Under the Radar",
+    "pages": [
+      "favgames.html"
+    ]
+  },
+  "kdb669ff2": {
+    "zh": "排名",
+    "en": "Rank",
+    "pages": [
+      "favgames.html",
+      "gamecheck.html"
+    ]
+  },
+  "kab2154aa": {
+    "zh": "游戏名称 ↕",
+    "en": "Game ↕",
+    "pages": [
+      "favgames.html"
+    ]
+  },
+  "k780ed7c7": {
+    "zh": "净收藏数 ↕",
+    "en": "Net Favorites ↕",
+    "pages": [
+      "favgames.html"
+    ]
+  },
+  "k380a2fed": {
+    "zh": "占比",
+    "en": "Share",
+    "pages": [
+      "favgames.html",
+      "gamecheck.html"
+    ]
+  },
+  "k845dfcae": {
+    "zh": "查看游玩榜",
+    "en": "Plays Leaderboard",
+    "pages": [
+      "favgames.html"
+    ]
+  },
+  "ka5e9d387": {
+    "zh": "正在加载游戏详情",
+    "en": "Loading game details",
+    "pages": [
+      "game.html"
+    ]
+  },
+  "k8190ab34": {
+    "zh": "🔗 分享",
+    "en": "🔗 Share",
+    "pages": [
+      "game.html"
+    ]
+  },
+  "kf8d97a19": {
+    "zh": "🎮 开始游戏",
+    "en": "🎮 Play Game",
+    "pages": [
+      "game.html"
+    ]
+  },
+  "k4cab9734": {
+    "zh": "📖 游戏简介",
+    "en": "📖 Description",
+    "pages": [
+      "game.html"
+    ]
+  },
+  "kf498c80c": {
+    "zh": "🖼️ 游戏截图",
+    "en": "🖼️ Screenshots",
+    "pages": [
+      "game.html"
+    ]
+  },
+  "k57d40af3": {
+    "zh": "🎯 更多类似游戏",
+    "en": "🎯 More Like This",
+    "pages": [
+      "game.html"
+    ]
+  },
+  "k85786a21": {
+    "zh": "游戏讨论区",
+    "en": "Game Discussion",
+    "pages": [
+      "game.html"
+    ]
+  },
+  "ke8b86a4f": {
+    "zh": "玩过的人都在这里聊——攻略、吐槽、找同好。",
+    "en": "Talk with other players — tips, thoughts, and finding people to play with.",
+    "pages": [
+      "game.html"
+    ]
+  },
+  "kabc41572": {
+    "zh": "讨论区加载中…",
+    "en": "Loading the discussion…",
+    "pages": [
+      "game.html"
+    ]
+  },
+  "k2d77e625": {
+    "zh": "分享游戏",
+    "en": "Share this game",
+    "pages": [
+      "game.html"
+    ]
+  },
+  "kfc3a8b0d": {
+    "zh": "游戏链接",
+    "en": "Game link",
+    "pages": [
+      "game.html"
+    ]
+  },
+  "k4edd1d00": {
+    "zh": "复制",
+    "en": "Copy",
+    "pages": [
+      "game.html"
+    ]
+  },
+  "k9ed627bc": {
+    "zh": "邮箱",
+    "en": "Email",
+    "pages": [
+      "game.html"
+    ]
+  },
+  "kf5a29cae": {
+    "zh": "更多分享",
+    "en": "More",
+    "pages": [
+      "game.html"
+    ]
+  },
+  "kec19ea63": {
+    "zh": "Instagram 不支持直接带链接发帖，点按后会在新标签打开，请复制链接粘贴到你的简介或 Story。",
+    "en": "Instagram has no direct link-posting: it opens in a new tab — copy the link above and paste it into your bio or Story.",
+    "pages": [
+      "game.html"
+    ]
+  },
+  "k40476d22": {
+    "zh": "🌟 已收藏",
+    "en": "🌟 Favorited",
+    "pages": [
+      "game.html"
+    ]
+  },
+  "kefb3bd53": {
+    "zh": "⭐ 收藏",
+    "en": "⭐ Favs",
+    "pages": [
+      "game.html",
+      "index.html"
+    ]
+  },
+  "k614fc587": {
+    "zh": "lelele Game · 游戏守则",
+    "en": "lelele Game · Game Rules",
+    "pages": [
+      "game_rules.html",
+      "game_rules4-0-0.html",
+      "game_rules4-0-1.html",
+      "game_rules4-0-2.html"
+    ]
+  },
+  "k2afbed2f": {
+    "zh": "🎮 游戏游玩榜",
+    "en": "🎮 Plays Leaderboard",
+    "pages": [
+      "gamecheck.html"
+    ]
+  },
+  "kaeab226c": {
+    "zh": "🔥 热门排行",
+    "en": "🔥 Most Played",
+    "pages": [
+      "gamecheck.html"
+    ]
+  },
+  "kaa598fa9": {
+    "zh": "🧊 冷门排行",
+    "en": "🧊 Least Played",
+    "pages": [
+      "gamecheck.html"
+    ]
+  },
+  "kdf0cab63": {
+    "zh": "游戏名称",
+    "en": "Game name",
+    "pages": [
+      "gamecheck.html",
+      "legal_templates.html"
+    ]
+  },
+  "k5a7c4ad0": {
+    "zh": "访问次数",
+    "en": "Plays",
+    "pages": [
+      "gamecheck.html"
+    ]
+  },
+  "k26958057": {
+    "zh": "查看收藏榜",
+    "en": "Favorites Leaderboard",
+    "pages": [
+      "gamecheck.html"
+    ]
+  },
+  "kb35b3370": {
+    "zh": "网太卡？点这里刷新",
+    "en": "Slow? Click to refresh",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k15b346db": {
+    "zh": "ℹ️ 关于",
+    "en": "ℹ️ About",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k127c1b92": {
+    "zh": "📖 文档",
+    "en": "📖 Docs",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k9f72fe84": {
+    "zh": "❤️ 支持我们",
+    "en": "❤️ Support Us",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k2465c4cb": {
+    "zh": "✉️ 投稿",
+    "en": "✉️ Submit",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k36843b1a": {
+    "zh": "🎯 推荐游戏",
+    "en": "🎯 Recommend",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k0c37c3a0": {
+    "zh": "🎲 随机游玩",
+    "en": "🎲 Random",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k778fc8f9": {
+    "zh": "全部",
+    "en": "All",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k4fb4e762": {
+    "zh": "本站",
+    "en": "Local",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k2add03b3": {
+    "zh": "外网",
+    "en": "External",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "ke818df15": {
+    "zh": "工作室",
+    "en": "Studio",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k504916f6": {
+    "zh": "⚙️ 设置",
+    "en": "⚙️ Settings",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k9afae20c": {
+    "zh": "🌟 全部",
+    "en": "🌟 All",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k32e687f4": {
+    "zh": "🎮 本站游戏",
+    "en": "🎮 Local",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k6cd559e3": {
+    "zh": "🌐 外网游戏",
+    "en": "🌐 External",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k96ced3dc": {
+    "zh": "🎲 手气不错",
+    "en": "🎲 Lucky",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "kab091abe": {
+    "zh": "🏆 游戏排名",
+    "en": "🏆 Top Games",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k76598a8a": {
+    "zh": "全站热度榜",
+    "en": "Global popularity ranking",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k120b8697": {
+    "zh": "查看更多",
+    "en": "View more",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k89c71cce": {
+    "zh": "📢 最新公告",
+    "en": "📢 Announcements",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "kb0d41c41": {
+    "zh": "🆕 本周新游与更新",
+    "en": "🆕 New & Updated This Week",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k626a160b": {
+    "zh": "猜你喜欢",
+    "en": "For You",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k11eaeea6": {
+    "zh": "继续玩",
+    "en": "Continue Playing",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "kecc7cd0f": {
+    "zh": "想玩清单",
+    "en": "Watchlist",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "kfe6685f6": {
+    "zh": "管理分组 →",
+    "en": "Manage groups →",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "kddeb358e": {
+    "zh": "冷门宝藏",
+    "en": "Hidden Gems",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "keee50df6": {
+    "zh": "玩过的人少，但评价很高",
+    "en": "Few plays, high praise",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k34641d61": {
+    "zh": "🎮 游戏库",
+    "en": "🎮 Game Library",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k33df6c5c": {
+    "zh": "点击卡片即可开始游戏",
+    "en": "Tap a card to play",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k2305ee3c": {
+    "zh": "游戏",
+    "en": "Games",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k698bea51": {
+    "zh": "作者",
+    "en": "Authors",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k683bfbb3": {
+    "zh": "全站论坛",
+    "en": "Site Forum",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "ka1612761": {
+    "zh": "聊聊游戏、说说建议、约人一起玩——这里不分区，想到什么说什么。",
+    "en": "Talk games, share ideas, find people to play with — one board for everything.",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k1e6be9b6": {
+    "zh": "论坛加载中…",
+    "en": "Loading the forum…",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k8eba8ae1": {
+    "zh": "前 25 名排行",
+    "en": "Top 25 Ranking",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k2eda89b4": {
+    "zh": "总榜",
+    "en": "Overall",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k21711eb4": {
+    "zh": "收藏榜",
+    "en": "Favorites",
+    "pages": [
+      "index.html",
+      "stats.html"
+    ]
+  },
+  "k44531cc4": {
+    "zh": "游玩榜",
+    "en": "Plays",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k44723556": {
+    "zh": "⭐ 我的收藏",
+    "en": "⭐ My Favorites",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k0d57d2cc": {
+    "zh": "📮 投稿须知",
+    "en": "📮 Submission Guidelines",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k5c6de64b": {
+    "zh": "下一步：确认授权 →",
+    "en": "Next: License →",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k26d6c3e9": {
+    "zh": "📄 授权确认",
+    "en": "📄 License Confirmation",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "ke2dece9c": {
+    "zh": "同意授权，开始填写表单 →",
+    "en": "Agree, go to form →",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "k89ecd952": {
+    "zh": "🎯 推荐一款游戏",
+    "en": "🎯 Recommend a Game",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "kba886aa2": {
+    "zh": "表单加载中…",
+    "en": "Loading form…",
+    "pages": [
+      "index.html"
+    ]
+  },
+  "kb35f9519": {
+    "zh": "✏️ 填写信息（内容会实时替换下方预览与导出文件）",
+    "en": "✏️ Your details (preview and exports update instantly)",
+    "pages": [
+      "legal_templates.html"
+    ]
+  },
+  "k86d2ad62": {
+    "zh": "开发者名称",
+    "en": "Developer name",
+    "pages": [
+      "legal_templates.html"
+    ]
+  },
+  "k60beedc8": {
+    "zh": "联系方式",
+    "en": "Contact",
+    "pages": [
+      "legal_templates.html"
+    ]
+  },
+  "kd642f8ef": {
+    "zh": "生效日期",
+    "en": "Effective date",
+    "pages": [
+      "legal_templates.html"
+    ]
+  },
+  "kb9c6f8da": {
+    "zh": "留空的字段会在预览与导出文件中保留醒目的黄色占位符，方便您后续补齐。",
+    "en": "Empty fields keep the highlighted yellow placeholders in the preview and exported files.",
+    "pages": [
+      "legal_templates.html"
+    ]
+  },
+  "k5244785a": {
+    "zh": "📜 用户协议",
+    "en": "📜 EULA",
+    "pages": [
+      "legal_templates.html"
+    ]
+  },
+  "kb2fac95c": {
+    "zh": "🛡️ 隐私政策",
+    "en": "🛡️ Privacy Policy",
+    "pages": [
+      "legal_templates.html"
+    ]
+  },
+  "kcefb59cb": {
+    "zh": "⚖️ 服务条款",
+    "en": "⚖️ Terms of Service",
+    "pages": [
+      "legal_templates.html"
+    ]
+  },
+  "k30a6420f": {
+    "zh": "PDF 会打开浏览器打印窗口，请在目标打印机中选择「另存为 PDF / Save as PDF」。全部导出文件末尾都会自动附带来源声明。",
+    "en": "PDF opens your browser's print dialog — choose \"Save as PDF\" as the destination. Every exported file automatically includes the attribution notice at the end.",
+    "pages": [
+      "legal_templates.html"
+    ]
+  },
+  "kdd77a809": {
+    "zh": "游戏守则 5.0.0",
+    "en": "Game Rules 5.0.0",
+    "pages": [
+      "legal_templates.html"
+    ]
+  },
+  "k4bdf236c": {
+    "zh": "文档中心",
+    "en": "Docs",
+    "pages": [
+      "legal_templates.html"
+    ]
+  },
+  "ka51aa35e": {
+    "zh": "📦 我的离线游戏",
+    "en": "📦 My offline games",
+    "pages": [
+      "lgstore.html"
+    ]
+  },
+  "kd22bd70e": {
+    "zh": "导入 .lgstore",
+    "en": "Import .lgstore",
+    "pages": [
+      "lgstore.html"
+    ]
+  },
+  "k9997e892": {
+    "zh": "回首页",
+    "en": "Home",
+    "pages": [
+      "lgstore.html",
+      "mycollection.html"
+    ]
+  },
+  "k4b171ab0": {
+    "zh": "已经存进这台设备的游戏会出现在下面，断网也能直接玩。换设备、清缓存后需要重新存一次。",
+    "en": "Games saved on this device show up below and run offline. They do not carry over to another device or after clearing browser data.",
+    "pages": [
+      "lgstore.html"
+    ]
+  },
+  "k6c14bd7f": {
+    "zh": "关闭",
+    "en": "Close",
+    "pages": [
+      "lgstore.html",
+      "play.html"
+    ]
+  },
+  "k11d02415": {
+    "zh": "返回",
+    "en": "Back",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "ka5d9fdec": {
+    "zh": "欢迎回来",
+    "en": "Welcome Back",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "kb4a69e52": {
+    "zh": "登录您的开发者账号以管理游戏",
+    "en": "Sign in to manage your games",
+    "pages": [
+      "login.html"
+    ]
+  },
+  "kb13ddae6": {
+    "zh": "邮箱地址",
+    "en": "Email Address",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "kc839a8ff": {
+    "zh": "密码",
+    "en": "Password",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "k3e3d59a2": {
+    "zh": "验证码",
+    "en": "Verification Code",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "k2b2d2b47": {
+    "zh": "请完成人机验证",
+    "en": "Please complete the security check",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "ke3741338": {
+    "zh": "登 录",
+    "en": "Sign In",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "k30f4d7cf": {
+    "zh": "或",
+    "en": "OR",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "kdd077452": {
+    "zh": "使用 Google 账号继续",
+    "en": "Continue with Google",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "k30ea4de8": {
+    "zh": "GitHub 登录",
+    "en": "GitHub",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "k4357559f": {
+    "zh": "Discord 登录",
+    "en": "Discord",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "k360ef33f": {
+    "zh": "GitLab 登录",
+    "en": "GitLab",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "k9a7a2739": {
+    "zh": "X (Twitter) 登录",
+    "en": "X (Twitter)",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "k5407b48f": {
+    "zh": "没有账号？去注册",
+    "en": "No account? Sign up",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "kf1f6e5f6": {
+    "zh": "忘记密码？",
+    "en": "Forgot password?",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "kcf4e7111": {
+    "zh": "正在检查登录状态…",
+    "en": "Checking your session…",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "k0eb5a677": {
+    "zh": "您已登录",
+    "en": "Already Signed In",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "k602354e8": {
+    "zh": "无需重复登录，正在前往开发者控制台…",
+    "en": "No need to sign in again. Redirecting to your dashboard…",
+    "pages": [
+      "login.html"
+    ]
+  },
+  "kec5c1a0f": {
+    "zh": "不是我，切换账号",
+    "en": "Use another account",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "k763dcc9c": {
+    "zh": "创建开发者账号",
+    "en": "Create Account",
+    "pages": [
+      "login.html"
+    ]
+  },
+  "kf311849e": {
+    "zh": "加入我们，发布你的游戏",
+    "en": "Join us and publish your games",
+    "pages": [
+      "login.html"
+    ]
+  },
+  "k0f7e824b": {
+    "zh": "已有账号？去登录",
+    "en": "Already have an account? Sign in",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "k5bee011b": {
+    "zh": "输入验证码",
+    "en": "Enter Verification Code",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "k801b3ba5": {
+    "zh": "重新填写邮箱",
+    "en": "Change email",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "k7e422146": {
+    "zh": "重置密码",
+    "en": "Reset Password",
+    "pages": [
+      "login.html",
+      "profile.html",
+      "user-login.html"
+    ]
+  },
+  "kd6a93c13": {
+    "zh": "输入邮箱，我们将发送重置链接",
+    "en": "Enter your email to receive a reset link",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "kf2fe4ecc": {
+    "zh": "返回登录",
+    "en": "Back to login",
+    "pages": [
+      "login.html",
+      "user-login.html"
+    ]
+  },
+  "k441ca9e3": {
+    "zh": "🔖 我的收藏",
+    "en": "🔖 My collection",
+    "pages": [
+      "mycollection.html"
+    ]
+  },
+  "k357feb39": {
+    "zh": "+ 新建分组",
+    "en": "+ New group",
+    "pages": [
+      "mycollection.html"
+    ]
+  },
+  "k84f53950": {
+    "zh": "收藏分组和游玩时长都只存在这台设备上（浏览器本地），不同步、不上传；清缓存会一起清掉。",
+    "en": "Groups and playtime live in this browser only — not synced, not uploaded, and cleared with your browser data.",
+    "pages": [
+      "mycollection.html"
+    ]
+  },
+  "ka9a7ec87": {
+    "zh": "🏅 成就徽章",
+    "en": "🏅 Achievements",
+    "pages": [
+      "mycollection.html"
+    ]
+  },
+  "k493322e8": {
+    "zh": "🌐 EN",
+    "en": "🌐 中文",
+    "pages": [
+      "play.html"
+    ]
+  },
+  "ke7b13a8b": {
+    "zh": "重载",
+    "en": "Reload",
+    "pages": [
+      "play.html"
+    ]
+  },
+  "k93c44f6b": {
+    "zh": "全屏",
+    "en": "Fullscreen",
+    "pages": [
+      "play.html"
+    ]
+  },
+  "k25d73c99": {
+    "zh": "该游戏来自外部站点，可能无法在本页正常显示。请点这里",
+    "en": "This game is hosted externally and may not display here. Please",
+    "pages": [
+      "play.html"
+    ]
+  },
+  "kc5ccc645": {
+    "zh": "在新标签页打开 ↗",
+    "en": "open in a new tab ↗",
+    "pages": [
+      "play.html"
+    ]
+  },
+  "kd07cee78": {
+    "zh": "收藏",
+    "en": "Favorites",
+    "pages": [
+      "play.html",
+      "profile.html"
+    ]
+  },
+  "kfaea8c1d": {
+    "zh": "查看详情",
+    "en": "Details",
+    "pages": [
+      "play.html"
+    ]
+  },
+  "kc734d411": {
+    "zh": "正在读取游戏信息…",
+    "en": "Loading game…",
+    "pages": [
+      "play.html"
+    ]
+  },
+  "ke2d53a6d": {
+    "zh": "重试",
+    "en": "Retry",
+    "pages": [
+      "play.html"
+    ]
+  },
+  "kd171615e": {
+    "zh": "了了了岭工作室",
+    "en": "Leleleling Studio",
+    "pages": [
+      "play.html"
+    ]
+  },
+  "k55db080e": {
+    "zh": "全服高分榜",
+    "en": "Global Top 10",
+    "pages": [
+      "play.html"
+    ]
+  },
+  "k300ee3de": {
+    "zh": "加载中…",
+    "en": "Loading…",
+    "pages": [
+      "play.html"
+    ]
+  },
+  "k7d110057": {
+    "zh": "高分榜",
+    "en": "Top 10",
+    "pages": [
+      "play.html"
+    ]
+  },
+  "k1d08846f": {
+    "zh": "正在加载…",
+    "en": "Loading…",
+    "pages": [
+      "profile.html"
+    ]
+  },
+  "k63e23e3b": {
+    "zh": "📊 我的游玩数据",
+    "en": "📊 My Play Stats",
+    "pages": [
+      "profile.html"
+    ]
+  },
+  "k7a5efebd": {
+    "zh": "玩过款数",
+    "en": "Games played",
+    "pages": [
+      "profile.html"
+    ]
+  },
+  "ka3928669": {
+    "zh": "想玩",
+    "en": "Watchlist",
+    "pages": [
+      "profile.html"
+    ]
+  },
+  "k6f07dcec": {
+    "zh": "本周游玩",
+    "en": "Plays this week",
+    "pages": [
+      "profile.html"
+    ]
+  },
+  "k0ddc6639": {
+    "zh": "仅统计此浏览器本地记录，不上传服务器",
+    "en": "Counted locally in this browser only, never uploaded",
+    "pages": [
+      "profile.html"
+    ]
+  },
+  "k4a39a787": {
+    "zh": "💻 进入开发者后台",
+    "en": "💻 Open dashboard",
+    "pages": [
+      "profile.html"
+    ]
+  },
+  "k93a41f50": {
+    "zh": "我的收藏",
+    "en": "My Favorites",
+    "pages": [
+      "profile.html"
+    ]
+  },
+  "kc770a97b": {
+    "zh": "还没有收藏任何游戏，去首页逛逛吧～",
+    "en": "No favorites yet. Browse the home page!",
+    "pages": [
+      "profile.html"
+    ]
+  },
+  "kbed286d5": {
+    "zh": "请输入新密码（至少 6 位）。",
+    "en": "Enter a new password (at least 6 characters).",
+    "pages": [
+      "profile.html"
+    ]
+  },
+  "k3e1274e4": {
+    "zh": "开发者",
+    "en": "Developer",
+    "pages": [
+      "profile.html"
+    ]
+  },
+  "k5b499ff3": {
+    "zh": "返回开发者中心",
+    "en": "Back to Developer Docs",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "k9cb5346f": {
+    "zh": "开发者 SDK",
+    "en": "Developer SDK",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "kdd2e92ac": {
+    "zh": "引入一个脚本，调用几个函数，你的游戏即可接入平台排行榜、评分、成绩分享与游戏跳转。无需后端、无需密钥。",
+    "en": "Add one script, call a few functions, and your game gains leaderboards, ratings, score sharing and game navigation. No backend, no API key.",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "k9e033de1": {
+    "zh": "快速开始",
+    "en": "Quick start",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "kec5d6aae": {
+    "zh": "API 参考",
+    "en": "API reference",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "kf427fcbd": {
+    "zh": "运行环境",
+    "en": "Runtime",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "k0adb1147": {
+    "zh": "常见问题",
+    "en": "FAQ",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "k866b0beb": {
+    "zh": "在你的游戏页面里加入下面这一行，就可以调用全部能力：",
+    "en": "Add this one line to your game page to use all capabilities:",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "kaa25aa27": {
+    "zh": "结算时上报分数：",
+    "en": "Report a score when a round ends:",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "k540e33b8": {
+    "zh": "上报分数到本游戏的全服榜。可选昵称，未填写时平台自动生成。",
+    "en": "Submit a score to this game's global leaderboard. Nickname is optional; one is generated if omitted.",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "k749d7652": {
+    "zh": "参数",
+    "en": "Params",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "k9d333d77": {
+    "zh": "非负数字",
+    "en": "non-negative number",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "k1e712c37": {
+    "zh": "可选昵称",
+    "en": "optional nickname",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "k612d19bc": {
+    "zh": "上报玩家对游戏的评分，范围为 0.5 到 5。",
+    "en": "Submit a player rating for the game, from 0.5 to 5.",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "k94a84e7a": {
+    "zh": "判断游戏是否正在平台播放器内运行。可用它让同一份游戏代码在平台内外表现不同。",
+    "en": "Check whether the game is running inside the platform player, so one codebase can behave differently inside and outside.",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "kdae94ddb": {
+    "zh": "从游戏内打开本游戏的详情页，查看简介与更新日志。",
+    "en": "Open this game's detail page from inside the game for its description and update log.",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "k2fbc3dff": {
+    "zh": "排行榜与评分为荣誉展示，客户端上报，不防作弊。",
+    "en": "Leaderboards and ratings are honor-system, client-reported, not anti-cheat.",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "k5cea046d": {
+    "zh": "未登录玩家也可参与，昵称由平台自动生成。",
+    "en": "Anonymous players can participate; a nickname is generated automatically.",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "kbbee304e": {
+    "zh": "成绩与评分由平台负责存储和展示，你无需管理任何数据。",
+    "en": "The platform stores and displays scores and ratings; you manage no data.",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "kb96f87b9": {
+    "zh": "需要后端或 API 密钥吗？",
+    "en": "Do I need a backend or API key?",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "k21f853ca": {
+    "zh": "不需要。引入脚本后直接调用函数即可。",
+    "en": "No. Just add the script and call the functions.",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "k249596f7": {
+    "zh": "玩家昵称从哪来？",
+    "en": "Where does the player nickname come from?",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "kf21011a4": {
+    "zh": "登录玩家使用其显示名；未登录时平台生成一个本地随机昵称。",
+    "en": "Signed-in players use their display name; others get a local random nickname.",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "k15fa8cd6": {
+    "zh": "成绩提交后还能修改吗？",
+    "en": "Can a submitted score be changed?",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "ke0058e1d": {
+    "zh": "提交后不可由开发者修改。如需更正，请让玩家重新提交。",
+    "en": "Developers cannot edit a submitted score. Ask the player to resubmit instead.",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "kc97e972a": {
+    "zh": "榜单是实时的吗？",
+    "en": "Is the leaderboard live?",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "k2f5b41e5": {
+    "zh": "是的，提交成绩后刷新榜单即可看到更新。",
+    "en": "Yes. Refresh the leaderboard after a score is submitted to see updates.",
+    "pages": [
+      "sdk-docs.html"
+    ]
+  },
+  "k5072ce41": {
+    "zh": "本局得分",
+    "en": "Score",
+    "pages": [
+      "share.html"
+    ]
+  },
+  "k497b44c2": {
+    "zh": "复制成绩文案",
+    "en": "Copy result text",
+    "pages": [
+      "share.html"
+    ]
+  },
+  "kfee037fc": {
+    "zh": "前往该游戏试玩",
+    "en": "Play this game",
+    "pages": [
+      "share.html"
+    ]
+  },
+  "kf0fe64b2": {
+    "zh": "该游戏全服榜",
+    "en": "Global Top 10",
+    "pages": [
+      "share.html"
+    ]
+  },
+  "kf3f2c640": {
+    "zh": "这个分享链接不完整",
+    "en": "Incomplete share link",
+    "pages": [
+      "share.html"
+    ]
+  },
+  "k283ccf0b": {
+    "zh": "缺少游戏或成绩信息，无法展示。请向分享者索取完整链接。",
+    "en": "Game or score info is missing. Please ask for the full link.",
+    "pages": [
+      "share.html"
+    ]
+  },
+  "k52e2ce9a": {
+    "zh": "📊 开发者数据大屏",
+    "en": "📊 Developer Stats",
+    "pages": [
+      "stats.html"
+    ]
+  },
+  "k711363c4": {
+    "zh": "查询",
+    "en": "Query",
+    "pages": [
+      "stats.html"
+    ]
+  },
+  "kd85e5ac2": {
+    "zh": "输入游戏名或 ID 后点查询。数据来自公开统计 API，无需登录。",
+    "en": "Enter a game name or ID and query. Data comes from the public stats API - no login needed.",
+    "pages": [
+      "stats.html"
+    ]
+  },
+  "ke25300a6": {
+    "zh": "总游玩",
+    "en": "Total plays",
+    "pages": [
+      "stats.html"
+    ]
+  },
+  "k88df89f6": {
+    "zh": "净收藏",
+    "en": "Net favorites",
+    "pages": [
+      "stats.html"
+    ]
+  },
+  "kbc2376bb": {
+    "zh": "排行点",
+    "en": "Rank points",
+    "pages": [
+      "stats.html"
+    ]
+  },
+  "kf48fb359": {
+    "zh": "收藏 ×5 + 游玩",
+    "en": "Favorites ×5 + plays",
+    "pages": [
+      "stats.html"
+    ]
+  },
+  "k94ef2cc0": {
+    "zh": "每日趋势",
+    "en": "Daily trend",
+    "pages": [
+      "stats.html"
+    ]
+  },
+  "k7147304f": {
+    "zh": "如何在自己的项目里接入",
+    "en": "Use it in your own project",
+    "pages": [
+      "stats.html"
+    ]
+  },
+  "kb68dac2f": {
+    "zh": "返回游戏库",
+    "en": "Back to games",
+    "pages": [
+      "tag.html"
+    ]
+  },
+  "k3d6fa6f7": {
+    "zh": "这里还没有游戏",
+    "en": "No games here yet",
+    "pages": [
+      "tag.html"
+    ]
+  },
+  "kba2c01d1": {
+    "zh": "这个标签暂时没有收录游戏，换个标签试试？",
+    "en": "No games under this tag yet. Try another one?",
+    "pages": [
+      "tag.html"
+    ]
+  },
+  "kfc76d020": {
+    "zh": "登录您的玩家账号，收藏喜欢的游戏",
+    "en": "Sign in to save your favorite games",
+    "pages": [
+      "user-login.html"
+    ]
+  },
+  "k3f4cf6ae": {
+    "zh": "无需重复登录，正在前往个人中心…",
+    "en": "No need to sign in again. Redirecting to your profile…",
+    "pages": [
+      "user-login.html"
+    ]
+  },
+  "k0b5774ad": {
+    "zh": "创建玩家账号",
+    "en": "Create Account",
+    "pages": [
+      "user-login.html"
+    ]
+  },
+  "k51a41ae6": {
+    "zh": "加入我们，收藏和游玩更多游戏",
+    "en": "Join us to save and play more games",
+    "pages": [
+      "user-login.html"
+    ]
+  }
+}

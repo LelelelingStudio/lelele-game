@@ -498,6 +498,19 @@
         .update-log-details[open] .update-log-summary::after { content: '▴'; }
         @media (prefers-reduced-motion: reduce) { .similar-grid { scroll-snap-type: none; } .similar-card { transition: none; } }
 </style>
+    <!-- 分享预览（社交平台抓的是这里的静态值） -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="了了了游">
+    <meta property="og:title" content="了了了游 · 游戏详情">
+    <meta property="og:description" content="看看这款小游戏，点开就能玩，还能在讨论区聊两句。">
+    <meta property="og:url" content="https://game.leleleling.site/game.html">
+    <meta property="og:image" content="https://game.leleleling.site/og-default.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="了了了游 · 游戏详情">
+    <meta name="twitter:description" content="看看这款小游戏，点开就能玩，还能在讨论区聊两句。">
+    <meta name="twitter:image" content="https://game.leleleling.site/og-default.png">
 </head>
 <body>
 
@@ -689,6 +702,7 @@
     <script src="legal_generic.js" defer></script>
     <script src="/pager-nav.js" defer></script>
     <script src="/lgstore.js" defer></script>
+    <script src="/sharecard.js" defer></script>
 
     <script>
         // 兜底：本地保留 escapeHtml，避免 Cloudflare 缓存旧版 common.js 时本页调用未定义函数而整页崩溃

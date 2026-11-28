@@ -1573,3 +1573,8 @@ html.dark-mode .for-you-author { color: #8b96ab; }
 .for-you-more { margin-left: auto; font-size: .8rem; font-weight: 700; color: var(--primary); text-decoration: none; white-space: nowrap; }
 .for-you-more:hover { text-decoration: underline; }
 .for-you-head { display: flex; align-items: center; gap: 10px; }
+
+/* 分享卡图按钮（详情页） */
+.btn-sharecard { background: rgba(129,140,248,.14); color: #4338ca; box-shadow: none; }
+.btn-sharecard:hover { background: rgba(129,140,248,.24); }
+html.dark-mode .btn-sharecard { color: #a5b4fc; }
