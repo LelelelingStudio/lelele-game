@@ -31,12 +31,22 @@
     /* ---------- 小工具 ---------- */
 
     function ready(fn) {
-        if (typeof window.onReady === 'function') {
-            window.onReady(fn);
-        } else if (document.readyState !== 'loading') {
+        // 页面自己的 onReady 有时在脚本加载前就已经跑完了，这时再注册回调
+        // 永远不会触发（论坛就静默不挂载）。所以已经解析完就直接执行，
+        // 只有还在加载中才交给 onReady / DOMContentLoaded 排队。
+        var done = false;
+        function once() {
+            if (done) return;
+            done = true;
             fn();
+        }
+        if (document.readyState !== 'loading') {
+            once();
+        } else if (typeof window.onReady === 'function') {
+            window.onReady(once);
+            document.addEventListener('DOMContentLoaded', once);
         } else {
-            document.addEventListener('DOMContentLoaded', fn);
+            document.addEventListener('DOMContentLoaded', once);
         }
     }
 
@@ -107,6 +117,12 @@
     /* ---------- 通用挂载 ---------- */
 
     function attach(box, src, title, onReady) {
+        // 保险：容器里已经挂了 iframe 就先清掉，任何情况下都只留一个
+        var olds = box.querySelectorAll('iframe');
+        for (var i = 0; i < olds.length; i++) {
+            if (olds[i].parentNode) olds[i].parentNode.removeChild(olds[i]);
+        }
+
         var iframe = document.createElement('iframe');
         iframe.setAttribute('title', title);
         iframe.setAttribute('loading', 'lazy');
@@ -141,7 +157,7 @@
 
     function mountSiteForum(section) {
         var box = section.querySelector('[data-forum-frame]');
-        if (!box || box.dataset.forumState === 'mounted') return;
+        if (!box || box.dataset.forumState === 'mounted' || box.dataset.forumState === 'pending') return;
         box.dataset.forumState = 'mounted';
 
         var iframe = attach(box, SITE_FORUM_SRC, t('了了了游 · 全站论坛', 'lelele Game · Site forum'));
@@ -189,13 +205,17 @@
 
     function mountGameForum(section) {
         var box = section.querySelector('[data-forum-frame]');
-        if (!box || box.dataset.forumState === 'mounted') return;
+        if (!box) return;
+        // 直达链接和滚动监听可能同时调用本函数：第一个就把状态占住，
+        // 否则两边都等游戏名，最终会挂出两个 iframe（同一话题重复加载）
+        if (box.dataset.forumState === 'mounted' || box.dataset.forumState === 'pending') return;
 
         var gameId = currentGameId();
         if (!gameId) {
             section.setAttribute('hidden', 'hidden');
             return;
         }
+        box.dataset.forumState = 'pending';
 
         waitForGameName(function (name) {
             box.dataset.forumState = 'mounted';
@@ -257,6 +277,87 @@
         );
     }
 
+    /* ---------- 深链：?to=forum / #forum ---------- */
+
+    // index.html 的「全站论坛」和 game.html 的「游戏讨论区」都支持直接跳转：
+    //   index.html?to=forum    或 index.html#forum
+    //   game.html?id=12&to=forum 或 game.html?id=12#game-forum
+    // game.html 只有在带 id 时才有讨论区；没 id 时不做任何事，绝不额外造一个论坛。
+    function wantsForum() {
+        var hash = String(window.location.hash || '').replace(/^#/, '').toLowerCase();
+        var to = '';
+        try {
+            to = String(new URLSearchParams(window.location.search).get('to') || '').toLowerCase();
+        } catch (e) {}
+        return to === 'forum' || hash === 'forum' || hash === 'site-forum' || hash === 'game-forum';
+    }
+
+    function sectionId(section) {
+        var type = section.getAttribute('data-forum-type');
+        return type === 'site' ? 'forum' : 'game-forum';
+    }
+
+    function focusSection(section) {
+        if (!section) return;
+        if (!section.id) section.id = sectionId(section);
+
+        var HEADER_OFFSET = 76;
+
+        function scrollToSection() {
+            var top = Math.max(0, section.getBoundingClientRect().top + window.pageYOffset - HEADER_OFFSET);
+            try {
+                window.scrollTo({ top: top, behavior: 'auto' });
+            } catch (e) {
+                window.scrollTo(0, top);
+            }
+        }
+
+        // 页面数据是异步渲染的，高度会一直变：滚到位之后内容再长高会把讨论区顶下去，
+        // 所以要在 15 秒内继续盯一会。但「盯」只看讨论区在文档里的绝对位置——
+        // 只有内容变高/变矮才重新落位；用户自己滚（轮子、触摸、键盘、拖滚动条）
+        // 立刻停手，绝不把用户拽回来。
+        var takenOver = false;
+        function release() { takenOver = true; }
+        ['wheel', 'touchmove', 'pointerdown', 'mousedown', 'keydown'].forEach(function (evt) {
+            window.addEventListener(evt, release, { passive: true, once: true });
+        });
+
+        var lastDocTop = -1;
+        var ticks = 0;
+
+        scrollToSection();
+        lastDocTop = section.getBoundingClientRect().top + window.pageYOffset;
+
+        var timer = setInterval(function () {
+            if (takenOver) { clearInterval(timer); return; }
+            var docTop = section.getBoundingClientRect().top + window.pageYOffset;
+            // 只对「布局变化」重新落位（阈值 24px，避免抖动的 1-2px 频繁滚动）
+            if (Math.abs(docTop - lastDocTop) > 24) {
+                lastDocTop = docTop;
+                scrollToSection();
+            }
+            if (++ticks > 30) clearInterval(timer);
+        }, 500);
+    }
+
+    function openForumFromLink() {
+        if (!wantsForum()) return;
+        var section = document.querySelector('[data-forum-type="site"]');
+        var type = 'site';
+        if (!section) {
+            section = document.querySelector('[data-forum-type="game"]');
+            type = 'game';
+        }
+        if (!section) return;
+        if (type === 'game' && !currentGameId()) {
+            // 没有 id 就没有这一款的讨论区：保持隐藏，不新增板块
+            return;
+        }
+        if (type === 'game') mountGameForum(section);
+        else mountSiteForum(section);
+        focusSection(section);
+    }
+
     /* ---------- 启动 ---------- */
 
     ready(function () {
@@ -265,16 +366,26 @@
             (function (section) {
                 var type = section.getAttribute('data-forum-type');
                 if (type !== 'site' && type !== 'game') return;
+                if (!section.id) section.id = sectionId(section);
+                // 详情页没带游戏 id 时这块本来就不该出现：先收起来，
+                // 免得在滚动到附近之前露出一个空讨论区
+                if (type === 'game' && !currentGameId()) {
+                    section.setAttribute('hidden', 'hidden');
+                    return;
+                }
                 whenNearViewport(section, function () {
                     if (type === 'site') mountSiteForum(section);
                     else mountGameForum(section);
                 });
             })(sections[i]);
         }
+        openForumFromLink();
     });
 
     window.LeleleForum = Object.freeze({
         currentGameId: currentGameId,
+        wantForum: wantsForum,
+        openForum: openForumFromLink,
         mountGameForum: mountGameForum,
         mountSiteForum: mountSiteForum
     });

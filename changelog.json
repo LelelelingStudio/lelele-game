@@ -1,362 +1,368 @@
 [
-  {
-    "version": "4.6.2",
-    "date": "2026-11-24",
-    "content_zh": "修复外链游戏全屏时播放器工具栏仍然显示的问题。浏览器回退为播放器根节点全屏时，会隐藏外壳并让游戏画面铺满屏幕。",
-    "content_en": "Fixed external games leaving the player toolbar visible in fullscreen. When fullscreen falls back to the player root, the shell is hidden and the game fills the screen."
-  },
-  {
-    "version": "4.6.1",
-    "date": "2026-11-24",
-    "content_zh": "新增了了了岭工作室开发的数独与国际象棋，分别支持数独每日挑战/变体玩法，以及国际象棋本地、人机和在线对弈。两款游戏均使用了了了游官方通用协议。",
-    "content_en": "Added Sudoku and Chess by Leleleling Studio, featuring daily and variant Sudoku puzzles and local, computer and online chess. Both games use lelele Game's official generic agreements."
-  },
-  {
-    "version": "4.6.0",
-    "date": "2026-11-24",
-    "content_zh": "中版本 4.6.0：《游戏守则》升级至 5.1.0，明确自 2026 年 11 月 28 日起新投稿的游戏须接入了了了游开发者 SDK（至少实现 submitScore 分数上报），以便平台统一展示全服榜单、评分与成绩分享；此前已收录游戏不受此约束。开发者文档与 SDK 文档已同步。另修复详情页标题被挤压、外链游戏全屏点击无响应，并新增统一分享弹窗（复制/X/Instagram/Facebook/邮箱/系统分享）。",
-    "content_en": "Minor version 4.6.0: Game Rules upgraded to 5.1.0 - games newly submitted from November 28, 2026 must integrate the lelele Game Developer SDK (at minimum submitScore), enabling unified leaderboards, ratings and score sharing; already-indexed games are unaffected. Developer docs and SDK docs updated. Also fixes the squeezed game-detail title and unresponsive fullscreen on external games, and adds a unified share dialog (copy / X / Instagram / Facebook / email / system share)."
-  },
-  {
-    "version": "4.5.0",
-    "date": "2026-11-23",
-    "content_zh": "中版本 4.5.0：一批发现与回访功能上线——首页新增「继续玩」「想玩清单」「冷门宝藏榜」和「手气不错」随机按钮，猜你喜欢纳入想玩偏好；标签专题页可按标签聚合游戏；个人中心显示本地游玩统计（仅本机、不上传）。作者页新增「作者贡献榜」。分享成绩：游戏内可生成带昵称和分数的专属链接，打开即可看到成绩卡与该游戏全服榜并直接试玩。开发者 SDK 全面升级：新增评分、读取该游戏排行榜、玩家昵称、平台判断、相似游戏跳转、成绩分享和打开详情等能力，完整文档见 sdk-docs.html。",
-    "content_en": "Minor version 4.5.0: a wave of discovery and return features - the homepage gains Continue Playing, a Watchlist, Hidden Gems and a Lucky Pick button, with For You now learning from your watchlist; a Tag Explorer aggregates games by tag; your profile shows local play stats (on-device only, never uploaded). Author pages gain a Top Contributors board. Score sharing: generate a personal link with your nickname and score that opens a result card, the game's global board and a play button. The developer SDK is expanded with ratings, per-game leaderboard reads, player nickname, platform check, similar-game jumps, score sharing and detail navigation - full docs at sdk-docs.html."
-  },
-  {
-    "version": "4.4.1",
-    "date": "2026-11-19",
-    "content_zh": "小版本 4.4.1：新增 8 款本站游戏——2048、Astray（迷宫冒险）、纸片我的世界（Paper Minecraft）、笨拙小鸟（Clumsy Bird）、新冠跑酷（Corona Runner）、六边形消除（Hextris）、小恐龙跑酷（T-Rex Runner）、搭塔游戏（Tower Game）。这些是收录的社区开源作品，作者为原作者（非本站作者、无作者主页），游戏本体已放到本站，打开即玩。",
-    "content_en": "Minor version 4.4.1: eight new local games - 2048, Astray, Paper Minecraft, Clumsy Bird, Corona Runner, Hextris, T-Rex Runner and Tower Game. These are community open-source titles hosted on-site; credit goes to their original authors (no platform author page). Just open and play."
-  },
-  {
-    "version": "4.4.0",
-    "date": "2026-11-19",
-    "content_zh": "中版本 4.4.0：全服高分榜 SDK。开发者在游戏里引入 lelele-sdk.js 并调用 LeleleSDK.submitScore(分数)，即可把分数上报到平台「全服高分榜 Top 10」。播放器新增高分榜卡片与开关，支持匿名参与（本地随机昵称），榜单由 Supabase 统一存储与展示，开发者无需后端。该榜单为荣誉展示，分数由客户端上报。开发者文档与 llms.txt 同步接入说明。",
-    "content_en": "Minor version 4.4.0: Global high-score leaderboard SDK. Developers add lelele-sdk.js to their game and call LeleleSDK.submitScore(score) to report scores into the platform's Global Top 10. The player gains a leaderboard card and toggle, supports anonymous play (random local nickname), and scores are stored/served by Supabase - no backend for developers. This is an honor-system board (client-reported). Developer docs and llms.txt document the integration."
-  },
-  {
-    "version": "4.3.0",
-    "date": "2026-11-18",
-    "content_zh": "中版本 4.3.0：开发者能力与浏览体验升级。① 新增公开统计 API `/api/public/stats?game=&range=&cmp=`（免登录、CORS 开放），返回单游戏游玩/净收藏趋势与对比时段；新增开发者数据大屏 stats.html 与 llms.txt（让 AI agent 无需读源码即可理解平台的游戏接入与数据契约），开发者文档新增专章。② 首页新增「本周新游与更新」轮播、标签多选筛选、搜索历史；随机游玩支持范围筛选。③ 收藏弹窗支持分组与拖动排序；详情页新增相似推荐与长简介折叠；作者页显示作品数/总收藏/最受欢迎作品。④ 公告弹窗支持已读/未读筛选；收藏榜与游玩榜支持 CSV 导出与列头排序；全站图片懒加载与分类 emoji 兜底、返回顶部按钮。⑤ SW 预缓存自检脚本，确保新增页面不会出现离线白屏。",
-    "content_en": "Minor version 4.3.0: developer capabilities and browsing upgrades. (1) New public stats API `/api/public/stats?game=&range=&cmp=` (no login, CORS open) returning per-game plays/net-favorites series with previous-period comparison; new developer dashboard stats.html and llms.txt (so AI agents understand game integration and data contracts without reading source); developer docs gain a dedicated chapter. (2) Homepage gains a weekly new/updated carousel, multi-select tag filters, search history and a scope filter for random play. (3) Favorites dialog supports groups and drag-to-reorder; game detail pages gain similar-game recommendations and collapsible long descriptions; author pages show work count / total favorites / most-loved work. (4) Announcement dialog supports read/unread filtering; favorites and play leaderboards support CSV export and sortable columns; site-wide image lazy-loading with category emoji fallback and a back-to-top button. (5) A precache self-check script keeps new pages available offline."
-  },
-  {
-    "version": "4.2.2",
-    "date": "2026-11-18",
-    "content_zh": "小版本 4.2.2：播放器与文档细节。play.html 全屏失败时回退整窗全屏，外链游戏确认后必定能进全屏；游戏信息条作者名支持悬停查看全名；about 视频切换按钮补无障碍状态；开发者文档补公开统计 API 用法。",
-    "content_en": "Patch 4.2.2: player and documentation polish. play.html now falls back to whole-window fullscreen if the iframe cannot go fullscreen, so external games always enter fullscreen after confirmation; the player info bar shows the full author name on hover; the About video switch has an accessibility state; developer docs document the public stats API."
-  },
-  {
-    "version": "4.2.1",
-    "date": "2026-11-18",
-    "content_zh": "小版本 4.2.1：排行榜细节修正。Top3 预览与总榜量词统一为「排行点」，不再展示计算公式；修复收藏事件（按游戏 id）与游玩事件（按游戏名）命名空间不一致导致的总榜未加权问题（levil-evil 136 游玩 + 1 收藏 → 141 排行点）；SW 缓存升 v1.13 强制清旧缓存，确保玩家看到修正后的榜单。",
-    "content_en": "Patch 4.2.1: ranking polish. Top3 and the Overall tab now consistently show \"rank points\" with the formula hidden; fixed the namespace mismatch between favorite events (keyed by game id) and play events (keyed by name) that left the overall ranking unweighted (levil-evil 136 plays + 1 favorite -> 141 rank points); SW cache bumped to v1.13 to clear stale scripts."
-  },
-  {
-    "version": "4.2.0",
-    "date": "2026-11-18",
-    "content_zh": "播放器、收藏体系与全站文档适配（站点 4.2.0）。① 新增独立播放器 `play.html`（`?id=` 直查主列表、零外部依赖）：自建干净浏览器外壳（地址栏 + 语言/重载/全屏/关闭 + 底部栏），同源游戏以 `?embed=1&lang=` 内嵌，`common.js` 在 embed 模式跳过页脚/节日装饰/公告弹窗（解决外壳里出现雪人/树/飘雪的问题），外链游戏给「在新标签打开」兜底；iframe 不设 sandbox 以保留游戏 localStorage 存档，全屏改为对 iframe 自身沉浸全屏、外链全屏前中英双语确认。`game.html` 的「开始游戏」改为跳转 play.html，旧外壳 CSS/DOM/JS 全删。\n② 收藏体系：收藏/取消各发一个 analytics 事件（`fav-game_<id>` / `unfav-game_<id>`），每游戏每天最多 3 轮（仅限制埋点，不影响收藏功能）；11/26 前一次性把存量本地收藏补报（localStorage 标记永不重发）；作者页与开发者后台显示自己每个游戏的收藏数；首页 Top3 改为「收藏×5+游玩」的排行点排序，「查看更多」弹窗加总榜/收藏榜/游玩榜前三榜各前 25；新建 `favgames.html` 收藏榜（本站与 analytics 域双站），净收藏=fav−unfav，支持时间范围/Top N/全量表。\n③ `about.html` 新增宣传视频（YouTube 优先、8s 无响应自动切国内可直连 https mp4、可手动切换）；修复搜索框英文态 placeholder 仍显示中文、外壳按钮未双语等问题。\n④ 作者权威源已于 11/14 迁回本仓库 `authors/index.json`（surge 退役），admin 六动作与作者生成器全量可用；README 全量重写为英文详细版并加入 Star History 明暗双主题图表。\n⑤ 新增中版本专属公告与开发者专属告示（侧重点分开），全站介绍性页面与文档同步到当前架构；SW 缓存 `lelele-pwa-v1.12`。",
-    "content_en": "Player, favorites system and site-wide documentation alignment (site v4.2.0). (1) Added a standalone player `play.html` (`?id=` direct catalog lookup, zero external dependencies): a clean browser shell (address bar + language/reload/fullscreen/close + bottom bar). Same-origin games load with `?embed=1&lang=`; `common.js` skips footers, seasonal decorations and announcement dialogs in embed mode (fixing snowmen/trees/snow leaking into the shell); external games get an \"Open in new tab\" fallback. The iframe has no sandbox so games keep their `localStorage` saves; fullscreen now targets the iframe itself for an immersive view, with a bilingual confirmation for external games. `game.html` now links to `play.html`; the old in-page shell was fully removed.\n(2) Favorites system: favoriting/unfavoriting each sends one analytics event (`fav-game_<id>` / `unfav-game_<id>`), capped at 3 cycles per game per day (tracking only - the favorite button always works); existing local favorites are reported once before Nov 26 (a localStorage flag prevents re-sending); author pages and the developer dashboard show favorite counts per game. The homepage Top3 now ranks by a \"rank points\" score (favorites x 5 + plays), and \"View More\" shows three tabs - Overall / Favorites / Plays - with 25 entries each. Added `favgames.html` (available both on this site and on the analytics domain): net favorites = fav minus unfav, with time range, Top N and full-table views.\n(3) `about.html` gained a promo video (YouTube first, falls back to a mainland-accessible https mp4 after 8s, with manual switching); fixed the search placeholder staying Chinese in English mode and the player shell buttons not being bilingual.\n(4) The author registry was migrated back to this repository on Nov 14 (`authors/index.json`, surge retired), with all six admin actions and the author generator working; the README was fully rewritten in English with a light/dark Star History chart.\n(5) Added a mid-version announcement and a developer-only notice (separate angles), and synced all introductory pages and docs to the current architecture. Service Worker cache: `lelele-pwa-v1.12`."
-  },
-  {
-    "version": "4.1.0",
-    "date": "2026-11-11",
-    "content_zh": "合规与协议升级（站点 4.1.0 / 游戏守则 5.0.0，规则自 2026-11-15 生效）。① 新建 `user_agreement.html`（平台用户协议）、`legal_templates.html`（协议模板中心，三套中英双语模板、醒目占位符实时替换、Markdown/TXT/HTML/PDF/Word 五种零依赖导出、Apache-2.0 开源强声明），以及三份万能协议页 `generic_eula.html` / `generic_privacy.html` / `generic_tos.html`；三份万能协议正文抽为 `legal_generic.js` 公共常量，静态页与详情页弹窗共用，离线可读。\n② `game.html` 详情卡片右侧新增三枚竖排极简协议按钮（悬浮高亮气泡、窄屏横排），读取 `/game/data/{id}.json` 的 `legal_urls`：合法 https 直链新标签安全打开，缺失/空串/非法一律在弹窗渲染平台万能协议；`id.json` 读取失败由主列表兜底的分支同样降级；`lelegame_data.json` 一行未改，29 个存量游戏零数据改动。\n③ 《游戏守则》升至 **5.0.0**：新增中英「4.6 法律协议必备」条款（外链必备三链接、代码提交可自带或用平台万能协议、缺协议不予过审、存量平滑过渡），4.0.2 另存 `game_rules4-0-2.html`，历史版本索引与回退口径同步。\n④ 全站页脚（`common.js` 一处注入）、`docs.html`、`sitemap.html` / `sitemap.xml`、不引 common.js 的例外页均补齐用户协议与新页面入口；三处表单挂载高度适配新增字段。\n⑤ 新增置顶全站公告与 `author=all` 开发者专用告示；`sw.js` 加注释升 v1.8 并预缓存全部新页面。",
-    "content_en": "Compliance and legal-agreement upgrade (site v4.1.0 / Game Rules v5.0.0, effective November 15, 2026). (1) Added `user_agreement.html` (Platform User Agreement), `legal_templates.html` (Legal Template Center: three bilingual templates, highlighted placeholders with live replacement, five zero-dependency exports Markdown/TXT/HTML/PDF/Word, Apache-2.0 open-source notice), and three generic agreement pages `generic_eula.html` / `generic_privacy.html` / `generic_tos.html`. Their text lives in a shared `legal_generic.js` constant used by both the static pages and the detail-page dialog, so it works offline.\n(2) `game.html` now shows three minimal vertical agreement buttons beside the detail card (hover tooltips, horizontal layout on narrow screens). It reads `legal_urls` from `/game/data/{id}.json`: valid https URLs open safely in a new tab; missing, empty or invalid values render the Platform's generic agreement in a dialog. The `lelegame_data.json` fallback branch degrades identically. The main game list is untouched and all 29 existing games needed zero data changes.\n(3) The Game Rules are now **v5.0.0** with a new bilingual \"4.6 Mandatory Legal Agreements\" clause (three links required for external games, in-game pages or generic agreements for code submissions, no review without agreements, smooth transition for existing games). v4.0.2 is preserved as `game_rules4-0-2.html`, with the version-history index and revert link updated.\n(4) User-agreement and new-page links were added across the site-wide footer (one `common.js` injection), `docs.html`, `sitemap.html` / `sitemap.xml` and the pages that do not load `common.js`; three form iframe heights were adjusted for the new fields.\n(5) Added a pinned site-wide announcement and an `author=all` developer notice; `sw.js` was bumped to v1.8 with all new pages pre-cached."
-  },
-  {
-    "version": "4.0.16",
-    "date": "2026-11-09",
-    "content_zh": "新增开发者自助「更新游戏」入口、游戏守则 4.0.2 与两类公告。① dashboard 侧栏新增「🔄 更新游戏 / Update a Game」按钮，仅对已登录且名下至少 1 款游戏的开发者显示（myGames.length > 0），空态账号保持隐藏。点击后按站点当前语言打开对应 Tally 表单（中文 gbe1kl / 英文 gbe1zd）的弹窗，语言切换时自动重挂；表单复用 4.0.14 的 boot.js mountTallyIframe 直连挂载（打开才创建 iframe、直接赋 src、加载态 / 8s 超时 / 降级重试 / 新窗口直链 / 挂载 token 防竞态），**绝不回退到官方默认的惰性 src 属性 + 境外 widget 脚本写法**，也不引入 data-tally-src、tally.so/widgets/embed.js 或 Tally.loadEmbeds；关闭弹窗即清空容器避免后台持续跨境请求；补 tally-form-submitted 监听（Tally 域白名单 + 兼容字符串/对象消息体）使提交成功后自动关弹窗。② 《了了了游游戏守则》升到 4.0.2（中英两处版本头与生效提示，最后更新 2026-11-09、生效 2026-11-16），新增中英「4.5 收录形式与分类」条款：凡以链接形式提交并审核通过的游戏一律收录为「外网游戏」（External）；以代码形式提交的游戏在作者无特别说明时默认收录为「本站游戏」（Local），理由是代码已经过平台检验与初步安全扫描；作者可特别说明申请不同归类，最终以平台审核结果为准；原 4.5 申诉渠道顺延为 4.6；game_rules_old.html 保持 4.0.0 不变。③ 新增置顶全站公告（announcements.json，2026-11-09 至 2026-11-23）讲新功能与规则变更；新增开发者专用告示（noticetodeveloper.json，author=all、priority=200、14 天窗口）讲按钮位置、可见条件、可提交字段、图片需 https 直链与 1–2 个工作日审核时限，均含中英双语与跳转按钮。④ 按发布检查单把 sw.js 加注释并升 CACHE_NAME 到 v1.7 触发 reinstall 清理 v1.6 旧缓存（静态 SWR / 数据超时回退 / 外部域直通三个策略分支完全不动）；changelog 与 foraisthings 同步到 4.0.16。说明：本轮曾评估过一轮国内外缓存加速方案，用户决定暂不做，已全部撤销，本版本不含任何缓存策略改动。",
-    "content_en": "Added a self-service \"Update a Game\" entry for developers, Game Rules v4.0.2, and two new announcements. (1) The dashboard sidebar now has a \"🔄 Update a Game\" button, visible only to signed-in creators with at least one published game (myGames.length > 0); accounts with no games never see it. It opens the matching Tally form by site language (Chinese gbe1kl / English gbe1zd) in a modal and remounts on language change. The form reuses boot.js mountTallyIframe from 4.0.14 (lazy mount, direct iframe.src, loading state, 8s timeout, fallback retry, open-in-new-tab link, mount token against races) and never falls back to Tally's default lazy-src + overseas widget script: no data-tally-src, no tally.so/widgets/embed.js, no Tally.loadEmbeds. Closing the modal clears the container. A tally-form-submitted listener with a Tally origin allowlist (string or object payload) closes the modal after a successful submission. (2) The Game Rules are updated to v4.0.2 (bilingual version headers and effective notices; last updated November 9, 2026, effective November 10, 2026) with a new bilingual clause \"4.5 Submission Format and Category\": games submitted as a link and approved are always listed as \"External\"; games submitted as code are listed as \"Local\" by default unless the author states otherwise, because the code has been reviewed and passed the Platform's initial security scanning. Authors may explicitly request a different category, and the review outcome is final. The former 4.5 Appeals becomes 4.6; game_rules_old.html stays at v4.0.0. (3) A pinned site-wide announcement (announcements.json, Nov 9–23, 2026) covers the new feature and rule change; a developer-only notice (noticetodeveloper.json, author=all, priority=200, 14-day window) explains where the button is, who can see it, which fields can be submitted, the need for https image links, and the 1–2 business day review. Both are bilingual with action buttons. (4) Following the release checklist, sw.js gets a version comment and CACHE_NAME v1.7 to force reinstall and purge v1.6 caches; the three fetch strategies (static SWR / data timeout fallback / external pass-through) are untouched. changelog and foraisthings are synced to 4.0.16. Note: a separate global caching/speed overhaul was evaluated this round but the user decided to postpone it; it was fully reverted and no caching strategy change is included in this release."
-  },
-  {
-    "version": "4.0.15",
-    "date": "2026-11-06",
-    "content_zh": "把 plan.md 审计清单里剩余的 161 项问题全部处理完（累计 170 项：5 大 / 15 中 / 50 小 / 100 迷你），以统一基础设施集中修复为主，避免逐点改动 20+ 文件引入回归。① 统一 fetch 超时：boot.js 新增 window.leleleFetch（8s AbortController 超时，尊重调用方自带 signal），common.js / notice.js / rank-loader.js 带幂等守卫（保证 game/ 子页只加载 common.js 时也受保护），全站裸 fetch 收敛，dashboard 的 dashFetch 复用同一入口；消除弱网/外部域挂起导致的无限等待（M-06~M-15、S-29~S-38、S-49）。② 安全与规范：26 处 target=_blank 补齐 rel=noopener noreferrer、12 个页面补齐中英 meta description、about.html 的 changelog 动态字段统一 escapeHtml、静态空态与 author.html 默认头像改 textContent、apply-certification.html 的 fallback iframe 改 DOM API 创建不再拼接 HTML、index.html 的 Escape 监听加一次性守卫（S-01~S-46、M-05）。③ 100 项迷你：20 处生产 console.log 改为默认静默的 window.leleleLog（设 leleleDebug=true 可恢复）；95 处内联 onclick 不逐点改写（大量是模板字符串动态生成，风险极高），改由 boot.js / common.js 的事件提升器统一处理——复用浏览器已编译的 el.onclick 函数、移除内联属性、挂到 addEventListener，并显式还原 return false 的 preventDefault 语义与 this/event 绑定，MutationObserver 带节流增量提升动态节点；运行时 DOM 中 [onclick] 归零，行为完全等价。如实登记唯一保留的已知限制：HTML 源码仍保留 onclick 属性文本，若将来启用严格 CSP 仍需逐处改写。④ 其余：boot.js 新增 leleleLastAuthorsError 区分超时/网络失败；sw.js 预缓存补齐 5 个遗漏页面、gamecheck.html 补引 boot.js；sw.js 加注释并升 v1.6 触发重装清理旧缓存（策略三分支不变）；plan.md 170 项状态全部更新为已修并追加第八节全量修复说明；changelog / foraisthings 同步到 4.0.15。实测：语言切换、弹窗关闭、return false 动态节点点击、动态插入节点增量提升全部行为等价；首页 26 卡片、关于页 47 条 changelog、作者页、三类 Tally 表单与 dashboard 12 款游戏均正常；全部 JS 与 HTML 内联脚本语法 0 失败、0 个站点 JS 运行时错误、lint 0 错误。",
-    "content_en": "Completed all 161 remaining issues from the plan.md audit (170 total: 5 critical / 15 major / 50 minor / 100 nit), mostly through shared infrastructure instead of risky point-by-point edits across 20+ files. (1) Unified fetch timeout: window.leleleFetch in boot.js (8s AbortController, respects a caller-supplied signal) with idempotent guards in common.js / notice.js / rank-loader.js so game/ subpages that load common.js alone are also covered; all bare fetch calls consolidated and dashboard's dashFetch delegates to the same entry, eliminating indefinite hangs on slow/external networks. (2) Security and standards: added rel=noopener noreferrer to 26 blank-target links, bilingual meta descriptions to 12 pages, escapeHtml on dynamic changelog fields in about.html, textContent for static empty states and the default avatar, DOM API construction for the certification fallback iframe, and a one-time guard for the Escape listener in index.html. (3) 100 nit items: 20 production console.log calls converted to a silent-by-default window.leleleLog (enable with leleleDebug=true); 95 inline onclick handlers migrated via a shared lifter in boot.js/common.js that reuses the browser-compiled el.onclick function, removes the inline attribute, binds it through addEventListener, explicitly restores return-false preventDefault semantics plus this/event binding, and incrementally lifts dynamically inserted nodes with a throttled MutationObserver. Runtime DOM now has zero [onclick] with fully equivalent behavior. The one remaining honest limitation is recorded: the HTML source still contains onclick attribute text, so strict CSP adoption would still require per-site rewrites. (4) Other: leleleLastAuthorsError distinguishes timeout from network failure; 5 missing precache pages added and gamecheck.html now loads boot.js; sw.js bumped to v1.6 (comment + cache name only, strategy unchanged) to purge stale caches; plan.md status for all 170 items updated with a new full-remediation section; changelog / foraisthings synced to 4.0.15. Verified: language switch, modal close, return-false dynamic button and incremental lifting all behave identically; homepage 26 cards, about page 47 changelog entries, author page, all three Tally forms and dashboard 12 games working; 0 syntax failures across all JS and inline scripts, 0 site runtime errors, 0 lint errors."
-  },
-  {
-    "version": "4.0.14",
-    "date": "2026-11-06",
-    "content_zh": "修复 Tally 表单内嵌在国内极慢、白框、刷新后随机失效的问题，并新增全站问题清单 plan.md。根因：投稿/推荐/认证三处表单的 iframe 只写 data-tally-src、从不设置 src，把渲染押在境外 tally.so/widgets/embed.js 能否执行 Tally.loadEmbeds() 上；该脚本在国内常静默挂起（既不 onload 也不 onerror），回调永不触发 → 弹窗纯白。首页 ensureTally 只覆盖推荐表单、投稿弹窗根本没接入（4.0.12 断链），全局 Tally 就绪状态与 loadedLang 缓存造成「刷新后时好时坏」；apply-certification 内联 loader 同样无超时；11 个游戏子页还加载了毫无 iframe 对应的 embed.js。修复：① 在 boot.js 新增共享 mountTallyIframe()，打开弹窗才惰性挂载，直接把 tally.so/embed/<id> 赋给 iframe.src（embed.js 只是可选增强，不再是前置条件），带可见加载态、8s 超时、onerror 降级卡片（中英双语说明 + 重试 + 新窗口直链），并常驻备用入口防跨域误判 onload；用挂载 token 阻止迟到回调覆盖新一次挂载。② 三处调用点全部改为直连挂载，认证页由两个 1600px 隐藏 iframe 改为按语言只挂一个。③ 提交成功 postMessage 监听补 event.origin === 'https://tally.so' 白名单。④ 删除 11 处冗余 embed.js 与首页 ensureTally 轮询，首屏不再发起任何 Tally 跨境请求。⑤ sw.js 加注释并升 v1.5 触发重装清理旧缓存（策略不变）。⑥ 新增 plan.md，按大/中/小/迷你四级登记 170 项全站问题，含定位、影响、建议修法与状态，作为后续修复路线图。表单 ID 与数据收集方式完全不变。",
-    "content_en": "Fixed Tally embedded forms being extremely slow, blank, or randomly broken in mainland China, and added a site-wide issue register plan.md. Root cause: all three forms (submission / recommendation / certification) wrote only data-tally-src on the iframe and never set src, so rendering depended on the overseas tally.so/widgets/embed.js executing Tally.loadEmbeds(); that script often stalls silently in CN (neither onload nor onerror), so the callback never fires and the modal stays blank. The homepage ensureTally covered only the recommendation form, leaving the submission modal disconnected (a 4.0.12 regression); global Tally readiness plus loadedLang caching produced the refresh-dependent randomness; the certification inline loader had no timeout; 11 game subpages also loaded embed.js with no iframe at all. Fixes: (1) Added shared mountTallyIframe() in boot.js — lazily mounts only when the modal opens, assigns the tally.so/embed/<id> URL directly to iframe.src (embed.js is now optional enhancement, not a prerequisite), with a visible loading state, 8s timeout, and an onerror fallback card (bilingual message + retry + open-in-new-tab link); a persistent fallback link guards against cross-origin onload false positives; a mount token prevents late callbacks from clobbering a newer mount. (2) All three call sites now use the direct mount; the certification page mounts one form by language instead of two hidden 1600px iframes. (3) Added event.origin === 'https://tally.so' validation to the tally-form-submitted postMessage listener. (4) Removed 11 redundant embed.js tags and the homepage ensureTally polling, so first paint makes zero Tally cross-border requests. (5) sw.js bumped to v1.5 (comment + cache name only) to force reinstall and purge stale caches. (6) Added plan.md registering 170 site-wide issues across four severity levels with location, impact, suggested fix and status. Form IDs and data collection are unchanged."
-  },
-  {
-    "version": "4.0.13",
-    "date": "2026-11-05",
-    "content_zh": "修复开发者后台不显示自己的游戏，并消除作者页轻微卡顿。① 后台「暂无绑定您的游戏 / 未认证」根因：dashboard.html 从未引入 common.js，而它调用的 window.fetchAuthors() 只定义在 common.js，异常被 catch 静默吞掉导致 myGames 恒为空。现把作者清单统一定义到 head 同步加载的 boot.js（无 UI 副作用，dashboard 无需新增 script 标签），common.js 改为守卫式定义以兼容 game/ 子页面直连；dashboard 另加本地清单兜底、8s 请求超时，并把空态/侧栏/创作者卡文案区分为「档案读取失败」「未关联档案」「已关联但 0 游戏」三种情况，不再一律要求重新认证。② 修掉 4.0.12 批量替换误伤 common.js / index.js 中 leleleOnReady 函数体造成的无限递归（同步加载 common.js 的 authorlevel.html / apply-certification.html 会栈溢出，是偶发卡顿来源）。③ 作者页首屏提速：同域 authors/index.json 即时渲染名字/等级/徽标，surge 权威数据随后无感校正；Supabase 资料保存为 override，清单校正时不会被覆盖，并按 uuid 去重避免重复查询。④ sw.js 加注释并升 v1.4 触发重新 install 清理 v1.3 旧缓存（策略不变），首页新手引导与 notice.js 对齐 onReady。实测：模拟登录态打开后台显示 12 款游戏、开发者 ID 1、等级 6 与官方徽标；阻断 surge/analytics 后仍显示 12 款；authorlevel/apply-certification 0 个栈溢出错误；作者页名字与 12 款游戏即时可见；lint 0 错误。",
-    "content_en": "Fixed the developer dashboard not showing the creator's own games and removed the remaining author-page lag. (1) The dashboard never loaded common.js, yet called window.fetchAuthors() which was only defined there; the swallowed TypeError left myGames empty, producing 'No games found' and 'Not certified'. fetchAuthors is now defined once in boot.js (loaded synchronously in <head> on 14 pages, no UI side effects), common.js keeps a guarded fallback for game/ subpages that load it directly, and the dashboard adds a local-index fallback, 8s fetch timeouts, and three distinct empty states (profile load failed / account not linked / linked but zero games). (2) Fixed an infinite recursion accidentally introduced into leleleOnReady in common.js/index.js in 4.0.12, which caused stack overflow on pages that load common.js synchronously (authorlevel.html, apply-certification.html). (3) Author page first paint: same-origin authors/index.json renders name/level/badges instantly while surge asynchronously reconciles; Supabase profile fields are stored as an override so reconciliation cannot clobber them, and queries are de-duplicated by uuid. (4) sw.js bumped to v1.4 (comment + cache name only, strategy unchanged) to purge stale v1.3 caches; homepage onboarding and notice.js now use onReady. Verified with a mocked logged-in session: dashboard shows 12 games, Dev ID 1, level 6 and official badge; still 12 games with surge/analytics blocked; zero stack-overflow errors; author page shows name and 12 games immediately; 0 lint errors."
-  },
-  {
-    "version": "4.0.12",
-    "date": "2026-11-05",
-    "content_zh": "全站访问速度根治（国内外都能快速打开）。根因：4.0.11 把 jsdelivr 的 supabase-js 改为 defer 后，defer 脚本必须在 DOMContentLoaded 之前全部下载执行完，而全站初始化（含首页游戏列表）都挂在 DOMContentLoaded / load 上；jsdelivr、analytics 等外部域在国内挂起时（浏览器对 script 请求没有默认超时），这两个事件永不触发，导致一直加载、白屏、刷新无响应、头像与内容全出不来。修复：① supabase-js / pinyin-pro / echarts 三个库自托管到同域 /vendor/，彻底移除 jsdelivr 依赖；analytics 统计脚本改由 boot.js 在首屏之后动态异步注入，失败静默。② 全站初始化改用 onReady（readyState 非 loading 立即执行），不再死等 DOMContentLoaded / load；修 dashboard/login 的 supabase-client.js 与 SDK 执行顺序不一致的旧 bug，并给 dashboard 裸 client 调用加守卫。③ sw.js 按用户要求加注释改变文件字节、CACHE_NAME 升 v1.3 触发浏览器重新 install 并清理 v1.0~v1.2 旧缓存；策略由纯 network-first 改为静态资源 stale-while-revalidate（命中缓存秒开、后台更新）+ 数据 JSON network-first 带 1.5s 超时快速回退；移除升版时自动 location.reload() 避免反复刷新。④ 恢复十月底以来稳定的作者数据主源 https://authors.surge.sh/authors.json（已核实 access-control-allow-origin:*，跨域无问题），带 5s 超时，本地 authors/index.json 仅作离线兜底。实测：阻断全部外部域名后，首页仍渲染 26 个游戏卡片、作者页渲染作者卡与游戏列表，各页 0 个 JS 运行时错误。",
-    "content_en": "Site-wide speed fix (fast both in and outside China). Root cause: 4.0.11 deferred the jsdelivr supabase-js script; defer scripts must finish downloading/executing before DOMContentLoaded, and every page init (including the homepage game list) was bound to DOMContentLoaded/load. When jsdelivr/analytics stalled in CN (browsers have no default script timeout), those events never fired -> endless loading, blank page, unresponsive refresh, missing avatars and content. Fixes: (1) Self-host supabase-js / pinyin-pro / echarts under same-origin /vendor/, removing all jsdelivr deps; analytics is now injected asynchronously after first paint via boot.js and fails silently. (2) All init now uses onReady (runs immediately when readyState is not loading) instead of waiting on DOMContentLoaded/load; fixed the dashboard/login bug where supabase-client.js ran before the deferred SDK, and added null guards for bare client calls. (3) sw.js gets a version comment (byte change) + CACHE_NAME v1.3 to force re-install and purge v1.0-v1.2 caches; strategy changed from pure network-first to stale-while-revalidate for static assets (instant cache hit, background update) and network-first with a 1.5s timeout fallback for data JSON; removed the auto location.reload() on SW updates. (4) Restored the long-stable author source https://authors.surge.sh/authors.json (verified access-control-allow-origin:*) with a 5s timeout; local authors/index.json is offline fallback only. Verified: with all external domains blocked, the homepage still renders 26 game cards and the author page renders its card + games, with zero JS runtime errors on all pages."
-  },
-  {
-    "version": "4.0.11",
-    "date": "2026-11-04",
-    "content_zh": "修复公开页（尤其作者页）上线白屏/卡顿：根因是 <head> 同步加载 supabase-js（jsdelivr 国内不稳）阻塞 HTML 解析，现 6 处脚本全部改为 defer；所有数据 fetch 加 8s 超时并去掉 no-store。作者数据本地分文件：新增 authors/index.json（轻量清单：id/uuid/名字/等级/徽标，省略默认与空值，保留平台字段）+ authors/data/<id>.json（仅 games_count，由 lelegame_data.json 自动统计），删除旧 authors.json。作者可编辑资料（bio/role/display_name/头像）仍从 Supabase profiles 按 uuid 非阻塞拉取，与 dashboard 编辑同源——作者换头像或改简介/名字无需改任何文件，失败降级默认图 + “头像加载失败”提示。同步工作流改为从 surge 的 authors.json 拆分生成 index + data（games_count 自动统计）。",
-    "content_en": "Fixed public pages (esp. author page) white-screen/slowness on deploy: root cause was the synchronous supabase-js script in <head> (jsdelivr unstable in CN) blocking HTML parsing — now deferred on all 6 pages; all data fetches get an 8s timeout and drop no-store. Author data is now local & split: authors/index.json (lightweight list: id/uuid/name/level/badges, defaults/empties omitted) + authors/data/<id>.json (games_count only, auto-counted from lelegame_data.json), old authors.json removed. Author-editable fields (bio/role/display_name/avatar) still load non-blocking from Supabase profiles by uuid, sharing the same source as the dashboard — authors changing avatar or bio/name needs no file edits; falls back to default avatar + 'avatar failed' on error. Sync workflow splits surge authors.json into index + data (games_count auto-counted)."
-  },
-  {
-    "version": "4.0.10",
-    "date": "2026-11-04",
-    "content_zh": "统一作者数据读取为 fetchAuthors()：同域 authors.json 优先，外域 surge.sh 兜底并带 5 秒超时，绝不卡死；在 surge.sh 更新作者（新增作者或未部署快照时）也能生效。修正 dashboard 提示文案，移除泄露给普通用户的内部文件名 'authors.json'。",
-    "content_en": "Unified author data loading via fetchAuthors(): same-origin authors.json first, surge.sh fallback with a 5s timeout (never hangs); updating authors on surge.sh now takes effect in new-author / missing-snapshot cases. Also fixed a dashboard message that leaked the internal filename 'authors.json' to end users."
-  },
-  {
-    "version": "4.0.9",
-    "date": "2026-11-04",
-    "content_zh": "将作者数据源 authors.json 从外部域名 authors.surge.sh 改为托管到本站同域（repo 新增 authors.json，6 处引用全部改为同域读取：author.html / game.html / dashboard.html / index.js / notice.js）。原因：外部域名从部分网络访问极慢/卡死，导致作者页整页挂起（Chrome 提示关闭标签页）。配合 4.0.8 的非阻塞 + 5s 超时，作者页不再依赖外部网络，加载飞快且无白屏。注意：authors.json 现为仓库快照，作者信息变更后需重新拉取并更新部署。",
-    "content_en": "Moved the author data source authors.json from the external domain authors.surge.sh to same-origin hosting (added authors.json to the repo; switched all 6 references to same-origin: author.html / game.html / dashboard.html / index.js / notice.js). Reason: the external domain was extremely slow/unreachable from some networks, causing the author page to hang (Chrome prompted to close the tab). Combined with the non-blocking + 5s-timeout fix in 4.0.8, the author page no longer depends on the external network and loads fast without white-screen. Note: authors.json is now a repo snapshot — re-fetch and redeploy when author data changes."
-  },
-  {
-    "version": "4.0.8",
-    "date": "2026-11-04",
-    "content_zh": "修复作者主页（author.html）偶发“加载不出来”：原先整页渲染被远程 authors.surge.sh 的 fetch 阻塞，一旦该远程变慢/挂起就白屏。现改为本地游戏数据先渲染、远程作者信息非阻塞并以 5 秒超时获取，拿到后刷新名字/头像/徽标，远程不可达也不会白屏。",
-    "content_en": "Fixed author.html occasionally failing to load: the whole-page render was previously blocked by the remote authors.surge.sh fetch, so a slow/unreachable remote caused a blank page. Now the local game data renders first, while the remote author info loads non-blocking with a 5s timeout and refreshes name/avatar/badges when available — the page can no longer white-screen due to the remote."
-  },
-  {
-    "version": "4.0.7",
-    "date": "2026-11-03",
-    "content_zh": "修复游戏详情页：当无独立详情文件、回退到主列表加载时，原先会把简介写死为占位文字并丢弃截图；现改为透传真实 description / screenshots / banner 等字段（仅缺省时用占位）。更新 ID 25 游戏《双人大富翁》全部信息。",
-    "content_en": "Fixed game detail page fallback: when no per-game detail file exists and it falls back to the main list, the description was previously hardcoded to a placeholder and screenshots were dropped; now it passes through real description / screenshots / banner fields (placeholder only when missing). Updated game ID 25 (Two-player Monopoly) with all details."
-  },
-  {
-    "version": "4.0.6",
-    "date": "2026-11-03",
-    "content_zh": "特效扩展至全站（React Bits 风格纯 CSS）：common.css 通过 @import 统一加载 effects.css；游戏卡 / 排行榜卡 / 作者卡 / 公告卡 / 详情卡悬浮显示渐变描边；按钮（action-btn / btn-primary）加入鼠标跟随聚光（Spotlight）；标题（panel-title / section-title / game-title 等）改为流动渐变文字；官方 / 原创徽标增加脉冲辉光。",
-    "content_en": "Site-wide React Bits-style effects (pure CSS): effects.css is now imported globally via common.css; cards (game / ranking / author / announcement / detail) show an animated gradient border on hover; buttons (action-btn / btn-primary) get a pointer-follow spotlight; titles (panel-title / section-title / game-title, etc.) use animated gradient text; official / studio badges pulse with glow."
-  },
-  {
-    "version": "4.0.5",
-    "date": "2026-11-03",
-    "content_zh": "1. 【Dashboard 创作者认证】新增「创作者认证」标签页：展示来自 authors.json 的开发者全部信息（名称、开发者 ID、UUID、等级、官方认证、本站原创、已发布游戏数）与全部认证徽标（等级 / 官方 / 本站原创），未认证时引导去申请。\n2. 【开发者 ID 可见】左上角用户卡与「个人资料」区均显示当前账号的开发者 ID（取自 authors.json）。\n3. 【About / Docs 入口】后台侧栏新增「关于本站」与「认证文档」按钮。\n4. 【React Bits 风格特效】创作者卡片加入渐变描边 + 辉光、极光背景、光泽扫过、徽标悬浮等纯 CSS 特效（effects.css，可复用）。\n5. 【设置精简】移除自定义排版与排版模版，板块大小仅保留「游戏方块」一项。\n6. 【公告弹窗 3 天缓存】升级提醒弹窗仅在 3 天缓存过期或出现真正新公告时弹出。\n7. 【灵动岛】缩短收缩过渡并加 will-change，减少下滑卡顿。",
-    "content_en": "1. [Dashboard Creator Profile] New 'Creator Certification' tab shows the author's full info from authors.json (name, developer ID, UUID, level, official, studio-special, published count) and all certification badges (level / official / studio); un-certified users get an apply prompt.\n2. [Visible Dev ID] The top-left user card and the Profile tab now show the account's developer ID (from authors.json).\n3. [About / Docs links] Dashboard sidebar gains 'About' and 'Docs' buttons.\n4. [React Bits-style effects] The creator card uses gradient-border + glow, aurora, shine sweep and badge float (pure-CSS effects.css, reusable).\n5. [Settings cleanup] Removed custom layout and layout templates; section size keeps only 'Game cards'.\n6. [Announcement 3-day cache] The update modal now only appears when the 3-day cache expires or a genuinely new announcement exists.\n7. [Dynamic Island] Shortened collapse transition and added will-change to reduce scroll jank."
-  },
-  {
-    "version": "4.0.4",
-    "date": "2026-11-03",
-    "content_zh": "1. 【徽标可点击】游戏详情页作者行与作者页头部的认证徽标现在可点击：等级徽章跳转 authorlevel.html?level=N 等级说明页，官方 / 特殊徽章跳转认证文档；并在等级说明页与作者页提供「🏅 申请官方认证」按钮（带等级参数跳转 apply-certification.html）。\n2. 【认证等级说明页】新增 authorlevel.html?level=N，按等级展示扩充后的晋升要求与权益（中英双语），点击徽标可直接到达对应等级。\n3. 【入口补全】关于页（致独立开发者）与作者页作者卡新增「申请官方认证」入口。",
-    "content_en": "1. [Clickable badges] The certification badges on game detail author rows and author page headers are now clickable: the level badge jumps to authorlevel.html?level=N, while official/special badges jump to the certification doc; an '🏅 Apply for Certification' button (with level param) is added on the level page and author page.\n2. [Level doc page] Added authorlevel.html?level=N showing expanded promotion requirements and perks per level (bilingual); clicking a badge lands on the right level.\n3. [Entry points] Added an 'Apply for Certification' entry on the About page (To Indie Developers) and the author page card."
-  },
-  {
-    "version": "4.0.3",
-    "date": "2026-11-03",
-    "content_zh": "1. 【官方认证申请表单】新增 apply-certification.html，内嵌 Tally 认证申请表单（中文 kblp0R / 英文 LD9gO1），按站点语言自动切换；开发者后台新增「🏅 申请官方认证」入口；AUTHOR_CERTIFICATION.md 补充申请流程与字段说明。\n2. 【认证英文名对齐】开发者等级英文名与 Tally 表单对齐：优质制作人 → Premium Producer，开发团队 → Development Team（含前端徽章与文档）。",
-    "content_en": "1. [Certification Application Form] Added apply-certification.html embedding the Tally application form (zh kblp0R / en LD9gO1), auto-switched by site language; added a '🏅 Apply for Certification' entry in the developer dashboard; AUTHOR_CERTIFICATION.md documents the flow and fields.\n2. [EN label alignment] Aligned certification level English names with the Tally form: Premium Producer (was Quality Producer) and Development Team (was Dev Team), in both badges and docs."
-  },
-  {
-    "version": "4.0.2",
-    "date": "2026-11-03",
-    "content_zh": "1. 【作者认证体系】新增 6 级认证（普通创作者→制作人→优质制作人→开发者→金牌开发者→开发团队）；authors.json 增加 authorlevel（缺省即 1）、official（官方【官方】标识，缺省 false）、studio_special（仅主理团队「本站原创团队」金色特殊徽章）；游戏详情页作者行与作者详情页头部展示徽章；新增 AUTHOR_CERTIFICATION.md。规范：值为 false / level1 的字段可省略以省储存。\n2. 【绑定 bug 修复】修复「绑定第三方账号跳登录页并新建账号」：linkIdentity 回跳改回 dashboard.html 并新增 OAuth 回跳处理（exchangeCodeForSession），留在控制台完成绑定；新增「添加/更换邮箱」入口（Supabase 单邮箱主键，仅支持更换）。\n3. 【灵动岛】修复向下滚动时灵动岛在边界反复横跳：加入迟滞阈值（进入 80px / 退出 40px），仅状态变化时切换。\n4. 【自定义排版】修复排版模式监听泄漏（退出后仍可拖）与「排版模式下点按钮仍触发原动作」：拖动仅排版模式生效、退出时移除监听并拦截点击；拖动放宽为主按钮区双向微调；新增 3 套模版（默认 / 排行榜优先 / 游戏置顶），设置面板一键切换并持久化。\n5. 【板块大小】设置面板新增「板块大小」：分别调节导航栏、灵动岛、排行榜、公告、游戏方块，CSS 变量驱动并持久化。\n6. 【随机游玩】首页新增「🎲 随机游玩」按钮，随机跳转一款游戏详情页。\n7. 【内容】新增 Jeremy 的外网游戏《斜坡大富翁》（Ramp Monopoly，作者 id 8）。",
-    "content_en": "1. [Author Certification] Added 6-tier certification (Creator→Producer→Quality Producer→Developer→Gold Developer→Dev Team); authors.json gains authorlevel (default 1), official (【Official】 badge, default false), studio_special (gold 'Official Studio' badge for the main studio only); badges shown on game detail author row and author page; added AUTHOR_CERTIFICATION.md. Convention: false / level-1 fields may be omitted to save space.\n2. [Binding fix] Fixed 'linking a provider jumps to login and creates a new account': linkIdentity now redirects back to dashboard.html with a dedicated OAuth-return handler (exchangeCodeForSession); added 'Add/Change email' entry (Supabase single-email primary key, change only).\n3. [Dynamic Island] Fixed the island flickering at the scroll boundary by adding hysteresis (enter 80px / exit 40px), toggling only on state change.\n4. [Custom Layout] Fixed layout-mode listener leak (draggable after exit) and buttons still firing in layout mode: dragging is active only in layout mode, listeners removed on exit and clicks intercepted; drag range widened to 2-axis; added 3 templates (Default / Ranking-first / Games-first) switchable from settings and persisted.\n5. [Section Size] Settings gained a 'Section size' panel to scale top bar, island, ranking, announcements and game cards via CSS variables (persisted).\n6. [Random Play] Added a '🎲 Random' button on the homepage that jumps to a random game's detail page.\n7. [Content] Added Jeremy's external game 'Ramp Monopoly' (author id 8)."
-  },
-  {
-    "version": "4.0.1",
-    "date": "2026-11-03",
-    "content_zh": "【修复版（在 4.0.0 被 revert 后重做并修复）】\n1. 缓存根治：sw.js 升级至 v1.1、预缓存全部页面、激活阶段清理旧缓存并自动刷新一次，消除线上新旧资源混染导致的 CSS 错乱 / 整页大 logo / 设置在但无效。\n2. 灵动岛重做：滚动超过 80px 平滑 morph 为 52px 高的单行深色半透明胶囊（max-width 760px、圆角 26px、溢出隐藏），搜索行与分类行平滑收起，回顶恢复完整顶栏；移动端等比收窄；保留三级分级。\n3. 搜索增强：新增「全部 / 游戏 / 作者」三范围筛选；作者范围展示真正的作者卡片（头像、名称、作品数，点击进入作者页）；首页 25 条分页（超过才出现）；结果卡片展示作者；相关度排序 + 字段权重（标题 1.0 / 分类 0.75 / 作者 0.6）+ 去重。\n4. 设置面板重建：换色同时驱动 --primary 与 --accent（立即可见）；字号经 zoom 立即生效；含自定义背景（按图片信息量自适应淡化 + 每 14 天过期自动恢复默认）与自定义排版（拖拽顶栏按钮上下微调并本地持久化）。\n5. 雪期延长至 2027-01-31（specialPeriod 与 yearlyPeriod 两处，跨年逻辑兼容）。\n6. reCAPTCHA 容错：安全复验遇 5xx/网络错误时显示友好文案（不再裸显 internal_error 且不再状态行+错误框双重展示），8s 超时 + 1 次重试；服务端错误累计 ≥3 次自动熔断，本轮会话跳过验证（登录/注册仍保持严格）；前端输出结构化诊断。后端 500 真正根因已修复：env.js 的 MODES 缺少 'recaptcha'（issueTicket 用 provider 名作 mode 导致 assertMode 抛错），补入后本地单测与线上真实 token 实测均通过（与密钥无关，Vercel 密钥本就正常）；另保留缺密钥防御性降级 503。",
-    "content_en": "[Fix release (re-done after 4.0.0 was reverted)]\\n1. Cache fix: sw.js bumped to v1.1, precache all pages, purge old cache on activate and auto-refresh once, eliminating the mixed old/new asset rendering that caused broken CSS / full-page logo / non-working settings.\\n2. Dynamic Island redo: past 80px scroll, smoothly morphs into a 52px-tall single-line dark translucent pill (max-width 760px, 26px radius, overflow hidden); search and category rows collapse smoothly; full bar restored at top; mobile narrows proportionally; 3-tier grading kept.\\n3. Search upgrade: new All / Games / Authors scope; Authors scope renders real author cards (avatar, name, game count, links to author page); 25-per-page pagination (only when exceeded); results show author; relevance ranking + field weights (title 1.0 / category 0.75 / author 0.6) + dedup.\\n4. Settings panel rebuilt: accent color drives both --primary and --accent (instantly visible); font size via zoom (instant); custom background (info-density adaptive dimming + 14-day expiry auto-reset) and custom layout (drag top-bar buttons, persisted).\\n5. Winter activity extended to 2027-01-31 (special + yearly periods; cross-year logic compatible).\\n6. reCAPTCHA resilience: periodic re-verify shows friendly copy on 5xx/network (no raw internal_error, no double display), 8s timeout + 1 retry; after >=3 consecutive server errors the circuit breaker skips verification for the session (login/register stay strict); structured diagnostics. Backend degrades gracefully to 503 verification_unavailable on missing secrets."
-  },
-  {
-    "version": "3.3.0",
-    "date": "2026-11-02",
-    "content_zh": "1. 【布局改版】首页升级为双栏布局：游戏列表为主区，排行榜与公告收纳至右侧边栏，不再遮挡下方的游戏内容。\n2. 排行榜卡片在侧边栏内自动紧凑化（纵向排列、缩小卡面），并支持侧栏吸顶滚动。\n3. 公告板块精简为标题列表：不再直接展示预览内容，点击「查看详情」后在弹窗中阅读完整公告。\n4. 新增新布局限时引导：11 月 5 日前首次访问会全屏高亮讲解排行榜与公告的新位置，点击「知道了」完成引导（每人仅一次）。\n5. 窄屏（平板/手机）下侧边栏自动回退为单列堆叠，保证移动端阅读体验。",
-    "content_en": "1. [Layout Redesign] The homepage now uses a two-column layout: the game list becomes the main area, while the ranking and announcements move to a right sidebar so they no longer block the games below.\n2. Ranking cards compact automatically inside the sidebar (vertical stacking, smaller cards) with sticky scrolling.\n3. The announcement panel is simplified to a title list: preview content is removed; click \"View Details\" to read the full announcement in a modal.\n4. Added a limited-time onboarding guide: before Nov 5, first visits get a full-screen spotlight walkthrough of the new ranking and announcement positions, dismissed with \"Got it\" (once per visitor).\n5. On narrow screens (tablet/mobile) the sidebar automatically falls back to a single column to preserve the reading experience."
-  },
-  {
-    "version": "3.2.0",
-    "date": "2026-11-02",
-    "content_zh": "1. 【登录矩阵】开发者登录/注册全面支持第三方一键登录：Google、GitHub、Discord、GitLab、X (Twitter) 五种方式，与邮箱密码并存。\n2. 【账号绑定】开发者后台新增「账号绑定」模块：可将多个第三方身份关联到同一账号，任一方式登录均为同一账号与数据，支持一键绑定/解绑（至少保留一种登录方式）。\n3. OAuth 登录回调后自动补做人机验证绑定，与邮箱登录的安全体验完全一致。\n4. 第三方登录用户进入后台时自动以第三方昵称/头像兜底生成个人资料；无密码账号的「修改密码」流程给出明确指引（通过忘记密码设置）。\n5. 第三方登录失败（未开启、白名单未配置、用户取消）时给出中英双语错误提示。",
-    "content_en": "1. [Sign-in Matrix] Developer sign-in/sign-up now fully supports one-tap third-party login with Google, GitHub, Discord, GitLab and X (Twitter), alongside email and password.\n2. [Account Linking] Added a \"Linked Accounts\" module in the Dashboard: link multiple third-party identities to the same account — any of them signs into the same account and data, with one-click link/unlink (at least one sign-in method must remain).\n3. OAuth callbacks automatically complete the captcha verification binding, matching the security experience of email sign-in.\n4. Third-party users get an auto-seeded profile (nickname/avatar) when entering the Dashboard, and passwordless accounts get clear guidance for setting a password via \"Forgot password\".\n5. Bilingual error messages for third-party sign-in failures (provider not enabled, redirect URL not allowlisted, user cancellation)."
-  },
-  {
-    "version": "3.1.1",
-    "date": "2026-11-02",
-    "content_zh": "1. 【合规完善】新增《服务条款》页面（terms.html），中英双语，覆盖账号注册、投稿规范、行为准则、知识产权、第三方服务与免责声明九大章节。\n2. 服务条款入口铺设至全站页脚、登录页、游戏守则、关于页、站点文档页、投稿与推荐弹窗，并收录进站点地图（sitemap）。\n3. 首页右上角新增「文档」快捷入口，直达站点文档中心（docs.html）。\n4. 修复登录页与投稿须知中指向已更名《游戏守则》（game_rules.html）的失效链接。\n5. 开发者文档补充第三方一键登录的注册说明。",
-    "content_en": "1. [Compliance] Added the bilingual Terms of Service page (terms.html), covering account registration, submission standards, acceptable use, IP, third-party services and disclaimers in nine chapters.\n2. Terms of Service links added across the site footer, login page, game rules, about page, docs hub, and the submit/recommend modals, and included in the sitemap.\n3. Added a \"Docs\" shortcut in the homepage top bar linking to the site documentation hub (docs.html).\n4. Fixed broken links pointing to the renamed Game Rules page (game_rules.html) on the login page and submission guidelines.\n5. Developer docs updated with third-party one-tap sign-up instructions."
-  },
-  {
-    "version": "3.1.0",
-    "date": "2026-10-31",
-    "content_zh": "1. 新增「推荐游戏」板块：首页可直接打开推荐表单弹窗，无需登录即可提交游戏推荐。\n2. 推荐表单支持中英文自动切换，弹窗内嵌表单、独立滚动，移动端自适应。\n3. 未登录用户点击「投稿」时会提示两条路径，可直接前往推荐游戏（免登录），也可跳转登录投稿。\n4. 新增开发者定向告示系统：通过 noticetodeveloper.json 配置，登录后按作者 ID 精准推送专属公告，支持图片、视频与按钮。\n5. 游戏详情页支持视频：横幅与截图区域可放视频直链，或 B站、YouTube、Vimeo 链接自动转换为内嵌播放器。\n6. 修复作者主页新上线游戏延迟显示的问题：游戏列表请求增加缓存绕过，上线后立即可见。\n7. 全站游戏数据的 author 字段统一为字符串类型，兼容数字 ID 与人名两种写法，避免作者页匹配失败。",
-    "content_en": "1. Added the \"Recommend a Game\" section: the recommendation form can be opened directly from the homepage and submitted without logging in.\n2. The recommendation form auto-switches between Chinese and English, embeds in a modal with independent scrolling, and adapts to mobile.\n3. When a logged-out user clicks \"Submit\", two paths are offered: go recommend a game (no login needed) or continue to login.\n4. Added the developer-targeted notice system: configured via noticetodeveloper.json, it pushes notices to specific authors by author ID after login, supporting images, videos and buttons.\n5. Game detail pages now support video: banners and screenshots accept direct video links, or Bilibili, YouTube and Vimeo links that are automatically converted into embedded players.\n6. Fixed the delayed display of newly published games on author pages: game list requests now bypass HTTP cache, so new games appear immediately.\n7. Unified the author field across all game data to string type, supporting both numeric IDs and names to avoid author page matching failures."
-  },
-  {
-    "version": "3.0.1",
-    "date": "2026-10-23",
-    "content_zh": "1. 优化了开发者注册流程，放宽了邮箱验证码的输入长度限制，解决部分用户无法输入完整验证码的问题。\n2. 修复了搜索框在输入特定特殊字符时导致的控制台异常报错。\n3. 修复了全屏游戏页面被全站活动特效（如冬季雪花）遮挡的底层冲突问题，保障纯净游玩体验。\n4. 完善了开发者文档与游戏守则的双语跳转链接，优化了新用户的阅读体验。",
-    "content_en": "1. Optimized the developer registration process and relaxed the length limit for the email verification code input, resolving the issue where some users could not enter the full code. \n2. Fixed a console error caused by the search box when entering specific special characters. \n3. Fixed the underlying conflict where full-screen game pages were obstructed by site-wide event effects (like winter snowflakes), ensuring a pure gaming experience. \n4. Improved the bilingual jump links for developer docs and game rules, optimizing the reading experience for new users."
-  },
-  {
-    "version": "3.0.0",
-    "date": "2026-10-23",
-    "content_zh": "1. 【里程碑】开发者生态系统正式上线！全面接入 Supabase 数据库，支持安全的开发者账号注册、验证码登录与鉴权体系。\n2. 全新上线「开发者后台（Dashboard）」，支持一键查看单款游戏的游玩量、收藏量趋势折线图，并附带智能环比 Emoji 数据反馈。\n3. 新增「公开作者主页」，玩家点击游戏详情页的开发者名称，即可直达该作者的主页，一览其所有作品及个人简介。\n4. 支持开发者在后台上传自定义头像（前端智能压缩至 50KB 以内）及修改个人简介。\n5. 引入安全的“双重确认”账号注销机制，并在后台支持一键发送密码重置邮件。",
-    "content_en": "1. [Milestone] The developer ecosystem is officially online! Fully integrated with the Supabase database to support secure developer account registration, verification code login, and authentication. \n2. Launched the new 'Developer Dashboard', supporting one-click viewing of play counts, favorites trend line charts, and smart MoM Emoji feedback for individual games. \n3. Added 'Public Author Pages'; players can click the developer's name on the game detail page to go directly to their homepage and see all their works and bio. \n4. Supports developers in uploading custom avatars (with smart front-end compression to under 50KB) and editing their bio in the backend. \n5. Introduced a secure 'double confirmation' account deletion mechanism and supported one-click password reset emails from the backend."
-  },
-  {
-    "version": "2.4.0",
-    "date": "2026-10-23",
-    "content_zh": "1. 【搜索升级】全新接入智能拼音搜索引擎，支持全拼、首字母、模糊顺序匹配及搜索结果高亮显示。\n2. 【布局优化】将搜索框与收藏夹上移至顶部导航栏，同时将热度排行榜前移至公告栏上方，提升首屏信息获取效率。\n3. 优化了搜索无结果的空状态提示，并修复了在特定浏览器下搜索框失去焦点的问题。",
-    "content_en": "1. [Search Upgrade] Integrated a brand new smart pinyin search engine, supporting full pinyin, initials, fuzzy sequential matching, and search result highlighting. \n2. [Layout Optimization] Moved the search box and favorites to the top navigation bar, and shifted the popularity ranking above the announcements to improve first-screen information efficiency. \n3. Optimized the empty state prompt for no search results and fixed the issue where the search box lost focus in specific browsers."
-  },
-  {
-    "version": "2.3.0",
-    "date": "2026-10-23",
-    "content_zh": "1. 首页新增“双层筛选导航”，支持在【全部/本站/外网】与【游戏分类】之间进行精准交叉过滤。\n2. 新增全站悬浮按钮悬停交互，当鼠标停留在右下角图标时，会浮现具体的功能名称提示（如意见反馈、回到顶部）。\n3. 优化了顶部导航栏分类按钮在移动端的横向滑动交互体验。",
-    "content_en": "1. Added a 'Double-layer Filter Navigation' to the homepage, supporting precise cross-filtering between [All/Local/External] and [Game Categories]. \n2. Added a hover interaction for floating buttons site-wide; hovering over the bottom-right icons now reveals specific function name tooltips (e.g., Feedback, Back to Top). \n3. Optimized the horizontal swipe interaction experience for filter buttons on mobile devices."
-  },
-  {
-    "version": "2.2.1",
-    "date": "2026-10-23",
-    "content_zh": "1. 修复了游戏详情页在部分极端网络环境下样式加载错乱的缺陷。\n2. 优化了移动端触控事件分发，提升游玩时的操作灵敏度。\n3. 修复了深色模式下个别字体对比度不足影响阅读的问题。\n4. 修复了首页公告栏在特定交互下的渲染异常。",
-    "content_en": "1. Fixed a style loading defect on the game detail page in some extreme network environments. \n2. Optimized mobile touch event distribution to improve operational sensitivity during gameplay. \n3. Fixed the issue of insufficient font contrast in dark mode affecting readability. \n4. Fixed abnormal rendering of the homepage announcement bar under specific interactions."
-  },
-  {
-    "version": "2.2.0",
-    "date": "2026-10-22",
-    "content_zh": "1. 全新上线首页“全站游戏热度榜”！直观展示全站前 3 名游戏并佩戴金、银、铜牌徽章。\n2. 新增“查看更多”弹窗，玩家可一键浏览前 25 名完整榜单。\n3. 优化榜单交互，点击卡片可直接跳转至游戏详情页（支持中英双语）。\n4. 榜单数据支持加载时实时抓取与每 5 分钟自动刷新，确保热度数据准确。",
-    "content_en": "1. Launched the new 'Global Game Ranking' on the homepage! It intuitively displays the top 3 games sitewide with gold, silver, and bronze medals. \n2. Added a 'View More' modal, allowing players to browse the complete top 25 leaderboard with one click. \n3. Optimized leaderboard interactions; clicking a card now redirects directly to the game detail page (supports bilingual). \n4. The leaderboard data supports real-time fetching on load and auto-refresh every 5 minutes, ensuring accurate popularity data."
-  },
-  {
-    "version": "2.1.1",
-    "date": "2026-10-22",
-    "content_zh": "1. 【游戏上新】休闲品类新游戏《MC 矿工点击器》正式上架！支持直接在线游玩。\n2. 【安全加固】针对《MC 矿工点击器》源码进行了深度审查，修复了底层崩溃隐患，并为其作弊码验证引入了 SHA-512 哈希加密算法。\n3. 【Bug修复】修复了首页公告栏在用户将公告全部关闭后，连空状态提示框和「查看全部」按钮一起消失的 UI 缺陷。",
-    "content_en": "1. [New Game] New casual game 'MC Clicker Game' officially launched! Supports direct online play. \n2. [Security Hardening] Conducted an in-depth code review for 'MC Clicker Game', fixed underlying crash risks, and introduced SHA-512 hash encryption for its cheat code verification. \n3. [Bug Fix] Fixed the UI defect where the announcement bar on the homepage would disappear entirely (including the empty state box and 'View All' button) after users closed all announcements."
-  },
-  {
-    "version": "2.1.0",
-    "date": "2026-10-22",
-    "content_zh": "1. 【架构升级】全新上线通用活动配置系统（activity_whole.json），实现活动资源、时间锁及配色的独立管理与动态加载。\n2. 【冬季限定】正式开启 2026 冬季限定主题！全站飘落浪漫雪花，并自动替换冬日背景、戴帽 Logo、专属 Banner 与角落盲盒贴纸。\n3. 【体验优化】新增全站「滑动提示浮窗」，智能引导用户向下滚动查看内容，并在本地化存储 30 天防重复干扰。\n4. 【功能接入】正式接入 Tally 中英双语「用户满意度评价与反馈」表单，支持通过右下角悬浮按钮一键唤出。\n5. 【Bug修复】彻底修复了游戏详情页（game.html）切换语言时内容不重绘的底层缺陷，实现无缝双语切换。",
-    "content_en": "1. [Architectural Upgrade] Launched a new universal activity configuration system (activity_whole.json), enabling independent management and dynamic loading of activity assets, time locks, and color schemes. \n2. [Winter Limited] Officially launched the 2026 Winter Theme! Romantic snowflakes fall site-wide, with automatic replacement of winter backgrounds, logo, exclusive banners, and blind-box stickers in corners. \n3. [UX Optimization] Added a site-wide 'slide hint floating window', intelligently guiding users to scroll down for more content, with a 30-day local storage anti-disturbance mechanism. \n4. [Feature Integration] Officially integrated the Tally bilingual 'User Satisfaction and Feedback' form, accessible via the floating button in the bottom right corner. \n5. [Bug Fix] Thoroughly fixed the underlying defect where content failed to re-render when switching languages on the game detail page (game.html), achieving seamless bilingual switching."
-  },
-  {
-    "version": "2.0.0",
-    "date": "2026-10-21",
-    "content_zh": "1. 【架构级重构】全站底层升级为 2.0 模块化架构，实现全局语言与底部导航的统一分发。\n2. 引入全站全局深色模式，支持系统级偏好自动检测与本地持久化。\n3. 重构公告系统底层逻辑：新增未读消息推送提醒、单条公告 24 小时静音机制，并引入类似更新日志的「全部公告」独立浏览弹窗。\n4. 新增悬浮实用组件：意见反馈（Tally 接入）、一键回到顶部、PWA 安装提示（1分钟智能触发）。",
-    "content_en": "1. [Architectural Refactoring] The site's underlying infrastructure is upgraded to the 2.0 modular architecture, achieving unified distribution of global language and footer navigation. \n2. Introduced global Dark Mode, supporting automatic system preference detection and local persistence. \n3. Refactored the underlying logic of the announcement system: added unread message push reminders, a 24-hour mute mechanism for individual announcements, and introduced a dedicated 'All Announcements' browsing popup similar to the changelog. \n4. Added floating practical components: Feedback (Tally integration), Back to Top, and PWA installation prompt (smart trigger in 1 minute)."
-  },
-  {
-    "version": "1.8.1",
-    "date": "2026-10-21",
-    "content_zh": "1. 针对近期开发者的投稿反馈，深度优化了 Tally 表单的提交流程。\n2. 调整代码提交方式为上传 zip/rar 压缩包，并新增「单文件代码直接粘贴」选项，大幅降低上传损坏率。\n3. 补充了关于审核邮件通知的温馨提示，引导开发者留意垃圾邮件箱，确保信息触达率。",
-    "content_en": "1. Deeply optimized the Tally form submission process based on recent developer feedback. \n2. Changed the code submission method to zip/rar archive upload and added a 'Single File Code Paste' option, significantly reducing upload corruption rates. \n3. Added reminders regarding review email notifications, guiding developers to check their spam folders to ensure information delivery."
-  },
-  {
-    "version": "1.8.0",
-    "date": "2026-10-21",
-    "content_zh": "1. 全新上线独立的「更新日志」模块，支持按版本维度精准追溯平台历史迭代。\n2. 深度集成 Edgemetry 无埋点统计系统，实现全站 PV/UV 及游戏点击转化率的精准追踪。\n3. 全面优化底层资源加载策略，显著提升全平台页面的首屏渲染速度与响应能力。",
-    "content_en": "1. Launched an independent 'Changelog' module, supporting accurate tracking of platform historical iterations by version. \n2. Deeply integrated the Edgemetry analytics system to achieve precise tracking of site-wide PV/UV and game click conversion rates. \n3. Comprehensively optimized the underlying resource loading strategy, significantly improving the first-screen rendering speed and responsiveness across all platform pages."
-  },
-  {
-    "version": "1.7.2",
-    "date": "2026-10-20",
-    "content_zh": "1. 重构游戏卡片网格布局算法，完美适配多端响应式显示，消除边界溢出问题。\n2. 优化中英双语切换的底层逻辑，彻底解决切换时的页面闪烁与重绘性能损耗。\n3. 调整并统一了全站组件的 UI 视觉规范，提升了界面整体的沉浸感与一致性。",
-    "content_en": "1. Refactored the game card grid layout algorithm for perfect multi-device responsive display, eliminating boundary overflow issues. \n2. Optimized the underlying logic of bilingual switching, completely resolving page flickering and repaint performance losses during switching. \n3. Adjusted and unified the UI visual specifications of site-wide components, enhancing the immersion and consistency of the interface."
-  },
-  {
-    "version": "1.7.1",
-    "date": "2026-10-19",
-    "content_zh": "1. 正式上线「关于我们」独立页面，全方位展示平台愿景与开发者权益承诺。\n2. 完善平台合规体系，引入《隐私政策》与《版权侵权投诉指引》等底层保障入口。\n3. 优化导航栏层级结构与路由分发，大幅提升用户获取平台信息的便捷度。",
-    "content_en": "1. Officially launched the 'About Us' page, comprehensively showcasing the platform's vision and commitments to developer rights. \n2. Improved the platform's compliance system by introducing underlying protection entrances such as the 'Privacy Policy' and 'Copyright Infringement Guidelines'. \n3. Optimized the navigation bar hierarchy and route distribution, greatly enhancing user convenience in accessing platform information."
-  },
-  {
-    "version": "1.7.0",
-    "date": "2026-10-18",
-    "content_zh": "1. 「了了了游」全新架构正式上线！完成了全站底层技术的彻底重构，剥离了历史技术债。\n2. 原生支持中英双语无缝切换，全面拓展了平台服务于全球化用户的能力。\n3. 引入本地化游戏收藏与全局检索功能，大幅优化玩家寻找心仪游戏的心智负担。",
-    "content_en": "1. The brand new architecture of 'lelele Game' officially launched! Completed a thorough refactoring of the entire site's underlying technology, eliminating historical technical debt. \n2. Native support for seamless bilingual (Chinese/English) switching, comprehensively expanding the platform's ability to serve global users. \n3. Introduced local game favorites and global search functions, greatly optimizing the mental burden on players finding their desired games."
-  },
-  {
-    "version": "1.6.1",
-    "date": "2026-10-17",
-    "content_zh": "1. 上线前执行了全链路黑盒测试，修复了若干影响体验的边界缺陷。\n2. 优化了资源请求机制，降低了网络延迟导致的加载失败率。\n3. 完善了全局异常捕获机制，提升了系统整体的鲁棒性。",
-    "content_en": "1. Executed full-link black-box testing prior to launch, fixing several boundary defects affecting the experience. \n2. Optimized the resource request mechanism, reducing the loading failure rate caused by network latency. \n3. Improved the global exception capture mechanism, enhancing the overall robustness of the system."
-  },
-  {
-    "version": "1.6.0",
-    "date": "2026-10-10",
-    "content_zh": "1. 监测到旧版底层源代码存在严重的耦合崩坏，启动紧急技术预案。\n2. 将旧版历史遗留代码全部删除，从零开始搭建全新纯净架构。\n3. 重建了数据分发链路，确保后续版本迭代的稳定性与可维护性。",
-    "content_en": "1. Detected severe coupling corruption in the legacy underlying source code and activated an emergency technical plan. \n2. Deleted all legacy code from the old version and built a brand new pure architecture from scratch. \n3. Rebuilt the data distribution pipeline to ensure the stability and maintainability of future version iterations."
-  },
-  {
-    "version": "1.5.1",
-    "date": "2026-09-20",
-    "content_zh": "1. 了了了游正式启动复出计划，完成服务器及静态资源的重新部署。\n2. 梳理并优化了游戏上架的审核流转链路。\n3. 展开内部封闭测试，收集核心玩家反馈以打磨最终体验。",
-    "content_en": "1. lelele Game officially launched its comeback plan, completing the redeployment of servers and static resources. \n2. Organized and optimized the review workflow for game listings. \n3. Initiated internal closed beta testing, collecting core player feedback to polish the final experience."
-  },
-  {
-    "version": "1.5.0",
-    "date": "2026-07-18",
-    "content_zh": "1. 因工作室内部战略及资源调整，了了了游暂时停止运营并下架。\n2. 下架期间对数据资产进行了全面备份与归档。\n3. 感谢广大玩家的支持，期待未来更完美的重逢。",
-    "content_en": "1. Due to internal strategy and resource adjustments within the studio, lelele Game temporarily suspended operations and was taken offline. \n2. Conducted comprehensive backup and archiving of data assets during the offline period. \n3. Thank you to all players for your support; looking forward to a more perfect reunion in the future."
-  },
-  {
-    "version": "1.4.3",
-    "date": "2026-07-16",
-    "content_zh": "1. 修复了极少数情况下游戏列表渲染失败导致的白屏异常。\n2. 优化了数据解析模块，降低了前端内存占用。\n3. 提升了界面在老旧设备上的兼容性表现。",
-    "content_en": "1. Fixed the abnormal white screen caused by game list rendering failure in rare cases. \n2. Optimized the data parsing module, reducing front-end memory usage. \n3. Improved the interface's compatibility performance on legacy devices."
-  },
-  {
-    "version": "1.4.2",
-    "date": "2026-07-14",
-    "content_zh": "1. 修复了特定浏览器下部分 JS 代码意外泄漏到页面的隐患。\n2. 全面优化了数据加载管道，提升了并发请求时的响应效率。\n3. 增强了前端状态管理的稳定性。",
-    "content_en": "1. Fixed the hidden danger of some JS code accidentally leaking to the page under specific browsers. \n2. Comprehensively optimized the data loading pipeline, improving response efficiency during concurrent requests. \n3. Enhanced the stability of front-end state management."
-  },
-  {
-    "version": "1.4.1",
-    "date": "2026-07-04",
-    "content_zh": "1. 进行了一波深度的体验打磨，修复了此前版本中遗留的各种微小瑕疵。\n2. 优化了底层渲染逻辑，使整体运行更加丝滑流畅。\n3. 修复了部分极端网络环境下的资源加载超时问题。",
-    "content_en": "1. Conducted deep polishing, fixing various minor flaws left in previous versions. \n2. Optimized the underlying rendering logic, making overall operation smoother. \n3. Fixed resource loading timeout issues in some extreme network environments."
-  },
-  {
-    "version": "1.4.0",
-    "date": "2026-07-03",
-    "content_zh": "1. 游戏中心开启临时上限压力测试，一次性部署 20 款完整小游戏。\n2. 游戏涵盖益智、动作、休闲等多种品类（如猜数字、俄罗斯方块、吃豆人等）。\n3. 统一了所有游戏的控制适配，原生支持触屏手势与键盘操作。",
-    "content_en": "1. The game center initiated a temporary upper-limit stress test, deploying 20 complete mini-games at once. \n2. Games cover various categories such as puzzle, action, and casual (e.g., Guess the Number, Tetris, Pac-Man, etc.). \n3. Unified control adaptation for all games, natively supporting touch gestures and keyboard operations."
-  },
-  {
-    "version": "1.3.3",
-    "date": "2026-06-25",
-    "content_zh": "1. 优化了 3D 射击游戏在低端设备上的图形渲染帧率，降低了掉帧率。\n2. 修复了 2048 游戏在移动端触控时偶发的手指滑动误触问题。\n3. 优化了游戏加载页的动画过渡效果。",
-    "content_en": "1. Optimized the graphics rendering frame rate of the 3D shooting game on low-end devices, reducing frame drops. \n2. Fixed the issue in the 2048 game where swipe controls occasionally triggered unintended touches on mobile devices. \n3. Optimized the animation transition effect on the game loading page."
-  },
-  {
-    "version": "1.3.2",
-    "date": "2026-06-23",
-    "content_zh": "1. 修复了了了游中部分游戏在移动端触控失效的核心兼容性问题。\n2. 优化了触控事件分发机制，提升了移动端的操作准确度。\n3. 完善了反馈机制，帮助研发快速定位机型兼容问题。",
-    "content_en": "1. Fixed core compatibility issues where touch controls failed in some games on mobile devices. \n2. Optimized the touch event distribution mechanism, improving mobile operation accuracy. \n3. Improved the feedback mechanism to help R&D quickly locate device compatibility issues."
-  },
-  {
-    "version": "1.3.1",
-    "date": "2026-06-22",
-    "content_zh": "1. 修复了一些已知的问题，优化了游戏的打开逻辑。\n2. 调整了游戏启动时的资源预加载策略。\n3. 提升了部分游戏在后台切换时的存活率。",
-    "content_en": "1. Fixed some known issues and optimized the game's opening logic. \n2. Adjusted the resource preloading strategy when starting games. \n3. Improved the survival rate of some games when switching in the background."
-  },
-  {
-    "version": "1.3.0",
-    "date": "2026-05-22",
-    "content_zh": "1. 了了了游新增本地游戏：了了了派对-欢乐飞行棋。\n2. 支持多人对战模式，优化了物理碰撞检测引擎。\n3. 引入了全新的画面渲染与音效系统，带来更生动的体验。",
-    "content_en": "1. Added a new local game: lelele Party - Happy Flying Chess. \n2. Supports multiplayer battle mode and optimized the physics collision detection engine. \n3. Introduced a brand new graphics rendering and sound effect system for a more vivid experience."
-  },
-  {
-    "version": "1.2.0",
-    "date": "2026-04-18",
-    "content_zh": "1. 了了了游新增 5 款精品本地游戏：爱种地的农民、玉米工厂大亨、点击香蕉等。\n2. 丰富游戏品类矩阵，涵盖模拟经营与休闲解压。\n3. 优化了游戏启动入口的交互响应速度。",
-    "content_en": "1. Added 5 premium local games: Farmer Who Loves Farming, Corn Factory Tycoon, Click Banana, etc. \n2. Enriched the game category matrix, covering simulation management and casual decompression. \n3. Optimized the interaction response speed of the game launch entrance."
-  },
-  {
-    "version": "1.1.0",
-    "date": "2026-03-05",
-    "content_zh": "1. 了了了游新增 4 款本地游戏：3D射击、卡牌2048、扫雷、太空射击。\n2. 针对 3D 射击游戏进行了渲染管线优化，提升画面表现。\n3. 完善了游戏分类标签系统。",
-    "content_en": "1. Added 4 local games: 3D Shooting, Card 2048, Minesweeper, Space Shooting. \n2. Optimized the rendering pipeline specifically for the 3D shooting game to improve visual performance. \n3. Improved the game category tag system."
-  },
-  {
-    "version": "1.0.0",
-    "date": "2026-01-26",
-    "content_zh": "1. 了了了游 1.0 基础版本正式上线。\n2. 整合旗下产品游戏导航入口，搭建首版页面框架。\n3. 确立了了了了游的发展方向与产品矩阵。",
-    "content_en": "1. lelele Game 1.0 basic version officially launched. \n2. Integrated the game navigation entrances of affiliated products and built the first version of the page framework. \n3. Established the development direction and product matrix of lelele Game."
-  }
+    {
+        "version": "4.7.0",
+        "date": "2026-11-28",
+        "content_zh": "4.7.0：新增「全站论坛」（首页底部）与「游戏讨论区」（每款游戏详情页底部，按游戏 id 划分独立话题，换语言或带其他参数不会串楼）。两块都在滚动到附近才加载，不影响首屏速度；加载失败给普通玩家看得懂的提示和重试按钮，不显示技术信息。新增论坛直达链接：首页 ?to=forum 或 #forum；游戏页 game.html?id=<编号>&to=forum 或 #game-forum（没带游戏 id 时保持隐藏，不会多出板块）。同步发布玩家公告：发言范围、发帖方式、保留期限（全站论坛免费版保留最近 100 条，游戏讨论区按游戏长期存档）。",
+        "content_en": "4.7.0: Added the Site Forum (bottom of the homepage) and Game Discussions (bottom of each game detail page, split by game id — changing language or other URL parameters won't split a thread). Both load only when scrolled near, so first paint isn't slowed; on failure players get a plain-language message and a retry button, with no technical details. New direct links: homepage ?to=forum or #forum; game page game.html?id=<id>&to=forum or #game-forum (stays hidden without a game id, no extra section). Published a player announcement covering what to post, how to post, and retention (the free site forum keeps the latest 100 messages; game discussions are archived per game long-term)."
+    },
+    {
+        "version": "4.6.2",
+        "date": "2026-11-24",
+        "content_zh": "修复外链游戏全屏时播放器工具栏仍然显示的问题。浏览器回退为播放器根节点全屏时，会隐藏外壳并让游戏画面铺满屏幕。",
+        "content_en": "Fixed external games leaving the player toolbar visible in fullscreen. When fullscreen falls back to the player root, the shell is hidden and the game fills the screen."
+    },
+    {
+        "version": "4.6.1",
+        "date": "2026-11-24",
+        "content_zh": "新增了了了岭工作室开发的数独与国际象棋，分别支持数独每日挑战/变体玩法，以及国际象棋本地、人机和在线对弈。两款游戏均使用了了了游官方通用协议。",
+        "content_en": "Added Sudoku and Chess by Leleleling Studio, featuring daily and variant Sudoku puzzles and local, computer and online chess. Both games use lelele Game's official generic agreements."
+    },
+    {
+        "version": "4.6.0",
+        "date": "2026-11-24",
+        "content_zh": "中版本 4.6.0：《游戏守则》升级至 5.1.0，明确自 2026 年 11 月 28 日起新投稿的游戏须接入了了了游开发者 SDK（至少实现 submitScore 分数上报），以便平台统一展示全服榜单、评分与成绩分享；此前已收录游戏不受此约束。开发者文档与 SDK 文档已同步。另修复详情页标题被挤压、外链游戏全屏点击无响应，并新增统一分享弹窗（复制/X/Instagram/Facebook/邮箱/系统分享）。",
+        "content_en": "Minor version 4.6.0: Game Rules upgraded to 5.1.0 - games newly submitted from November 28, 2026 must integrate the lelele Game Developer SDK (at minimum submitScore), enabling unified leaderboards, ratings and score sharing; already-indexed games are unaffected. Developer docs and SDK docs updated. Also fixes the squeezed game-detail title and unresponsive fullscreen on external games, and adds a unified share dialog (copy / X / Instagram / Facebook / email / system share)."
+    },
+    {
+        "version": "4.5.0",
+        "date": "2026-11-23",
+        "content_zh": "中版本 4.5.0：一批发现与回访功能上线——首页新增「继续玩」「想玩清单」「冷门宝藏榜」和「手气不错」随机按钮，猜你喜欢纳入想玩偏好；标签专题页可按标签聚合游戏；个人中心显示本地游玩统计（仅本机、不上传）。作者页新增「作者贡献榜」。分享成绩：游戏内可生成带昵称和分数的专属链接，打开即可看到成绩卡与该游戏全服榜并直接试玩。开发者 SDK 全面升级：新增评分、读取该游戏排行榜、玩家昵称、平台判断、相似游戏跳转、成绩分享和打开详情等能力，完整文档见 sdk-docs.html。",
+        "content_en": "Minor version 4.5.0: a wave of discovery and return features - the homepage gains Continue Playing, a Watchlist, Hidden Gems and a Lucky Pick button, with For You now learning from your watchlist; a Tag Explorer aggregates games by tag; your profile shows local play stats (on-device only, never uploaded). Author pages gain a Top Contributors board. Score sharing: generate a personal link with your nickname and score that opens a result card, the game's global board and a play button. The developer SDK is expanded with ratings, per-game leaderboard reads, player nickname, platform check, similar-game jumps, score sharing and detail navigation - full docs at sdk-docs.html."
+    },
+    {
+        "version": "4.4.1",
+        "date": "2026-11-19",
+        "content_zh": "小版本 4.4.1：新增 8 款本站游戏——2048、Astray（迷宫冒险）、纸片我的世界（Paper Minecraft）、笨拙小鸟（Clumsy Bird）、新冠跑酷（Corona Runner）、六边形消除（Hextris）、小恐龙跑酷（T-Rex Runner）、搭塔游戏（Tower Game）。这些是收录的社区开源作品，作者为原作者（非本站作者、无作者主页），游戏本体已放到本站，打开即玩。",
+        "content_en": "Minor version 4.4.1: eight new local games - 2048, Astray, Paper Minecraft, Clumsy Bird, Corona Runner, Hextris, T-Rex Runner and Tower Game. These are community open-source titles hosted on-site; credit goes to their original authors (no platform author page). Just open and play."
+    },
+    {
+        "version": "4.4.0",
+        "date": "2026-11-19",
+        "content_zh": "中版本 4.4.0：全服高分榜 SDK。开发者在游戏里引入 lelele-sdk.js 并调用 LeleleSDK.submitScore(分数)，即可把分数上报到平台「全服高分榜 Top 10」。播放器新增高分榜卡片与开关，支持匿名参与（本地随机昵称），榜单由 Supabase 统一存储与展示，开发者无需后端。该榜单为荣誉展示，分数由客户端上报。开发者文档与 llms.txt 同步接入说明。",
+        "content_en": "Minor version 4.4.0: Global high-score leaderboard SDK. Developers add lelele-sdk.js to their game and call LeleleSDK.submitScore(score) to report scores into the platform's Global Top 10. The player gains a leaderboard card and toggle, supports anonymous play (random local nickname), and scores are stored/served by Supabase - no backend for developers. This is an honor-system board (client-reported). Developer docs and llms.txt document the integration."
+    },
+    {
+        "version": "4.3.0",
+        "date": "2026-11-18",
+        "content_zh": "中版本 4.3.0：开发者能力与浏览体验升级。① 新增公开统计 API `/api/public/stats?game=&range=&cmp=`（免登录、CORS 开放），返回单游戏游玩/净收藏趋势与对比时段；新增开发者数据大屏 stats.html 与 llms.txt（让 AI agent 无需读源码即可理解平台的游戏接入与数据契约），开发者文档新增专章。② 首页新增「本周新游与更新」轮播、标签多选筛选、搜索历史；随机游玩支持范围筛选。③ 收藏弹窗支持分组与拖动排序；详情页新增相似推荐与长简介折叠；作者页显示作品数/总收藏/最受欢迎作品。④ 公告弹窗支持已读/未读筛选；收藏榜与游玩榜支持 CSV 导出与列头排序；全站图片懒加载与分类 emoji 兜底、返回顶部按钮。⑤ SW 预缓存自检脚本，确保新增页面不会出现离线白屏。",
+        "content_en": "Minor version 4.3.0: developer capabilities and browsing upgrades. (1) New public stats API `/api/public/stats?game=&range=&cmp=` (no login, CORS open) returning per-game plays/net-favorites series with previous-period comparison; new developer dashboard stats.html and llms.txt (so AI agents understand game integration and data contracts without reading source); developer docs gain a dedicated chapter. (2) Homepage gains a weekly new/updated carousel, multi-select tag filters, search history and a scope filter for random play. (3) Favorites dialog supports groups and drag-to-reorder; game detail pages gain similar-game recommendations and collapsible long descriptions; author pages show work count / total favorites / most-loved work. (4) Announcement dialog supports read/unread filtering; favorites and play leaderboards support CSV export and sortable columns; site-wide image lazy-loading with category emoji fallback and a back-to-top button. (5) A precache self-check script keeps new pages available offline."
+    },
+    {
+        "version": "4.2.2",
+        "date": "2026-11-18",
+        "content_zh": "小版本 4.2.2：播放器与文档细节。play.html 全屏失败时回退整窗全屏，外链游戏确认后必定能进全屏；游戏信息条作者名支持悬停查看全名；about 视频切换按钮补无障碍状态；开发者文档补公开统计 API 用法。",
+        "content_en": "Patch 4.2.2: player and documentation polish. play.html now falls back to whole-window fullscreen if the iframe cannot go fullscreen, so external games always enter fullscreen after confirmation; the player info bar shows the full author name on hover; the About video switch has an accessibility state; developer docs document the public stats API."
+    },
+    {
+        "version": "4.2.1",
+        "date": "2026-11-18",
+        "content_zh": "小版本 4.2.1：排行榜细节修正。Top3 预览与总榜量词统一为「排行点」，不再展示计算公式；修复收藏事件（按游戏 id）与游玩事件（按游戏名）命名空间不一致导致的总榜未加权问题（levil-evil 136 游玩 + 1 收藏 → 141 排行点）；SW 缓存升 v1.13 强制清旧缓存，确保玩家看到修正后的榜单。",
+        "content_en": "Patch 4.2.1: ranking polish. Top3 and the Overall tab now consistently show \"rank points\" with the formula hidden; fixed the namespace mismatch between favorite events (keyed by game id) and play events (keyed by name) that left the overall ranking unweighted (levil-evil 136 plays + 1 favorite -> 141 rank points); SW cache bumped to v1.13 to clear stale scripts."
+    },
+    {
+        "version": "4.2.0",
+        "date": "2026-11-18",
+        "content_zh": "播放器、收藏体系与全站文档适配（站点 4.2.0）。① 新增独立播放器 `play.html`（`?id=` 直查主列表、零外部依赖）：自建干净浏览器外壳（地址栏 + 语言/重载/全屏/关闭 + 底部栏），同源游戏以 `?embed=1&lang=` 内嵌，`common.js` 在 embed 模式跳过页脚/节日装饰/公告弹窗（解决外壳里出现雪人/树/飘雪的问题），外链游戏给「在新标签打开」兜底；iframe 不设 sandbox 以保留游戏 localStorage 存档，全屏改为对 iframe 自身沉浸全屏、外链全屏前中英双语确认。`game.html` 的「开始游戏」改为跳转 play.html，旧外壳 CSS/DOM/JS 全删。\n② 收藏体系：收藏/取消各发一个 analytics 事件（`fav-game_<id>` / `unfav-game_<id>`），每游戏每天最多 3 轮（仅限制埋点，不影响收藏功能）；11/26 前一次性把存量本地收藏补报（localStorage 标记永不重发）；作者页与开发者后台显示自己每个游戏的收藏数；首页 Top3 改为「收藏×5+游玩」的排行点排序，「查看更多」弹窗加总榜/收藏榜/游玩榜前三榜各前 25；新建 `favgames.html` 收藏榜（本站与 analytics 域双站），净收藏=fav−unfav，支持时间范围/Top N/全量表。\n③ `about.html` 新增宣传视频（YouTube 优先、8s 无响应自动切国内可直连 https mp4、可手动切换）；修复搜索框英文态 placeholder 仍显示中文、外壳按钮未双语等问题。\n④ 作者权威源已于 11/14 迁回本仓库 `authors/index.json`（surge 退役），admin 六动作与作者生成器全量可用；README 全量重写为英文详细版并加入 Star History 明暗双主题图表。\n⑤ 新增中版本专属公告与开发者专属告示（侧重点分开），全站介绍性页面与文档同步到当前架构；SW 缓存 `lelele-pwa-v1.12`。",
+        "content_en": "Player, favorites system and site-wide documentation alignment (site v4.2.0). (1) Added a standalone player `play.html` (`?id=` direct catalog lookup, zero external dependencies): a clean browser shell (address bar + language/reload/fullscreen/close + bottom bar). Same-origin games load with `?embed=1&lang=`; `common.js` skips footers, seasonal decorations and announcement dialogs in embed mode (fixing snowmen/trees/snow leaking into the shell); external games get an \"Open in new tab\" fallback. The iframe has no sandbox so games keep their `localStorage` saves; fullscreen now targets the iframe itself for an immersive view, with a bilingual confirmation for external games. `game.html` now links to `play.html`; the old in-page shell was fully removed.\n(2) Favorites system: favoriting/unfavoriting each sends one analytics event (`fav-game_<id>` / `unfav-game_<id>`), capped at 3 cycles per game per day (tracking only - the favorite button always works); existing local favorites are reported once before Nov 26 (a localStorage flag prevents re-sending); author pages and the developer dashboard show favorite counts per game. The homepage Top3 now ranks by a \"rank points\" score (favorites x 5 + plays), and \"View More\" shows three tabs - Overall / Favorites / Plays - with 25 entries each. Added `favgames.html` (available both on this site and on the analytics domain): net favorites = fav minus unfav, with time range, Top N and full-table views.\n(3) `about.html` gained a promo video (YouTube first, falls back to a mainland-accessible https mp4 after 8s, with manual switching); fixed the search placeholder staying Chinese in English mode and the player shell buttons not being bilingual.\n(4) The author registry was migrated back to this repository on Nov 14 (`authors/index.json`, surge retired), with all six admin actions and the author generator working; the README was fully rewritten in English with a light/dark Star History chart.\n(5) Added a mid-version announcement and a developer-only notice (separate angles), and synced all introductory pages and docs to the current architecture. Service Worker cache: `lelele-pwa-v1.12`."
+    },
+    {
+        "version": "4.1.0",
+        "date": "2026-11-11",
+        "content_zh": "合规与协议升级（站点 4.1.0 / 游戏守则 5.0.0，规则自 2026-11-15 生效）。① 新建 `user_agreement.html`（平台用户协议）、`legal_templates.html`（协议模板中心，三套中英双语模板、醒目占位符实时替换、Markdown/TXT/HTML/PDF/Word 五种零依赖导出、Apache-2.0 开源强声明），以及三份万能协议页 `generic_eula.html` / `generic_privacy.html` / `generic_tos.html`；三份万能协议正文抽为 `legal_generic.js` 公共常量，静态页与详情页弹窗共用，离线可读。\n② `game.html` 详情卡片右侧新增三枚竖排极简协议按钮（悬浮高亮气泡、窄屏横排），读取 `/game/data/{id}.json` 的 `legal_urls`：合法 https 直链新标签安全打开，缺失/空串/非法一律在弹窗渲染平台万能协议；`id.json` 读取失败由主列表兜底的分支同样降级；`lelegame_data.json` 一行未改，29 个存量游戏零数据改动。\n③ 《游戏守则》升至 **5.0.0**：新增中英「4.6 法律协议必备」条款（外链必备三链接、代码提交可自带或用平台万能协议、缺协议不予过审、存量平滑过渡），4.0.2 另存 `game_rules4-0-2.html`，历史版本索引与回退口径同步。\n④ 全站页脚（`common.js` 一处注入）、`docs.html`、`sitemap.html` / `sitemap.xml`、不引 common.js 的例外页均补齐用户协议与新页面入口；三处表单挂载高度适配新增字段。\n⑤ 新增置顶全站公告与 `author=all` 开发者专用告示；`sw.js` 加注释升 v1.8 并预缓存全部新页面。",
+        "content_en": "Compliance and legal-agreement upgrade (site v4.1.0 / Game Rules v5.0.0, effective November 15, 2026). (1) Added `user_agreement.html` (Platform User Agreement), `legal_templates.html` (Legal Template Center: three bilingual templates, highlighted placeholders with live replacement, five zero-dependency exports Markdown/TXT/HTML/PDF/Word, Apache-2.0 open-source notice), and three generic agreement pages `generic_eula.html` / `generic_privacy.html` / `generic_tos.html`. Their text lives in a shared `legal_generic.js` constant used by both the static pages and the detail-page dialog, so it works offline.\n(2) `game.html` now shows three minimal vertical agreement buttons beside the detail card (hover tooltips, horizontal layout on narrow screens). It reads `legal_urls` from `/game/data/{id}.json`: valid https URLs open safely in a new tab; missing, empty or invalid values render the Platform's generic agreement in a dialog. The `lelegame_data.json` fallback branch degrades identically. The main game list is untouched and all 29 existing games needed zero data changes.\n(3) The Game Rules are now **v5.0.0** with a new bilingual \"4.6 Mandatory Legal Agreements\" clause (three links required for external games, in-game pages or generic agreements for code submissions, no review without agreements, smooth transition for existing games). v4.0.2 is preserved as `game_rules4-0-2.html`, with the version-history index and revert link updated.\n(4) User-agreement and new-page links were added across the site-wide footer (one `common.js` injection), `docs.html`, `sitemap.html` / `sitemap.xml` and the pages that do not load `common.js`; three form iframe heights were adjusted for the new fields.\n(5) Added a pinned site-wide announcement and an `author=all` developer notice; `sw.js` was bumped to v1.8 with all new pages pre-cached."
+    },
+    {
+        "version": "4.0.16",
+        "date": "2026-11-09",
+        "content_zh": "新增开发者自助「更新游戏」入口、游戏守则 4.0.2 与两类公告。① dashboard 侧栏新增「🔄 更新游戏 / Update a Game」按钮，仅对已登录且名下至少 1 款游戏的开发者显示（myGames.length > 0），空态账号保持隐藏。点击后按站点当前语言打开对应 Tally 表单（中文 gbe1kl / 英文 gbe1zd）的弹窗，语言切换时自动重挂；表单复用 4.0.14 的 boot.js mountTallyIframe 直连挂载（打开才创建 iframe、直接赋 src、加载态 / 8s 超时 / 降级重试 / 新窗口直链 / 挂载 token 防竞态），**绝不回退到官方默认的惰性 src 属性 + 境外 widget 脚本写法**，也不引入 data-tally-src、tally.so/widgets/embed.js 或 Tally.loadEmbeds；关闭弹窗即清空容器避免后台持续跨境请求；补 tally-form-submitted 监听（Tally 域白名单 + 兼容字符串/对象消息体）使提交成功后自动关弹窗。② 《了了了游游戏守则》升到 4.0.2（中英两处版本头与生效提示，最后更新 2026-11-09、生效 2026-11-16），新增中英「4.5 收录形式与分类」条款：凡以链接形式提交并审核通过的游戏一律收录为「外网游戏」（External）；以代码形式提交的游戏在作者无特别说明时默认收录为「本站游戏」（Local），理由是代码已经过平台检验与初步安全扫描；作者可特别说明申请不同归类，最终以平台审核结果为准；原 4.5 申诉渠道顺延为 4.6；game_rules_old.html 保持 4.0.0 不变。③ 新增置顶全站公告（announcements.json，2026-11-09 至 2026-11-23）讲新功能与规则变更；新增开发者专用告示（noticetodeveloper.json，author=all、priority=200、14 天窗口）讲按钮位置、可见条件、可提交字段、图片需 https 直链与 1–2 个工作日审核时限，均含中英双语与跳转按钮。④ 按发布检查单把 sw.js 加注释并升 CACHE_NAME 到 v1.7 触发 reinstall 清理 v1.6 旧缓存（静态 SWR / 数据超时回退 / 外部域直通三个策略分支完全不动）；changelog 与 foraisthings 同步到 4.0.16。说明：本轮曾评估过一轮国内外缓存加速方案，用户决定暂不做，已全部撤销，本版本不含任何缓存策略改动。",
+        "content_en": "Added a self-service \"Update a Game\" entry for developers, Game Rules v4.0.2, and two new announcements. (1) The dashboard sidebar now has a \"🔄 Update a Game\" button, visible only to signed-in creators with at least one published game (myGames.length > 0); accounts with no games never see it. It opens the matching Tally form by site language (Chinese gbe1kl / English gbe1zd) in a modal and remounts on language change. The form reuses boot.js mountTallyIframe from 4.0.14 (lazy mount, direct iframe.src, loading state, 8s timeout, fallback retry, open-in-new-tab link, mount token against races) and never falls back to Tally's default lazy-src + overseas widget script: no data-tally-src, no tally.so/widgets/embed.js, no Tally.loadEmbeds. Closing the modal clears the container. A tally-form-submitted listener with a Tally origin allowlist (string or object payload) closes the modal after a successful submission. (2) The Game Rules are updated to v4.0.2 (bilingual version headers and effective notices; last updated November 9, 2026, effective November 10, 2026) with a new bilingual clause \"4.5 Submission Format and Category\": games submitted as a link and approved are always listed as \"External\"; games submitted as code are listed as \"Local\" by default unless the author states otherwise, because the code has been reviewed and passed the Platform's initial security scanning. Authors may explicitly request a different category, and the review outcome is final. The former 4.5 Appeals becomes 4.6; game_rules_old.html stays at v4.0.0. (3) A pinned site-wide announcement (announcements.json, Nov 9–23, 2026) covers the new feature and rule change; a developer-only notice (noticetodeveloper.json, author=all, priority=200, 14-day window) explains where the button is, who can see it, which fields can be submitted, the need for https image links, and the 1–2 business day review. Both are bilingual with action buttons. (4) Following the release checklist, sw.js gets a version comment and CACHE_NAME v1.7 to force reinstall and purge v1.6 caches; the three fetch strategies (static SWR / data timeout fallback / external pass-through) are untouched. changelog and foraisthings are synced to 4.0.16. Note: a separate global caching/speed overhaul was evaluated this round but the user decided to postpone it; it was fully reverted and no caching strategy change is included in this release."
+    },
+    {
+        "version": "4.0.15",
+        "date": "2026-11-06",
+        "content_zh": "把 plan.md 审计清单里剩余的 161 项问题全部处理完（累计 170 项：5 大 / 15 中 / 50 小 / 100 迷你），以统一基础设施集中修复为主，避免逐点改动 20+ 文件引入回归。① 统一 fetch 超时：boot.js 新增 window.leleleFetch（8s AbortController 超时，尊重调用方自带 signal），common.js / notice.js / rank-loader.js 带幂等守卫（保证 game/ 子页只加载 common.js 时也受保护），全站裸 fetch 收敛，dashboard 的 dashFetch 复用同一入口；消除弱网/外部域挂起导致的无限等待（M-06~M-15、S-29~S-38、S-49）。② 安全与规范：26 处 target=_blank 补齐 rel=noopener noreferrer、12 个页面补齐中英 meta description、about.html 的 changelog 动态字段统一 escapeHtml、静态空态与 author.html 默认头像改 textContent、apply-certification.html 的 fallback iframe 改 DOM API 创建不再拼接 HTML、index.html 的 Escape 监听加一次性守卫（S-01~S-46、M-05）。③ 100 项迷你：20 处生产 console.log 改为默认静默的 window.leleleLog（设 leleleDebug=true 可恢复）；95 处内联 onclick 不逐点改写（大量是模板字符串动态生成，风险极高），改由 boot.js / common.js 的事件提升器统一处理——复用浏览器已编译的 el.onclick 函数、移除内联属性、挂到 addEventListener，并显式还原 return false 的 preventDefault 语义与 this/event 绑定，MutationObserver 带节流增量提升动态节点；运行时 DOM 中 [onclick] 归零，行为完全等价。如实登记唯一保留的已知限制：HTML 源码仍保留 onclick 属性文本，若将来启用严格 CSP 仍需逐处改写。④ 其余：boot.js 新增 leleleLastAuthorsError 区分超时/网络失败；sw.js 预缓存补齐 5 个遗漏页面、gamecheck.html 补引 boot.js；sw.js 加注释并升 v1.6 触发重装清理旧缓存（策略三分支不变）；plan.md 170 项状态全部更新为已修并追加第八节全量修复说明；changelog / foraisthings 同步到 4.0.15。实测：语言切换、弹窗关闭、return false 动态节点点击、动态插入节点增量提升全部行为等价；首页 26 卡片、关于页 47 条 changelog、作者页、三类 Tally 表单与 dashboard 12 款游戏均正常；全部 JS 与 HTML 内联脚本语法 0 失败、0 个站点 JS 运行时错误、lint 0 错误。",
+        "content_en": "Completed all 161 remaining issues from the plan.md audit (170 total: 5 critical / 15 major / 50 minor / 100 nit), mostly through shared infrastructure instead of risky point-by-point edits across 20+ files. (1) Unified fetch timeout: window.leleleFetch in boot.js (8s AbortController, respects a caller-supplied signal) with idempotent guards in common.js / notice.js / rank-loader.js so game/ subpages that load common.js alone are also covered; all bare fetch calls consolidated and dashboard's dashFetch delegates to the same entry, eliminating indefinite hangs on slow/external networks. (2) Security and standards: added rel=noopener noreferrer to 26 blank-target links, bilingual meta descriptions to 12 pages, escapeHtml on dynamic changelog fields in about.html, textContent for static empty states and the default avatar, DOM API construction for the certification fallback iframe, and a one-time guard for the Escape listener in index.html. (3) 100 nit items: 20 production console.log calls converted to a silent-by-default window.leleleLog (enable with leleleDebug=true); 95 inline onclick handlers migrated via a shared lifter in boot.js/common.js that reuses the browser-compiled el.onclick function, removes the inline attribute, binds it through addEventListener, explicitly restores return-false preventDefault semantics plus this/event binding, and incrementally lifts dynamically inserted nodes with a throttled MutationObserver. Runtime DOM now has zero [onclick] with fully equivalent behavior. The one remaining honest limitation is recorded: the HTML source still contains onclick attribute text, so strict CSP adoption would still require per-site rewrites. (4) Other: leleleLastAuthorsError distinguishes timeout from network failure; 5 missing precache pages added and gamecheck.html now loads boot.js; sw.js bumped to v1.6 (comment + cache name only, strategy unchanged) to purge stale caches; plan.md status for all 170 items updated with a new full-remediation section; changelog / foraisthings synced to 4.0.15. Verified: language switch, modal close, return-false dynamic button and incremental lifting all behave identically; homepage 26 cards, about page 47 changelog entries, author page, all three Tally forms and dashboard 12 games working; 0 syntax failures across all JS and inline scripts, 0 site runtime errors, 0 lint errors."
+    },
+    {
+        "version": "4.0.14",
+        "date": "2026-11-06",
+        "content_zh": "修复 Tally 表单内嵌在国内极慢、白框、刷新后随机失效的问题，并新增全站问题清单 plan.md。根因：投稿/推荐/认证三处表单的 iframe 只写 data-tally-src、从不设置 src，把渲染押在境外 tally.so/widgets/embed.js 能否执行 Tally.loadEmbeds() 上；该脚本在国内常静默挂起（既不 onload 也不 onerror），回调永不触发 → 弹窗纯白。首页 ensureTally 只覆盖推荐表单、投稿弹窗根本没接入（4.0.12 断链），全局 Tally 就绪状态与 loadedLang 缓存造成「刷新后时好时坏」；apply-certification 内联 loader 同样无超时；11 个游戏子页还加载了毫无 iframe 对应的 embed.js。修复：① 在 boot.js 新增共享 mountTallyIframe()，打开弹窗才惰性挂载，直接把 tally.so/embed/<id> 赋给 iframe.src（embed.js 只是可选增强，不再是前置条件），带可见加载态、8s 超时、onerror 降级卡片（中英双语说明 + 重试 + 新窗口直链），并常驻备用入口防跨域误判 onload；用挂载 token 阻止迟到回调覆盖新一次挂载。② 三处调用点全部改为直连挂载，认证页由两个 1600px 隐藏 iframe 改为按语言只挂一个。③ 提交成功 postMessage 监听补 event.origin === 'https://tally.so' 白名单。④ 删除 11 处冗余 embed.js 与首页 ensureTally 轮询，首屏不再发起任何 Tally 跨境请求。⑤ sw.js 加注释并升 v1.5 触发重装清理旧缓存（策略不变）。⑥ 新增 plan.md，按大/中/小/迷你四级登记 170 项全站问题，含定位、影响、建议修法与状态，作为后续修复路线图。表单 ID 与数据收集方式完全不变。",
+        "content_en": "Fixed Tally embedded forms being extremely slow, blank, or randomly broken in mainland China, and added a site-wide issue register plan.md. Root cause: all three forms (submission / recommendation / certification) wrote only data-tally-src on the iframe and never set src, so rendering depended on the overseas tally.so/widgets/embed.js executing Tally.loadEmbeds(); that script often stalls silently in CN (neither onload nor onerror), so the callback never fires and the modal stays blank. The homepage ensureTally covered only the recommendation form, leaving the submission modal disconnected (a 4.0.12 regression); global Tally readiness plus loadedLang caching produced the refresh-dependent randomness; the certification inline loader had no timeout; 11 game subpages also loaded embed.js with no iframe at all. Fixes: (1) Added shared mountTallyIframe() in boot.js — lazily mounts only when the modal opens, assigns the tally.so/embed/<id> URL directly to iframe.src (embed.js is now optional enhancement, not a prerequisite), with a visible loading state, 8s timeout, and an onerror fallback card (bilingual message + retry + open-in-new-tab link); a persistent fallback link guards against cross-origin onload false positives; a mount token prevents late callbacks from clobbering a newer mount. (2) All three call sites now use the direct mount; the certification page mounts one form by language instead of two hidden 1600px iframes. (3) Added event.origin === 'https://tally.so' validation to the tally-form-submitted postMessage listener. (4) Removed 11 redundant embed.js tags and the homepage ensureTally polling, so first paint makes zero Tally cross-border requests. (5) sw.js bumped to v1.5 (comment + cache name only) to force reinstall and purge stale caches. (6) Added plan.md registering 170 site-wide issues across four severity levels with location, impact, suggested fix and status. Form IDs and data collection are unchanged."
+    },
+    {
+        "version": "4.0.13",
+        "date": "2026-11-05",
+        "content_zh": "修复开发者后台不显示自己的游戏，并消除作者页轻微卡顿。① 后台「暂无绑定您的游戏 / 未认证」根因：dashboard.html 从未引入 common.js，而它调用的 window.fetchAuthors() 只定义在 common.js，异常被 catch 静默吞掉导致 myGames 恒为空。现把作者清单统一定义到 head 同步加载的 boot.js（无 UI 副作用，dashboard 无需新增 script 标签），common.js 改为守卫式定义以兼容 game/ 子页面直连；dashboard 另加本地清单兜底、8s 请求超时，并把空态/侧栏/创作者卡文案区分为「档案读取失败」「未关联档案」「已关联但 0 游戏」三种情况，不再一律要求重新认证。② 修掉 4.0.12 批量替换误伤 common.js / index.js 中 leleleOnReady 函数体造成的无限递归（同步加载 common.js 的 authorlevel.html / apply-certification.html 会栈溢出，是偶发卡顿来源）。③ 作者页首屏提速：同域 authors/index.json 即时渲染名字/等级/徽标，surge 权威数据随后无感校正；Supabase 资料保存为 override，清单校正时不会被覆盖，并按 uuid 去重避免重复查询。④ sw.js 加注释并升 v1.4 触发重新 install 清理 v1.3 旧缓存（策略不变），首页新手引导与 notice.js 对齐 onReady。实测：模拟登录态打开后台显示 12 款游戏、开发者 ID 1、等级 6 与官方徽标；阻断 surge/analytics 后仍显示 12 款；authorlevel/apply-certification 0 个栈溢出错误；作者页名字与 12 款游戏即时可见；lint 0 错误。",
+        "content_en": "Fixed the developer dashboard not showing the creator's own games and removed the remaining author-page lag. (1) The dashboard never loaded common.js, yet called window.fetchAuthors() which was only defined there; the swallowed TypeError left myGames empty, producing 'No games found' and 'Not certified'. fetchAuthors is now defined once in boot.js (loaded synchronously in <head> on 14 pages, no UI side effects), common.js keeps a guarded fallback for game/ subpages that load it directly, and the dashboard adds a local-index fallback, 8s fetch timeouts, and three distinct empty states (profile load failed / account not linked / linked but zero games). (2) Fixed an infinite recursion accidentally introduced into leleleOnReady in common.js/index.js in 4.0.12, which caused stack overflow on pages that load common.js synchronously (authorlevel.html, apply-certification.html). (3) Author page first paint: same-origin authors/index.json renders name/level/badges instantly while surge asynchronously reconciles; Supabase profile fields are stored as an override so reconciliation cannot clobber them, and queries are de-duplicated by uuid. (4) sw.js bumped to v1.4 (comment + cache name only, strategy unchanged) to purge stale v1.3 caches; homepage onboarding and notice.js now use onReady. Verified with a mocked logged-in session: dashboard shows 12 games, Dev ID 1, level 6 and official badge; still 12 games with surge/analytics blocked; zero stack-overflow errors; author page shows name and 12 games immediately; 0 lint errors."
+    },
+    {
+        "version": "4.0.12",
+        "date": "2026-11-05",
+        "content_zh": "全站访问速度根治（国内外都能快速打开）。根因：4.0.11 把 jsdelivr 的 supabase-js 改为 defer 后，defer 脚本必须在 DOMContentLoaded 之前全部下载执行完，而全站初始化（含首页游戏列表）都挂在 DOMContentLoaded / load 上；jsdelivr、analytics 等外部域在国内挂起时（浏览器对 script 请求没有默认超时），这两个事件永不触发，导致一直加载、白屏、刷新无响应、头像与内容全出不来。修复：① supabase-js / pinyin-pro / echarts 三个库自托管到同域 /vendor/，彻底移除 jsdelivr 依赖；analytics 统计脚本改由 boot.js 在首屏之后动态异步注入，失败静默。② 全站初始化改用 onReady（readyState 非 loading 立即执行），不再死等 DOMContentLoaded / load；修 dashboard/login 的 supabase-client.js 与 SDK 执行顺序不一致的旧 bug，并给 dashboard 裸 client 调用加守卫。③ sw.js 按用户要求加注释改变文件字节、CACHE_NAME 升 v1.3 触发浏览器重新 install 并清理 v1.0~v1.2 旧缓存；策略由纯 network-first 改为静态资源 stale-while-revalidate（命中缓存秒开、后台更新）+ 数据 JSON network-first 带 1.5s 超时快速回退；移除升版时自动 location.reload() 避免反复刷新。④ 恢复十月底以来稳定的作者数据主源 https://authors.surge.sh/authors.json（已核实 access-control-allow-origin:*，跨域无问题），带 5s 超时，本地 authors/index.json 仅作离线兜底。实测：阻断全部外部域名后，首页仍渲染 26 个游戏卡片、作者页渲染作者卡与游戏列表，各页 0 个 JS 运行时错误。",
+        "content_en": "Site-wide speed fix (fast both in and outside China). Root cause: 4.0.11 deferred the jsdelivr supabase-js script; defer scripts must finish downloading/executing before DOMContentLoaded, and every page init (including the homepage game list) was bound to DOMContentLoaded/load. When jsdelivr/analytics stalled in CN (browsers have no default script timeout), those events never fired -> endless loading, blank page, unresponsive refresh, missing avatars and content. Fixes: (1) Self-host supabase-js / pinyin-pro / echarts under same-origin /vendor/, removing all jsdelivr deps; analytics is now injected asynchronously after first paint via boot.js and fails silently. (2) All init now uses onReady (runs immediately when readyState is not loading) instead of waiting on DOMContentLoaded/load; fixed the dashboard/login bug where supabase-client.js ran before the deferred SDK, and added null guards for bare client calls. (3) sw.js gets a version comment (byte change) + CACHE_NAME v1.3 to force re-install and purge v1.0-v1.2 caches; strategy changed from pure network-first to stale-while-revalidate for static assets (instant cache hit, background update) and network-first with a 1.5s timeout fallback for data JSON; removed the auto location.reload() on SW updates. (4) Restored the long-stable author source https://authors.surge.sh/authors.json (verified access-control-allow-origin:*) with a 5s timeout; local authors/index.json is offline fallback only. Verified: with all external domains blocked, the homepage still renders 26 game cards and the author page renders its card + games, with zero JS runtime errors on all pages."
+    },
+    {
+        "version": "4.0.11",
+        "date": "2026-11-04",
+        "content_zh": "修复公开页（尤其作者页）上线白屏/卡顿：根因是 <head> 同步加载 supabase-js（jsdelivr 国内不稳）阻塞 HTML 解析，现 6 处脚本全部改为 defer；所有数据 fetch 加 8s 超时并去掉 no-store。作者数据本地分文件：新增 authors/index.json（轻量清单：id/uuid/名字/等级/徽标，省略默认与空值，保留平台字段）+ authors/data/<id>.json（仅 games_count，由 lelegame_data.json 自动统计），删除旧 authors.json。作者可编辑资料（bio/role/display_name/头像）仍从 Supabase profiles 按 uuid 非阻塞拉取，与 dashboard 编辑同源——作者换头像或改简介/名字无需改任何文件，失败降级默认图 + “头像加载失败”提示。同步工作流改为从 surge 的 authors.json 拆分生成 index + data（games_count 自动统计）。",
+        "content_en": "Fixed public pages (esp. author page) white-screen/slowness on deploy: root cause was the synchronous supabase-js script in <head> (jsdelivr unstable in CN) blocking HTML parsing — now deferred on all 6 pages; all data fetches get an 8s timeout and drop no-store. Author data is now local & split: authors/index.json (lightweight list: id/uuid/name/level/badges, defaults/empties omitted) + authors/data/<id>.json (games_count only, auto-counted from lelegame_data.json), old authors.json removed. Author-editable fields (bio/role/display_name/avatar) still load non-blocking from Supabase profiles by uuid, sharing the same source as the dashboard — authors changing avatar or bio/name needs no file edits; falls back to default avatar + 'avatar failed' on error. Sync workflow splits surge authors.json into index + data (games_count auto-counted)."
+    },
+    {
+        "version": "4.0.10",
+        "date": "2026-11-04",
+        "content_zh": "统一作者数据读取为 fetchAuthors()：同域 authors.json 优先，外域 surge.sh 兜底并带 5 秒超时，绝不卡死；在 surge.sh 更新作者（新增作者或未部署快照时）也能生效。修正 dashboard 提示文案，移除泄露给普通用户的内部文件名 'authors.json'。",
+        "content_en": "Unified author data loading via fetchAuthors(): same-origin authors.json first, surge.sh fallback with a 5s timeout (never hangs); updating authors on surge.sh now takes effect in new-author / missing-snapshot cases. Also fixed a dashboard message that leaked the internal filename 'authors.json' to end users."
+    },
+    {
+        "version": "4.0.9",
+        "date": "2026-11-04",
+        "content_zh": "将作者数据源 authors.json 从外部域名 authors.surge.sh 改为托管到本站同域（repo 新增 authors.json，6 处引用全部改为同域读取：author.html / game.html / dashboard.html / index.js / notice.js）。原因：外部域名从部分网络访问极慢/卡死，导致作者页整页挂起（Chrome 提示关闭标签页）。配合 4.0.8 的非阻塞 + 5s 超时，作者页不再依赖外部网络，加载飞快且无白屏。注意：authors.json 现为仓库快照，作者信息变更后需重新拉取并更新部署。",
+        "content_en": "Moved the author data source authors.json from the external domain authors.surge.sh to same-origin hosting (added authors.json to the repo; switched all 6 references to same-origin: author.html / game.html / dashboard.html / index.js / notice.js). Reason: the external domain was extremely slow/unreachable from some networks, causing the author page to hang (Chrome prompted to close the tab). Combined with the non-blocking + 5s-timeout fix in 4.0.8, the author page no longer depends on the external network and loads fast without white-screen. Note: authors.json is now a repo snapshot — re-fetch and redeploy when author data changes."
+    },
+    {
+        "version": "4.0.8",
+        "date": "2026-11-04",
+        "content_zh": "修复作者主页（author.html）偶发“加载不出来”：原先整页渲染被远程 authors.surge.sh 的 fetch 阻塞，一旦该远程变慢/挂起就白屏。现改为本地游戏数据先渲染、远程作者信息非阻塞并以 5 秒超时获取，拿到后刷新名字/头像/徽标，远程不可达也不会白屏。",
+        "content_en": "Fixed author.html occasionally failing to load: the whole-page render was previously blocked by the remote authors.surge.sh fetch, so a slow/unreachable remote caused a blank page. Now the local game data renders first, while the remote author info loads non-blocking with a 5s timeout and refreshes name/avatar/badges when available — the page can no longer white-screen due to the remote."
+    },
+    {
+        "version": "4.0.7",
+        "date": "2026-11-03",
+        "content_zh": "修复游戏详情页：当无独立详情文件、回退到主列表加载时，原先会把简介写死为占位文字并丢弃截图；现改为透传真实 description / screenshots / banner 等字段（仅缺省时用占位）。更新 ID 25 游戏《双人大富翁》全部信息。",
+        "content_en": "Fixed game detail page fallback: when no per-game detail file exists and it falls back to the main list, the description was previously hardcoded to a placeholder and screenshots were dropped; now it passes through real description / screenshots / banner fields (placeholder only when missing). Updated game ID 25 (Two-player Monopoly) with all details."
+    },
+    {
+        "version": "4.0.6",
+        "date": "2026-11-03",
+        "content_zh": "特效扩展至全站（React Bits 风格纯 CSS）：common.css 通过 @import 统一加载 effects.css；游戏卡 / 排行榜卡 / 作者卡 / 公告卡 / 详情卡悬浮显示渐变描边；按钮（action-btn / btn-primary）加入鼠标跟随聚光（Spotlight）；标题（panel-title / section-title / game-title 等）改为流动渐变文字；官方 / 原创徽标增加脉冲辉光。",
+        "content_en": "Site-wide React Bits-style effects (pure CSS): effects.css is now imported globally via common.css; cards (game / ranking / author / announcement / detail) show an animated gradient border on hover; buttons (action-btn / btn-primary) get a pointer-follow spotlight; titles (panel-title / section-title / game-title, etc.) use animated gradient text; official / studio badges pulse with glow."
+    },
+    {
+        "version": "4.0.5",
+        "date": "2026-11-03",
+        "content_zh": "1. 【Dashboard 创作者认证】新增「创作者认证」标签页：展示来自 authors.json 的开发者全部信息（名称、开发者 ID、UUID、等级、官方认证、本站原创、已发布游戏数）与全部认证徽标（等级 / 官方 / 本站原创），未认证时引导去申请。\n2. 【开发者 ID 可见】左上角用户卡与「个人资料」区均显示当前账号的开发者 ID（取自 authors.json）。\n3. 【About / Docs 入口】后台侧栏新增「关于本站」与「认证文档」按钮。\n4. 【React Bits 风格特效】创作者卡片加入渐变描边 + 辉光、极光背景、光泽扫过、徽标悬浮等纯 CSS 特效（effects.css，可复用）。\n5. 【设置精简】移除自定义排版与排版模版，板块大小仅保留「游戏方块」一项。\n6. 【公告弹窗 3 天缓存】升级提醒弹窗仅在 3 天缓存过期或出现真正新公告时弹出。\n7. 【灵动岛】缩短收缩过渡并加 will-change，减少下滑卡顿。",
+        "content_en": "1. [Dashboard Creator Profile] New 'Creator Certification' tab shows the author's full info from authors.json (name, developer ID, UUID, level, official, studio-special, published count) and all certification badges (level / official / studio); un-certified users get an apply prompt.\n2. [Visible Dev ID] The top-left user card and the Profile tab now show the account's developer ID (from authors.json).\n3. [About / Docs links] Dashboard sidebar gains 'About' and 'Docs' buttons.\n4. [React Bits-style effects] The creator card uses gradient-border + glow, aurora, shine sweep and badge float (pure-CSS effects.css, reusable).\n5. [Settings cleanup] Removed custom layout and layout templates; section size keeps only 'Game cards'.\n6. [Announcement 3-day cache] The update modal now only appears when the 3-day cache expires or a genuinely new announcement exists.\n7. [Dynamic Island] Shortened collapse transition and added will-change to reduce scroll jank."
+    },
+    {
+        "version": "4.0.4",
+        "date": "2026-11-03",
+        "content_zh": "1. 【徽标可点击】游戏详情页作者行与作者页头部的认证徽标现在可点击：等级徽章跳转 authorlevel.html?level=N 等级说明页，官方 / 特殊徽章跳转认证文档；并在等级说明页与作者页提供「🏅 申请官方认证」按钮（带等级参数跳转 apply-certification.html）。\n2. 【认证等级说明页】新增 authorlevel.html?level=N，按等级展示扩充后的晋升要求与权益（中英双语），点击徽标可直接到达对应等级。\n3. 【入口补全】关于页（致独立开发者）与作者页作者卡新增「申请官方认证」入口。",
+        "content_en": "1. [Clickable badges] The certification badges on game detail author rows and author page headers are now clickable: the level badge jumps to authorlevel.html?level=N, while official/special badges jump to the certification doc; an '🏅 Apply for Certification' button (with level param) is added on the level page and author page.\n2. [Level doc page] Added authorlevel.html?level=N showing expanded promotion requirements and perks per level (bilingual); clicking a badge lands on the right level.\n3. [Entry points] Added an 'Apply for Certification' entry on the About page (To Indie Developers) and the author page card."
+    },
+    {
+        "version": "4.0.3",
+        "date": "2026-11-03",
+        "content_zh": "1. 【官方认证申请表单】新增 apply-certification.html，内嵌 Tally 认证申请表单（中文 kblp0R / 英文 LD9gO1），按站点语言自动切换；开发者后台新增「🏅 申请官方认证」入口；AUTHOR_CERTIFICATION.md 补充申请流程与字段说明。\n2. 【认证英文名对齐】开发者等级英文名与 Tally 表单对齐：优质制作人 → Premium Producer，开发团队 → Development Team（含前端徽章与文档）。",
+        "content_en": "1. [Certification Application Form] Added apply-certification.html embedding the Tally application form (zh kblp0R / en LD9gO1), auto-switched by site language; added a '🏅 Apply for Certification' entry in the developer dashboard; AUTHOR_CERTIFICATION.md documents the flow and fields.\n2. [EN label alignment] Aligned certification level English names with the Tally form: Premium Producer (was Quality Producer) and Development Team (was Dev Team), in both badges and docs."
+    },
+    {
+        "version": "4.0.2",
+        "date": "2026-11-03",
+        "content_zh": "1. 【作者认证体系】新增 6 级认证（普通创作者→制作人→优质制作人→开发者→金牌开发者→开发团队）；authors.json 增加 authorlevel（缺省即 1）、official（官方【官方】标识，缺省 false）、studio_special（仅主理团队「本站原创团队」金色特殊徽章）；游戏详情页作者行与作者详情页头部展示徽章；新增 AUTHOR_CERTIFICATION.md。规范：值为 false / level1 的字段可省略以省储存。\n2. 【绑定 bug 修复】修复「绑定第三方账号跳登录页并新建账号」：linkIdentity 回跳改回 dashboard.html 并新增 OAuth 回跳处理（exchangeCodeForSession），留在控制台完成绑定；新增「添加/更换邮箱」入口（Supabase 单邮箱主键，仅支持更换）。\n3. 【灵动岛】修复向下滚动时灵动岛在边界反复横跳：加入迟滞阈值（进入 80px / 退出 40px），仅状态变化时切换。\n4. 【自定义排版】修复排版模式监听泄漏（退出后仍可拖）与「排版模式下点按钮仍触发原动作」：拖动仅排版模式生效、退出时移除监听并拦截点击；拖动放宽为主按钮区双向微调；新增 3 套模版（默认 / 排行榜优先 / 游戏置顶），设置面板一键切换并持久化。\n5. 【板块大小】设置面板新增「板块大小」：分别调节导航栏、灵动岛、排行榜、公告、游戏方块，CSS 变量驱动并持久化。\n6. 【随机游玩】首页新增「🎲 随机游玩」按钮，随机跳转一款游戏详情页。\n7. 【内容】新增 Jeremy 的外网游戏《斜坡大富翁》（Ramp Monopoly，作者 id 8）。",
+        "content_en": "1. [Author Certification] Added 6-tier certification (Creator→Producer→Quality Producer→Developer→Gold Developer→Dev Team); authors.json gains authorlevel (default 1), official (【Official】 badge, default false), studio_special (gold 'Official Studio' badge for the main studio only); badges shown on game detail author row and author page; added AUTHOR_CERTIFICATION.md. Convention: false / level-1 fields may be omitted to save space.\n2. [Binding fix] Fixed 'linking a provider jumps to login and creates a new account': linkIdentity now redirects back to dashboard.html with a dedicated OAuth-return handler (exchangeCodeForSession); added 'Add/Change email' entry (Supabase single-email primary key, change only).\n3. [Dynamic Island] Fixed the island flickering at the scroll boundary by adding hysteresis (enter 80px / exit 40px), toggling only on state change.\n4. [Custom Layout] Fixed layout-mode listener leak (draggable after exit) and buttons still firing in layout mode: dragging is active only in layout mode, listeners removed on exit and clicks intercepted; drag range widened to 2-axis; added 3 templates (Default / Ranking-first / Games-first) switchable from settings and persisted.\n5. [Section Size] Settings gained a 'Section size' panel to scale top bar, island, ranking, announcements and game cards via CSS variables (persisted).\n6. [Random Play] Added a '🎲 Random' button on the homepage that jumps to a random game's detail page.\n7. [Content] Added Jeremy's external game 'Ramp Monopoly' (author id 8)."
+    },
+    {
+        "version": "4.0.1",
+        "date": "2026-11-03",
+        "content_zh": "【修复版（在 4.0.0 被 revert 后重做并修复）】\n1. 缓存根治：sw.js 升级至 v1.1、预缓存全部页面、激活阶段清理旧缓存并自动刷新一次，消除线上新旧资源混染导致的 CSS 错乱 / 整页大 logo / 设置在但无效。\n2. 灵动岛重做：滚动超过 80px 平滑 morph 为 52px 高的单行深色半透明胶囊（max-width 760px、圆角 26px、溢出隐藏），搜索行与分类行平滑收起，回顶恢复完整顶栏；移动端等比收窄；保留三级分级。\n3. 搜索增强：新增「全部 / 游戏 / 作者」三范围筛选；作者范围展示真正的作者卡片（头像、名称、作品数，点击进入作者页）；首页 25 条分页（超过才出现）；结果卡片展示作者；相关度排序 + 字段权重（标题 1.0 / 分类 0.75 / 作者 0.6）+ 去重。\n4. 设置面板重建：换色同时驱动 --primary 与 --accent（立即可见）；字号经 zoom 立即生效；含自定义背景（按图片信息量自适应淡化 + 每 14 天过期自动恢复默认）与自定义排版（拖拽顶栏按钮上下微调并本地持久化）。\n5. 雪期延长至 2027-01-31（specialPeriod 与 yearlyPeriod 两处，跨年逻辑兼容）。\n6. reCAPTCHA 容错：安全复验遇 5xx/网络错误时显示友好文案（不再裸显 internal_error 且不再状态行+错误框双重展示），8s 超时 + 1 次重试；服务端错误累计 ≥3 次自动熔断，本轮会话跳过验证（登录/注册仍保持严格）；前端输出结构化诊断。后端 500 真正根因已修复：env.js 的 MODES 缺少 'recaptcha'（issueTicket 用 provider 名作 mode 导致 assertMode 抛错），补入后本地单测与线上真实 token 实测均通过（与密钥无关，Vercel 密钥本就正常）；另保留缺密钥防御性降级 503。",
+        "content_en": "[Fix release (re-done after 4.0.0 was reverted)]\\n1. Cache fix: sw.js bumped to v1.1, precache all pages, purge old cache on activate and auto-refresh once, eliminating the mixed old/new asset rendering that caused broken CSS / full-page logo / non-working settings.\\n2. Dynamic Island redo: past 80px scroll, smoothly morphs into a 52px-tall single-line dark translucent pill (max-width 760px, 26px radius, overflow hidden); search and category rows collapse smoothly; full bar restored at top; mobile narrows proportionally; 3-tier grading kept.\\n3. Search upgrade: new All / Games / Authors scope; Authors scope renders real author cards (avatar, name, game count, links to author page); 25-per-page pagination (only when exceeded); results show author; relevance ranking + field weights (title 1.0 / category 0.75 / author 0.6) + dedup.\\n4. Settings panel rebuilt: accent color drives both --primary and --accent (instantly visible); font size via zoom (instant); custom background (info-density adaptive dimming + 14-day expiry auto-reset) and custom layout (drag top-bar buttons, persisted).\\n5. Winter activity extended to 2027-01-31 (special + yearly periods; cross-year logic compatible).\\n6. reCAPTCHA resilience: periodic re-verify shows friendly copy on 5xx/network (no raw internal_error, no double display), 8s timeout + 1 retry; after >=3 consecutive server errors the circuit breaker skips verification for the session (login/register stay strict); structured diagnostics. Backend degrades gracefully to 503 verification_unavailable on missing secrets."
+    },
+    {
+        "version": "3.3.0",
+        "date": "2026-11-02",
+        "content_zh": "1. 【布局改版】首页升级为双栏布局：游戏列表为主区，排行榜与公告收纳至右侧边栏，不再遮挡下方的游戏内容。\n2. 排行榜卡片在侧边栏内自动紧凑化（纵向排列、缩小卡面），并支持侧栏吸顶滚动。\n3. 公告板块精简为标题列表：不再直接展示预览内容，点击「查看详情」后在弹窗中阅读完整公告。\n4. 新增新布局限时引导：11 月 5 日前首次访问会全屏高亮讲解排行榜与公告的新位置，点击「知道了」完成引导（每人仅一次）。\n5. 窄屏（平板/手机）下侧边栏自动回退为单列堆叠，保证移动端阅读体验。",
+        "content_en": "1. [Layout Redesign] The homepage now uses a two-column layout: the game list becomes the main area, while the ranking and announcements move to a right sidebar so they no longer block the games below.\n2. Ranking cards compact automatically inside the sidebar (vertical stacking, smaller cards) with sticky scrolling.\n3. The announcement panel is simplified to a title list: preview content is removed; click \"View Details\" to read the full announcement in a modal.\n4. Added a limited-time onboarding guide: before Nov 5, first visits get a full-screen spotlight walkthrough of the new ranking and announcement positions, dismissed with \"Got it\" (once per visitor).\n5. On narrow screens (tablet/mobile) the sidebar automatically falls back to a single column to preserve the reading experience."
+    },
+    {
+        "version": "3.2.0",
+        "date": "2026-11-02",
+        "content_zh": "1. 【登录矩阵】开发者登录/注册全面支持第三方一键登录：Google、GitHub、Discord、GitLab、X (Twitter) 五种方式，与邮箱密码并存。\n2. 【账号绑定】开发者后台新增「账号绑定」模块：可将多个第三方身份关联到同一账号，任一方式登录均为同一账号与数据，支持一键绑定/解绑（至少保留一种登录方式）。\n3. OAuth 登录回调后自动补做人机验证绑定，与邮箱登录的安全体验完全一致。\n4. 第三方登录用户进入后台时自动以第三方昵称/头像兜底生成个人资料；无密码账号的「修改密码」流程给出明确指引（通过忘记密码设置）。\n5. 第三方登录失败（未开启、白名单未配置、用户取消）时给出中英双语错误提示。",
+        "content_en": "1. [Sign-in Matrix] Developer sign-in/sign-up now fully supports one-tap third-party login with Google, GitHub, Discord, GitLab and X (Twitter), alongside email and password.\n2. [Account Linking] Added a \"Linked Accounts\" module in the Dashboard: link multiple third-party identities to the same account — any of them signs into the same account and data, with one-click link/unlink (at least one sign-in method must remain).\n3. OAuth callbacks automatically complete the captcha verification binding, matching the security experience of email sign-in.\n4. Third-party users get an auto-seeded profile (nickname/avatar) when entering the Dashboard, and passwordless accounts get clear guidance for setting a password via \"Forgot password\".\n5. Bilingual error messages for third-party sign-in failures (provider not enabled, redirect URL not allowlisted, user cancellation)."
+    },
+    {
+        "version": "3.1.1",
+        "date": "2026-11-02",
+        "content_zh": "1. 【合规完善】新增《服务条款》页面（terms.html），中英双语，覆盖账号注册、投稿规范、行为准则、知识产权、第三方服务与免责声明九大章节。\n2. 服务条款入口铺设至全站页脚、登录页、游戏守则、关于页、站点文档页、投稿与推荐弹窗，并收录进站点地图（sitemap）。\n3. 首页右上角新增「文档」快捷入口，直达站点文档中心（docs.html）。\n4. 修复登录页与投稿须知中指向已更名《游戏守则》（game_rules.html）的失效链接。\n5. 开发者文档补充第三方一键登录的注册说明。",
+        "content_en": "1. [Compliance] Added the bilingual Terms of Service page (terms.html), covering account registration, submission standards, acceptable use, IP, third-party services and disclaimers in nine chapters.\n2. Terms of Service links added across the site footer, login page, game rules, about page, docs hub, and the submit/recommend modals, and included in the sitemap.\n3. Added a \"Docs\" shortcut in the homepage top bar linking to the site documentation hub (docs.html).\n4. Fixed broken links pointing to the renamed Game Rules page (game_rules.html) on the login page and submission guidelines.\n5. Developer docs updated with third-party one-tap sign-up instructions."
+    },
+    {
+        "version": "3.1.0",
+        "date": "2026-10-31",
+        "content_zh": "1. 新增「推荐游戏」板块：首页可直接打开推荐表单弹窗，无需登录即可提交游戏推荐。\n2. 推荐表单支持中英文自动切换，弹窗内嵌表单、独立滚动，移动端自适应。\n3. 未登录用户点击「投稿」时会提示两条路径，可直接前往推荐游戏（免登录），也可跳转登录投稿。\n4. 新增开发者定向告示系统：通过 noticetodeveloper.json 配置，登录后按作者 ID 精准推送专属公告，支持图片、视频与按钮。\n5. 游戏详情页支持视频：横幅与截图区域可放视频直链，或 B站、YouTube、Vimeo 链接自动转换为内嵌播放器。\n6. 修复作者主页新上线游戏延迟显示的问题：游戏列表请求增加缓存绕过，上线后立即可见。\n7. 全站游戏数据的 author 字段统一为字符串类型，兼容数字 ID 与人名两种写法，避免作者页匹配失败。",
+        "content_en": "1. Added the \"Recommend a Game\" section: the recommendation form can be opened directly from the homepage and submitted without logging in.\n2. The recommendation form auto-switches between Chinese and English, embeds in a modal with independent scrolling, and adapts to mobile.\n3. When a logged-out user clicks \"Submit\", two paths are offered: go recommend a game (no login needed) or continue to login.\n4. Added the developer-targeted notice system: configured via noticetodeveloper.json, it pushes notices to specific authors by author ID after login, supporting images, videos and buttons.\n5. Game detail pages now support video: banners and screenshots accept direct video links, or Bilibili, YouTube and Vimeo links that are automatically converted into embedded players.\n6. Fixed the delayed display of newly published games on author pages: game list requests now bypass HTTP cache, so new games appear immediately.\n7. Unified the author field across all game data to string type, supporting both numeric IDs and names to avoid author page matching failures."
+    },
+    {
+        "version": "3.0.1",
+        "date": "2026-10-23",
+        "content_zh": "1. 优化了开发者注册流程，放宽了邮箱验证码的输入长度限制，解决部分用户无法输入完整验证码的问题。\n2. 修复了搜索框在输入特定特殊字符时导致的控制台异常报错。\n3. 修复了全屏游戏页面被全站活动特效（如冬季雪花）遮挡的底层冲突问题，保障纯净游玩体验。\n4. 完善了开发者文档与游戏守则的双语跳转链接，优化了新用户的阅读体验。",
+        "content_en": "1. Optimized the developer registration process and relaxed the length limit for the email verification code input, resolving the issue where some users could not enter the full code. \n2. Fixed a console error caused by the search box when entering specific special characters. \n3. Fixed the underlying conflict where full-screen game pages were obstructed by site-wide event effects (like winter snowflakes), ensuring a pure gaming experience. \n4. Improved the bilingual jump links for developer docs and game rules, optimizing the reading experience for new users."
+    },
+    {
+        "version": "3.0.0",
+        "date": "2026-10-23",
+        "content_zh": "1. 【里程碑】开发者生态系统正式上线！全面接入 Supabase 数据库，支持安全的开发者账号注册、验证码登录与鉴权体系。\n2. 全新上线「开发者后台（Dashboard）」，支持一键查看单款游戏的游玩量、收藏量趋势折线图，并附带智能环比 Emoji 数据反馈。\n3. 新增「公开作者主页」，玩家点击游戏详情页的开发者名称，即可直达该作者的主页，一览其所有作品及个人简介。\n4. 支持开发者在后台上传自定义头像（前端智能压缩至 50KB 以内）及修改个人简介。\n5. 引入安全的“双重确认”账号注销机制，并在后台支持一键发送密码重置邮件。",
+        "content_en": "1. [Milestone] The developer ecosystem is officially online! Fully integrated with the Supabase database to support secure developer account registration, verification code login, and authentication. \n2. Launched the new 'Developer Dashboard', supporting one-click viewing of play counts, favorites trend line charts, and smart MoM Emoji feedback for individual games. \n3. Added 'Public Author Pages'; players can click the developer's name on the game detail page to go directly to their homepage and see all their works and bio. \n4. Supports developers in uploading custom avatars (with smart front-end compression to under 50KB) and editing their bio in the backend. \n5. Introduced a secure 'double confirmation' account deletion mechanism and supported one-click password reset emails from the backend."
+    },
+    {
+        "version": "2.4.0",
+        "date": "2026-10-23",
+        "content_zh": "1. 【搜索升级】全新接入智能拼音搜索引擎，支持全拼、首字母、模糊顺序匹配及搜索结果高亮显示。\n2. 【布局优化】将搜索框与收藏夹上移至顶部导航栏，同时将热度排行榜前移至公告栏上方，提升首屏信息获取效率。\n3. 优化了搜索无结果的空状态提示，并修复了在特定浏览器下搜索框失去焦点的问题。",
+        "content_en": "1. [Search Upgrade] Integrated a brand new smart pinyin search engine, supporting full pinyin, initials, fuzzy sequential matching, and search result highlighting. \n2. [Layout Optimization] Moved the search box and favorites to the top navigation bar, and shifted the popularity ranking above the announcements to improve first-screen information efficiency. \n3. Optimized the empty state prompt for no search results and fixed the issue where the search box lost focus in specific browsers."
+    },
+    {
+        "version": "2.3.0",
+        "date": "2026-10-23",
+        "content_zh": "1. 首页新增“双层筛选导航”，支持在【全部/本站/外网】与【游戏分类】之间进行精准交叉过滤。\n2. 新增全站悬浮按钮悬停交互，当鼠标停留在右下角图标时，会浮现具体的功能名称提示（如意见反馈、回到顶部）。\n3. 优化了顶部导航栏分类按钮在移动端的横向滑动交互体验。",
+        "content_en": "1. Added a 'Double-layer Filter Navigation' to the homepage, supporting precise cross-filtering between [All/Local/External] and [Game Categories]. \n2. Added a hover interaction for floating buttons site-wide; hovering over the bottom-right icons now reveals specific function name tooltips (e.g., Feedback, Back to Top). \n3. Optimized the horizontal swipe interaction experience for filter buttons on mobile devices."
+    },
+    {
+        "version": "2.2.1",
+        "date": "2026-10-23",
+        "content_zh": "1. 修复了游戏详情页在部分极端网络环境下样式加载错乱的缺陷。\n2. 优化了移动端触控事件分发，提升游玩时的操作灵敏度。\n3. 修复了深色模式下个别字体对比度不足影响阅读的问题。\n4. 修复了首页公告栏在特定交互下的渲染异常。",
+        "content_en": "1. Fixed a style loading defect on the game detail page in some extreme network environments. \n2. Optimized mobile touch event distribution to improve operational sensitivity during gameplay. \n3. Fixed the issue of insufficient font contrast in dark mode affecting readability. \n4. Fixed abnormal rendering of the homepage announcement bar under specific interactions."
+    },
+    {
+        "version": "2.2.0",
+        "date": "2026-10-22",
+        "content_zh": "1. 全新上线首页“全站游戏热度榜”！直观展示全站前 3 名游戏并佩戴金、银、铜牌徽章。\n2. 新增“查看更多”弹窗，玩家可一键浏览前 25 名完整榜单。\n3. 优化榜单交互，点击卡片可直接跳转至游戏详情页（支持中英双语）。\n4. 榜单数据支持加载时实时抓取与每 5 分钟自动刷新，确保热度数据准确。",
+        "content_en": "1. Launched the new 'Global Game Ranking' on the homepage! It intuitively displays the top 3 games sitewide with gold, silver, and bronze medals. \n2. Added a 'View More' modal, allowing players to browse the complete top 25 leaderboard with one click. \n3. Optimized leaderboard interactions; clicking a card now redirects directly to the game detail page (supports bilingual). \n4. The leaderboard data supports real-time fetching on load and auto-refresh every 5 minutes, ensuring accurate popularity data."
+    },
+    {
+        "version": "2.1.1",
+        "date": "2026-10-22",
+        "content_zh": "1. 【游戏上新】休闲品类新游戏《MC 矿工点击器》正式上架！支持直接在线游玩。\n2. 【安全加固】针对《MC 矿工点击器》源码进行了深度审查，修复了底层崩溃隐患，并为其作弊码验证引入了 SHA-512 哈希加密算法。\n3. 【Bug修复】修复了首页公告栏在用户将公告全部关闭后，连空状态提示框和「查看全部」按钮一起消失的 UI 缺陷。",
+        "content_en": "1. [New Game] New casual game 'MC Clicker Game' officially launched! Supports direct online play. \n2. [Security Hardening] Conducted an in-depth code review for 'MC Clicker Game', fixed underlying crash risks, and introduced SHA-512 hash encryption for its cheat code verification. \n3. [Bug Fix] Fixed the UI defect where the announcement bar on the homepage would disappear entirely (including the empty state box and 'View All' button) after users closed all announcements."
+    },
+    {
+        "version": "2.1.0",
+        "date": "2026-10-22",
+        "content_zh": "1. 【架构升级】全新上线通用活动配置系统（activity_whole.json），实现活动资源、时间锁及配色的独立管理与动态加载。\n2. 【冬季限定】正式开启 2026 冬季限定主题！全站飘落浪漫雪花，并自动替换冬日背景、戴帽 Logo、专属 Banner 与角落盲盒贴纸。\n3. 【体验优化】新增全站「滑动提示浮窗」，智能引导用户向下滚动查看内容，并在本地化存储 30 天防重复干扰。\n4. 【功能接入】正式接入 Tally 中英双语「用户满意度评价与反馈」表单，支持通过右下角悬浮按钮一键唤出。\n5. 【Bug修复】彻底修复了游戏详情页（game.html）切换语言时内容不重绘的底层缺陷，实现无缝双语切换。",
+        "content_en": "1. [Architectural Upgrade] Launched a new universal activity configuration system (activity_whole.json), enabling independent management and dynamic loading of activity assets, time locks, and color schemes. \n2. [Winter Limited] Officially launched the 2026 Winter Theme! Romantic snowflakes fall site-wide, with automatic replacement of winter backgrounds, logo, exclusive banners, and blind-box stickers in corners. \n3. [UX Optimization] Added a site-wide 'slide hint floating window', intelligently guiding users to scroll down for more content, with a 30-day local storage anti-disturbance mechanism. \n4. [Feature Integration] Officially integrated the Tally bilingual 'User Satisfaction and Feedback' form, accessible via the floating button in the bottom right corner. \n5. [Bug Fix] Thoroughly fixed the underlying defect where content failed to re-render when switching languages on the game detail page (game.html), achieving seamless bilingual switching."
+    },
+    {
+        "version": "2.0.0",
+        "date": "2026-10-21",
+        "content_zh": "1. 【架构级重构】全站底层升级为 2.0 模块化架构，实现全局语言与底部导航的统一分发。\n2. 引入全站全局深色模式，支持系统级偏好自动检测与本地持久化。\n3. 重构公告系统底层逻辑：新增未读消息推送提醒、单条公告 24 小时静音机制，并引入类似更新日志的「全部公告」独立浏览弹窗。\n4. 新增悬浮实用组件：意见反馈（Tally 接入）、一键回到顶部、PWA 安装提示（1分钟智能触发）。",
+        "content_en": "1. [Architectural Refactoring] The site's underlying infrastructure is upgraded to the 2.0 modular architecture, achieving unified distribution of global language and footer navigation. \n2. Introduced global Dark Mode, supporting automatic system preference detection and local persistence. \n3. Refactored the underlying logic of the announcement system: added unread message push reminders, a 24-hour mute mechanism for individual announcements, and introduced a dedicated 'All Announcements' browsing popup similar to the changelog. \n4. Added floating practical components: Feedback (Tally integration), Back to Top, and PWA installation prompt (smart trigger in 1 minute)."
+    },
+    {
+        "version": "1.8.1",
+        "date": "2026-10-21",
+        "content_zh": "1. 针对近期开发者的投稿反馈，深度优化了 Tally 表单的提交流程。\n2. 调整代码提交方式为上传 zip/rar 压缩包，并新增「单文件代码直接粘贴」选项，大幅降低上传损坏率。\n3. 补充了关于审核邮件通知的温馨提示，引导开发者留意垃圾邮件箱，确保信息触达率。",
+        "content_en": "1. Deeply optimized the Tally form submission process based on recent developer feedback. \n2. Changed the code submission method to zip/rar archive upload and added a 'Single File Code Paste' option, significantly reducing upload corruption rates. \n3. Added reminders regarding review email notifications, guiding developers to check their spam folders to ensure information delivery."
+    },
+    {
+        "version": "1.8.0",
+        "date": "2026-10-21",
+        "content_zh": "1. 全新上线独立的「更新日志」模块，支持按版本维度精准追溯平台历史迭代。\n2. 深度集成 Edgemetry 无埋点统计系统，实现全站 PV/UV 及游戏点击转化率的精准追踪。\n3. 全面优化底层资源加载策略，显著提升全平台页面的首屏渲染速度与响应能力。",
+        "content_en": "1. Launched an independent 'Changelog' module, supporting accurate tracking of platform historical iterations by version. \n2. Deeply integrated the Edgemetry analytics system to achieve precise tracking of site-wide PV/UV and game click conversion rates. \n3. Comprehensively optimized the underlying resource loading strategy, significantly improving the first-screen rendering speed and responsiveness across all platform pages."
+    },
+    {
+        "version": "1.7.2",
+        "date": "2026-10-20",
+        "content_zh": "1. 重构游戏卡片网格布局算法，完美适配多端响应式显示，消除边界溢出问题。\n2. 优化中英双语切换的底层逻辑，彻底解决切换时的页面闪烁与重绘性能损耗。\n3. 调整并统一了全站组件的 UI 视觉规范，提升了界面整体的沉浸感与一致性。",
+        "content_en": "1. Refactored the game card grid layout algorithm for perfect multi-device responsive display, eliminating boundary overflow issues. \n2. Optimized the underlying logic of bilingual switching, completely resolving page flickering and repaint performance losses during switching. \n3. Adjusted and unified the UI visual specifications of site-wide components, enhancing the immersion and consistency of the interface."
+    },
+    {
+        "version": "1.7.1",
+        "date": "2026-10-19",
+        "content_zh": "1. 正式上线「关于我们」独立页面，全方位展示平台愿景与开发者权益承诺。\n2. 完善平台合规体系，引入《隐私政策》与《版权侵权投诉指引》等底层保障入口。\n3. 优化导航栏层级结构与路由分发，大幅提升用户获取平台信息的便捷度。",
+        "content_en": "1. Officially launched the 'About Us' page, comprehensively showcasing the platform's vision and commitments to developer rights. \n2. Improved the platform's compliance system by introducing underlying protection entrances such as the 'Privacy Policy' and 'Copyright Infringement Guidelines'. \n3. Optimized the navigation bar hierarchy and route distribution, greatly enhancing user convenience in accessing platform information."
+    },
+    {
+        "version": "1.7.0",
+        "date": "2026-10-18",
+        "content_zh": "1. 「了了了游」全新架构正式上线！完成了全站底层技术的彻底重构，剥离了历史技术债。\n2. 原生支持中英双语无缝切换，全面拓展了平台服务于全球化用户的能力。\n3. 引入本地化游戏收藏与全局检索功能，大幅优化玩家寻找心仪游戏的心智负担。",
+        "content_en": "1. The brand new architecture of 'lelele Game' officially launched! Completed a thorough refactoring of the entire site's underlying technology, eliminating historical technical debt. \n2. Native support for seamless bilingual (Chinese/English) switching, comprehensively expanding the platform's ability to serve global users. \n3. Introduced local game favorites and global search functions, greatly optimizing the mental burden on players finding their desired games."
+    },
+    {
+        "version": "1.6.1",
+        "date": "2026-10-17",
+        "content_zh": "1. 上线前执行了全链路黑盒测试，修复了若干影响体验的边界缺陷。\n2. 优化了资源请求机制，降低了网络延迟导致的加载失败率。\n3. 完善了全局异常捕获机制，提升了系统整体的鲁棒性。",
+        "content_en": "1. Executed full-link black-box testing prior to launch, fixing several boundary defects affecting the experience. \n2. Optimized the resource request mechanism, reducing the loading failure rate caused by network latency. \n3. Improved the global exception capture mechanism, enhancing the overall robustness of the system."
+    },
+    {
+        "version": "1.6.0",
+        "date": "2026-10-10",
+        "content_zh": "1. 监测到旧版底层源代码存在严重的耦合崩坏，启动紧急技术预案。\n2. 将旧版历史遗留代码全部删除，从零开始搭建全新纯净架构。\n3. 重建了数据分发链路，确保后续版本迭代的稳定性与可维护性。",
+        "content_en": "1. Detected severe coupling corruption in the legacy underlying source code and activated an emergency technical plan. \n2. Deleted all legacy code from the old version and built a brand new pure architecture from scratch. \n3. Rebuilt the data distribution pipeline to ensure the stability and maintainability of future version iterations."
+    },
+    {
+        "version": "1.5.1",
+        "date": "2026-09-20",
+        "content_zh": "1. 了了了游正式启动复出计划，完成服务器及静态资源的重新部署。\n2. 梳理并优化了游戏上架的审核流转链路。\n3. 展开内部封闭测试，收集核心玩家反馈以打磨最终体验。",
+        "content_en": "1. lelele Game officially launched its comeback plan, completing the redeployment of servers and static resources. \n2. Organized and optimized the review workflow for game listings. \n3. Initiated internal closed beta testing, collecting core player feedback to polish the final experience."
+    },
+    {
+        "version": "1.5.0",
+        "date": "2026-07-18",
+        "content_zh": "1. 因工作室内部战略及资源调整，了了了游暂时停止运营并下架。\n2. 下架期间对数据资产进行了全面备份与归档。\n3. 感谢广大玩家的支持，期待未来更完美的重逢。",
+        "content_en": "1. Due to internal strategy and resource adjustments within the studio, lelele Game temporarily suspended operations and was taken offline. \n2. Conducted comprehensive backup and archiving of data assets during the offline period. \n3. Thank you to all players for your support; looking forward to a more perfect reunion in the future."
+    },
+    {
+        "version": "1.4.3",
+        "date": "2026-07-16",
+        "content_zh": "1. 修复了极少数情况下游戏列表渲染失败导致的白屏异常。\n2. 优化了数据解析模块，降低了前端内存占用。\n3. 提升了界面在老旧设备上的兼容性表现。",
+        "content_en": "1. Fixed the abnormal white screen caused by game list rendering failure in rare cases. \n2. Optimized the data parsing module, reducing front-end memory usage. \n3. Improved the interface's compatibility performance on legacy devices."
+    },
+    {
+        "version": "1.4.2",
+        "date": "2026-07-14",
+        "content_zh": "1. 修复了特定浏览器下部分 JS 代码意外泄漏到页面的隐患。\n2. 全面优化了数据加载管道，提升了并发请求时的响应效率。\n3. 增强了前端状态管理的稳定性。",
+        "content_en": "1. Fixed the hidden danger of some JS code accidentally leaking to the page under specific browsers. \n2. Comprehensively optimized the data loading pipeline, improving response efficiency during concurrent requests. \n3. Enhanced the stability of front-end state management."
+    },
+    {
+        "version": "1.4.1",
+        "date": "2026-07-04",
+        "content_zh": "1. 进行了一波深度的体验打磨，修复了此前版本中遗留的各种微小瑕疵。\n2. 优化了底层渲染逻辑，使整体运行更加丝滑流畅。\n3. 修复了部分极端网络环境下的资源加载超时问题。",
+        "content_en": "1. Conducted deep polishing, fixing various minor flaws left in previous versions. \n2. Optimized the underlying rendering logic, making overall operation smoother. \n3. Fixed resource loading timeout issues in some extreme network environments."
+    },
+    {
+        "version": "1.4.0",
+        "date": "2026-07-03",
+        "content_zh": "1. 游戏中心开启临时上限压力测试，一次性部署 20 款完整小游戏。\n2. 游戏涵盖益智、动作、休闲等多种品类（如猜数字、俄罗斯方块、吃豆人等）。\n3. 统一了所有游戏的控制适配，原生支持触屏手势与键盘操作。",
+        "content_en": "1. The game center initiated a temporary upper-limit stress test, deploying 20 complete mini-games at once. \n2. Games cover various categories such as puzzle, action, and casual (e.g., Guess the Number, Tetris, Pac-Man, etc.). \n3. Unified control adaptation for all games, natively supporting touch gestures and keyboard operations."
+    },
+    {
+        "version": "1.3.3",
+        "date": "2026-06-25",
+        "content_zh": "1. 优化了 3D 射击游戏在低端设备上的图形渲染帧率，降低了掉帧率。\n2. 修复了 2048 游戏在移动端触控时偶发的手指滑动误触问题。\n3. 优化了游戏加载页的动画过渡效果。",
+        "content_en": "1. Optimized the graphics rendering frame rate of the 3D shooting game on low-end devices, reducing frame drops. \n2. Fixed the issue in the 2048 game where swipe controls occasionally triggered unintended touches on mobile devices. \n3. Optimized the animation transition effect on the game loading page."
+    },
+    {
+        "version": "1.3.2",
+        "date": "2026-06-23",
+        "content_zh": "1. 修复了了了游中部分游戏在移动端触控失效的核心兼容性问题。\n2. 优化了触控事件分发机制，提升了移动端的操作准确度。\n3. 完善了反馈机制，帮助研发快速定位机型兼容问题。",
+        "content_en": "1. Fixed core compatibility issues where touch controls failed in some games on mobile devices. \n2. Optimized the touch event distribution mechanism, improving mobile operation accuracy. \n3. Improved the feedback mechanism to help R&D quickly locate device compatibility issues."
+    },
+    {
+        "version": "1.3.1",
+        "date": "2026-06-22",
+        "content_zh": "1. 修复了一些已知的问题，优化了游戏的打开逻辑。\n2. 调整了游戏启动时的资源预加载策略。\n3. 提升了部分游戏在后台切换时的存活率。",
+        "content_en": "1. Fixed some known issues and optimized the game's opening logic. \n2. Adjusted the resource preloading strategy when starting games. \n3. Improved the survival rate of some games when switching in the background."
+    },
+    {
+        "version": "1.3.0",
+        "date": "2026-05-22",
+        "content_zh": "1. 了了了游新增本地游戏：了了了派对-欢乐飞行棋。\n2. 支持多人对战模式，优化了物理碰撞检测引擎。\n3. 引入了全新的画面渲染与音效系统，带来更生动的体验。",
+        "content_en": "1. Added a new local game: lelele Party - Happy Flying Chess. \n2. Supports multiplayer battle mode and optimized the physics collision detection engine. \n3. Introduced a brand new graphics rendering and sound effect system for a more vivid experience."
+    },
+    {
+        "version": "1.2.0",
+        "date": "2026-04-18",
+        "content_zh": "1. 了了了游新增 5 款精品本地游戏：爱种地的农民、玉米工厂大亨、点击香蕉等。\n2. 丰富游戏品类矩阵，涵盖模拟经营与休闲解压。\n3. 优化了游戏启动入口的交互响应速度。",
+        "content_en": "1. Added 5 premium local games: Farmer Who Loves Farming, Corn Factory Tycoon, Click Banana, etc. \n2. Enriched the game category matrix, covering simulation management and casual decompression. \n3. Optimized the interaction response speed of the game launch entrance."
+    },
+    {
+        "version": "1.1.0",
+        "date": "2026-03-05",
+        "content_zh": "1. 了了了游新增 4 款本地游戏：3D射击、卡牌2048、扫雷、太空射击。\n2. 针对 3D 射击游戏进行了渲染管线优化，提升画面表现。\n3. 完善了游戏分类标签系统。",
+        "content_en": "1. Added 4 local games: 3D Shooting, Card 2048, Minesweeper, Space Shooting. \n2. Optimized the rendering pipeline specifically for the 3D shooting game to improve visual performance. \n3. Improved the game category tag system."
+    },
+    {
+        "version": "1.0.0",
+        "date": "2026-01-26",
+        "content_zh": "1. 了了了游 1.0 基础版本正式上线。\n2. 整合旗下产品游戏导航入口，搭建首版页面框架。\n3. 确立了了了了游的发展方向与产品矩阵。",
+        "content_en": "1. lelele Game 1.0 basic version officially launched. \n2. Integrated the game navigation entrances of affiliated products and built the first version of the page framework. \n3. Established the development direction and product matrix of lelele Game."
+    }
 ]

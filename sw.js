@@ -1,6 +1,10 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.38 (论坛深链) —— ?to=forum / #forum 直达首页全站论坛，game.html?id=<id>&to=forum
+ *   直达该游戏讨论区（无 id 时不新增板块）；同步 4.7.0 更新日志与论坛上线公告。
+ *   forum.js 字节变故升 CACHE_NAME 清旧缓存。
+ *
  * ★ v1.37 (社区讨论区) —— 新增 forum.js / forum.css：首页底部「全站论坛」，
  *   game.html 底部「游戏讨论区」（按游戏 id 划分独立话题）。两处都由 IntersectionObserver
  *   在滚动到附近时才挂 iframe，不拖慢首屏；提示全部改为面向普通玩家。
@@ -189,7 +193,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.37';
+const CACHE_NAME = 'lelele-pwa-v1.38';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。
