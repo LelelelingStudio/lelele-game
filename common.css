@@ -1568,3 +1568,8 @@ html.dark-mode .search-wrapper { background: #151a26; border-color: #232a3a; }
 html.dark-mode .status-message,
 html.dark-mode .game-author,
 html.dark-mode .for-you-author { color: #8b96ab; }
+
+/* 想玩清单标题右侧的「管理分组」入口 */
+.for-you-more { margin-left: auto; font-size: .8rem; font-weight: 700; color: var(--primary); text-decoration: none; white-space: nowrap; }
+.for-you-more:hover { text-decoration: underline; }
+.for-you-head { display: flex; align-items: center; gap: 10px; }

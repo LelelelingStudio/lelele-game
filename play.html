@@ -322,6 +322,44 @@
       localStorage.setItem(PLAYED_KEY, JSON.stringify(played));
     } catch (e) {}
   }
+  // ===== 游玩时长（纯本地，只统计「页面真的在前台看着」的时间）=====
+  // 切后台 / 最小化 / 关页面就停表，回来再接着算；只存整秒数，不做上传。
+  (function initPlaytime() {
+    var KEY = 'lelele_playtime';
+    var currentId = null;
+    var lastAt = 0;
+    function read() {
+      try {
+        var v = JSON.parse(localStorage.getItem(KEY) || '{}');
+        return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
+      } catch (e) { return {}; }
+    }
+    function write(o) { try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }
+    function flush() {
+      if (!currentId || !lastAt) return;
+      var delta = Math.round((Date.now() - lastAt) / 1000);
+      lastAt = Date.now();
+      if (delta <= 0) return;
+      // 单次会话异常长（比如挂机一整夜）也只记到 3 小时，避免统计被一条数据带歪
+      delta = Math.min(delta, 3 * 3600);
+      var o = read();
+      o[currentId] = (Number(o[currentId]) || 0) + delta;
+      write(o);
+    }
+    window.LelelePlaytime = {
+      start: function (id) { if (currentId) flush(); currentId = String(id); lastAt = Date.now(); },
+      stop: function () { flush(); currentId = null; lastAt = 0; },
+      get: function (id) { return Number(read()[String(id)]) || 0; },
+      totals: function () { return read(); }
+    };
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') { if (currentId) lastAt = Date.now(); }
+      else flush();
+    });
+    window.addEventListener('pagehide', flush);
+    window.addEventListener('beforeunload', flush);
+  })();
+
   function trackFav(id, action) {
     try {
       var st = JSON.parse(localStorage.getItem(ROUNDS_KEY) || '{}');
@@ -425,6 +463,7 @@
         if (!game.url) throw new Error('No playable URL');
         targetUrl = game.url;
         recordPlay(gameId); // 本地记录最近游玩 + 游玩次数
+        if (window.LelelePlaytime) window.LelelePlaytime.start(gameId); // 开始累计游玩时长
         $('urlBar').textContent = targetUrl;
         $('extLink').href = targetUrl;
         try { sameOrigin = new URL(targetUrl, window.location.href).origin === window.location.origin; }

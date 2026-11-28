@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="description" content="了了了游 · 我的收藏分组与游玩统计">
+    <title>我的收藏 · 了了了游</title>
+    <link rel="stylesheet" href="/common.css">
+    <style>
+        .mc-wrap { max-width: 960px; margin: 0 auto; padding: 24px 18px 80px; }
+        .mc-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+        .mc-head h1 { font-size: 1.35rem; margin: 0; }
+        .mc-actions { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+        .mc-btn { appearance: none; border: 1px solid rgba(79,70,229,.3); background: #fff; color: #4f46e5;
+            font-family: inherit; font-weight: 700; font-size: .85rem; padding: 9px 16px; border-radius: 999px; cursor: pointer; }
+        .mc-btn.primary { background: #4f46e5; border-color: #4f46e5; color: #fff; }
+        .mc-sub { color: #64748b; font-size: .86rem; margin: 0 0 18px; line-height: 1.7; }
+
+        .mc-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 22px; }
+        .mc-stat { background: #fff; border-radius: 14px; padding: 16px 18px; box-shadow: 0 4px 16px rgba(15,23,42,.06); }
+        .mc-stat-num { font-size: 1.5rem; font-weight: 800; line-height: 1.2; }
+        .mc-stat-label { color: #94a3b8; font-size: .78rem; margin-top: 4px; }
+
+        .mc-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .mc-chip { border: 1px solid rgba(148,163,184,.35); background: #fff; border-radius: 999px; padding: 7px 14px;
+            font-family: inherit; font-weight: 700; font-size: .82rem; cursor: pointer; color: #475569; }
+        .mc-chip.active { background: #4f46e5; border-color: #4f46e5; color: #fff; }
+        .mc-chip-count { opacity: .7; margin-left: 4px; }
+
+        .mc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+        .mc-card { background: #fff; border-radius: 14px; padding: 14px 16px; box-shadow: 0 4px 16px rgba(15,23,42,.06); }
+        .mc-name { font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .mc-name a { color: inherit; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .mc-meta { color: #94a3b8; font-size: .78rem; margin: 6px 0 10px; }
+        .mc-card-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .mc-select { font-family: inherit; font-size: .8rem; padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(148,163,184,.4); background: #fff; color: inherit; }
+        .mc-link { font-size: .8rem; color: #4f46e5; font-weight: 700; text-decoration: none; }
+        .mc-del { border: none; background: none; color: #b91c1c; font-family: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; }
+        .mc-empty { padding: 40px 16px; text-align: center; color: #64748b; background: #fff; border-radius: 14px; }
+        .mc-badge-title { font-weight: 800; font-size: .92rem; margin: 6px 0 10px; }
+        .mc-badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 22px; }
+        .mc-badge { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px;
+            background: #fff; box-shadow: 0 4px 16px rgba(15,23,42,.06); opacity: .55; filter: grayscale(1); }
+        .mc-badge.unlocked { opacity: 1; filter: none; border: 1px solid rgba(79,70,229,.25); }
+        .mc-badge-icon { font-size: 1.4rem; }
+        .mc-badge-name { font-weight: 800; font-size: .84rem; }
+        .mc-badge-desc { color: #94a3b8; font-size: .72rem; margin-top: 2px; }
+        html.dark-mode .mc-badge { background: #151a26; }
+        html.dark-mode .mc-stat, html.dark-mode .mc-card, html.dark-mode .mc-empty { background: #151a26; }
+        html.dark-mode .mc-btn, html.dark-mode .mc-chip, html.dark-mode .mc-select { background: #151a26; color: #c7d2fe; border-color: #2b3550; }
+        html.dark-mode .mc-chip.active { background: #4f46e5; color: #fff; }
+        html.dark-mode .mc-sub, html.dark-mode .mc-meta { color: #8b96ab; }
+    </style>
+</head>
+<body>
+    <div class="mc-wrap">
+        <div class="mc-head">
+            <h1><span class="zh-inline">🔖 我的收藏</span><span class="en-inline">🔖 My collection</span></h1>
+            <div class="mc-actions">
+                <button type="button" class="mc-btn primary" id="mcNewGroup">
+                    <span class="zh-inline">+ 新建分组</span><span class="en-inline">+ New group</span>
+                </button>
+                <a class="mc-btn" href="/index.html">
+                    <span class="zh-inline">回首页</span><span class="en-inline">Home</span>
+                </a>
+            </div>
+        </div>
+        <p class="mc-sub">
+            <span class="zh-inline">收藏分组和游玩时长都只存在这台设备上（浏览器本地），不同步、不上传；清缓存会一起清掉。</span>
+            <span class="en-inline">Groups and playtime live in this browser only — not synced, not uploaded, and cleared with your browser data.</span>
+        </p>
+
+        <div class="mc-stats" id="mcStats"></div>
+        <div class="mc-badge-title"><span class="zh-inline">🏅 成就徽章</span><span class="en-inline">🏅 Achievements</span></div>
+        <div class="mc-badges" id="mcBadges"></div>
+        <div class="mc-chips" id="mcChips"></div>
+        <div class="mc-grid" id="mcGrid"></div>
+    </div>
+
+    <script src="/common.js" defer></script>
+    <script>
+    window.addEventListener('load', function () {
+        var K = {
+            watch: 'lelele_watchlist',
+            groups: 'lelele_watch_groups',
+            map: 'lelele_watch_map',
+            time: 'lelele_playtime',
+            played: 'lelele_played'
+        };
+        var DEFAULT_GROUPS = [
+            { id: 'want', name_zh: '想玩', name_en: 'Want to play' },
+            { id: 'done', name_zh: '已通关', name_en: 'Finished' }
+        ];
+        var isEn = function () { return document.documentElement.getAttribute('data-lang') === 'en'; };
+        var t = function (zh, en) { return isEn() ? en : zh; };
+
+        function read(key, fallback) {
+            try {
+                var v = JSON.parse(localStorage.getItem(key) || 'null');
+                return v === null ? fallback : v;
+            } catch (e) { return fallback; }
+        }
+        function write(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+
+        function getGroups() {
+            var g = read(K.groups, null);
+            if (!Array.isArray(g) || !g.length) { g = DEFAULT_GROUPS.slice(); write(K.groups, g); }
+            return g;
+        }
+        function getMap() {
+            var m = read(K.map, {});
+            return (m && typeof m === 'object' && !Array.isArray(m)) ? m : {};
+        }
+        function getWatch() {
+            var w = read(K.watch, []);
+            return Array.isArray(w) ? w.map(String) : [];
+        }
+        function getTimes() {
+            var v = read(K.time, {});
+            return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
+        }
+        function getPlayed() {
+            var v = read(K.played, {});
+            return (v && typeof v === 'object' && !Array.isArray(v)) ? v : {};
+        }
+
+        function fmtDur(sec) {
+            sec = Math.max(0, Math.round(Number(sec) || 0));
+            if (sec < 60) return sec + t(' 秒', 's');
+            var m = Math.floor(sec / 60);
+            if (m < 60) return m + t(' 分钟', ' min');
+            var h = Math.floor(m / 60);
+            return h + t(' 小时 ', 'h ') + (m % 60) + t(' 分', 'm');
+        }
+
+        var catalog = [];
+        var currentFilter = 'all';
+
+        function gameOf(id) {
+            return catalog.find(function (g) { return String(g.id) === String(id); });
+        }
+        function nameOf(g, fallbackId) {
+            if (!g) return t('游戏 #', 'Game #') + fallbackId;
+            return isEn() ? (g.name_en || g.name_zh || ('#' + g.id)) : (g.name_zh || g.name_en || ('#' + g.id));
+        }
+
+        function renderBadges(totalSec, playedCount, watchCount) {
+            var playedDistinct = 0;
+            var played = getPlayed();
+            Object.keys(played).forEach(function (k) { if (k !== 'dates' && Number(played[k])) playedDistinct++; });
+            var defs = [
+                { icon: '🔖', key: 'save5', need: watchCount >= 5, name: t('收藏 5 款', 'Save 5 games'), desc: t('把喜欢先码住', 'Keep what you like') },
+                { icon: '🗂️', key: 'save20', need: watchCount >= 20, name: t('收藏 20 款', 'Save 20 games'), desc: t('收藏家', 'Collector') },
+                { icon: '🎮', key: 'play5', need: playedDistinct >= 5, name: t('玩过 5 款', 'Play 5 games'), desc: t('四处逛逛', 'Look around') },
+                { icon: '🕹️', key: 'play15', need: playedDistinct >= 15, name: t('玩过 15 款', 'Play 15 games'), desc: t('老玩家了', 'Veteran') },
+                { icon: '⏱️', key: 'hour1', need: totalSec >= 3600, name: t('累计 1 小时', '1 hour in'), desc: t('坐得住', 'Settled in') },
+                { icon: '⏳', key: 'hour10', need: totalSec >= 36000, name: t('累计 10 小时', '10 hours in'), desc: t('真的上头', 'Truly hooked') },
+                { icon: '🔥', key: 'runs50', need: playedCount >= 50, name: t('开玩 50 次', '50 launches'), desc: t('手很勤', 'Quick to start') },
+                { icon: '🏅', key: 'all', need: totalSec >= 36000 && playedDistinct >= 15 && watchCount >= 20, name: t('全能玩家', 'All-rounder'), desc: t('三样都到位', 'All three lines met') }
+            ];
+            document.getElementById('mcBadges').innerHTML = defs.map(function (d) {
+                return '<div class="mc-badge' + (d.need ? ' unlocked' : '') + '">' +
+                    '<span class="mc-badge-icon">' + d.icon + '</span><div>' +
+                    '<div class="mc-badge-name">' + d.name + '</div>' +
+                    '<div class="mc-badge-desc">' + (d.need ? t('已解锁', 'Unlocked') : d.desc) + '</div>' +
+                    '</div></div>';
+            }).join('');
+        }
+
+        function renderStats() {
+            var times = getTimes();
+            var played = getPlayed();
+            var totalSec = 0, playedCount = 0;
+            Object.keys(times).forEach(function (id) { totalSec += Number(times[id]) || 0; });
+            Object.keys(played).forEach(function (k) { if (k !== 'dates') playedCount += Number(played[k]) || 0; });
+            var watchCount = getWatch().length;
+            var groups = getGroups();
+            document.getElementById('mcStats').innerHTML =
+                '<div class="mc-stat"><div class="mc-stat-num">' + fmtDur(totalSec) + '</div><div class="mc-stat-label">' + t('累计游玩时长', 'Total playtime') + '</div></div>' +
+                '<div class="mc-stat"><div class="mc-stat-num">' + playedCount + '</div><div class="mc-stat-label">' + t('累计开玩次数', 'Games started') + '</div></div>' +
+                '<div class="mc-stat"><div class="mc-stat-num">' + watchCount + '</div><div class="mc-stat-label">' + t('收藏的游戏', 'Saved games') + '</div></div>' +
+                '<div class="mc-stat"><div class="mc-stat-num">' + groups.length + '</div><div class="mc-stat-label">' + t('分组数', 'Groups') + '</div></div>';
+            renderBadges(totalSec, playedCount, watchCount);
+        }
+
+        function renderChips() {
+            var groups = getGroups();
+            var map = getMap();
+            var watch = getWatch();
+            function countOf(gid) {
+                if (gid === 'all') return watch.length;
+                if (gid === '__none') return watch.filter(function (id) { return !map[id]; }).length;
+                return watch.filter(function (id) { return map[id] === gid; }).length;
+            }
+            var chips = [
+                { id: 'all', label: t('全部', 'All') },
+                { id: '__none', label: t('未分组', 'Ungrouped') }
+            ].concat(groups.map(function (g) {
+                return { id: g.id, label: isEn() ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en) };
+            }));
+            document.getElementById('mcChips').innerHTML = chips.map(function (c) {
+                return '<button type="button" class="mc-chip' + (currentFilter === c.id ? ' active' : '') + '" data-gid="' + c.id + '">' +
+                    c.label + '<span class="mc-chip-count">' + countOf(c.id) + '</span></button>';
+            }).join('');
+        }
+
+        function renderGrid() {
+            var groups = getGroups();
+            var map = getMap();
+            var times = getTimes();
+            var played = getPlayed();
+            var watch = getWatch();
+            var items = watch.filter(function (id) {
+                if (currentFilter === 'all') return true;
+                if (currentFilter === '__none') return !map[id];
+                return map[id] === currentFilter;
+            });
+            var grid = document.getElementById('mcGrid');
+            if (!items.length) {
+                grid.innerHTML = '<div class="mc-empty">' +
+                    (isEn() ? 'Nothing here yet. Tap 📌 on a game card to save it, then sort it into a group.'
+                            : '这里还是空的。在首页游戏卡片上点 📌 收藏，再给它分个组就行。') + '</div>';
+                return;
+            }
+            grid.innerHTML = items.map(function (id) {
+                var g = gameOf(id);
+                var sec = Number(times[id]) || 0;
+                var cnt = Number(played[id]) || 0;
+                var opts = '<option value="">' + t('未分组', 'Ungrouped') + '</option>' + groups.map(function (grp) {
+                    var label = isEn() ? (grp.name_en || grp.name_zh) : (grp.name_zh || grp.name_en);
+                    return '<option value="' + grp.id + '"' + (map[id] === grp.id ? ' selected' : '') + '>' + label + '</option>';
+                }).join('');
+                return '<div class="mc-card" data-id="' + id + '">' +
+                    '<div class="mc-name"><span>' + (g && g.icon ? g.icon : '🎮') + '</span><a href="/game.html?id=' + encodeURIComponent(id) + '">' + nameOf(g, id) + '</a></div>' +
+                    '<div class="mc-meta">' + (sec ? t('已玩 ', 'Played ') + fmtDur(sec) : t('还没玩过', 'Not played yet')) +
+                        (cnt ? ' · ' + t('开玩 ', 'started ') + cnt + t(' 次', 'x') : '') + '</div>' +
+                    '<div class="mc-card-actions">' +
+                        '<select class="mc-select" data-move="' + id + '">' + opts + '</select>' +
+                        '<button type="button" class="mc-del" data-del="' + id + '">' + t('移出收藏', 'Remove') + '</button>' +
+                    '</div></div>';
+            }).join('');
+        }
+
+        function refresh() { renderStats(); renderChips(); renderGrid(); }
+
+        document.getElementById('mcChips').addEventListener('click', function (e) {
+            var chip = e.target.closest('[data-gid]');
+            if (!chip) return;
+            currentFilter = chip.dataset.gid;
+            renderChips(); renderGrid();
+        });
+
+        document.getElementById('mcGrid').addEventListener('change', function (e) {
+            var sel = e.target.closest('[data-move]');
+            if (!sel) return;
+            var id = sel.dataset.move;
+            var map = getMap();
+            if (sel.value) map[id] = sel.value; else delete map[id];
+            write(K.map, map);
+            refresh();
+        });
+
+        document.getElementById('mcGrid').addEventListener('click', function (e) {
+            var del = e.target.closest('[data-del]');
+            if (!del) return;
+            var id = del.dataset.del;
+            var watch = getWatch().filter(function (x) { return x !== id; });
+            write(K.watch, watch);
+            var map = getMap(); delete map[id]; write(K.map, map);
+            refresh();
+        });
+
+        document.getElementById('mcNewGroup').addEventListener('click', function () {
+            var name = prompt(t('新分组的名字（例如：想通宵玩、给弟弟的）', 'New group name'));
+            if (!name || !name.trim()) return;
+            var groups = getGroups();
+            var id = 'g' + Date.now().toString(36);
+            groups.push({ id: id, name_zh: name.trim(), name_en: name.trim() });
+            write(K.groups, groups);
+            currentFilter = id;
+            refresh();
+        });
+
+        // 分组下拉和卡片要跟着语言切，监听一下
+        window.addEventListener('langChanged', refresh);
+
+        fetch('/lelegame_data.json', { cache: 'no-cache' })
+            .then(function (r) { return r.ok ? r.json() : []; })
+            .then(function (list) { catalog = Array.isArray(list) ? list : []; })
+            .catch(function () { catalog = []; })
+            .then(refresh);
+    });
+    </script>
+</body>
+</html>

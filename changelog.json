@@ -1,5 +1,11 @@
 [
   {
+    "version": "4.7.3",
+    "date": "2026-11-28",
+    "content_zh": "4.7.3：新增「我的收藏」页（mycollection.html）。收藏的游戏可以自己分组（默认想玩 / 已通关，可再新建「想通关的」「给弟弟的」这类），改完分组立刻生效，首页想玩清单右侧有「管理分组」入口。同时开始统计游玩时长：只在页面真的在前台时计时，切后台或关页面就停，存本机。页面上还有累计时长、开玩次数、收藏数量四项统计，以及 8 个成就徽章（收藏 / 玩过 / 时长 / 开玩次数四类）。全部纯本地，不同步不上传。",
+    "content_en": "4.7.3: Added a “My collection” page (mycollection.html). Saved games can be organised into your own groups (Want to play / Finished by default, plus any custom ones), and changes apply immediately; the watchlist row on the homepage links to it. Playtime tracking starts too: it only counts while the page is actually in the foreground, stops when you switch away or close the tab, and is stored locally. The page shows total playtime, launches, saved count, and 8 achievement badges built from saves / games played / playtime / launches. Everything stays in your browser — no sync, no upload."
+  },
+  {
     "version": "4.7.2",
     "date": "2026-11-28",
     "content_zh": "4.7.2：修了游戏详情页可能整页空白的老问题（引用了已删除的错误页返回按钮，初始化被中断）。新增：Ctrl+K 快速查找（搜游戏名/拼音/分类/作者，回车直达）、游戏卡片上的 💬 一键进讨论区、设置里可切「跟随系统 / 浅色 / 深色」外观、断网提示条（讨论区断网时给一句人话而不是空白框）、新的 PWA 离线包（.lgstore：本站自托管游戏可在已安装的 App 里存到本地，断网也能玩）。性能：拼音库改为搜索时才按需下载（省 325KB），favicon 从 424KB 压到 8KB，公告不再后台每 5 分钟轮询。",
