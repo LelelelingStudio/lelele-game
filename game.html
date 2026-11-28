@@ -688,6 +688,7 @@
     <script src="/notice.js" defer></script>
     <script src="legal_generic.js" defer></script>
     <script src="/pager-nav.js" defer></script>
+    <script src="/lgstore.js" defer></script>
 
     <script>
         // 兜底：本地保留 escapeHtml，避免 Cloudflare 缓存旧版 common.js 时本页调用未定义函数而整页崩溃
@@ -745,8 +746,13 @@
 
         function updateLinks() {
             const suffix = isEn() ? '?lang=en' : '';
-            document.getElementById('backBtn').href = '/index.html' + suffix;
-            document.getElementById('errorBackBtn').href = '/index.html' + suffix;
+            // 这两个元素可能不存在（错误页已经换成统一失败动画，errorBackBtn 早已删掉），
+            // 早先写死 getElementById().href 会抛异常，把后面的 init() 整段中断，
+            // 表现就是「游戏详情页一直空白」。这里一律判空。
+            const back = document.getElementById('backBtn');
+            if (back) back.href = '/index.html' + suffix;
+            const errBack = document.getElementById('errorBackBtn');
+            if (errBack) errBack.href = '/index.html' + suffix;
         }
 
         // ---------- 媒体工具：区分图片 / 视频 ----------

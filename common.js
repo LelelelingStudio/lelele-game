@@ -1071,7 +1071,10 @@ function leleleOnReady(fn) {
                 setAnnModalCache(top3Ids);
             }
 
-            setInterval(() => {
+            // 之前是每 5 分钟无条件轮询，页面在后台挂着也一直请求；
+            // 改成只在「页面重新可见」时校验一次，后台不消耗网络
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState !== 'visible') return;
                 const currentClosed = getStorage('lelele_closed_announcements', {});
                 let changed = false;
                 const nowTime = Date.now();
@@ -1082,7 +1085,7 @@ function leleleOnReady(fn) {
                     setStorage('lelele_closed_announcements', currentClosed);
                     renderIndexAnnouncements(allValidAnnouncements.slice(0, 3), currentClosed);
                 }
-            }, 5 * 60 * 1000);
+            });
         } catch (e) {}
     }
 
@@ -1567,6 +1570,242 @@ function leleleOnReady(fn) {
     }
     function clearCustomBg() { try { localStorage.removeItem(BG_KEY); } catch (e) {} removeBgLayer(); toast(tr('已恢复默认背景', 'Default background restored')); }
 
+    // ==================== 外观模式：跟随系统 / 浅色 / 深色 ====================
+    const THEME_MODE_KEY = 'lelele_theme_mode';
+    function getThemeMode() {
+        try {
+            const v = localStorage.getItem(THEME_MODE_KEY);
+            return v === 'dark' || v === 'light' ? v : 'auto';
+        } catch (e) { return 'auto'; }
+    }
+    function applyThemeMode(mode) {
+        let dark = false;
+        if (mode === 'dark') dark = true;
+        else if (mode === 'auto') {
+            dark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        }
+        document.documentElement.classList.toggle('dark-mode', dark);
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', dark ? '#0b0d14' : '#4f46e5');
+        const btns = document.querySelectorAll('.lelele-theme-btn');
+        btns.forEach((b) => b.classList.toggle('active', b.dataset.themeMode === mode));
+    }
+    function initThemeMode() {
+        applyThemeMode(getThemeMode());
+        if (window.matchMedia) {
+            const mq = window.matchMedia('(prefers-color-scheme: dark)');
+            const onChange = () => { if (getThemeMode() === 'auto') applyThemeMode('auto'); };
+            if (mq.addEventListener) mq.addEventListener('change', onChange);
+            else if (mq.addListener) mq.addListener(onChange);
+        }
+    }
+
+    // ==================== 离线提示条 ====================
+    function initOfflineBanner() {
+        let bar = document.getElementById('leleleOfflineBar');
+        if (!bar) {
+            bar = document.createElement('div');
+            bar.id = 'leleleOfflineBar';
+            bar.className = 'lelele-offline-bar';
+            bar.setAttribute('role', 'status');
+            document.body.appendChild(bar);
+        }
+        let hideTimer = null;
+        function setBar(mode) {
+            clearTimeout(hideTimer);
+            if (mode === 'offline') {
+                bar.innerHTML = '<span class="zh-inline">📡 当前没有网络，先看看已经加载出来的内容</span><span class="en-inline">📡 You are offline — showing what is already loaded</span>';
+                bar.classList.add('active', 'is-offline');
+            } else {
+                bar.innerHTML = '<span class="zh-inline">✅ 网络已恢复</span><span class="en-inline">✅ Back online</span>';
+                bar.classList.add('active');
+                bar.classList.remove('is-offline');
+                hideTimer = setTimeout(() => bar.classList.remove('active'), 2600);
+            }
+        }
+        if (navigator.onLine === false) setBar('offline');
+        window.addEventListener('offline', () => setBar('offline'));
+        window.addEventListener('online', () => setBar('online'));
+    }
+
+    // ==================== Ctrl+K 命令面板 ====================
+    let paletteGames = null;
+    let palettePinyinPromise = null;
+    let paletteEls = null;
+
+    function loadPinyinLazy() {
+        if (window.pinyinPro) return Promise.resolve(window.pinyinPro);
+        if (palettePinyinPromise) return palettePinyinPromise;
+        palettePinyinPromise = new Promise((resolve) => {
+            const s = document.createElement('script');
+            s.src = '/vendor/pinyin-pro.js';
+            s.async = true;
+            s.onload = () => resolve(window.pinyinPro || null);
+            s.onerror = () => { palettePinyinPromise = null; resolve(null); };
+            document.head.appendChild(s);
+        });
+        return palettePinyinPromise;
+    }
+
+    function loadGamesForPalette() {
+        if (paletteGames) return Promise.resolve(paletteGames);
+        return window.leleleFetch('/lelegame_data.json', {}, 6000)
+            .then((r) => (r.ok ? r.json() : []))
+            .then((d) => {
+                paletteGames = Array.isArray(d) ? d : (d.games || []);
+                return paletteGames;
+            })
+            .catch(() => { paletteGames = []; return []; });
+    }
+
+    function buildPalette() {
+        if (paletteEls) return paletteEls;
+        const wrap = document.createElement('div');
+        wrap.className = 'lelele-cmdk';
+        wrap.setAttribute('role', 'dialog');
+        wrap.setAttribute('aria-label', tr('快速查找', 'Quick find'));
+        wrap.innerHTML =
+            '<div class="lelele-cmdk-backdrop"></div>' +
+            '<div class="lelele-cmdk-card">' +
+                '<input type="search" class="lelele-cmdk-input" autocomplete="off" ' +
+                    'placeholder="' + tr('搜游戏名、拼音、分类、作者…', 'Search games, pinyin, category, author…') + '">' +
+                '<ul class="lelele-cmdk-list" role="listbox"></ul>' +
+                '<div class="lelele-cmdk-foot">' +
+                    '<span>' + tr('↑↓ 选择 · 回车打开 · Esc 关闭', '↑↓ move · Enter open · Esc close') + '</span>' +
+                '</div>' +
+            '</div>';
+        document.body.appendChild(wrap);
+        paletteEls = {
+            wrap,
+            input: wrap.querySelector('.lelele-cmdk-input'),
+            list: wrap.querySelector('.lelele-cmdk-list')
+        };
+        wrap.querySelector('.lelele-cmdk-backdrop').addEventListener('click', closePalette);
+        paletteEls.input.addEventListener('input', () => renderPaletteResults());
+        paletteEls.input.addEventListener('keydown', onPaletteKey);
+        return paletteEls;
+    }
+
+    let paletteItems = [];
+    let paletteIndex = 0;
+
+    function renderPaletteResults() {
+        const { input, list } = paletteEls;
+        const q = input.value.trim().toLowerCase();
+        const isEn = getLang() === 'en';
+        let items = paletteGames || [];
+        if (q) {
+            items = items.filter((g) => {
+                const name = ((isEn ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en)) || '').toLowerCase();
+                const py = (g._py || g._pyq || '').toLowerCase();
+                const cat = ((isEn ? g.category_en : g.category_zh) || '').toLowerCase();
+                const au = String(g.author || '').toLowerCase();
+                return name.includes(q) || py.includes(q) || cat.includes(q) || au.includes(q);
+            }).slice(0, 30);
+        } else {
+            items = items.slice(0, 12);
+        }
+        paletteItems = items;
+        paletteIndex = 0;
+        if (!items.length) {
+            list.innerHTML = '<li class="lelele-cmdk-empty">' + tr('没找到，换个说法试试', 'Nothing found — try another word') + '</li>';
+            return;
+        }
+        list.innerHTML = items.map((g, i) => {
+            const name = isEn ? (g.name_en || g.name_zh) : (g.name_zh || g.name_en);
+            const cat = isEn ? (g.category_en || '') : (g.category_zh || '');
+            const icon = g.icon || '🎮';
+            return '<li class="lelele-cmdk-item' + (i === 0 ? ' active' : '') + '" data-i="' + i + '" role="option">' +
+                '<span class="cmdk-icon">' + escapeHtml(icon) + '</span>' +
+                '<span class="cmdk-name">' + escapeHtml(name) + '</span>' +
+                '<span class="cmdk-cat">' + escapeHtml(cat) + '</span>' +
+                '</li>';
+        }).join('');
+        list.querySelectorAll('.lelele-cmdk-item').forEach((el) => {
+            el.addEventListener('mouseenter', () => setPaletteIndex(parseInt(el.dataset.i, 10)));
+            el.addEventListener('click', () => goPaletteItem(parseInt(el.dataset.i, 10)));
+        });
+    }
+
+    function setPaletteIndex(i) {
+        if (!paletteEls) return;
+        paletteIndex = i;
+        paletteEls.list.querySelectorAll('.lelele-cmdk-item').forEach((el, idx) => {
+            el.classList.toggle('active', idx === i);
+        });
+    }
+
+    function goPaletteItem(i, toForum) {
+        const g = paletteItems[i];
+        if (!g) return;
+        closePalette();
+        const base = '/game.html?id=' + encodeURIComponent(g.id);
+        window.location.href = base + (toForum ? '&to=forum' : '');
+    }
+
+    function onPaletteKey(e) {
+        if (e.key === 'Escape') { e.preventDefault(); closePalette(); return; }
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (!paletteItems.length) return;
+            const next = e.key === 'ArrowDown'
+                ? (paletteIndex + 1) % paletteItems.length
+                : (paletteIndex - 1 + paletteItems.length) % paletteItems.length;
+            setPaletteIndex(next);
+            const el = paletteEls.list.querySelector('.lelele-cmdk-item.active');
+            if (el) el.scrollIntoView({ block: 'nearest' });
+            return;
+        }
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            goPaletteItem(paletteIndex, e.shiftKey);
+        }
+    }
+
+    function openPalette() {
+        buildPalette();
+        paletteEls.wrap.classList.add('active');
+        paletteEls.input.value = '';
+        paletteEls.input.focus();
+        if (!paletteGames) {
+            paletteEls.list.innerHTML = '<li class="lelele-cmdk-empty">' + tr('加载中…', 'Loading…') + '</li>';
+            loadGamesForPalette().then(() => {
+                if (!paletteEls.wrap.classList.contains('active')) return;
+                renderPaletteResults();
+            });
+        } else {
+            renderPaletteResults();
+        }
+        // 拼音只在真正开面板时才下载，平时全站不加载
+        loadPinyinLazy().then((pp) => {
+            if (!pp || !paletteGames) return;
+            paletteGames.forEach((g) => {
+                if (g._py) return;
+                const zh = g.name_zh || '';
+                try {
+                    g._py = pp.pinyin(zh, { toneType: 'none', type: 'array' }).join('');
+                    g._pyq = pp.pinyin(zh, { pattern: 'first', toneType: 'none', type: 'array' }).join('');
+                } catch (err) { g._py = ''; g._pyq = ''; }
+            });
+            if (paletteEls.wrap.classList.contains('active')) renderPaletteResults();
+        });
+    }
+
+    function closePalette() {
+        if (!paletteEls) return;
+        paletteEls.wrap.classList.remove('active');
+    }
+
+    function initCommandPalette() {
+        document.addEventListener('keydown', (e) => {
+            const key = e.key && e.key.toLowerCase();
+            if ((e.ctrlKey || e.metaKey) && key === 'k') {
+                e.preventDefault();
+                openPalette();
+            }
+        });
+    }
+
     function buildSettingsPanel() {
         let panel = document.getElementById('leleleSettings');
         if (panel) return panel;
@@ -1582,6 +1821,14 @@ function leleleOnReady(fn) {
             '<div class="lelele-settings-backdrop"></div>' +
             '<div class="lelele-settings-card">' +
                 '<div class="lelele-settings-head"><h3>' + tr('设置', 'Settings') + '</h3><button class="lelele-settings-close" aria-label="close">×</button></div>' +
+                '<div class="lelele-settings-section">' +
+                    '<div class="lelele-settings-label">' + tr('外观模式', 'Appearance') + '</div>' +
+                    '<div class="lelele-theme-row">' +
+                        '<button class="lelele-theme-btn' + (getThemeMode() === 'auto' ? ' active' : '') + '" data-theme-mode="auto">' + tr('跟随系统', 'System') + '</button>' +
+                        '<button class="lelele-theme-btn' + (getThemeMode() === 'light' ? ' active' : '') + '" data-theme-mode="light">' + tr('浅色', 'Light') + '</button>' +
+                        '<button class="lelele-theme-btn' + (getThemeMode() === 'dark' ? ' active' : '') + '" data-theme-mode="dark">' + tr('深色', 'Dark') + '</button>' +
+                    '</div>' +
+                '</div>' +
                 '<div class="lelele-settings-section">' +
                     '<div class="lelele-settings-label">' + tr('主题色', 'Accent color') + '</div>' +
                     '<div class="lelele-accent-row">' + ACCENT_PRESETS.map((c) => '<button class="lelele-accent-dot" data-accent="' + c + '" style="background:' + c + '" aria-label="' + c + '"></button>').join('') + '</div>' +
@@ -1617,6 +1864,11 @@ function leleleOnReady(fn) {
         document.body.appendChild(panel);
         panel.querySelector('.lelele-settings-backdrop').addEventListener('click', closeSettings);
         panel.querySelector('.lelele-settings-close').addEventListener('click', closeSettings);
+        panel.querySelectorAll('.lelele-theme-btn').forEach((b) => b.addEventListener('click', () => {
+            const mode = b.dataset.themeMode;
+            try { localStorage.setItem(THEME_MODE_KEY, mode); } catch (e) {}
+            applyThemeMode(mode);
+        }));
         panel.querySelectorAll('.lelele-accent-dot').forEach((dot) => dot.addEventListener('click', () => {
             applyAccent(dot.dataset.accent); localStorage.setItem(THEME_KEY, dot.dataset.accent);
             panel.querySelectorAll('.lelele-accent-dot').forEach((d) => d.classList.toggle('active', d === dot));
@@ -1758,10 +2010,15 @@ function leleleOnReady(fn) {
         initIslandNav();
         initCustomBg();
         initSettings();
+        initOfflineBanner();
+        initCommandPalette();
 
         const currentLang = getLang();
         document.querySelectorAll('.lang-btn').forEach(btn => { btn.classList.toggle('active', btn.dataset.langBtn === currentLang); });
     });
+
+    // 外观模式尽早生效，避免先亮一下白屏再变深色
+    initThemeMode();
 
     // ==================== 注册 PWA Service Worker ====================
     // 4.0.12：不再挂在 window.load（外部脚本曾把它无限推迟，导致 SW 迟迟注册不上、

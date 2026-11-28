@@ -1,4 +1,24 @@
 // ==================== 搜索与拼音匹配引擎 ====================
+// 拼音库不再全站同步加载：只有用户真的开始搜索时才按需下载一次。
+// 在此之前拼音匹配静默降级（汉字/英文照常匹配），不会报错、不会卡输入。
+(function () {
+    let loading = false;
+    window.leleleEnsurePinyin = function () {
+        if (typeof window.pinyinPro !== 'undefined') return Promise.resolve(true);
+        if (window.__lelelePinyinPromise) return window.__lelelePinyinPromise;
+        loading = true;
+        window.__lelelePinyinPromise = new Promise((resolve) => {
+            const s = document.createElement('script');
+            s.src = '/vendor/pinyin-pro.js';
+            s.async = true;
+            s.onload = () => { loading = false; resolve(typeof window.pinyinPro !== 'undefined'); };
+            s.onerror = () => { loading = false; window.__lelelePinyinPromise = null; resolve(false); };
+            document.head.appendChild(s);
+        });
+        return window.__lelelePinyinPromise;
+    };
+})();
+
 window.leleleSearch = function(query, games, lang, scope = 'all') {
     if (!query || query.trim() === '') {
         return games.map(g => ({ ...g, score: 0, matchHtml: null, matchType: null }));
@@ -6,6 +26,13 @@ window.leleleSearch = function(query, games, lang, scope = 'all') {
 
     const q = query.trim().toLowerCase();
     const results = [];
+
+    // 拼音库还没下载完：先触发下载，本次先用汉字/英文匹配（下次输入就带拼音了）
+    if (typeof pinyinPro === 'undefined' && typeof window.leleleEnsurePinyin === 'function') {
+        window.leleleEnsurePinyin().then((ok) => {
+            if (ok && typeof window.leleleOnPinyinReady === 'function') window.leleleOnPinyinReady();
+        });
+    }
 
     // 提取查询词的汉字和拼音特征
     let qPinyin = '', qFirst = '';

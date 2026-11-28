@@ -16,7 +16,7 @@
     var SITE_FORUM_SRC = 'https://www3.cbox.ws/box/?boxid=3562489&boxtag=Lmijw3';
     var THREAD_ORIGIN = 'https://game.leleleling.site';
     var RESIZER_SRC = 'https://my.remarkbox.com/static/js/iframe-resizer/iframeResizer.min.js';
-    var LOAD_TIMEOUT_MS = 20000;
+    var LOAD_TIMEOUT_MS = 10000;
 
     var resizerPromise = null;
 
@@ -158,6 +158,7 @@
     function mountSiteForum(section) {
         var box = section.querySelector('[data-forum-frame]');
         if (!box || box.dataset.forumState === 'mounted' || box.dataset.forumState === 'pending') return;
+        if (isOffline()) { offlineNotice(box); return; }
         box.dataset.forumState = 'mounted';
 
         var iframe = attach(box, SITE_FORUM_SRC, t('了了了游 · 全站论坛', 'lelele Game · Site forum'));
@@ -170,11 +171,37 @@
 
     function currentGameId() {
         try {
-            var id = new URLSearchParams(window.location.search).get('id');
-            return id ? String(id).trim() : '';
+            var params = new URLSearchParams(window.location.search);
+            // 参数名不区分大小写：?id=1 / ?ID=1 / ?Id=1 都认，避免直达链接失效
+            var keys = ['id', 'ID', 'Id', 'iD'];
+            for (var i = 0; i < keys.length; i++) {
+                var v = params.get(keys[i]);
+                if (v && String(v).trim()) return String(v).trim();
+            }
+            return '';
         } catch (e) {
             return '';
         }
+    }
+
+    // 没网的时候：直达链接/滚动到讨论区都不去拉 iframe，直接给一句人话，
+    // 有缓存也不指望——第三方留言板本身就是联网内容，硬挂只会是空白框。
+    function offlineNotice(box) {
+        showLoading(
+            box,
+            '<div class="forum-offline">' +
+            '<span style="font-size:1.6rem">📡</span>' +
+            '<p style="margin:0">' +
+            '<span class="zh-inline">当前没有网络，讨论区打不开。连上网后再刷新这一页就行。</span>' +
+            '<span class="en-inline">You are offline, so the discussion cannot load. Reconnect and refresh this page.</span>' +
+            '</p>' +
+            '</div>'
+        );
+        box.dataset.forumState = 'offline';
+    }
+
+    function isOffline() {
+        return typeof navigator !== 'undefined' && navigator.onLine === false;
     }
 
     function currentGameName() {
@@ -215,6 +242,7 @@
             section.setAttribute('hidden', 'hidden');
             return;
         }
+        if (isOffline()) { offlineNotice(box); return; }
         box.dataset.forumState = 'pending';
 
         waitForGameName(function (name) {
@@ -380,6 +408,18 @@
             })(sections[i]);
         }
         openForumFromLink();
+
+        // 恢复联网后：把之前因为断网而没挂上的讨论区自己补挂一次，不用用户手动刷新
+        window.addEventListener('online', function () {
+            var boxes = document.querySelectorAll('[data-forum-frame][data-forum-state="offline"]');
+            for (var j = 0; j < boxes.length; j++) {
+                var section = boxes[j].closest('[data-forum-type]');
+                if (!section) continue;
+                boxes[j].dataset.forumState = '';
+                if (section.getAttribute('data-forum-type') === 'site') mountSiteForum(section);
+                else mountGameForum(section);
+            }
+        });
     });
 
     window.LeleleForum = Object.freeze({

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="description" content="了了了游 · 已存到本地的离线游戏">
+    <title>我的离线游戏 · 了了了游</title>
+    <link rel="stylesheet" href="/common.css">
+    <style>
+        .lg-wrap { max-width: 860px; margin: 0 auto; padding: 24px 18px 80px; }
+        .lg-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+        .lg-head h1 { font-size: 1.35rem; margin: 0; }
+        .lg-sub { color: #64748b; font-size: .88rem; margin: 0 0 20px; line-height: 1.7; }
+        .lg-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-left: auto; }
+        .lg-btn { appearance: none; border: 1px solid rgba(79,70,229,.3); background: #fff; color: #4f46e5;
+            font-family: inherit; font-weight: 700; font-size: .85rem; padding: 9px 16px; border-radius: 999px; cursor: pointer; }
+        .lg-btn.primary { background: #4f46e5; border-color: #4f46e5; color: #fff; }
+        .lg-list { display: grid; gap: 12px; }
+        .lg-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px;
+            background: #fff; box-shadow: 0 4px 16px rgba(15,23,42,.06); }
+        .lg-icon { font-size: 1.6rem; }
+        .lg-info { flex: 1; min-width: 0; }
+        .lg-name { font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lg-meta { color: #94a3b8; font-size: .76rem; margin-top: 3px; }
+        .lg-empty { padding: 40px 16px; text-align: center; color: #64748b; background: #fff; border-radius: 14px; }
+        .lg-player { position: fixed; inset: 0; z-index: 9998; background: #0b0d14; display: none; }
+        .lg-player.active { display: block; }
+        .lg-player iframe { width: 100%; height: 100%; border: 0; }
+        .lg-player-bar { position: absolute; top: 0; left: 0; right: 0; height: 48px; display: flex; align-items: center;
+            gap: 12px; padding: 0 16px; background: rgba(11,13,20,.82); color: #fff; font-size: .85rem; font-weight: 700; }
+        .lg-player-close { margin-left: auto; appearance: none; border: 0; background: #1f2937; color: #fff;
+            border-radius: 999px; padding: 7px 16px; cursor: pointer; font-family: inherit; font-weight: 700; }
+        html.dark-mode .lg-item, html.dark-mode .lg-empty { background: #151a26; }
+        html.dark-mode .lg-btn { background: #151a26; color: #c7d2fe; border-color: #2b3550; }
+        .lgstore-tip { position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px); opacity: 0;
+            background: #0f172a; color: #fff; padding: 10px 18px; border-radius: 999px; font-size: .85rem;
+            font-weight: 700; z-index: 9999; transition: all .28s ease; max-width: 86vw; }
+        .lgstore-tip.show { opacity: 1; transform: translate(-50%, 0); }
+        .btn-lgstore { background: rgba(16,185,129,.12); color: #059669; box-shadow: none; }
+        html.dark-mode .btn-lgstore { color: #6ee7b7; }
+    </style>
+</head>
+<body>
+    <div class="lg-wrap">
+        <div class="lg-head">
+            <h1><span class="zh-inline">📦 我的离线游戏</span><span class="en-inline">📦 My offline games</span></h1>
+            <div class="lg-actions">
+                <button type="button" class="lg-btn primary" id="lgImportBtn">
+                    <span class="zh-inline">导入 .lgstore</span><span class="en-inline">Import .lgstore</span>
+                </button>
+                <a class="lg-btn" href="/index.html">
+                    <span class="zh-inline">回首页</span><span class="en-inline">Home</span>
+                </a>
+            </div>
+        </div>
+        <p class="lg-sub">
+            <span class="zh-inline">已经存进这台设备的游戏会出现在下面，断网也能直接玩。换设备、清缓存后需要重新存一次。</span>
+            <span class="en-inline">Games saved on this device show up below and run offline. They do not carry over to another device or after clearing browser data.</span>
+        </p>
+        <div class="lg-list" id="lgList"></div>
+    </div>
+
+    <div class="lg-player" id="lgPlayer">
+        <div class="lg-player-bar">
+            <span id="lgPlayerName"></span>
+            <button type="button" class="lg-player-close" id="lgPlayerClose">
+                <span class="zh-inline">关闭</span><span class="en-inline">Close</span>
+            </button>
+        </div>
+        <iframe id="lgFrame" title="离线游戏" sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-orientation-lock"></iframe>
+    </div>
+
+    <input type="file" id="lgFileInput" accept=".lgstore,application/json" hidden>
+
+    <script src="/common.js" defer></script>
+    <script src="/lgstore.js" defer></script>
+    <script>
+    window.addEventListener('load', function () {
+        var Store = window.LeleleStore;
+        var listEl = document.getElementById('lgList');
+        var isEn = function () { return document.documentElement.getAttribute('data-lang') === 'en'; };
+        var t = function (zh, en) { return isEn() ? en : zh; };
+
+        function fmtSize(n) {
+            if (!n) return '';
+            var kb = Math.round(n / 1024);
+            return kb > 1024 ? (kb / 1024).toFixed(1) + ' MB' : kb + ' KB';
+        }
+
+        function render(list) {
+            if (!list.length) {
+                listEl.innerHTML = '<div class="lg-empty">' +
+                    (isEn() ? 'Nothing saved yet. Open a game and tap “Save offline” inside the installed app.'
+                            : '还没有存过游戏。在已安装的 App 里打开一款游戏，点「存到本地玩」就行。') +
+                    '</div>';
+                return;
+            }
+            listEl.innerHTML = list.map(function (p) {
+                var name = isEn() ? (p.name_en || p.name_zh) : (p.name_zh || p.name_en);
+                var when = (p.savedAt || '').slice(0, 16).replace('T', ' ');
+                return '<div class="lg-item" data-id="' + p.id + '">' +
+                    '<span class="lg-icon">' + (p.icon || '🎮') + '</span>' +
+                    '<div class="lg-info"><div class="lg-name">' + (name || p.id) + '</div>' +
+                    '<div class="lg-meta">' + when + ' · ' + fmtSize(p.size) + '</div></div>' +
+                    '<button type="button" class="lg-btn primary" data-play="' + p.id + '">' + (isEn() ? 'Play' : '开玩') + '</button>' +
+                    '<button type="button" class="lg-btn" data-del="' + p.id + '">' + (isEn() ? 'Remove' : '删除') + '</button>' +
+                    '</div>';
+            }).join('');
+        }
+
+        async function refresh() {
+            if (!Store) return;
+            render(await Store.listSaved());
+        }
+
+        listEl.addEventListener('click', async function (e) {
+            var playBtn = e.target.closest('[data-play]');
+            var delBtn = e.target.closest('[data-del]');
+            if (playBtn) {
+                var obj = await Store.getSaved(playBtn.dataset.play);
+                if (!obj) return;
+                var html = Store.b64ToText(obj.payload);
+                var blob = new Blob([html], { type: 'text/html' });
+                var url = URL.createObjectURL(blob);
+                document.getElementById('lgPlayerName').textContent = (isEn() ? (obj.name_en || obj.name_zh) : (obj.name_zh || obj.name_en)) || obj.id;
+                document.getElementById('lgFrame').src = url;
+                document.getElementById('lgPlayer').classList.add('active');
+            }
+            if (delBtn) {
+                if (!confirm(isEn() ? 'Remove this offline copy?' : '删除这份离线副本？')) return;
+                await Store.removeSaved(delBtn.dataset.del);
+                refresh();
+            }
+        });
+
+        document.getElementById('lgPlayerClose').addEventListener('click', function () {
+            var frame = document.getElementById('lgFrame');
+            frame.src = 'about:blank';
+            document.getElementById('lgPlayer').classList.remove('active');
+        });
+
+        var input = document.getElementById('lgFileInput');
+        document.getElementById('lgImportBtn').addEventListener('click', function () { input.click(); });
+        input.addEventListener('change', async function () {
+            var file = input.files && input.files[0];
+            if (!file) return;
+            try {
+                var obj = await Store.importFile(file);
+                await refresh();
+                if (typeof window.toast === 'function') window.toast(isEn() ? 'Imported' : '导入成功');
+            } catch (err) {
+                if (typeof window.toast === 'function') window.toast(isEn() ? 'That file is not a valid .lgstore' : '这个文件不是有效的 .lgstore');
+            }
+            input.value = '';
+        });
+
+        refresh();
+    });
+    </script>
+</body>
+</html>

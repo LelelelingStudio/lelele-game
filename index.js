@@ -6,16 +6,24 @@ function leleleOnReady(fn) {
     } else { fn(); }
 }
 // ==================== 全局工具函数 ====================
-// 兜底：本地保留 escapeHtml / getFavorites / saveFavorites，避免 Cloudflare 缓存旧版 common.js 时本页调用未定义函数而整页崩溃
-function escapeHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-}
+// 转义统一走 common.js 的 window.escapeHtml（唯一实现）。
+// 注意：index.js 是普通 <script>，顶层的 function 声明会覆盖 window.escapeHtml，
+// 所以这里不能再写 function escapeHtml() 去调 window.escapeHtml —— 那会变成
+// 自己调自己的死递归（真实踩过）。改成「取现成的实现，没有才用本地兜底」。
+(function () {
+    function localEscape(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+    window.leleleEscapeHtml = (typeof window.escapeHtml === 'function') ? window.escapeHtml : localEscape;
+})();
+// 全局名指向同一实现（common.js 已定义就是它，没有则用本地兜底）
+var escapeHtml = window.leleleEscapeHtml;
 
 function getFavorites() {
     try { return JSON.parse(localStorage.getItem('lelele_favs') || '[]'); } catch (e) { return []; }
@@ -640,10 +648,17 @@ function renderGameCard(item, isEn, showAuthor) {
     const iconG = Object.assign({}, g, { icon: g.icon || fallbackIcon });
     card.innerHTML = `
         <button type="button" class="card-watch${marked ? ' marked' : ''}" data-watch-id="${escapeHtml(g.id)}" aria-label="${marked ? '移出想玩清单' : '加入想玩清单'}" title="${marked ? '移出想玩清单' : '加入想玩清单'}">${marked ? '🔖' : '📌'}</button>
+        <a class="card-discuss" href="game.html?id=${encodeURIComponent(g.id)}&to=forum" aria-label="去讨论这款游戏" title="去讨论这款游戏">💬</a>
         ${coverMediaHtml(iconG, 'game-icon game-icon-cover')}
         <div class="game-name">${finalHtmlName}</div>
         ${authorHtml}
     `;
+    // 💬 直接进这款游戏的讨论区：不要触发卡片本身的预览弹窗
+    const discussEntry = card.querySelector('.card-discuss');
+    if (discussEntry) {
+        discussEntry.addEventListener('click', (e) => { e.stopPropagation(); });
+        discussEntry.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') e.stopPropagation(); });
+    }
     const watchBtn = card.querySelector('.card-watch');
     watchBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -757,6 +772,11 @@ searchInput.addEventListener('input', (e) => {
         if (val.trim()) pushSearchHistory(val.trim());
     }, 200);
 });
+
+// 拼音库按需下载完成后：用户还在同一个关键词上就重跑一次，这次带上拼音匹配
+window.leleleOnPinyinReady = function () {
+    if (searchKeyword.trim()) { searchPage = 1; renderGames(); }
+};
 
 searchClearBtn.addEventListener('click', () => {
     searchInput.value = '';

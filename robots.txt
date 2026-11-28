@@ -1,6 +1,9 @@
 User-agent: *
 Allow: /
 Disallow: /dashboard.html
+Disallow: /lgstore.html
+Disallow: /profile.html
+Disallow: /user-login.html
 Disallow: /login.html
 Disallow: /gamecheck.html
 Disallow: /github/admin.html
