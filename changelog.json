@@ -1,5 +1,11 @@
 [
   {
+    "version": "4.7.6",
+    "date": "2026-11-28",
+    "content_zh": "4.7.6（分支 feat/all-frontend-todo）：把剩下能纯前端做掉的全做了。① 新增「游戏守则历史版本」索引页 rules-history.html，现行 5.1.0 与 4.0.0 / 4.0.1 / 4.0.2 归档都能一页找到，守则页尾也加了入口；② 修了「在首页切深色、进个人中心/登录页又变白」的问题——新增 theme-init.js，在样式加载前就把深色定下来，13 个页面接上，顺手把滚动条和输入框也交给系统配色；③ 深色下几个白底补丁（周榜小卡、论坛外框）补齐；④ 冬季雪树 860KB 换成 WebP 57KB，苹果桌面图标从 2190×2190 / 232KB 缩到 180×180 / 22KB；⑤ 新增双语一致性检查脚本 scripts/check-i18n.mjs，一条命令能查出「只写中文没写英文」的漏翻译。全部只改前端，主分支线上样式不受影响。",
+    "content_en": "4.7.6 (branch feat/all-frontend-todo): everything remaining that can be done purely in the front end. A “Rules history” index page (rules-history.html) now lists the current 5.1.0 plus the 4.0.0 / 4.0.1 / 4.0.2 archives, linked from the rules footer. Dark mode no longer drops back to white when you move from the homepage into the profile or login pages — a tiny theme-init.js decides the theme before styles load, wired into 13 pages, and native controls follow the system colour scheme. A few white patches in dark mode (weekly cards, forum frame) are fixed. The winter tree drops from 860KB to 57KB as WebP, and the Apple touch icon from 2190×2190 / 232KB to 180×180 / 22KB. Added scripts/check-i18n.mjs, which flags any Chinese-only string missing its English pair. Front end only — the live main branch is untouched."
+  },
+  {
     "version": "4.7.5",
     "date": "2026-11-28",
     "content_zh": "4.7.5：分享图升级。① 作者位置不再印数字 id（以前会显示成「作者 1」），改成自动查作者昵称（那一批显示「作者 了了了岭工作室」），查不到就不写作者、不印数字；② 下载前弹一个小面板，可以先挑配色——紫夜 / 深海 / 青玉 / 森野 / 落日 / 纸白 六套，选中即时预览，右下角固定带「了了了游」印章水印和域名，下载文件名带配色名（如「爱种地的农民-分享图-sunset.jpg」）；③ 选的配色会记住，下次打开还是上次那套。",

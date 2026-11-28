@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+    <script>
+        (function() {
+            try {
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlLang = urlParams.get('lang');
+                var storedLang = localStorage.getItem('lelele_lang');
+                var lang;
+                if (urlLang === 'en' || urlLang === 'zh') lang = urlLang;
+                else if (storedLang === 'en' || storedLang === 'zh') lang = storedLang;
+                else {
+                    var navLang = (navigator.language || navigator.userLanguage || 'zh').toLowerCase();
+                    if (navLang.indexOf('zh') === 0) lang = 'zh';
+                    else if (navLang.indexOf('en') === 0) lang = 'en';
+                    else lang = 'zh';
+                }
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+            } catch (e) {}
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏守则历史版本 · Rules History</title>
+    <meta name="description" content="了了了游游戏守则各版本索引，可查阅当前守则与历史归档。Index of Lelele Game rules versions.">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <script src="/theme-init.js"></script>
+    <link rel="stylesheet" href="/common.css">
+    <script src="/boot.js"></script>
+
+    <style>
+        .zh-text, .en-text { display: none; }
+        html[data-lang="zh"] .zh-text { display: block; }
+        html[data-lang="zh"] .zh-inline { display: inline; }
+        html[data-lang="en"] .en-text { display: block; }
+        html[data-lang="en"] .en-inline { display: inline; }
+        html[data-lang="zh"] .en-text, html[data-lang="zh"] .en-inline { display: none; }
+        html[data-lang="en"] .zh-text, html[data-lang="en"] .zh-inline { display: none; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            line-height: 1.8;
+            padding: 0 1.5rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background .3s, color .3s;
+        }
+        .container {
+            max-width: 800px; width: 100%; margin: 1.2rem auto 0;
+            background: var(--card-bg); border-radius: 36px; padding: 3rem 3.5rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.04); flex: 1;
+            border: 1px solid var(--card-border);
+        }
+        .back-home {
+            display: inline-flex; align-items: center; gap: .4rem; font-size: .9rem;
+            color: var(--primary); text-decoration: none; font-weight: 600;
+            margin-bottom: 1.2rem; padding: .4rem 1rem; border-radius: 30px;
+            background: rgba(79,70,229,.06); border: 1px solid rgba(79,70,229,.12);
+        }
+        h1 { font-size: 2rem; margin-bottom: .5rem; }
+        .subhead { color: var(--text-muted); margin-bottom: 1.6rem; padding-bottom: 1rem; border-bottom: 1px solid var(--card-border); font-size: .95rem; }
+        h2 { font-size: 1.15rem; margin: 2rem 0 .8rem; padding-left: .55rem; border-left: 4px solid var(--primary); }
+        p { margin: .6rem 0; }
+        a { color: var(--primary); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .rules-list { list-style: none; margin: .4rem 0 0; }
+        .rules-item {
+            display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px;
+            border: 1px solid var(--card-border); border-radius: 14px; margin-bottom: 10px;
+            background: rgba(148,163,184,.04);
+        }
+        .rules-item--current { border-color: rgba(79,70,229,.35); background: rgba(79,70,229,.06); }
+        .rules-tag {
+            flex: 0 0 auto; font-size: .72rem; font-weight: 800; letter-spacing: .02em;
+            padding: 3px 9px; border-radius: 8px; background: rgba(148,163,184,.18);
+            color: var(--text-muted);
+        }
+        .rules-tag--current { background: rgba(79,70,229,.16); color: #4338ca; }
+        .rules-body { min-width: 0; flex: 1; }
+        .rules-name { font-weight: 700; font-size: .95rem; }
+        .rules-meta { font-size: .82rem; color: var(--text-muted); margin-top: 2px; }
+        .rules-note { font-size: .86rem; color: var(--text-main); margin-top: 6px; }
+        .rules-empty { font-size: .85rem; color: var(--text-muted); padding: 12px 16px; border: 1px dashed var(--card-border); border-radius: 12px; }
+        .footnote { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--card-border); font-size: .82rem; color: var(--text-muted); }
+
+        .lang-bar { width: 100%; max-width: 800px; margin: 0 auto; display: flex; justify-content: flex-end; padding: .8rem 0 0; }
+        .lang-switch { display: inline-flex; background: rgba(148,163,184,.15); border-radius: 30px; padding: 3px; }
+        .lang-btn { padding: 6px 16px; border: none; border-radius: 24px; background: transparent; cursor: pointer; font-size: .85rem; font-weight: 600; color: var(--text-muted); }
+        .lang-btn.active { background: var(--primary); color: #fff; }
+
+        @media (max-width: 640px) {
+            body { padding: 0 .8rem 2rem; }
+            .container { padding: 2rem 1.4rem; border-radius: 24px; }
+            h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lang-bar">
+        <div class="lang-switch" role="group" aria-label="Language">
+            <button type="button" class="lang-btn" data-lang-btn="zh">中文</button>
+            <button type="button" class="lang-btn" data-lang-btn="en">English</button>
+        </div>
+    </div>
+
+    <main class="container">
+        <a href="/game_rules.html" class="back-home">
+            <span aria-hidden="true">←</span>
+            <span class="zh-inline">返回游戏守则</span><span class="en-inline">Back to rules</span>
+        </a>
+
+        <h1>
+            <span class="zh-inline">游戏守则历史版本</span><span class="en-inline">Rules History</span>
+        </h1>
+        <p class="subhead">
+            <span class="zh-inline">每个版本对应一份守则原文。改版时旧版本不删除，只归档，方便作者对照自己投稿时适用的规则。</span>
+            <span class="en-inline">Every version keeps its own copy. Old versions are never deleted — they are archived so authors can check the rules that applied when they submitted.</span>
+        </p>
+
+        <h2>
+            <span class="zh-inline">当前生效</span><span class="en-inline">In effect now</span>
+        </h2>
+        <ul class="rules-list">
+            <li class="rules-item rules-item--current">
+                <span class="rules-tag rules-tag--current">5.1.0</span>
+                <div class="rules-body">
+                    <div class="rules-name">
+                        <a href="/game_rules.html">
+                            <span class="zh-inline">游戏守则 5.1.0（现行）</span><span class="en-inline">Game Rules 5.1.0 (current)</span>
+                        </a>
+                    </div>
+                    <div class="rules-meta">
+                        <span class="zh-inline">2026 年 11 月 28 日生效</span><span class="en-inline">Effective 28 Nov 2026</span>
+                    </div>
+                    <div class="rules-note">
+                        <span class="zh-inline">核心变化：自 2026 年 11 月 28 日起，新投稿的游戏须接入「了了了游开发者 SDK」。5.0.0 版要求的所有游戏必须具备用户协议、隐私政策与服务条款，继续有效。</span>
+                        <span class="en-inline">Key change: games submitted on or after 28 Nov 2026 must integrate the Lelele Game Developer SDK. The 5.0.0 requirement — every game must provide a user agreement, privacy policy and terms of service — still applies.</span>
+                    </div>
+                </div>
+            </li>
+        </ul>
+
+        <h2>
+            <span class="zh-inline">历史归档</span><span class="en-inline">Archived versions</span>
+        </h2>
+        <ul class="rules-list">
+            <li class="rules-item">
+                <span class="rules-tag">4.0.2</span>
+                <div class="rules-body">
+                    <div class="rules-name">
+                        <a href="/game_rules4-0-2.html">
+                            <span class="zh-inline">游戏守则 4.0.2</span><span class="en-inline">Game Rules 4.0.2</span>
+                        </a>
+                    </div>
+                    <div class="rules-meta">
+                        <span class="zh-inline">归档版本 · 只读</span><span class="en-inline">Archived · read only</span>
+                    </div>
+                </div>
+            </li>
+            <li class="rules-item">
+                <span class="rules-tag">4.0.1</span>
+                <div class="rules-body">
+                    <div class="rules-name">
+                        <a href="/game_rules4-0-1.html">
+                            <span class="zh-inline">游戏守则 4.0.1</span><span class="en-inline">Game Rules 4.0.1</span>
+                        </a>
+                    </div>
+                    <div class="rules-meta">
+                        <span class="zh-inline">归档版本 · 只读</span><span class="en-inline">Archived · read only</span>
+                    </div>
+                </div>
+            </li>
+            <li class="rules-item">
+                <span class="rules-tag">4.0.0</span>
+                <div class="rules-body">
+                    <div class="rules-name">
+                        <a href="/game_rules4-0-0.html">
+                            <span class="zh-inline">游戏守则 4.0.0</span><span class="en-inline">Game Rules 4.0.0</span>
+                        </a>
+                    </div>
+                    <div class="rules-meta">
+                        <span class="zh-inline">归档版本 · 只读</span><span class="en-inline">Archived · read only</span>
+                    </div>
+                </div>
+            </li>
+            <li class="rules-empty">
+                <span class="zh-inline">4.1 – 5.0 期间的版本没有单独存页归档，相关条款已并入现行 5.1.0，以现行版本为准。</span>
+                <span class="en-inline">Versions between 4.1 and 5.0 were not archived as separate pages; their clauses were merged into the current 5.1.0, which is authoritative.</span>
+            </li>
+        </ul>
+
+        <p class="footnote">
+            <span class="zh-inline">有疑问可发邮件到 <a href="mailto:leleleling@outlook.com">leleleling@outlook.com</a>，或在 <a href="/#forum">全站论坛</a> 留言。</span>
+            <span class="en-inline">Questions? Email <a href="mailto:leleleling@outlook.com">leleleling@outlook.com</a> or post in the <a href="/#forum">site forum</a>.</span>
+        </p>
+    </main>
+
+    <script>
+        (function () {
+            function applyLang(lang) {
+                document.documentElement.setAttribute('data-lang', lang);
+                document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+                document.querySelectorAll('[data-lang-btn]').forEach(function (b) {
+                    b.classList.toggle('active', b.getAttribute('data-lang-btn') === lang);
+                });
+            }
+            var cur = document.documentElement.getAttribute('data-lang') || 'zh';
+            applyLang(cur);
+            document.querySelectorAll('[data-lang-btn]').forEach(function (b) {
+                b.addEventListener('click', function () {
+                    var lang = b.getAttribute('data-lang-btn');
+                    try { localStorage.setItem('lelele_lang', lang); } catch (e) {}
+                    applyLang(lang);
+                });
+            });
+        })();
+    </script>
+</body>
+</html>

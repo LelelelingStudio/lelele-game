@@ -1578,3 +1578,21 @@ html.dark-mode .for-you-author { color: #8b96ab; }
 .btn-sharecard { background: rgba(129,140,248,.14); color: #4338ca; box-shadow: none; }
 .btn-sharecard:hover { background: rgba(129,140,248,.24); }
 html.dark-mode .btn-sharecard { color: #a5b4fc; }
+
+/* ========== 第四批（分支 feat/all-frontend-todo）深色补齐 ========== */
+/* 周榜小卡：原来固定白底，深色下像补丁 */
+html.dark-mode .weekly-card {
+    background: rgba(30, 41, 59, .9);
+    color: #e2e8f0;
+    border: 1px solid rgba(148, 163, 184, .18);
+}
+/* 论坛容器：iframe 内部是第三方的改不了，但外框底不该留白 */
+html.dark-mode .forum-body {
+    background: #0f172a;
+    border-color: rgba(148, 163, 184, .22);
+}
+html.dark-mode .forum-tip {
+    background: rgba(129, 140, 248, .12);
+    border-color: rgba(129, 140, 248, .24);
+    color: #c7d2fe;
+}
