@@ -28,7 +28,9 @@
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
     <link rel="stylesheet" href="/common.css">
+    <link rel="stylesheet" href="/loader.css">
     <script src="/boot.js"></script>
+    <script src="/loader.js" defer></script>
 
     <style>
         .zh-text, .en-text { display: none; }
@@ -132,7 +134,7 @@
         <div class="notice-card en-text">
             ℹ️ <strong>Platform generic fallback:</strong> This page applies to games that have not yet submitted dedicated legal agreements. If a dedicated link is provided on the game detail page, that link takes precedence. From November 15, 2026, games without dedicated agreements automatically use this version.
         </div>
-        <div id="genRoot" class="gen-section" aria-live="polite"><p class="gen-loading">正在载入协议正文… / Loading…</p></div>
+        <div id="genRoot" class="gen-section" aria-live="polite" data-loader data-loader-compact="1"><p class="gen-loading">正在载入协议正文… / Loading…</p></div>
         <div id="genScript"></div>
         <script>
             (function () {
@@ -148,7 +150,9 @@
                     var lang = document.documentElement.getAttribute('data-lang') === 'en' ? 'en' : 'zh';
                     if (!root) return;
                     if (!data || !data[lang] || !data[lang][KEY]) {
-                        root.textContent = lang === 'zh' ? '协议正文暂时无法载入，请刷新重试。' : 'Unable to load the agreement. Please refresh.';
+                        var em = lang === 'zh' ? '协议正文暂时无法载入，请刷新重试。' : 'Unable to load the agreement. Please refresh.';
+                        if (window.LeleleLoader) window.LeleleLoader.fail(root, { text: em, onRetry: function(){ window.leleleRenderGeneric && window.leleleRenderGeneric(); }, compact: true });
+                        else root.textContent = em;
                         return;
                     }
                     var doc = data[lang][KEY];
@@ -172,6 +176,7 @@
                         '<a href="generic_tos.html' + (lang === 'en' ? '?lang=en' : '') + '">' + (lang === 'zh' ? '⚖️ 服务条款' : '⚖️ Terms') + '</a>' +
                         '<a href="legal_templates.html' + (lang === 'en' ? '?lang=en' : '') + '">' + (lang === 'zh' ? '📄 协议模板中心' : '📄 Template Center') + '</a>' +
                         '</div>');
+                    if (window.LeleleLoader) window.LeleleLoader.finish();
                     root.innerHTML = parts.join('');
                     root.className = 'gen-section';
                 }

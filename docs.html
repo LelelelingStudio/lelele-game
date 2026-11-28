@@ -27,7 +27,9 @@
     <meta name="description" content="了了了游站点导航与全部页面文档索引。Documentation index and site navigation for Lelele Game.">
     
     <link rel="stylesheet" href="/common.css">
+    <link rel="stylesheet" href="/loader.css">
     <script src="/boot.js"></script>
+    <script src="/loader.js" defer></script>
 
     <style>
         .zh-text, .en-text { display: none; }
@@ -569,6 +571,7 @@
             if (!directoryStatus) return;
             const status = document.getElementById('gameDirectoryStatus');
             if (!status) return;
+            if (status.querySelector('.ll-fail, .ll-loader')) return; // 失败/加载动画由模块管理，别覆盖
             const isEn = document.documentElement.getAttribute('data-lang') === 'en';
             status.textContent = isEn
                 ? directoryStatus.en
@@ -583,7 +586,8 @@
             const localDirectory = document.getElementById('localGameDirectory');
 
             directoryStatus = { zh: '正在加载游戏目录…', en: 'Loading games…' };
-            updateDirectoryStatus();
+            if (window.LeleleLoader) window.LeleleLoader.show(status, { compact: true });
+            else updateDirectoryStatus();
             try {
                 const response = await fetch('/lelegame_data.json', { cache: 'no-store' });
                 if (!response.ok) throw new Error('HTTP ' + response.status);
@@ -634,18 +638,25 @@
                     zh: '共 ' + games.length + ' 款游戏 · ' + localCount + ' 款站内游戏',
                     en: games.length + ' games · ' + localCount + ' in-site builds'
                 };
+                if (window.LeleleLoader) { window.LeleleLoader.finish(); window.LeleleLoader.hide(status); }
                 status.setAttribute('role', 'status');
                 status.setAttribute('aria-live', 'polite');
                 updateDirectoryStatus();
             } catch (error) {
                 console.error('[docs] failed to load game directory', error);
-                directoryStatus = {
+                const failMsg = {
                     zh: '游戏目录加载失败，请刷新页面重试。',
                     en: 'Could not load the game directory. Please refresh and try again.'
                 };
+                directoryStatus = failMsg;
                 status.setAttribute('role', 'status');
                 status.setAttribute('aria-live', 'polite');
-                updateDirectoryStatus();
+                if (window.LeleleLoader) {
+                    window.LeleleLoader.fail(status, {
+                        text: document.documentElement.getAttribute('data-lang') === 'en' ? failMsg.en : failMsg.zh,
+                        onRetry: renderGameDirectory, compact: true
+                    });
+                } else updateDirectoryStatus();
             }
         }
 

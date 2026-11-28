@@ -30,7 +30,9 @@
     <meta name="description" content="了了了游玩家个人中心：查看资料与收藏的游戏。Lelele Game player profile and favorites.">
 
     <link rel="stylesheet" href="/common.css">
+    <link rel="stylesheet" href="/loader.css">
     <script src="/boot.js"></script>
+    <script src="/loader.js" defer></script>
     <script defer src="/vendor/supabase-js.js"></script>
 
     <style>
@@ -155,7 +157,7 @@
             </div>
         </div>
 
-        <div class="loading" id="loadingBox">
+        <div class="loading" id="loadingBox" data-loader data-loader-compact="1">
             <span class="zh-inline">正在加载…</span><span class="en-inline">Loading…</span>
         </div>
 
@@ -371,6 +373,7 @@
                 devLink.hidden = true;
             }
 
+            if (window.LeleleLoader) window.LeleleLoader.finish();
             document.getElementById('loadingBox').hidden = true;
             document.getElementById('profileRoot').hidden = false;
 

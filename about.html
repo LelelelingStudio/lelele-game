@@ -30,9 +30,11 @@
     
     <!-- 引入全局样式 -->
     <link rel="stylesheet" href="/common.css">
+    <link rel="stylesheet" href="/loader.css">
     
     <!-- 统计代码 -->
     <script src="/boot.js"></script>
+    <script src="/loader.js" defer></script>
     
     <style>
         /* ===== 多语言控制 ===== */
@@ -614,7 +616,7 @@
                 <span class="en-inline">📝 Changelog</span>
             </div>
             <div class="changelog-box">
-                <div class="changelog-sidebar" id="changelogList">
+                <div class="changelog-sidebar" id="changelogList" data-loader data-loader-compact="1">
                     <div class="changelog-loading">Loading...</div>
                 </div>
                 <div class="changelog-content" id="changelogDetail">
@@ -720,13 +722,18 @@
                 if (!res.ok) throw new Error('HTTP ' + res.status);
                 changelogData = await res.json();
                 
+                const LL = window.LeleleLoader;
                 if (changelogData.length > 0) {
-                    renderChangelog();
+                    if (LL) LL.finish();
+                    renderChangelog(); // 内部 innerHTML 覆盖，加载动画随之消失
                 } else {
+                    if (LL) LL.hide('changelogList');
                     document.getElementById('changelogList').textContent = '暂无日志 / No changelog';
                 }
             } catch (e) {
-                document.getElementById('changelogList').textContent = '日志加载失败 / Failed to load changelog';
+                const box = document.getElementById('changelogList');
+                if (window.LeleleLoader) window.LeleleLoader.fail(box, { text: '日志加载失败 / Failed to load changelog', onRetry: loadChangelog, compact: true });
+                else box.textContent = '日志加载失败 / Failed to load changelog';
                 console.warn('更新日志加载失败:', e);
             }
         }

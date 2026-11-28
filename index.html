@@ -33,9 +33,11 @@
 
     <!-- 引入全局样式 -->
     <link rel="stylesheet" href="/common.css">
+    <link rel="stylesheet" href="/loader.css">
     <link rel="stylesheet" href="/forum.css">
 
     <script src="/boot.js"></script>
+    <script src="/loader.js" defer></script>
     <!-- 引入拼音库（pinyin-pro，提供 window.pinyinPro；defer 不阻塞首屏；search.js 已容错降级） -->
     <script async src="/vendor/pinyin-pro.js"></script>
 
@@ -395,7 +397,7 @@
                 <span class="en-inline">By submitting, you agree to our <a href="terms.html?lang=en" target="_blank" rel="noopener noreferrer">Terms of Service</a> and <a href="privacy.html?lang=en" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</span>
             </div>
             <div class="recommend-frame-wrap" id="recommendFrameWrap">
-                <div class="recommend-loading">
+                <div class="recommend-loading" data-loader data-loader-compact="1">
                     <span class="zh-inline">表单加载中…</span><span class="en-inline">Loading form…</span>
                 </div>
             </div>

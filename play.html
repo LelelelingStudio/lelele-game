@@ -8,6 +8,8 @@
 <script src="/legal_generic.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/supabase-client.js" defer></script>
+<link rel="stylesheet" href="/loader.css">
+<script src="/loader.js" defer></script>
 <style>
   :root { --bar:#1e293b; --bar2:#0f172a; --fg:#e2e8f0; --muted:#94a3b8; --btn:#334155; --btn-h:#475569; --accent:#4f46e5; }
   * { box-sizing:border-box; margin:0; padding:0; }
@@ -156,7 +158,7 @@
   </div>
   <div class="stage">
     <iframe id="gameFrame" title="Game" allow="autoplay; fullscreen; pointer-lock; gamepad; microphone; camera; clipboard-write; accelerometer; gyroscope" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-    <div class="msg" id="msgBox"><span class="zh-inline">正在读取游戏信息…</span><span class="en-inline">Loading game…</span></div>
+    <div class="msg" id="msgBox" data-loader><span class="zh-inline">正在读取游戏信息…</span><span class="en-inline">Loading game…</span></div>
   </div>
   <div class="pfoot">
     <button type="button" id="footReload">↻ <span class="zh-inline">重载</span><span class="en-inline">Reload</span></button>
@@ -186,7 +188,7 @@
 <div class="scoreboard" id="scoreboard">
   <h4>🏆 <span class="zh-inline">全服高分榜</span><span class="en-inline">Global Top 10</span>
     <button type="button" id="sbClose">✕</button></h4>
-  <div id="sbBody"><div class="sb-empty"><span class="zh-inline">加载中…</span><span class="en-inline">Loading…</span></div></div>
+  <div id="sbBody" data-loader data-loader-compact="1"><div class="sb-empty"><span class="zh-inline">加载中…</span><span class="en-inline">Loading…</span></div></div>
 </div>
 <button type="button" class="score-toggle" id="sbToggle">🏆 <span class="zh-inline">高分榜</span><span class="en-inline">Top 10</span></button>
 
@@ -222,7 +224,12 @@
   function loadScoreboard() {
     var body = $('sbBody'); if (!body) return;
     var sb = scoreClient();
-    if (!sb || !gameId) { body.innerHTML = '<div class="sb-err">' + sbText('榜单暂不可用', 'Leaderboard unavailable') + '</div>'; return; }
+    if (!sb || !gameId) {
+      var em = sbText('榜单暂不可用', 'Leaderboard unavailable');
+      if (window.LeleleLoader) window.LeleleLoader.fail(body, { text: em, onRetry: loadScoreboard, compact: true });
+      else body.innerHTML = '<div class="sb-err">' + em + '</div>';
+      return;
+    }
     sb.from(SB_TABLE).select('player_name,score')
       .eq('game_id', String(gameId)).order('score', { ascending: false }).limit(10)
       .then(function (res) {
@@ -233,7 +240,11 @@
           return '<li>' + sbEsc(String(r.player_name || '?')) + '<span class="sc">' + Number(r.score || 0).toLocaleString() + '</span></li>';
         }).join('') + '</ol>';
       })
-      .catch(function () { body.innerHTML = '<div class="sb-err">' + sbText('榜单加载失败，稍后重试', 'Failed to load leaderboard') + '</div>'; });
+      .catch(function () {
+        var em = sbText('榜单加载失败，稍后重试', 'Failed to load leaderboard');
+        if (window.LeleleLoader) window.LeleleLoader.fail(body, { text: em, onRetry: loadScoreboard, compact: true });
+        else body.innerHTML = '<div class="sb-err">' + em + '</div>';
+      });
   }
   function submitScoreToServer(score, name) {
     var sb = scoreClient();
@@ -376,7 +387,11 @@
 
   $('langBtn').addEventListener('click', function () { applyLang(isEn() ? 'zh' : 'en'); });
 
-  function showMsg(text) { var b = $('msgBox'); b.textContent = text; b.style.display = 'flex'; }
+  function showMsg(text) {
+    var b = $('msgBox'); b.style.display = 'flex';
+    if (window.LeleleLoader) window.LeleleLoader.fail(b, { text: text, onRetry: reload, compact: true });
+    else b.textContent = text;
+  }
 
   function fetchJSON(url, ms) {
     return new Promise(function (resolve, reject) {
@@ -416,6 +431,7 @@
         catch (e) { sameOrigin = false; }
         // 外链（跨源）站点可能禁止内嵌，明确给出链接兜底
         $('extBar').style.display = sameOrigin ? 'none' : 'flex';
+        if (window.LeleleLoader) window.LeleleLoader.finish();
         $('msgBox').style.display = 'none';
         $('gameFrame').src = frameSrc(targetUrl);
 

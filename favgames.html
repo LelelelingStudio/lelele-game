@@ -26,7 +26,9 @@
         })();
     </script>
     <script src="/boot.js"></script>
+    <script src="/loader.js" defer></script>
     <link rel="stylesheet" href="/common.css">
+    <link rel="stylesheet" href="/loader.css">
     <style>
         :root { --bg:#f8fafc; --card-bg:#fff; --text-main:#1e293b; --text-muted:#64748b; --primary:#e11d48; --primary-light:#fff1f2; --border:#e2e8f0; --top1:#ef4444; --top2:#f97316; --top3:#eab308; }
         body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; background:var(--bg); color:var(--text-main); margin:0; padding:20px; }
@@ -217,8 +219,9 @@
         const limitType = document.getElementById('topLimit').value;
         const lang = getLang();
 
-        document.getElementById('loading').style.display = 'block';
-        document.getElementById('loading').innerText = t('数据加载中...', 'Loading...');
+        const LL = window.LeleleLoader;
+        if (LL) LL.show('loading', { compact: true });
+        else document.getElementById('loading').style.display = 'block';
         document.getElementById('error').style.display = 'none';
         document.getElementById('rankContainer').style.display = 'none';
         document.getElementById('tableContainer').style.display = 'none';
@@ -254,10 +257,11 @@
             const totalFavs = games.reduce((sum, item) => sum + Math.max(0, item.count), 0);
 
             if (!games.length) {
-                document.getElementById('loading').innerText = t('当前时间段暂无收藏数据', 'No favorites data for this range yet.');
+                if (LL) { LL.hide('loading'); const l = document.getElementById('loading'); l.style.display = 'block'; l.textContent = t('当前时间段暂无收藏数据', 'No favorites data for this range yet.'); }
+                else document.getElementById('loading').innerText = t('当前时间段暂无收藏数据', 'No favorites data for this range yet.');
                 return;
             }
-            document.getElementById('loading').style.display = 'none';
+            if (LL) { LL.finish(); LL.hide('loading'); } else document.getElementById('loading').style.display = 'none';
 
             if (limitType === 'all') {
                 document.getElementById('tableContainer').style.display = 'block';
@@ -270,13 +274,14 @@
             }
         } catch (err) {
             console.error(err);
-            document.getElementById('loading').style.display = 'none';
-            const msg = document.getElementById('error');
+            if (LL) LL.hide('loading'); else document.getElementById('loading').style.display = 'none';
             const noData = err && /no data|empty|暂无/i.test(String(err.message || err));
-            msg.textContent = noData
-                ? t('该时间范围暂无数据。', 'No data for this range yet.')
+            const msg = noData ? t('该时间范围暂无数据。', 'No data for this range yet.')
                 : t('网络请求失败，请检查统计后端是否可用或跨域设置。', 'Network error - please check the analytics backend and CORS.');
-            msg.style.display = 'block';
+            const errBox = document.getElementById('error');
+            errBox.style.display = 'block';
+            if (LL) LL.fail(errBox, { text: msg, onRetry: fetchData, compact: true });
+            else errBox.textContent = msg;
         }
     }
 

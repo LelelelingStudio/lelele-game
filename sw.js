@@ -1,6 +1,12 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.40 —— 统一加载动画模块：新增 loader.css/loader.js（window.LeleleLoader：show/progress/
+ *   finish/fail/hide + 自动接管 [data-loader]）。全站所有裸加载态迁移到统一动画（logo+🎮沿进度条
+ *   跑、走过的路涂色、百分比）；失败态统一为「🎮转圈后摔下去 + 文案 + 重新加载按钮」。
+ *   覆盖 game/favgames/gamecheck/profile/index/stats/docs/about/generic×3/play。
+ *   新增两个文件进预缓存，升 CACHE_NAME。
+ *
  * ★ v1.39 —— game.html 加载态升级：进 init 即显示 URL 传参诊断（完整链接+query+解析到的 id，
  *   id/ID 大小写兼容、60ms 重试一帧），并加 logo + 🎮 沿进度条跑的加载动画（走过的路涂色、
  *   百分比、prefers-reduced-motion 降级）；解决"有参数却报缺参数"难排查的问题。
@@ -198,7 +204,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.39';
+const CACHE_NAME = 'lelele-pwa-v1.40';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。
@@ -239,6 +245,8 @@ const ASSETS_TO_CACHE = [
     '/game_rules.html',
     '/developer_docs.html',
     '/common.css',
+    '/loader.css',
+    '/loader.js',
     '/forum.css',
     '/forum.js',
     '/effects.css',

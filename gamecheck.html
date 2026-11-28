@@ -26,7 +26,9 @@
         })();
     </script>
     <script src="/boot.js"></script>
+    <script src="/loader.js" defer></script>
     <link rel="stylesheet" href="/common.css">
+    <link rel="stylesheet" href="/loader.css">
     <style>
         :root {
             --bg: #f8fafc;
@@ -238,8 +240,9 @@
         const limitType = document.getElementById('topLimit').value;
         const lang = getLang();
 
-        document.getElementById('loading').style.display = 'block';
-        document.getElementById('loading').innerText = t('数据加载中...', 'Loading...');
+        const LL = window.LeleleLoader;
+        if (LL) LL.show('loading', { compact: true });
+        else document.getElementById('loading').style.display = 'block';
         document.getElementById('error').style.display = 'none';
         document.getElementById('rankContainer').style.display = 'none';
         document.getElementById('tableContainer').style.display = 'none';
@@ -279,11 +282,12 @@
             const totalViews = games.reduce((sum, item) => sum + item.count, 0);
 
             if (games.length === 0) {
-                document.getElementById('loading').innerText = t('当前时间段暂无游戏数据', 'No play data for this range yet.');
+                if (LL) { LL.hide('loading'); const l = document.getElementById('loading'); l.style.display = 'block'; l.textContent = t('当前时间段暂无游戏数据', 'No play data for this range yet.'); }
+                else document.getElementById('loading').innerText = t('当前时间段暂无游戏数据', 'No play data for this range yet.');
                 return;
             }
 
-            document.getElementById('loading').style.display = 'none';
+            if (LL) { LL.finish(); LL.hide('loading'); } else document.getElementById('loading').style.display = 'none';
 
             if (limitType === 'all') {
                 document.getElementById('tableContainer').style.display = 'block';
@@ -297,13 +301,14 @@
             }
         } catch (err) {
             console.error(err);
-            document.getElementById('loading').style.display = 'none';
-            const msg = document.getElementById('error');
+            if (LL) LL.hide('loading'); else document.getElementById('loading').style.display = 'none';
             const noData = err && /no data|empty|暂无/i.test(String(err.message || err));
-            msg.textContent = noData
-                ? t('该时间范围暂无数据。', 'No data for this range yet.')
+            const msg = noData ? t('该时间范围暂无数据。', 'No data for this range yet.')
                 : t('网络请求失败，请检查统计后端是否可用或跨域设置。', 'Network error - please check the analytics backend and CORS.');
-            msg.style.display = 'block';
+            const errBox = document.getElementById('error');
+            errBox.style.display = 'block';
+            if (LL) LL.fail(errBox, { text: msg, onRetry: fetchData, compact: true });
+            else errBox.textContent = msg;
         }
     }
 

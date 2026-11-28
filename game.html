@@ -29,6 +29,7 @@
     <meta name="description" content="在了了了游在线游玩免费小游戏，无需下载。Play free browser games instantly on Lelele Game.">
 
     <link rel="stylesheet" href="/common.css">
+    <link rel="stylesheet" href="/loader.css">
     <link rel="stylesheet" href="/forum.css">
     <script src="/boot.js"></script>
     <script defer src="/vendor/supabase-js.js"></script>
@@ -359,16 +360,7 @@
 
         .loading-state, .error-state { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 1.1rem; display: none; }
         .error-state .btn { margin-top: 20px; }
-        /* 加载动画：logo + 🎮 沿进度条跑，走过的路涂色，下方百分比 */
-        .load-logo { display: block; width: 92px; height: 92px; margin: 0 auto 12px; object-fit: contain; }
-        .load-diag { max-width: 520px; margin: 0 auto 20px; font-size: .72rem; line-height: 1.6; color: var(--text-muted); opacity: .8; word-break: break-all; }
-        .load-diag b { color: var(--primary); font-weight: 800; }
-        .load-track { position: relative; width: min(360px, 78vw); height: 9px; border-radius: 99px; background: rgba(148,163,184,.25); margin: 0 auto 30px; }
-        .load-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; border-radius: 99px; background: linear-gradient(90deg, var(--primary), #10b981); transition: width .45s cubic-bezier(.4,0,.2,1); }
-        .load-runner { position: absolute; top: 50%; left: 0%; transform: translate(-50%, -50%); font-size: 1.6rem; line-height: 1; transition: left .45s cubic-bezier(.4,0,.2,1); filter: drop-shadow(0 2px 4px rgba(0,0,0,.22)); }
-        .load-status { display: flex; align-items: center; justify-content: center; gap: 12px; }
-        .load-pct { font-weight: 800; color: var(--primary); font-variant-numeric: tabular-nums; }
-        @media (prefers-reduced-motion: reduce) { .load-fill, .load-runner { transition: none; } }
+        /* 加载/失败动画样式见 /loader.css（load-* 与 ll-* 两套类名统一收敛） */
 
         .lightbox {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -541,13 +533,7 @@
             </div>
         </div>
 
-        <div class="error-state" id="errorState">
-            <div style="font-size: 3rem; margin-bottom: 10px;">😢</div>
-            <div id="errorMsg"></div>
-            <a href="/index.html" class="btn btn-play" id="errorBackBtn">
-                <span class="zh-inline">返回首页</span><span class="en-inline">Back to Home</span>
-            </a>
-        </div>
+        <div class="error-state" id="errorState" style="display:none;"></div>
 
         <div class="game-detail-card" id="gameCard">
             <div class="banner-area" id="bannerArea" onclick="onBannerClick()">
@@ -693,6 +679,7 @@
         </div>
     </dialog>
 
+    <script src="/loader.js" defer></script>
     <script src="/common.js" defer></script>
     <script src="/forum.js" defer></script>
     <script src="supabase-client.js" defer></script>
@@ -1421,6 +1408,7 @@
         }
 
         async function init() {
+            _loadPct = 0; // 重试时从头跑进度
             const urlParams = new URLSearchParams(window.location.search);
             // 大小写兼容：同时认 id / ID（部分外部跳转链接会把参数名写成大写）
             currentGameId = urlParams.get('id') || urlParams.get('ID');
@@ -1509,8 +1497,24 @@
             document.getElementById('loadingState').style.display = 'none';
             document.getElementById('gameCard').style.display = 'none';
             setLegalRailVisible(false);
-            document.getElementById('errorState').style.display = 'block';
-            document.getElementById('errorMsg').textContent = msg;
+            const box = document.getElementById('errorState');
+            box.style.display = 'block';
+            // 统一失败动画：🎮 转圈摔下去 + 文案 + 重新加载按钮（重试重新走 init）
+            if (window.LeleleLoader && typeof window.LeleleLoader.fail === 'function') {
+                window.LeleleLoader.fail(box, { text: msg, reload: false, onRetry: () => {
+                    box.style.display = 'none';
+                    document.getElementById('loadingState').style.display = 'block';
+                    init();
+                }});
+                const back = document.createElement('a');
+                back.href = '/index.html';
+                back.className = 'btn btn-fav';
+                back.style.marginLeft = '12px';
+                back.textContent = isEn() ? 'Back to Home' : '返回首页';
+                box.querySelector('.ll-fail').appendChild(back);
+            } else {
+                box.textContent = msg;
+            }
         }
 
         window.onReady( () => {
