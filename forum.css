@@ -65,6 +65,24 @@
     word-break: break-word;
 }
 
+.forum-tip {
+    margin: 0 0 12px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: rgba(129, 140, 248, .12);
+    border: 1px solid rgba(129, 140, 248, .22);
+    font-size: .8rem;
+    line-height: 1.6;
+    color: #4338ca;
+    word-break: break-word;
+}
+
+html.dark-mode .forum-tip, html[data-theme="dark"] .forum-tip {
+    background: rgba(129, 140, 248, .14);
+    border-color: rgba(129, 140, 248, .28);
+    color: #c7d2fe;
+}
+
 .forum-body {
     position: relative;
     min-height: 460px;
