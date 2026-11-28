@@ -74,7 +74,7 @@ If this project makes your coffee break better, a ⭐ on GitHub is the easiest w
 
 ## Games & Submission
 
-To submit a game, use the **Game Submission** form linked from the site (Tally). Please read [Game Rules 5.0.0](game_rules.html) first — in particular the mandatory legal-agreement clause: link submissions must provide their own EULA / privacy / terms URLs, while code submissions may use the platform's generic agreements. Missing agreements block review.
+To submit a game, use the **Game Submission** form linked from the site (Tally). Please read [Game Rules 5.1.0](game_rules.html) first — in particular the mandatory legal-agreement clause: link submissions must provide their own EULA / privacy / terms URLs, while code submissions may use the platform's generic agreements. Missing agreements block review.
 
 Submissions are reviewed by humans. Submission emails and personal details are never committed to this repository. For AI-assisted submissions, contact the maintainers for the required format.
 
@@ -104,7 +104,7 @@ Pure static hosting: **push to `main` → GitHub Pages publishes → Cloudflare 
 | [`sdk-docs.html`](sdk-docs.html) | Developer SDK reference and examples |
 | [`changelog.json`](changelog.json) / [`about.html`](about.html) | Full bilingual release history |
 | [`llms.txt`](llms.txt) | Agent-facing platform brief (no source reading needed) |
-| [`game_rules.html`](game_rules.html) | Game rules 5.0.0 |
+| [`game_rules.html`](game_rules.html) | Game rules 5.1.0 |
 | [`legal_templates.html`](legal_templates.html) | Free bilingual legal-document generator |
 | [`stats.html`](stats.html) / [`favgames.html`](favgames.html) / [`gamecheck.html`](gamecheck.html) | Stats dashboard / favourites leaderboard / play leaderboard |
 
@@ -116,7 +116,7 @@ Contributions are welcome and do **not** require a toolchain:
 
 1. ⭐ Star the repository (see [Star History](#star-history)).
 2. 🐛 Report bugs or suggest games through the site's feedback / recommendation forms.
-3. 🎮 Submit a game via the submission form, following [Game Rules 5.0.0](game_rules.html).
+3. 🎮 Submit a game via the submission form, following [Game Rules 5.1.0](game_rules.html).
 4. 🛠 For code changes: keep the zero-build constraint, add both Chinese and English copy, use design tokens for colours, use root-absolute asset paths, and sanitise any user-supplied HTML.
 
 ---

@@ -359,6 +359,16 @@
 
         .loading-state, .error-state { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 1.1rem; display: none; }
         .error-state .btn { margin-top: 20px; }
+        /* 加载动画：logo + 🎮 沿进度条跑，走过的路涂色，下方百分比 */
+        .load-logo { display: block; width: 92px; height: 92px; margin: 0 auto 12px; object-fit: contain; }
+        .load-diag { max-width: 520px; margin: 0 auto 20px; font-size: .72rem; line-height: 1.6; color: var(--text-muted); opacity: .8; word-break: break-all; }
+        .load-diag b { color: var(--primary); font-weight: 800; }
+        .load-track { position: relative; width: min(360px, 78vw); height: 9px; border-radius: 99px; background: rgba(148,163,184,.25); margin: 0 auto 30px; }
+        .load-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; border-radius: 99px; background: linear-gradient(90deg, var(--primary), #10b981); transition: width .45s cubic-bezier(.4,0,.2,1); }
+        .load-runner { position: absolute; top: 50%; left: 0%; transform: translate(-50%, -50%); font-size: 1.6rem; line-height: 1; transition: left .45s cubic-bezier(.4,0,.2,1); filter: drop-shadow(0 2px 4px rgba(0,0,0,.22)); }
+        .load-status { display: flex; align-items: center; justify-content: center; gap: 12px; }
+        .load-pct { font-weight: 800; color: var(--primary); font-variant-numeric: tabular-nums; }
+        @media (prefers-reduced-motion: reduce) { .load-fill, .load-runner { transition: none; } }
 
         .lightbox {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -519,8 +529,16 @@
     <div class="main-container">
         
         <div class="loading-state" id="loadingState" style="display:block;">
-            <div style="font-size: 2rem; margin-bottom: 10px;">🔄</div>
-            <span class="zh-inline">正在加载游戏详情...</span><span class="en-inline">Loading game details...</span>
+            <img src="/lelelegame.svg" alt="了了了游" class="load-logo">
+            <div class="load-diag" id="loadDiag"></div>
+            <div class="load-track" id="loadTrack" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="load-fill" id="loadFill"></div>
+                <span class="load-runner" id="loadRunner">🎮</span>
+            </div>
+            <div class="load-status">
+                <span class="zh-inline">正在加载游戏详情</span><span class="en-inline">Loading game details</span>
+                <span class="load-pct" id="loadPct">0%</span>
+            </div>
         </div>
 
         <div class="error-state" id="errorState">
@@ -1364,13 +1382,65 @@
             });
         }
 
+        // ===== 加载进度条：0→目标平滑推进；logo + 🎮 沿轨跑，走过的路涂色，下方百分比 =====
+        let _loadPct = 0, _loadTimer = null;
+        function setLoadProgress(pct) {
+            _loadPct = Math.max(_loadPct, Math.min(100, pct)); // 只增不减
+            const fill = document.getElementById('loadFill');
+            const runner = document.getElementById('loadRunner');
+            const pctEl = document.getElementById('loadPct');
+            const track = document.getElementById('loadTrack');
+            if (fill) fill.style.width = _loadPct + '%';
+            if (runner) runner.style.left = _loadPct + '%';
+            if (pctEl) pctEl.textContent = _loadPct + '%';
+            if (track) track.setAttribute('aria-valuenow', String(_loadPct));
+        }
+        // 模拟渐进：未到 90% 前每 ~180ms +随机 3~7%（封顶 90%），数据到位后由 setLoadProgress(100) 收尾
+        function startLoadTick() {
+            if (_loadTimer) return;
+            _loadTimer = setInterval(() => {
+                if (_loadPct >= 90) { clearInterval(_loadTimer); _loadTimer = null; return; }
+                setLoadProgress(_loadPct + 3 + Math.random() * 4);
+            }, 180);
+        }
+        function stopLoadTick() { if (_loadTimer) { clearInterval(_loadTimer); _loadTimer = null; } }
+        function finishLoad() { stopLoadTick(); setLoadProgress(100); }
+
+        // URL 传参诊断：把当前完整链接与解析到的 id 显示出来，便于排查"有参数却报没参数"
+        function showLoadDiagnosis(id) {
+            const diag = document.getElementById('loadDiag');
+            if (!diag) return;
+            const href = window.location.href;
+            const search = window.location.search || '(无)';
+            const state = id
+                ? (isEn() ? 'ID parameter detected' : '已检测到 ID 参数') + ': <b>' + escapeHtml(id) + '</b>'
+                : '<b>' + (isEn() ? 'NO ID parameter detected' : '未检测到 ID 参数') + '</b>';
+            diag.innerHTML = (isEn() ? 'URL' : '当前链接') + ': ' + escapeHtml(href)
+                + '<br>' + (isEn() ? 'Query' : '传参') + ': ' + escapeHtml(search)
+                + '<br>' + state;
+        }
+
         async function init() {
             const urlParams = new URLSearchParams(window.location.search);
-            currentGameId = urlParams.get('id');
+            // 大小写兼容：同时认 id / ID（部分外部跳转链接会把参数名写成大写）
+            currentGameId = urlParams.get('id') || urlParams.get('ID');
+
+            // 先显示诊断 + 启动进度动画（哪怕参数缺失，也能看到链接里到底传了什么）
+            showLoadDiagnosis(currentGameId);
+            startLoadTick();
 
             if (!currentGameId) {
-                showError(isEn() ? 'Missing game ID parameter.' : '缺少游戏 ID 参数，无法加载。');
-                return;
+                // 再给一帧重试：极少数情况下 onReady 早于浏览器完成 URL 解析
+                await new Promise(r => setTimeout(r, 60));
+                const retry = new URLSearchParams(window.location.search);
+                currentGameId = retry.get('id') || retry.get('ID');
+                if (currentGameId) {
+                    showLoadDiagnosis(currentGameId);
+                } else {
+                    stopLoadTick();
+                    showError((isEn() ? 'Missing game ID parameter. URL: ' : '缺少游戏 ID 参数。当前链接：') + window.location.href);
+                    return;
+                }
             }
 
             // 与详情请求并行发出，不串行等待；SW 已缓存主列表，开销近乎为零
@@ -1385,6 +1455,7 @@
                 if (detailRes.ok) {
                     currentGameData = await detailRes.json();
                     renderGamePage(currentGameData);
+                    finishLoad();
                     document.getElementById('loadingState').style.display = 'none';
                     document.getElementById('gameCard').style.display = 'block';
                     setLegalRailVisible(true);
@@ -1417,6 +1488,7 @@
                         };
 
                         renderGamePage(currentGameData);
+                        finishLoad();
                         document.getElementById('loadingState').style.display = 'none';
                         document.getElementById('gameCard').style.display = 'block';
                         setLegalRailVisible(true);
@@ -1432,6 +1504,7 @@
         }
 
         function showError(msg) {
+            stopLoadTick();
             if (window.LelelePager) window.LelelePager.unmount();
             document.getElementById('loadingState').style.display = 'none';
             document.getElementById('gameCard').style.display = 'none';

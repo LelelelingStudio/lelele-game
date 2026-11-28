@@ -1,6 +1,11 @@
 /* ==========================================================================
  * lelele-game Service Worker
  *
+ * ★ v1.39 —— game.html 加载态升级：进 init 即显示 URL 传参诊断（完整链接+query+解析到的 id，
+ *   id/ID 大小写兼容、60ms 重试一帧），并加 logo + 🎮 沿进度条跑的加载动画（走过的路涂色、
+ *   百分比、prefers-reduced-motion 降级）；解决"有参数却报缺参数"难排查的问题。
+ *   预缓存内 game.html 字节变化，升 CACHE_NAME 清旧缓存。
+ *
  * ★ v1.38 (论坛深链) —— ?to=forum / #forum 直达首页全站论坛，game.html?id=<id>&to=forum
  *   直达该游戏讨论区（无 id 时不新增板块）；同步 4.7.0 更新日志与论坛上线公告。
  *   forum.js 字节变故升 CACHE_NAME 清旧缓存。
@@ -193,7 +198,7 @@
  *   3) 外部域名一律直通（supabase / analytics / tally / fonts 等）。
  *   4) 不再自动 location.reload()（见 common.js），避免升版时反复刷新。
  * ========================================================================== */
-const CACHE_NAME = 'lelele-pwa-v1.38';
+const CACHE_NAME = 'lelele-pwa-v1.39';
 
 // 仅预缓存轻量核心资源。重型第三方库（vendor/*.js）改为运行时按需缓存，
 // 避免 install 阶段一次性下载 1.5MB 拖慢首访。
